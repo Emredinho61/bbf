@@ -1,3 +1,1 @@
 # BBF-App
-türkmecin ?
-Evet
