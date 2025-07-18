@@ -27,36 +27,58 @@
 ## Organisation Ordnerstruktur *(1/10)* → **0,5 Tage**
 
 - assets 
+
   -> fonts
+
   -> icons 
+
   -> images 
+
   -> logos 
+  
   -> links 
 
-- utils
+- utils  
+
   - constants
+
     -> colors
+
     -> sizes
+
     -> text_strings
+
     -> image_strings
 
+
   - theme
+
     -> textFieldTheme
+
     -> textTheme
+
     -> outlinedButtonTheme
+
     -> theme.dart
 
 - components
+
   -> textfields
+
   -> buttons
 
 - helpers
+
   -> zB: bool isDarkMode()
 
 - pages
+
   -> prayerTime
+
   -> projects
+
   -> More
+
   -> ArabicSchool
 
 
