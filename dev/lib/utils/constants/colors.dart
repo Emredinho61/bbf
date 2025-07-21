@@ -3,5 +3,5 @@ import 'package:flutter/material.dart';
 class BColors
 {
   static Color primary = Colors.green;
-  static Color secondary = Colors.grey.shade200;
+  static Color secondary = Colors.black;
 }

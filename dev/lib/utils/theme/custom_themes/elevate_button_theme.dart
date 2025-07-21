@@ -2,23 +2,26 @@ import 'package:flutter/material.dart';
 
 class BElevatedButtonTheme 
 {
-  static final ElevatedButtonThemeData lightElevatedButtonTheme = ElevatedButtonThemeData(
+  BElevatedButtonTheme._();
+
+  static ElevatedButtonThemeData lightElevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      elevation: 4, 
+      elevation: 3, 
       foregroundColor: Colors.white,
-      backgroundColor: Colors.green, 
+      backgroundColor: const Color.fromARGB(255, 151, 186, 124), 
       disabledForegroundColor: Colors.grey, 
       disabledBackgroundColor: Colors.grey,
       side: const BorderSide(color: Colors.green), 
       padding: EdgeInsets.symmetric(vertical: 10), 
       textStyle: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600), 
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
       )
     );
 
-    static final ElevatedButtonThemeData darkElevatedButtonTheme = ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      elevation: 4, 
+    static ElevatedButtonThemeData darkElevatedButtonTheme = ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom( 
+      elevation: 3, 
       foregroundColor: Colors.white,
       backgroundColor: Colors.green, 
       disabledForegroundColor: Colors.grey, 

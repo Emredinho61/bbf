@@ -55,7 +55,7 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
 
 }  // namespace
 
-// Manages the Win32Window's window class registration.
+// Manages the Win32Window's window class Welcome.
 class WindowClassRegistrar {
  public:
   ~WindowClassRegistrar() = default;
