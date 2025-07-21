@@ -48,6 +48,7 @@ class Welcome extends StatelessWidget {
                 // Login Button
                 SizedBox(height: 5),
 
+                // todo: restructure to avoid duplicate Code
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
