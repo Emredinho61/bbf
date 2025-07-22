@@ -12,6 +12,7 @@ dependencies:
   english_words: ^4.0.0
   provider: ^6.1.5
   flutter_native_splash: ^2.4.6
+  flutter_keyboard_visibility: ^5.4.1
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +26,4 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/icons/

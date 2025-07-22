@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:namer_app/utils/theme/custom_themes/elevate_button_theme.dart';
+import 'package:namer_app/utils/theme/custom_themes/text_field_theme.dart';
 import 'package:namer_app/utils/theme/custom_themes/text_theme.dart';
 
 class BAppTheme
@@ -11,6 +12,7 @@ class BAppTheme
     scaffoldBackgroundColor: Colors.grey.shade300,
     textTheme: BTextTheme.lightTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.lightElevatedButtonTheme,
+    inputDecorationTheme: BTextFieldTheme.inputDecorationTheme,
   );
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true, // latest Material Design in Flutter 
