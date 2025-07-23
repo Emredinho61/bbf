@@ -1,12 +1,37 @@
+import 'package:bbf_app/backend/authentification/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 
-class Welcome extends StatelessWidget {
+
+
+class Welcome extends StatefulWidget {
   Welcome({super.key});
+
+  @override
+  State<Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> {
   final ScrollController scrollController = ScrollController();
+  static TextEditingController usernameController = TextEditingController();
+  static TextEditingController passwordController = TextEditingController();
+
+  static void register() async {
+    try{
+      print('I am here');
+      await authService.value.createAccount(
+        email: usernameController.text,
+        password: passwordController.text);
+    } on FirebaseAuthException catch (e) 
+    {
+      print(e);
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,14 +261,18 @@ class RegisterForm extends StatelessWidget {
       child: Column(
         // Username Text Field
         children: [
-          BTextField(
-            label: 'Benutzername',
-            icon: Icons.account_circle,
-          ),
+          // BTextField(
+          //   controller: _WelcomeState.usernameController,
+          //   obscureText: false,
+          //   label: 'Benutzername',
+          //   icon: Icons.account_circle,
+          // ),
     
           SizedBox(height: 10),
     
           BTextField(
+            controller: _WelcomeState.usernameController,
+            obscureText: false,
             label: 'Email',
             icon: Icons.email,
           ),
@@ -252,16 +281,18 @@ class RegisterForm extends StatelessWidget {
     
           // Password Text Field
           BTextField(
+            controller: _WelcomeState.passwordController,
+            obscureText: true,
             label: 'Password',
             icon: Icons.https,
           ),
     
           SizedBox(height: 10),
           // Mobile Number Text Field
-          BTextField(
-            label: 'Telefonnummer',
-            icon: Icons.call,
-          ),
+          // BTextField(
+          //   label: 'Telefonnummer',
+          //   icon: Icons.call,
+          // ),
     
           SizedBox(height: 20),
     
@@ -269,7 +300,9 @@ class RegisterForm extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                  _WelcomeState.register();
+              },
               child: Text(
                 "Registrieren",
               ),
@@ -324,6 +357,8 @@ class LoginForm extends StatelessWidget {
         // Email Text Field
         children: [
           BTextField(
+            controller: _WelcomeState.usernameController,
+            obscureText: false,
             label: 'Email',
             icon: Icons.email,
           ),
@@ -332,6 +367,8 @@ class LoginForm extends StatelessWidget {
     
           // Password Text Field
           BTextField(
+            controller: _WelcomeState.passwordController,
+            obscureText: true,
             label: 'Password',
             icon: Icons.https,
           ),

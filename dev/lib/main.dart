@@ -4,9 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/validation/welcome.dart';
 import 'package:bbf_app/utils/theme/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 
-main() => runApp(MyApp());
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+} 
+
 
 class MyApp extends StatelessWidget {
   @override
