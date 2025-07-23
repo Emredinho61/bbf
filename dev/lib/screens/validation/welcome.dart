@@ -271,9 +271,6 @@ class RegisterForm extends StatelessWidget {
               onPressed: () {},
               child: Text(
                 "Registrieren",
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium,
               ),
             ),
           ),
@@ -366,9 +363,6 @@ class LoginForm extends StatelessWidget {
               onPressed: () {},
               child: Text(
                 "Einloggen",
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium,
               ),
             ),
           ),
