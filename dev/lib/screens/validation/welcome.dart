@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:namer_app/components/draggable_scrollable_sheet.dart';
+import 'package:namer_app/components/text_button.dart';
 import 'package:namer_app/components/text_field.dart';
 import 'package:namer_app/utils/constants/colors.dart';
 
@@ -53,45 +54,7 @@ class Welcome extends StatelessWidget {
 
                     // opening Bottom Sheet for Login when Button pressed 
                     onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: BColors.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(25.0),
-                          ),
-                        ),
-
-                        // Bottom Sheet is draggable and scrollable
-                        builder: (context) {
-                          return BDraggableScrollableSheet(
-                            content: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 30,
-                                  ),
-
-                                  // 'Login' headline
-                                  child: Text(
-                                    "Login",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineLarge,
-                                  ),
-                                ),
-
-                                // Login Formular
-                                LoginFormular(),
-
-                                // 'No Account ?' Text
-                                NoAccountTextButton(),
-                              ],
-                            ),
-                          );
-                        },
-                      );
+                      LoginButtomSheet(context);
                     },
 
                     child: Text('Login'),
@@ -115,48 +78,12 @@ class Welcome extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: BColors.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(25.0),
-                          ),
-                        ),
-
-                        // Bottom Sheet is draggable and scrollable
-                        builder: (context) {
-                          return BDraggableScrollableSheet(
-                            content: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 30,
-                                  ),
-
-                                  // 'Login' headline
-                                  child: Text(
-                                    "Registrierung",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineLarge,
-                                  ),
-                                ),
-
-                                // Registration Formular
-                                RegisterForm(),
-
-                                // 'Already an Account ?' Text
-                                AlreadyRegistered()
-                              ],
-                            ),
-                          );
-                        },
-                      );
-
-
+                      RegistrationButtomSheet(context);
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 80, 126, 45),
+                    ),
+
                     child: Text('Registrieren'),
                   ),
                 ),
@@ -167,13 +94,10 @@ class Welcome extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Als Gast fortfahren',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ),
+                    BTextButton(
+                      onPressed: () {
+                      },
+                      text: 'Als Gast fortfahren')
                   ],
                 ),
               ],
@@ -185,8 +109,95 @@ class Welcome extends StatelessWidget {
   }
 }
 
-class AlreadyRegistered extends StatelessWidget {
-  const AlreadyRegistered({
+Future<dynamic> RegistrationButtomSheet(BuildContext context) {
+
+  return showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: BColors.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25.0),
+                      ),
+                    ),
+
+                    // Bottom Sheet is draggable and scrollable
+                    builder: (context) {
+                      return BDraggableScrollableSheet(
+                        content: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 30,
+                              ),
+
+                              // 'Registration' headline
+                              child: Text(
+                                "Registrierung",
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineLarge,
+                              ),
+                            ),
+
+                            // Registration Formular
+                            RegisterForm(),
+
+                            // 'Already an Account ?' Text
+                            AlreadyRegisteredTextButton()
+                          ],
+                        ),
+                      );
+                    },
+                  );
+}
+
+Future<dynamic> LoginButtomSheet(BuildContext context) {
+
+
+  return showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: BColors.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25.0),
+                      ),
+                    ),
+
+                    // Bottom Sheet is draggable and scrollable
+                    builder: (context) {
+                      return BDraggableScrollableSheet(
+                        content: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 30,
+                              ),
+
+                              // 'Login' headline
+                              child: Text(
+                                "Login",
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineLarge,
+                              ),
+                            ),
+
+                            // Login Formular
+                            LoginForm(),
+
+                            // 'No Account ?' Text
+                            AlreadyLoggedInTextButton(),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+}
+
+class AlreadyRegisteredTextButton extends StatelessWidget {
+  const AlreadyRegisteredTextButton({
     super.key,
   });
 
@@ -202,25 +213,12 @@ class AlreadyRegistered extends StatelessWidget {
         ),
     
         // Login Text Button
-        TextButton(
-          onPressed: () {},
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            child: Text(
-              'Jetzt einloggen',
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge,
-            ),
-          ),
-        ),
+        BTextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            LoginButtomSheet(context);
+          }, 
+          text: 'Jetzt einloggen')
       ],
     );
   }
@@ -258,7 +256,6 @@ class RegisterForm extends StatelessWidget {
           ),
     
           SizedBox(height: 10),
-    
           // Mobile Number Text Field
           BTextField(
             label: 'Telefonnummer',
@@ -288,8 +285,8 @@ class RegisterForm extends StatelessWidget {
   }
 }
 
-class NoAccountTextButton extends StatelessWidget {
-  const NoAccountTextButton({
+class AlreadyLoggedInTextButton extends StatelessWidget {
+  const AlreadyLoggedInTextButton({
     super.key,
   });
 
@@ -305,32 +302,19 @@ class NoAccountTextButton extends StatelessWidget {
         ),
     
         // Register Text Button
-        TextButton(
-          onPressed: () {},
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            child: Text(
-              'Jetzt registrieren',
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge,
-            ),
-          ),
-        ),
+        BTextButton(
+          onPressed: (){
+            Navigator.of(context).pop();
+            RegistrationButtomSheet(context);
+          } 
+        , text: 'Hier registrieren')
       ],
     );
   }
 }
 
-class LoginFormular extends StatelessWidget {
-  const LoginFormular({
+class LoginForm extends StatelessWidget {
+  const LoginForm({
     super.key,
   });
 
