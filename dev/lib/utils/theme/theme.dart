@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:namer_app/utils/theme/custom_themes/elevate_button_theme.dart';
-import 'package:namer_app/utils/theme/custom_themes/text_field_theme.dart';
-import 'package:namer_app/utils/theme/custom_themes/text_theme.dart';
+import 'package:bbf_app/utils/theme/custom_themes/elevate_button_theme.dart';
+import 'package:bbf_app/utils/theme/custom_themes/text_field_theme.dart';
+import 'package:bbf_app/utils/theme/custom_themes/text_theme.dart';
 
 class BAppTheme
 {
