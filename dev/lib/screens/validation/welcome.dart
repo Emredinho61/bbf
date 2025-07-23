@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:namer_app/components/draggable_scrollable_sheet.dart';
-import 'package:namer_app/components/text_button.dart';
-import 'package:namer_app/components/text_field.dart';
-import 'package:namer_app/utils/constants/colors.dart';
+import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
+import 'package:bbf_app/components/text_button.dart';
+import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 
 class Welcome extends StatelessWidget {
   Welcome({super.key});
@@ -39,7 +39,7 @@ class Welcome extends StatelessWidget {
                   children: [
                     // "Bereits registriert ?" - Text
                     Text(
-                      'Bereits registriert ?',
+                      'Bereits registriert?',
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ],
@@ -54,7 +54,7 @@ class Welcome extends StatelessWidget {
 
                     // opening Bottom Sheet for Login when Button pressed 
                     onPressed: () {
-                      LoginButtomSheet(context);
+                      loginButtomSheet(context);
                     },
 
                     child: Text('Login'),
@@ -78,7 +78,7 @@ class Welcome extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      RegistrationButtomSheet(context);
+                      registrationButtomSheet(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 80, 126, 45),
@@ -109,7 +109,7 @@ class Welcome extends StatelessWidget {
   }
 }
 
-Future<dynamic> RegistrationButtomSheet(BuildContext context) {
+Future<dynamic> registrationButtomSheet(BuildContext context) {
 
   return showModalBottomSheet(
                     context: context,
@@ -152,7 +152,7 @@ Future<dynamic> RegistrationButtomSheet(BuildContext context) {
                   );
 }
 
-Future<dynamic> LoginButtomSheet(BuildContext context) {
+Future<dynamic> loginButtomSheet(BuildContext context) {
 
 
   return showModalBottomSheet(
@@ -216,7 +216,7 @@ class AlreadyRegisteredTextButton extends StatelessWidget {
         BTextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            LoginButtomSheet(context);
+            loginButtomSheet(context);
           }, 
           text: 'Jetzt einloggen')
       ],
@@ -302,7 +302,7 @@ class AlreadyLoggedInTextButton extends StatelessWidget {
         BTextButton(
           onPressed: (){
             Navigator.of(context).pop();
-            RegistrationButtomSheet(context);
+            registrationButtomSheet(context);
           } 
         , text: 'Hier registrieren')
       ],

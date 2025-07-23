@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namer_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 
 class BTextFieldTheme
 {
