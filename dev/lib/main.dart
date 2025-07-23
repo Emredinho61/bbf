@@ -1,6 +1,7 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:namer_app/screens/homepage.dart';
 import 'package:namer_app/screens/validation/welcome.dart';
 import 'package:namer_app/utils/theme/theme.dart';
 
@@ -16,6 +17,9 @@ class MyApp extends StatelessWidget {
       theme: BAppTheme.lightTheme, 
       darkTheme: BAppTheme.darkTheme,
       home: Welcome(),
+      routes: {
+        '/homepage': (context) => HomePage()
+      },
     );
   }
 }

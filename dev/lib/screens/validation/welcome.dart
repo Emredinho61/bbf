@@ -96,6 +96,7 @@ class Welcome extends StatelessWidget {
                   children: [
                     BTextButton(
                       onPressed: () {
+                        Navigator.pushNamed(context, '/homepage');
                       },
                       text: 'Als Gast fortfahren')
                   ],
