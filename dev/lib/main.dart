@@ -1,7 +1,6 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-
 import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/validation/welcome.dart';
 import 'package:bbf_app/utils/theme/theme.dart';
