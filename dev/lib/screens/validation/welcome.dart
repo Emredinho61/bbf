@@ -18,16 +18,21 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   final ScrollController scrollController = ScrollController();
   static TextEditingController usernameController = TextEditingController();
-  static TextEditingController emailController = TextEditingController();
-  static TextEditingController passwordController = TextEditingController();
+
+  static TextEditingController emailControllerForRegister = TextEditingController();
+  static TextEditingController passwordControllerForRegister = TextEditingController();
+
+  static TextEditingController emailControllerForLogin = TextEditingController();
+  static TextEditingController passwordControllerForLogin = TextEditingController();
+
   static TextEditingController numberController = TextEditingController();
 
   static void register() async {
     try{
       print('I am here');
       await authService.value.createAccount(
-        email: emailController.text,
-        password: passwordController.text);
+        email: emailControllerForRegister.text,
+        password: passwordControllerForRegister.text);
     } on FirebaseAuthException catch (e) 
     {
       print(e);
@@ -252,10 +257,24 @@ class AlreadyRegisteredTextButton extends StatelessWidget {
   }
 }
 
-class RegisterForm extends StatelessWidget {
+class RegisterForm extends StatefulWidget {
   const RegisterForm({
     super.key,
   });
+
+  @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
+
+class _RegisterFormState extends State<RegisterForm> {
+  bool obscureText = true;
+
+  void toggleObscureText()
+  {
+    setState(() {
+      obscureText = !obscureText;  
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +292,7 @@ class RegisterForm extends StatelessWidget {
           SizedBox(height: 10),
     
           BTextField(
-            controller: _WelcomeState.emailController,
+            controller: _WelcomeState.emailControllerForRegister,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
@@ -283,10 +302,14 @@ class RegisterForm extends StatelessWidget {
     
           // Password Text Field
           BTextField(
-            controller: _WelcomeState.passwordController,
-            obscureText: true,
+            controller: _WelcomeState.passwordControllerForRegister,
+            obscureText: obscureText,
             label: 'Password',
             icon: Icons.https,
+            suffixIcon: IconButton(
+              icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+              onPressed: toggleObscureText,
+            ),
           ),
     
           SizedBox(height: 10),
@@ -348,11 +371,24 @@ class AlreadyLoggedInTextButton extends StatelessWidget {
   }
 }
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,
   });
 
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool obscureText = true;
+
+  void toggleObscureText()
+  {
+    setState(() {
+      obscureText = !obscureText;  
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -361,7 +397,7 @@ class LoginForm extends StatelessWidget {
         // Email Text Field
         children: [
           BTextField(
-            controller: _WelcomeState.emailController,
+            controller: _WelcomeState.emailControllerForLogin,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
@@ -370,11 +406,15 @@ class LoginForm extends StatelessWidget {
           SizedBox(height: 10),
     
           // Password Text Field
-          BTextField(
-            controller: _WelcomeState.passwordController,
-            obscureText: true,
+         BTextField(
+            controller: _WelcomeState.passwordControllerForLogin,
+            obscureText: obscureText,
             label: 'Password',
             icon: Icons.https,
+            suffixIcon: IconButton(
+              icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+              onPressed: toggleObscureText,
+            ),
           ),
     
           SizedBox(height: 5),

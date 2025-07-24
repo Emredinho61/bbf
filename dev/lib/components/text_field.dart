@@ -5,6 +5,7 @@ class BTextField extends StatelessWidget {
   final IconData icon;
   final TextEditingController controller;
   final bool obscureText;
+  final Widget? suffixIcon;
 
   const BTextField({
     super.key,
@@ -12,6 +13,7 @@ class BTextField extends StatelessWidget {
     required this.icon,
     required this.controller,
     required this.obscureText,
+    this.suffixIcon,
   });
 
   @override
@@ -20,7 +22,7 @@ class BTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       cursorColor: Colors.black,
-      decoration: InputDecoration(prefixIcon: Icon(icon), labelText: label),
+      decoration: InputDecoration(prefixIcon: Icon(icon), labelText: label, suffixIcon: suffixIcon),
     );
   }
 }
