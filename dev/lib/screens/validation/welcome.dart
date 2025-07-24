@@ -18,13 +18,15 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   final ScrollController scrollController = ScrollController();
   static TextEditingController usernameController = TextEditingController();
+  static TextEditingController emailController = TextEditingController();
   static TextEditingController passwordController = TextEditingController();
+  static TextEditingController numberController = TextEditingController();
 
   static void register() async {
     try{
       print('I am here');
       await authService.value.createAccount(
-        email: usernameController.text,
+        email: emailController.text,
         password: passwordController.text);
     } on FirebaseAuthException catch (e) 
     {
@@ -261,17 +263,17 @@ class RegisterForm extends StatelessWidget {
       child: Column(
         // Username Text Field
         children: [
-          // BTextField(
-          //   controller: _WelcomeState.usernameController,
-          //   obscureText: false,
-          //   label: 'Benutzername',
-          //   icon: Icons.account_circle,
-          // ),
+          BTextField(
+            controller: _WelcomeState.usernameController,
+            obscureText: false,
+            label: 'Benutzername',
+            icon: Icons.account_circle,
+          ),
     
           SizedBox(height: 10),
     
           BTextField(
-            controller: _WelcomeState.usernameController,
+            controller: _WelcomeState.emailController,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
@@ -289,10 +291,12 @@ class RegisterForm extends StatelessWidget {
     
           SizedBox(height: 10),
           // Mobile Number Text Field
-          // BTextField(
-          //   label: 'Telefonnummer',
-          //   icon: Icons.call,
-          // ),
+          BTextField(
+            controller: _WelcomeState.numberController,
+            obscureText: false,
+            label: 'Telefonnummer',
+            icon: Icons.call,
+          ),
     
           SizedBox(height: 20),
     
@@ -357,7 +361,7 @@ class LoginForm extends StatelessWidget {
         // Email Text Field
         children: [
           BTextField(
-            controller: _WelcomeState.usernameController,
+            controller: _WelcomeState.emailController,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
