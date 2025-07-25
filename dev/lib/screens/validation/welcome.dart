@@ -6,8 +6,6 @@ import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 
-
-
 class Welcome extends StatefulWidget {
   Welcome({super.key});
 
@@ -17,28 +15,6 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   final ScrollController scrollController = ScrollController();
-  static TextEditingController usernameController = TextEditingController();
-
-  static TextEditingController emailControllerForRegister = TextEditingController();
-  static TextEditingController passwordControllerForRegister = TextEditingController();
-
-  static TextEditingController emailControllerForLogin = TextEditingController();
-  static TextEditingController passwordControllerForLogin = TextEditingController();
-
-  static TextEditingController numberController = TextEditingController();
-
-  static void register() async {
-    try{
-      print('I am here');
-      await authService.value.createAccount(
-        email: emailControllerForRegister.text,
-        password: passwordControllerForRegister.text);
-    } on FirebaseAuthException catch (e) 
-    {
-      print(e);
-    }
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +40,6 @@ class _WelcomeState extends State<Welcome> {
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
 
-                
                 SizedBox(height: 30),
 
                 Row(
@@ -83,8 +58,7 @@ class _WelcomeState extends State<Welcome> {
 
                   // Login Button
                   child: ElevatedButton(
-
-                    // opening Bottom Sheet for Login when Button pressed 
+                    // opening Bottom Sheet for Login when Button pressed
                     onPressed: () {
                       loginButtomSheet(context);
                     },
@@ -130,7 +104,8 @@ class _WelcomeState extends State<Welcome> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/homepage');
                       },
-                      text: 'Als Gast fortfahren')
+                      text: 'Als Gast fortfahren',
+                    ),
                   ],
                 ),
               ],
@@ -143,96 +118,79 @@ class _WelcomeState extends State<Welcome> {
 }
 
 Future<dynamic> registrationButtomSheet(BuildContext context) {
-
   return showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: BColors.secondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(25.0),
-                      ),
-                    ),
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: BColors.secondary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+    ),
 
-                    // Bottom Sheet is draggable and scrollable
-                    builder: (context) {
-                      return BDraggableScrollableSheet(
-                        content: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 30,
-                              ),
+    // Bottom Sheet is draggable and scrollable
+    builder: (context) {
+      return BDraggableScrollableSheet(
+        content: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
 
-                              // 'Registration' headline
-                              child: Text(
-                                "Registrierung",
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineLarge,
-                              ),
-                            ),
+              // 'Registration' headline
+              child: Text(
+                "Registrierung",
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
 
-                            // Registration Formular
-                            RegisterForm(),
+            // Registration Formular
+            RegisterForm(),
 
-                            // 'Already an Account ?' Text
-                            AlreadyRegisteredTextButton()
-                          ],
-                        ),
-                      );
-                    },
-                  );
+            // 'Already an Account ?' Text
+            AlreadyRegisteredTextButton(),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 Future<dynamic> loginButtomSheet(BuildContext context) {
-
-
   return showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: BColors.secondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(25.0),
-                      ),
-                    ),
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: BColors.secondary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+    ),
 
-                    // Bottom Sheet is draggable and scrollable
-                    builder: (context) {
-                      return BDraggableScrollableSheet(
-                        content: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 30,
-                              ),
+    // Bottom Sheet is draggable and scrollable
+    builder: (context) {
+      return BDraggableScrollableSheet(
+        content: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
 
-                              // 'Login' headline
-                              child: Text(
-                                "Login",
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineLarge,
-                              ),
-                            ),
+              // 'Login' headline
+              child: Text(
+                "Login",
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
 
-                            // Login Formular
-                            LoginForm(),
+            // Login Formular
+            LoginForm(),
 
-                            // 'No Account ?' Text
-                            AlreadyLoggedInTextButton(),
-                          ],
-                        ),
-                      );
-                    },
-                  );
+            // 'No Account ?' Text
+            AlreadyLoggedInTextButton(),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class AlreadyRegisteredTextButton extends StatelessWidget {
-  const AlreadyRegisteredTextButton({
-    super.key,
-  });
+  const AlreadyRegisteredTextButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -240,27 +198,24 @@ class AlreadyRegisteredTextButton extends StatelessWidget {
       children: [
         Text(
           "Schon registriert?",
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge,
+          style: Theme.of(context).textTheme.labelLarge,
         ),
-    
+
         // Login Text Button
         BTextButton(
           onPressed: () {
             Navigator.of(context).pop();
             loginButtomSheet(context);
-          }, 
-          text: 'Jetzt einloggen')
+          },
+          text: 'Jetzt einloggen',
+        ),
       ],
     );
   }
 }
 
 class RegisterForm extends StatefulWidget {
-  const RegisterForm({
-    super.key,
-  });
+  const RegisterForm({super.key});
 
   @override
   State<RegisterForm> createState() => _RegisterFormState();
@@ -269,11 +224,33 @@ class RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<RegisterForm> {
   bool obscureText = true;
 
-  void toggleObscureText()
-  {
+  void toggleObscureText() {
     setState(() {
-      obscureText = !obscureText;  
+      obscureText = !obscureText;
     });
+  }
+
+  static String errorMessageRegister = '';
+  static TextEditingController usernameController = TextEditingController();
+
+  static TextEditingController emailControllerForRegister =
+      TextEditingController();
+  static TextEditingController passwordControllerForRegister =
+      TextEditingController();
+
+  static TextEditingController numberController = TextEditingController();
+
+  void register() async {
+    try {
+      await authService.value.createAccount(
+        email: emailControllerForRegister.text,
+        password: passwordControllerForRegister.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+          errorMessageRegister = e.message ?? "Login failed due to an unknown error.";
+        });
+    }
   }
 
   @override
@@ -283,26 +260,26 @@ class _RegisterFormState extends State<RegisterForm> {
         // Username Text Field
         children: [
           BTextField(
-            controller: _WelcomeState.usernameController,
+            controller: usernameController,
             obscureText: false,
             label: 'Benutzername',
             icon: Icons.account_circle,
           ),
-    
+
           SizedBox(height: 10),
-    
+
           BTextField(
-            controller: _WelcomeState.emailControllerForRegister,
+            controller: emailControllerForRegister,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
           ),
-    
+
           SizedBox(height: 10),
-    
+
           // Password Text Field
           BTextField(
-            controller: _WelcomeState.passwordControllerForRegister,
+            controller: passwordControllerForRegister,
             obscureText: obscureText,
             label: 'Password',
             icon: Icons.https,
@@ -311,42 +288,42 @@ class _RegisterFormState extends State<RegisterForm> {
               onPressed: toggleObscureText,
             ),
           ),
-    
+
           SizedBox(height: 10),
           // Mobile Number Text Field
           BTextField(
-            controller: _WelcomeState.numberController,
+            controller: numberController,
             obscureText: false,
             label: 'Telefonnummer',
             icon: Icons.call,
           ),
-    
+          const SizedBox(height: 10),
+          Text(
+            errorMessageRegister,
+            style: TextStyle(color: Colors.redAccent),
+          ),
+          const SizedBox(height: 10),
+
           SizedBox(height: 20),
-    
+
           // Registration Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                  _WelcomeState.register();
+                register();
               },
-              child: Text(
-                "Registrieren",
-              ),
+              child: Text("Registrieren"),
             ),
           ),
-    
-        ]
-    
-      )
+        ],
+      ),
     );
   }
 }
 
 class AlreadyLoggedInTextButton extends StatelessWidget {
-  const AlreadyLoggedInTextButton({
-    super.key,
-  });
+  const AlreadyLoggedInTextButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -354,27 +331,24 @@ class AlreadyLoggedInTextButton extends StatelessWidget {
       children: [
         Text(
           "Noch keinen Account?",
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge,
+          style: Theme.of(context).textTheme.labelLarge,
         ),
-    
+
         // Register Text Button
         BTextButton(
-          onPressed: (){
+          onPressed: () {
             Navigator.of(context).pop();
             registrationButtomSheet(context);
-          } 
-        , text: 'Hier registrieren')
+          },
+          text: 'Hier registrieren',
+        ),
       ],
     );
   }
 }
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({
-    super.key,
-  });
+  const LoginForm({super.key});
 
   @override
   State<LoginForm> createState() => _LoginFormState();
@@ -383,31 +357,63 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   bool obscureText = true;
 
-  void toggleObscureText()
-  {
+  static TextEditingController emailControllerForLogin =
+      TextEditingController();
+  static TextEditingController passwordControllerForLogin =
+      TextEditingController();
+  static String errorMessageLogin = '';
+
+  void _handleLogin() async {
+    try {
+      final UserCredential userCredential = await authService.value.signIn(
+        email: emailControllerForLogin.text,
+        password: passwordControllerForLogin.text,
+      );
+
+      final user = userCredential.user;
+      if (user != null) {
+        Navigator.pushNamed(context, '/homepage');
+      } else {
+        setState(() {
+          errorMessageLogin = "Login failed. No user returned.";
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        errorMessageLogin =
+            e.message ?? "Login failed due to an unknown error.";
+      });
+    } catch (e) {
+      setState(() {
+        errorMessageLogin = "Unexpected error: $e";
+      });
+    }
+  }
+
+  void toggleObscureText() {
     setState(() {
-      obscureText = !obscureText;  
+      obscureText = !obscureText;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       child: Column(
-    
         // Email Text Field
         children: [
           BTextField(
-            controller: _WelcomeState.emailControllerForLogin,
+            controller: emailControllerForLogin,
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
           ),
-    
+
           SizedBox(height: 10),
-    
+
           // Password Text Field
-         BTextField(
-            controller: _WelcomeState.passwordControllerForLogin,
+          BTextField(
+            controller: passwordControllerForLogin,
             obscureText: obscureText,
             label: 'Password',
             icon: Icons.https,
@@ -416,36 +422,35 @@ class _LoginFormState extends State<LoginForm> {
               onPressed: toggleObscureText,
             ),
           ),
-    
+
           SizedBox(height: 5),
-    
+          Text(
+            errorMessageLogin,
+            style: TextStyle(color: Colors.redAccent),
+          ),
+
           // Forgot Password Text
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
                 onPressed: () {},
                 child: Text(
                   'Passwort vergessen ?',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge,
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
             ],
           ),
-    
+
           SizedBox(height: 10),
-    
+
           // Login Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
-              child: Text(
-                "Einloggen",
-              ),
+              onPressed: _handleLogin,
+              child: Text("Einloggen"),
             ),
           ),
         ],
