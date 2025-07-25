@@ -1,5 +1,6 @@
 // lib/main.dart
 
+import 'package:bbf_app/screens/nav_pages/project/projects.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/validation/welcome.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
       darkTheme: BAppTheme.darkTheme,
       home: Welcome(),
       routes: {
-        '/homepage': (context) => HomePage()
+        '/homepage': (context) => HomePage(),
+        '/projects' : (context) => Projects()
       },
     );
   }
