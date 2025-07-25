@@ -246,6 +246,7 @@ class _RegisterFormState extends State<RegisterForm> {
         email: emailControllerForRegister.text,
         password: passwordControllerForRegister.text,
       );
+      Navigator.pushNamed(context, '/homepage');
     } on FirebaseAuthException catch (e) {
       setState(() {
           errorMessageRegister = e.message ?? "Login failed due to an unknown error.";
