@@ -23,6 +23,8 @@
 
 ## Datenbank *(7/10)* → **fortlaufend**
 - Userdaten
+- Events als Markdown oder Json
+- Gebetszeiten als csv
 
 ## Organisation Ordnerstruktur *(1/10)* → **0,5 Tage**
 
