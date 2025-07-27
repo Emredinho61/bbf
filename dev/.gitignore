@@ -212,3 +212,5 @@ app.*.symbols
 # metadata
 .vscode
 
+# pubspec.lock
+pubspec.lock
