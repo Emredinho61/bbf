@@ -1,3 +1,4 @@
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
@@ -45,7 +46,7 @@ class _NavBarShellState extends State<NavBarShell> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: BColors.primary,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
