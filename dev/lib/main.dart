@@ -4,7 +4,6 @@ import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/validation/welcome.dart';
-import 'package:bbf_app/utils/theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
