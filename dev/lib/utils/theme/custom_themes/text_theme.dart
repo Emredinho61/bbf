@@ -14,6 +14,26 @@ class BTextTheme {
       fontWeight: FontWeight.w600,
       color: Colors.black,
     ),
+    headlineSmall: TextStyle().copyWith(
+      fontSize: 22.0,
+      fontWeight: FontWeight.w400,
+      color: Colors.black,
+    ),
+    bodyLarge: TextStyle().copyWith(
+      fontSize: 18.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.black,
+    ),
+    bodyMedium: TextStyle().copyWith(
+      fontSize: 16.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.black,
+    ),
+    bodySmall: TextStyle().copyWith(
+      fontSize: 14.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.black,
+    ),
     labelLarge: TextStyle().copyWith(
       fontSize: 12.0,
       fontWeight: FontWeight.normal,
@@ -40,6 +60,26 @@ class BTextTheme {
     headlineMedium: TextStyle().copyWith(
       fontSize: 24.0,
       fontWeight: FontWeight.w600,
+      color: Colors.white,
+    ),
+    headlineSmall: TextStyle().copyWith(
+      fontSize: 24.0,
+      fontWeight: FontWeight.w400,
+      color: Colors.white,
+    ),
+    bodyLarge: TextStyle().copyWith(
+      fontSize: 18.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+    ),
+    bodyMedium: TextStyle().copyWith(
+      fontSize: 16.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+    ),
+    bodySmall: TextStyle().copyWith(
+      fontSize: 14.0,
+      fontWeight: FontWeight.normal,
       color: Colors.white,
     ),
     labelLarge: TextStyle().copyWith(

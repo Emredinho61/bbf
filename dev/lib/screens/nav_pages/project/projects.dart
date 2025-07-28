@@ -22,9 +22,9 @@ class Projects extends StatelessWidget {
               child: PageView(
                 controller: _controller,
                 children: [
-                  Project1(title: 'Projekt 1', content: 'Kurzer Text',),
-                  Project1(title: 'Projekt 2', content: 'Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.',),
-                  Project1(title: 'Projekt 3', content: 'Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text.  ',)],
+                  Project(title: 'Projekt 1', content: 'Kurzer Text',),
+                  Project(title: 'Projekt 2', content: 'Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.Mittlerer Text.',),
+                  Project(title: 'Projekt 3', content: 'Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text. Langer Text.  ',)],
               )
             ),
             SmoothPageIndicator(

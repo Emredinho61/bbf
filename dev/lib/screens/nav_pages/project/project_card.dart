@@ -1,10 +1,10 @@
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-class Project1 extends StatelessWidget {
+class Project extends StatelessWidget {
   final String title;
   final String content;
-  const Project1({super.key, required this.title, required this.content});
+  const Project({super.key, required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class Project1 extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.0), 
           side: BorderSide(color: BColors.primary),),
         elevation: 4,
-        color: BColors.secondary,
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade600 :  BColors.secondary,
         child: Padding(
           padding: EdgeInsetsGeometry.all(8.0), 
           child: Column(
@@ -64,7 +64,7 @@ class Project1 extends StatelessWidget {
     return showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
-                      backgroundColor: BColors.secondary,
+                      backgroundColor:  Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade600 :  BColors.secondary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(25)
