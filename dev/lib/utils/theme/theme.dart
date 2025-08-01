@@ -1,3 +1,6 @@
+import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/theme/custom_themes/card_theme.dart';
+import 'package:bbf_app/utils/theme/custom_themes/navbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/utils/theme/custom_themes/elevate_button_theme.dart';
 import 'package:bbf_app/utils/theme/custom_themes/text_field_theme.dart';
@@ -10,6 +13,9 @@ class BAppTheme
     fontFamily: 'Poppins', 
     brightness: Brightness.light,
     scaffoldBackgroundColor: Colors.grey.shade300,
+    appBarTheme: AppBarTheme(backgroundColor: BColors.appbarLight),
+    bottomNavigationBarTheme: BBottomNavBarTheme.bottomNavigationBarLightTheme,
+    cardTheme: BCardTheme.cardLightThemeData,
     textTheme: BTextTheme.lightTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.lightElevatedButtonTheme,
     inputDecorationTheme: BTextFieldTheme.inputDecorationTheme,
@@ -19,6 +25,9 @@ class BAppTheme
     fontFamily: 'Poppins', 
     brightness: Brightness.dark,
     scaffoldBackgroundColor: Colors.grey.shade800,
+    appBarTheme: AppBarTheme(backgroundColor: BColors.appbarDark),
+    bottomNavigationBarTheme: BBottomNavBarTheme.bottomNavigationBarDarkTheme,
+    cardTheme: BCardTheme.cardDarkThemeData,
     textTheme: BTextTheme.darkTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.darkElevatedButtonTheme,
   );

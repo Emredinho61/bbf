@@ -1,6 +1,5 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
-import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
@@ -74,8 +73,6 @@ class _NavBarShellState extends State<NavBarShell> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: BColors.primary,
-        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projects'),

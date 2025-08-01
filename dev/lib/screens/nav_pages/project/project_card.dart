@@ -11,11 +11,6 @@ class Project extends StatelessWidget {
     return Padding(
       padding: EdgeInsetsGeometry.all(8.0),
       child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), 
-          side: BorderSide(color: BColors.primary),),
-        elevation: 4,
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade600 :  BColors.secondary,
         child: Padding(
           padding: EdgeInsetsGeometry.all(8.0), 
           child: Column(
