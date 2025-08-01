@@ -1,4 +1,4 @@
-import 'package:bbf_app/backend/authentification/auth_services.dart';
+import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';

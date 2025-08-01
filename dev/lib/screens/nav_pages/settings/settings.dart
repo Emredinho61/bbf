@@ -1,3 +1,4 @@
+import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -11,6 +12,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   final List<Item> _data = generateSettingsItems();
+  final SettingsService firestoreService = SettingsService();
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,9 @@ class _SettingsState extends State<Settings> {
                   context,
                   listen: false,
                 ).toggleTheme();
+                final isCurrentlyDark = Theme.of(context).brightness == Brightness.dark;
+                final newMode = isCurrentlyDark ? 'light' : 'dark';
+                firestoreService.updateTheme(newMode);
               },
               icon: Theme.of(context).brightness == Brightness.dark
                   ? Image.asset('assets/icons/sun.png', height: 30)

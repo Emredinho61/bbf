@@ -5,6 +5,15 @@ class ThemeProvider with ChangeNotifier{
   ThemeData _themeData = BAppTheme.lightTheme;
   ThemeData get themeData => _themeData;
 
+  void setTheme(String mode) {
+    if (mode == 'dark') {
+      _themeData = BAppTheme.darkTheme;
+    } else {
+      _themeData = BAppTheme.lightTheme;
+    }
+    notifyListeners();
+  }
+  
   void toggleTheme()
   {
     if(_themeData == BAppTheme.lightTheme)
