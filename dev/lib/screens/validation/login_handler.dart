@@ -51,6 +51,8 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final AuthService authService = AuthService();
+
   bool obscureText = true;
 
   static TextEditingController emailControllerForLogin =
@@ -61,7 +63,7 @@ class _LoginFormState extends State<LoginForm> {
 
   void _handleLogin() async {
     try {
-      final UserCredential userCredential = await authService.value.signIn(
+      final UserCredential userCredential = await authService.signIn(
         email: emailControllerForLogin.text,
         password: passwordControllerForLogin.text,
       );
@@ -90,6 +92,83 @@ class _LoginFormState extends State<LoginForm> {
     setState(() {
       obscureText = !obscureText;
     });
+  }
+
+  void showForgetPasswordDialog(context) {
+    final TextEditingController emailForResetController =
+        TextEditingController();
+
+    String message = '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                'Passwort vergessen',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BTextField(
+                    label: 'Email',
+                    icon: Icons.email,
+                    controller: emailForResetController,
+                    obscureText: false,
+                  ),
+                  SizedBox(height: 5,),
+                  Text(message)
+                ],
+              ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    BTextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      text: 'Zurück',
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if(emailForResetController.text.isEmpty)
+                        {
+                         setState(() {
+                           message = 'Bitte eine E-Mail-Adresse eingeben.';
+                         },);
+                         return;
+                        }
+                        else{
+                          authService.resetPassword(
+                          email: emailForResetController.text,
+                        );
+                        message = 'Email versendet!';
+                        }
+                          
+                        
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                          vertical: 2.0,
+                        ),
+                        child: Text(
+                          'Passwort zurücksetzen',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -127,7 +206,9 @@ class _LoginFormState extends State<LoginForm> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  showForgetPasswordDialog(context);
+                },
                 child: Text(
                   'Passwort vergessen ?',
                   style: Theme.of(context).textTheme.labelLarge,
