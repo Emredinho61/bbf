@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:bbf_app/utils/constants/colors.dart';
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -10,30 +12,42 @@ class PrayerTimes extends StatefulWidget {
 }
 
 class _PrayerTimesState extends State<PrayerTimes> {
-  List<Map<String, String>> csvData = []; 
-  // e.g: [{'Tag': '1', 'Fajr': '03:45', 'Dhur': '13:50', ..},{'Tag': '2', 'Fajr': '03:46', 'Dhur': '13:51', ..}] 
+  List<Map<String, String>> csvData = [];
+  late Timer _timer;
+  Duration timeUntilNextPrayer = Duration.zero;
 
   @override
   void initState() {
     super.initState();
     loadCSV();
+    _startTimer();
   }
 
-  // function to format csv to a list of maps
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        timeUntilNextPrayer = _calculateNextPrayerDuration();
+      });
+    });
+  }
+
   Future<void> loadCSV() async {
     final rawData = await rootBundle.loadString('assets/files/data.csv');
     final lines = LineSplitter.split(rawData).toList();
-
-    final headers = lines.first.split(','); // only first row for header (day, fajr, dhur, ..)
+    final headers = lines.first.split(',');
     final List<Map<String, String>> rows = [];
 
-    // iterating through all the rows and for each row we will have the following map structure:
-    // {'Tag': '1', 'Fajr': '03:45', 'Dhur': '13:50', ..}
-    for (var i = 1; i < lines.length; i++) { // skipping the headers 
-      final values = lines[i].split(','); // ['1', '03:45', ..]
+    for (var i = 1; i < lines.length; i++) {
+      final values = lines[i].split(',');
       final Map<String, String> row = {};
       for (var j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j]; // creates key-value pairs such as {'Tag': '1', 'Fajr': '03:45', 'Dhur': '13:50', ..}
+        row[headers[j]] = values[j];
       }
       rows.add(row);
     }
@@ -43,28 +57,129 @@ class _PrayerTimesState extends State<PrayerTimes> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: Check zone time again
-    final today = DateTime.now().day; // Takes the day of the current date
-    // returns the row of the matching day
-    // Type is a Map<String, String>. e.g: {'Fajr': '03:45'}
+  Duration _calculateNextPrayerDuration() {
+    final today = DateTime.now().day;
+    final now = DateTime.now();
     final todayRow = csvData.firstWhere(
       (row) => row['Tag'] == today.toString(),
-      orElse: () => {}, // Empty Map
+      orElse: () => {},
     );
+
+    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    for (final key in prayerKeys) {
+      final timeStr = todayRow[key];
+      if (timeStr != null) {
+        final timeParts = timeStr.split(':');
+        final prayerTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+        if (prayerTime.isAfter(now)) {
+          return prayerTime.difference(now);
+        }
+      }
+    }
+    return Duration.zero;
+  }
+
+  Widget _buildPrayerRow(String name, String? time, bool isActive) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      decoration: BoxDecoration(
+        color: isActive ? BColors.primary : Colors.grey.shade900,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(name,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              )),
+          Row(
+            children: [
+              Text(time ?? "--:--",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  )),
+              const SizedBox(width: 8),
+              Icon(Icons.notifications_none, color: Colors.white),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final today = DateTime.now().day;
+    final now = DateTime.now();
+    final todayRow = csvData.firstWhere(
+      (row) => row['Tag'] == today.toString(),
+      orElse: () => {},
+    );
+
+    String countdownText =
+        "${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
+
     return Scaffold(
-      body: csvData.isEmpty 
+      backgroundColor: BColors.cardLight,
+      body: csvData.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Fajr: ${todayRow['Fajr']}'), // returns the value of key = 'Fajr'
-                Text('Dhur: ${todayRow['Dhur']}'),
-                Text('Asr: ${todayRow['Asr']}'),
-                Text('Maghrib: ${todayRow['Maghrib']}'),
-                Text('Isha: ${todayRow['Isha']}'),
+                const SizedBox(height: 50),
+                const Text(
+                  'Bildung und Begegnung - BBF',
+                  style: TextStyle(color: Colors.black, fontSize: 18),
+                ),
+                const Text(
+                  'Freiburg',
+                  style: TextStyle(color: Colors.black),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  countdownText,
+                  style: TextStyle(
+                      color: BColors.primary,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '<Next Prayer Placeholder> in',
+                  style: TextStyle(color: BColors.primary),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '<Hidschri Date Placeholder> | ${now.day}, ${_getMonthName(now.month)}',
+                  style: TextStyle(color: BColors.primary, fontSize: 13),
+                ),
+
+                const SizedBox(height: 16),
+                _buildPrayerRow('Fajr', todayRow['Fajr'], false),
+                _buildPrayerRow('Dhuhr', todayRow['Dhur'], false),
+                _buildPrayerRow('Asr', todayRow['Asr'], true),
+                _buildPrayerRow('Maghrib', todayRow['Maghrib'], false),
+                _buildPrayerRow('Isha', todayRow['Isha'], false),
               ],
             ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[month - 1];
   }
 }
