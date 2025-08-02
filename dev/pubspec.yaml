@@ -18,6 +18,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   url_launcher: ^6.3.2
   cloud_firestore: ^5.6.12
+  flutter_markdown_plus: ^1.0.3
 
 
 dev_dependencies:
