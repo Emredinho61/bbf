@@ -1,3 +1,4 @@
+import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final List<Item> _data = generateSettingsItems();
   final SettingsService firestoreService = SettingsService();
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,25 @@ class _SettingsState extends State<Settings> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: _buildPanel(),
+          child: Column(
+            children: [
+              _buildPanel(),
+              SizedBox(height: 10),
+              // Ausloggen
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if(authService.currentUser != null)
+                  ElevatedButton(
+                    onPressed: authService.signOut,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Text('Ausloggen'),
+                    )),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
