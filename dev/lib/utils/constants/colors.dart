@@ -11,4 +11,7 @@ class BColors
   static Color navbarDark = Colors.grey.shade600;
   static Color appbarLight = Colors.grey.shade200;
   static Color appbarDark = Colors.grey.shade600;
+
+  static Color prayerRowLight = Colors.grey.shade700;
+  static Color prayerRowDark = Colors.grey.shade500;
 }

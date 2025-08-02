@@ -90,7 +90,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        color: isActive ? BColors.primary : Colors.grey.shade900,
+        color: isActive ? BColors.primary : Theme.of(context).brightness == Brightness.dark? BColors.prayerRowDark : BColors.prayerRowLight,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -130,22 +130,20 @@ class _PrayerTimesState extends State<PrayerTimes> {
         "${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
 
     return Scaffold(
-      backgroundColor: BColors.cardLight,
       body: csvData.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 50),
-                const Text(
+                Text(
                   'Bildung und Begegnung - BBF',
-                  style: TextStyle(color: Colors.black, fontSize: 18),
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const Text(
+                Text(
                   'Freiburg',
-                  style: TextStyle(color: Colors.black),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 16),
                 Text(
                   countdownText,
                   style: TextStyle(
