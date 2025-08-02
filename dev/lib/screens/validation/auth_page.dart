@@ -21,8 +21,8 @@ class _AuthPageState extends State<AuthPage> {
     return Scaffold(
       body: StreamBuilder(
         stream: authService.authStateChanges,
-        builder: (context, asyncSnapshot) {
-          if(asyncSnapshot.hasData)
+        builder: (context, snapshot) {
+          if(snapshot.hasData)
           {
             return NavBarShell();
           }

@@ -11,7 +11,7 @@ class PrayerTimes extends StatefulWidget {
 
 class _PrayerTimesState extends State<PrayerTimes> {
   List<Map<String, String>> csvData = []; 
-  // e.g: [{'Tag': '1', 'Fajr': '03:45', 'Dhur': '13:50', ..},{'Tag': '2', 'Fajr': '03:46', 'Dhur': '13:51', ..} ] 
+  // e.g: [{'Tag': '1', 'Fajr': '03:45', 'Dhur': '13:50', ..},{'Tag': '2', 'Fajr': '03:46', 'Dhur': '13:51', ..}] 
 
   @override
   void initState() {
@@ -45,8 +45,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Check zone time again
     final today = DateTime.now().day; // Takes the day of the current date
-    
     // returns the row of the matching day
     // Type is a Map<String, String>. e.g: {'Fajr': '03:45'}
     final todayRow = csvData.firstWhere(

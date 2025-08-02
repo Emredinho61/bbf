@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/text_field.dart';
-import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/screens/validation/registration_handler.dart';
 import 'package:bbf_app/components/text_button.dart';
 
@@ -11,7 +10,6 @@ Future<dynamic> loginButtomSheet(BuildContext context) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: BColors.secondary,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
     ),

@@ -1,4 +1,5 @@
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/theme/custom_themes/bottom_sheet_theme.dart';
 import 'package:bbf_app/utils/theme/custom_themes/card_theme.dart';
 import 'package:bbf_app/utils/theme/custom_themes/navbar_theme.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,8 @@ class BAppTheme
     cardTheme: BCardTheme.cardLightThemeData,
     textTheme: BTextTheme.lightTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.lightElevatedButtonTheme,
-    inputDecorationTheme: BTextFieldTheme.inputDecorationTheme,
+    inputDecorationTheme: BTextFieldTheme.inputDecorationLightTheme,
+    bottomSheetTheme: BBottomSheetTheme.lightBottomSheetThemeData
   );
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true, // latest Material Design in Flutter 
@@ -30,6 +32,8 @@ class BAppTheme
     cardTheme: BCardTheme.cardDarkThemeData,
     textTheme: BTextTheme.darkTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.darkElevatedButtonTheme,
+    inputDecorationTheme: BTextFieldTheme.inputDecorationDarkTheme,
+    bottomSheetTheme: BBottomSheetTheme.darkBottomSheetThemeData,
   );
 
 }

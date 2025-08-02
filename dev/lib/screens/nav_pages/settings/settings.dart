@@ -30,7 +30,8 @@ class _SettingsState extends State<Settings> {
                   context,
                   listen: false,
                 ).toggleTheme();
-                final isCurrentlyDark = Theme.of(context).brightness == Brightness.dark;
+                final isCurrentlyDark =
+                    Theme.of(context).brightness == Brightness.dark;
                 final newMode = isCurrentlyDark ? 'light' : 'dark';
                 firestoreService.updateTheme(newMode);
               },
@@ -53,15 +54,20 @@ class _SettingsState extends State<Settings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if(authService.currentUser != null)
+                  // if(authService.currentUser != null)
                   ElevatedButton(
-                    onPressed: authService.signOut,
+                    onPressed: () async { 
+                      await authService.signOut();
+                      Navigator.pushNamed(context, '/authpage');
+                    },
+
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: Text('Ausloggen'),
-                    )),
+                    ),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),

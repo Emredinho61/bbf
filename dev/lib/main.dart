@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
       home: AuthPage(),
       routes: {
         '/homepage': (context) => NavBarShell(),
+        '/authpage': (context) => AuthPage(),
 
       },
     );
