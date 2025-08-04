@@ -50,10 +50,10 @@ class _NavBarShellState extends State<NavBarShell> {
   ];
 
   static final List<String> _titles = <String>[
-    'Projects',
-    'Prayer Times',
-    'Arabic School',
-    'Settings',
+    'Projekte',
+    'Gebetszeiten',
+    'Arabische Schule',
+    'Einstellungen',
   ];
 
   void _onItemTapped(int index) {
@@ -75,10 +75,10 @@ class _NavBarShellState extends State<NavBarShell> {
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projects'),
-          BottomNavigationBarItem(icon: Icon(Icons.access_time), label: 'Prayer Times'),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Arabic School'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projekte'),
+          BottomNavigationBarItem(icon: Icon(Icons.access_time), label: 'Gebetszeiten'),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Arabische Schule'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Einstellungen'),
         ],
       ),
     );
