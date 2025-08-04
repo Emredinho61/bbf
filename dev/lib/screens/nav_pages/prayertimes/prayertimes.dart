@@ -60,7 +60,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Duration _calculateNextPrayerDuration() {
     final today = DateTime.now().day;
     final now = DateTime.now();
-    print(now);
     final todayRow = csvData.firstWhere(
       (row) => row['Tag'] == today.toString(),
       orElse: () => {},

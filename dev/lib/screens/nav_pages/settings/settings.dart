@@ -20,7 +20,7 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // removes the back arrow
+        automaticallyImplyLeading: false,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -42,34 +42,10 @@ class _SettingsState extends State<Settings> {
           ),
         ],
       ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              _buildPanel(),
-              SizedBox(height: 10),
-              // Ausloggen
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // if(authService.currentUser != null)
-                  ElevatedButton(
-                    onPressed: () async { 
-                      await authService.signOut();
-                      Navigator.pushNamed(context, '/authpage');
-                    },
-
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Text('Ausloggen'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          child: _buildPanel(),
         ),
       ),
     );
@@ -77,6 +53,7 @@ class _SettingsState extends State<Settings> {
 
   Widget _buildPanel() {
     return ExpansionPanelList(
+      materialGapSize: 0.0,
       expansionCallback: (int index, bool isExpanded) {
         setState(() {
           _data[index].isExpanded = isExpanded;
@@ -87,10 +64,106 @@ class _SettingsState extends State<Settings> {
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(title: Text(item.headerValue));
           },
-          body: ListTile(title: Text(item.expandedValue)),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(title: Text(item.expandedValue)),
+              if (item.headerValue == 'Benutzerverwaltung') ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await authService.signOut();
+                      Navigator.pushNamed(context, '/authpage');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Ausloggen'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () => _showDeleteDialog(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Konto löschen'),
+                  ),
+                ),
+              ],
+            ],
+          ),
           isExpanded: item.isExpanded,
         );
       }).toList(),
+    );
+  }
+
+  void _showDeleteDialog() {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konto löschen'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Bitte bestätige deine E-Mail und dein Passwort:'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'E-Mail'),
+              ),
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: 'Passwort'),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Abbrechen'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                final email = emailController.text.trim();
+                final password = passwordController.text.trim();
+
+                try {
+                  await authService.deleteAccount(
+                    email: email,
+                    password: password,
+                  );
+                  Navigator.of(context).pop();
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/authpage',
+                    (_) => false,
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Fehler beim Löschen: $e')),
+                  );
+                }
+              },
+              child: const Text('Löschen'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -126,7 +199,7 @@ List<Item> generateSettingsItems() {
     ),
     Item(
       headerValue: 'Benutzerverwaltung',
-      expandedValue: 'Hier kannst du Benutzer verwalten...',
+      expandedValue: 'Hier kannst du deinen Benutzer verwalten...',
     ),
     Item(headerValue: 'App-Version', expandedValue: 'Version 1.0.0'),
   ];
