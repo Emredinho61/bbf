@@ -60,6 +60,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Duration _calculateNextPrayerDuration() {
     final today = DateTime.now().day;
     final now = DateTime.now();
+    print(now);
     final todayRow = csvData.firstWhere(
       (row) => row['Tag'] == today.toString(),
       orElse: () => {},
@@ -127,7 +128,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
 
     String countdownText =
-        "${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
+        "${timeUntilNextPrayer.inHours.remainder(60).toString().padLeft(2, '0')}:${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
 
     return Scaffold(
       body: csvData.isEmpty
