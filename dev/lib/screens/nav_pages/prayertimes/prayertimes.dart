@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:intl/intl.dart';
+import 'package:hijri_calendar/hijri_calendar.dart';
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -223,6 +224,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     final now = DateTime.now();
     final todayRow = _getTodaysPrayerTimes();
+    final hijridate = HijriCalendarConfig.now();
 
     String countdownText =
         "${timeUntilNextPrayer.inHours.remainder(60).toString().padLeft(2, '0')}:${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
@@ -252,7 +254,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '<Hidschri Date Placeholder> | ${now.day}. ${_getMonthName(now.month)}',
+                  '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
                   style: TextStyle(color: BColors.primary, fontSize: 13),
                 ),
 
