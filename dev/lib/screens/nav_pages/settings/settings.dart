@@ -3,6 +3,7 @@ import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
+import 'package:bbf_app/components/auth_dialog.dart'; // <-- Our reusable dialog button
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -87,13 +88,32 @@ class _SettingsState extends State<Settings> {
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ElevatedButton(
-                    onPressed: () => _showDeleteDialog(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Konto löschen'),
+                  child: AuthDialogButton(
+                    buttonText: "Konto löschen",
+                    fieldLabels: ["E-Mail", "Passwort"],
+                    passwordFieldIndex: 1,
+                    confirmButtonColor: Colors.red,
+                    confirmButtonText: "Löschen",
+                    onSubmit: (values, context) async {
+                      final email = values["E-Mail"] ?? "";
+                      final password = values["Passwort"] ?? "";
+
+                      try {
+                        await authService.deleteAccount(
+                          email: email,
+                          password: password,
+                        );
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/authpage',
+                          (_) => false,
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Fehler beim Löschen: $e')),
+                        );
+                      }
+                    },
                   ),
                 ),
               ],
@@ -102,68 +122,6 @@ class _SettingsState extends State<Settings> {
           isExpanded: item.isExpanded,
         );
       }).toList(),
-    );
-  }
-
-  void _showDeleteDialog() {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Konto löschen'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Bitte bestätige deine E-Mail und dein Passwort:'),
-              const SizedBox(height: 12),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: 'E-Mail'),
-              ),
-              TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Passwort'),
-                obscureText: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Abbrechen'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () async {
-                final email = emailController.text.trim();
-                final password = passwordController.text.trim();
-
-                try {
-                  await authService.deleteAccount(
-                    email: email,
-                    password: password,
-                  );
-                  Navigator.of(context).pop();
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/authpage',
-                    (_) => false,
-                  );
-                } catch (e) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Fehler beim Löschen: $e')),
-                  );
-                }
-              },
-              child: const Text('Löschen'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
