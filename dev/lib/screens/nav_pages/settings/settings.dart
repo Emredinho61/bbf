@@ -78,11 +78,11 @@ class _SettingsState extends State<Settings> {
                       await authService.signOut();
                       Navigator.pushNamed(context, '/authpage');
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: 
+                      const Text('Ausloggen')
                     ),
-                    child: const Text('Ausloggen'),
                   ),
                 ),
                 const SizedBox(height: 8),

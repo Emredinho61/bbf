@@ -22,7 +22,10 @@ class AuthDialogButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () => _openDialog(context),
-      child: Text(buttonText),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Text(buttonText),
+      ),
     );
   }
 
@@ -72,7 +75,10 @@ class AuthDialogButton extends StatelessWidget {
 
                 await onSubmit(values, context);
               },
-              child: Text(confirmButtonText),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(confirmButtonText),
+              ),
             ),
           ],
         );
