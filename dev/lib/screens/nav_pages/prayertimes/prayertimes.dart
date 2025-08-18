@@ -69,6 +69,35 @@ class _PrayerTimesState extends State<PrayerTimes> {
     });
   }
 
+  String _showNextPrayer() {
+    final today = DateTime.now().day;
+    final now = DateTime.now();
+    final todayRow = csvData.firstWhere(
+      (row) => row['Tag'] == today.toString(),
+      orElse: () => {},
+    );
+
+    String nextPrayer = '';
+    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    for (final key in prayerKeys) {
+      final timeStr = todayRow[key];
+      if (timeStr != null) {
+        final timeParts = timeStr.split(':');
+        final prayerTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+        if (prayerTime.isAfter(now)) {
+          return key;
+        }
+      }
+    }
+    return '';
+  }
+
   bool _checkForCurrentPrayer(String prayer)
   {
     final today = DateTime.now().day;
@@ -142,6 +171,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       decoration: BoxDecoration(
         color: isActive ? BColors.primary : Theme.of(context).brightness == Brightness.dark? BColors.prayerRowDark : BColors.prayerRowLight,
         borderRadius: BorderRadius.circular(16),
+        
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,8 +214,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50),
+              children: <Widget>[
+                const SizedBox(height: 35),
                 Text(
                   'Bildung und Begegnung - BBF',
                   style: Theme.of(context).textTheme.headlineSmall,
@@ -194,6 +224,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   'Freiburg',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  '${_showNextPrayer()} in',
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: BColors.primary),
+                ),
+                const SizedBox(height: 0),
                 Text(
                   countdownText,
                   style: TextStyle(
@@ -202,11 +238,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '<Next Prayer Placeholder> in',
-                  style: TextStyle(color: BColors.primary),
-                ),
-                const SizedBox(height: 8),
                 Text(
                   '<Hidschri Date Placeholder> | ${now.day}, ${_getMonthName(now.month)}',
                   style: TextStyle(color: BColors.primary, fontSize: 13),
