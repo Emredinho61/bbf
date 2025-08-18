@@ -28,7 +28,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     _timer.cancel();
     super.dispose();
   }
-
+ 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
@@ -38,16 +38,28 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString('assets/files/data.csv');
-    final lines = LineSplitter.split(rawData).toList();
-    final headers = lines.first.split(',');
+    final rawData = await rootBundle.loadString('assets/files/data.csv'); // the data is being loaded as a string
+    final lines = LineSplitter.split(rawData).toList(); // Seperates the data at every linebreak to strings
+    // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
+    // "1,05:12,12:45,15:50,19:10,20:30",]
+
+    final headers = lines.first.split(','); // first row is being splitted at every comma
+    //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
     final List<Map<String, String>> rows = [];
 
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(',');
+      final values = lines[i].split(','); // ["1","05:12","12:45","15:50","19:10","20:30"]
       final Map<String, String> row = {};
       for (var j = 0; j < headers.length; j++) {
         row[headers[j]] = values[j];
+          // {
+          // "Tag": "1",
+          // "Fajr": "05:12",
+          // "Dhur": "12:45",
+          // "Asr": "15:50",
+          // "Maghrib": "19:10",
+          // "Isha": "20:30"
+          //}
       }
       rows.add(row);
     }
@@ -57,6 +69,44 @@ class _PrayerTimesState extends State<PrayerTimes> {
     });
   }
 
+  bool _checkForCurrentPrayer(String prayer)
+  {
+    final today = DateTime.now().day;
+    final now = DateTime.now();
+    final todayRow = csvData.firstWhere(
+      (row) => row['Tag'] == today.toString(),
+      orElse: () => {},
+    );
+
+    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    String currentKey = "";
+    for (final key in prayerKeys) {
+      final timeStr = todayRow[key];
+      if (timeStr != null) {
+        final timeParts = timeStr.split(':');
+        final prayerTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+        if (now.isAfter(prayerTime)) {
+          currentKey = key;
+        }
+      } 
+    }
+    if(currentKey == prayer)
+    {
+      return true;
+    }
+    else if(currentKey =="" && prayer == 'Isha')
+    {
+      return true;
+    } 
+    return false;
+
+  }
   Duration _calculateNextPrayerDuration() {
     final today = DateTime.now().day;
     final now = DateTime.now();
@@ -163,11 +213,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
 
                 const SizedBox(height: 16),
-                _buildPrayerRow('Fajr', todayRow['Fajr'], false),
-                _buildPrayerRow('Dhuhr', todayRow['Dhur'], false),
-                _buildPrayerRow('Asr', todayRow['Asr'], true),
-                _buildPrayerRow('Maghrib', todayRow['Maghrib'], false),
-                _buildPrayerRow('Isha', todayRow['Isha'], false),
+                _buildPrayerRow('Fajr', todayRow['Fajr'], _checkForCurrentPrayer("Fajr")),
+                _buildPrayerRow('Dhuhr', todayRow['Dhur'], _checkForCurrentPrayer("Dhur")),
+                _buildPrayerRow('Asr', todayRow['Asr'], _checkForCurrentPrayer("Asr")),
+                _buildPrayerRow('Maghrib', todayRow['Maghrib'], _checkForCurrentPrayer("Maghrib")),
+                _buildPrayerRow('Isha', todayRow['Isha'], _checkForCurrentPrayer("Isha")),
               ],
             ),
     );
