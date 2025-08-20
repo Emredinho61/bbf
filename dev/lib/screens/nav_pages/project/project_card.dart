@@ -18,17 +18,20 @@ class _ProjectState extends State<Project> {
     String title = '';
     String body = '';
 
-    // Nimm die erste Zeile als Titel (falls es mit '#' beginnt)
+    // if there is a title
     if (lines.isNotEmpty && lines.first.startsWith('#')) {
       title = lines.first.replaceFirst('#', '').trim();
       body = lines.skip(1).join('\n').trim(); // Rest als Body
     } else {
-      body = data; // Kein Titel gefunden → alles Body
+      // if not title is there
+      body = data;
     }
-
+    // map format
     return {'title': title, 'body': body};
   }
 
+
+  // used for projects card which only display a small part of the text
   String shortenMarkdown(String body, int maxLines) {
     final lines = body.split('\n');
     if (lines.length <= maxLines) {

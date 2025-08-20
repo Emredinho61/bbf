@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:intl/intl.dart';
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -29,6 +30,16 @@ class _PrayerTimesState extends State<PrayerTimes> {
     super.dispose();
   }
  
+  // Map<String, String> _getTodaysPrayerTimes()
+  // {
+  //   final today = DateTime.now().day;
+  //   final todayRow = csvData.firstWhere(
+  //     (row) => row['Tag'] == today.toString(),
+  //     orElse: () => {},
+  //   );
+  //   return todayRow;
+  // }
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
@@ -38,17 +49,17 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString('assets/files/data.csv'); // the data is being loaded as a string
+    final rawData = await rootBundle.loadString('assets/files/prayer_times.csv'); // the data is being loaded as a string
     final lines = LineSplitter.split(rawData).toList(); // Seperates the data at every linebreak to strings
     // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
     // "1,05:12,12:45,15:50,19:10,20:30",]
 
-    final headers = lines.first.split(','); // first row is being splitted at every comma
+    final headers = lines.first.split(';'); // first row is being splitted at every comma
     //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
     final List<Map<String, String>> rows = [];
 
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(','); // ["1","05:12","12:45","15:50","19:10","20:30"]
+      final values = lines[i].split(';'); // ["1","05:12","12:45","15:50","19:10","20:30"]
       final Map<String, String> row = {};
       for (var j = 0; j < headers.length; j++) {
         row[headers[j]] = values[j];
@@ -70,14 +81,16 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   String _showNextPrayer() {
-    final today = DateTime.now().day;
+    
     final now = DateTime.now();
+
+    final todayStr = DateFormat('dd.MM.yyyy').format(now);
+
     final todayRow = csvData.firstWhere(
-      (row) => row['Tag'] == today.toString(),
+      (row) => row['Date'] == todayStr,
       orElse: () => {},
     );
 
-    String nextPrayer = '';
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
@@ -95,17 +108,19 @@ class _PrayerTimesState extends State<PrayerTimes> {
         }
       }
     }
-    return '';
+    return 'Fajr';
   }
 
   bool _checkForCurrentPrayer(String prayer)
   {
-    final today = DateTime.now().day;
     final now = DateTime.now();
+    final todayStr = DateFormat('dd.MM.yyyy').format(now);
+
     final todayRow = csvData.firstWhere(
-      (row) => row['Tag'] == today.toString(),
+      (row) => row['Date'] == todayStr,
       orElse: () => {},
     );
+
 
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     String currentKey = "";
@@ -137,12 +152,31 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   }
   Duration _calculateNextPrayerDuration() {
-    final today = DateTime.now().day;
-    final now = DateTime.now();
-    final todayRow = csvData.firstWhere(
-      (row) => row['Tag'] == today.toString(),
-      orElse: () => {},
-    );
+
+  final now = DateTime.now();
+  final todayStr = DateFormat('dd.MM.yyyy').format(now);
+  final tomorrowStr = DateFormat('dd.MM.yyyy').format(now.add(Duration(days: 1)));
+
+  final todayRow = csvData.firstWhere(
+    (row) => row['Date'] == todayStr,
+    orElse: () => {},
+  );
+
+  final tomorrowRow = csvData.firstWhere(
+    (row) => row['Date'] == tomorrowStr,
+    orElse: () => {},
+  );
+
+  final tomorrowDate = now.add(Duration(days: 1));
+  final fajrTimeStr = tomorrowRow['Fajr'];
+  final fajrTimeParts = fajrTimeStr!.split(':');
+  final fajrPrayTime = DateTime(
+        tomorrowDate.year,
+        tomorrowDate.month,
+        tomorrowDate.day,
+        int.parse(fajrTimeParts[0]),
+        int.parse(fajrTimeParts[1]),
+      );
 
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
@@ -161,7 +195,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         }
       }
     }
-    return Duration.zero;
+    return(fajrPrayTime.difference(now));
   }
 
   Widget _buildPrayerRow(String name, String? time, bool isActive) {
@@ -199,10 +233,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now().day;
+
     final now = DateTime.now();
+    final todayStr = DateFormat('dd.MM.yyyy').format(now);
     final todayRow = csvData.firstWhere(
-      (row) => row['Tag'] == today.toString(),
+      (row) => row['Date'] == todayStr,
       orElse: () => {},
     );
 
