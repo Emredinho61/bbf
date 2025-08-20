@@ -90,6 +90,7 @@
 - Beispiel-API:  
   `https://mawaqit.net/api/2.0/mosque/search?word=bbf&fields=slug,label`
 - Iqama: *(?/10)*
+- Khutba
 
 ### Projekte / Events *(6/10)* → **5 Tage**
 
