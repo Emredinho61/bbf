@@ -20,34 +20,38 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              onPressed: () {
-                Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                ).toggleTheme();
-                final isCurrentlyDark =
-                    Theme.of(context).brightness == Brightness.dark;
-                final newMode = isCurrentlyDark ? 'light' : 'dark';
-                firestoreService.updateTheme(newMode);
-              },
-              icon: Theme.of(context).brightness == Brightness.dark
-                  ? Image.asset('assets/icons/sun.png', height: 30)
-                  : Image.asset('assets/icons/moon.png', height: 30),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 12, right: 12),
+                child: IconButton(
+                  onPressed: () {
+                    Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).toggleTheme();
+                    final isCurrentlyDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final newMode = isCurrentlyDark ? 'light' : 'dark';
+                    firestoreService.updateTheme(newMode);
+                  },
+                  icon: Theme.of(context).brightness == Brightness.dark
+                      ? Image.asset('assets/icons/sun.png', height: 30)
+                      : Image.asset('assets/icons/moon.png', height: 30),
+                ),
+              ),
+            ],
+          ),
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: _buildPanel(),
             ),
           ),
         ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: _buildPanel(),
-        ),
       ),
     );
   }
@@ -80,8 +84,7 @@ class _SettingsState extends State<Settings> {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: 
-                      const Text('Ausloggen')
+                      child: const Text('Ausloggen'),
                     ),
                   ),
                 ),

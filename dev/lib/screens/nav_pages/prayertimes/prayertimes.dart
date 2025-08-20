@@ -30,15 +30,16 @@ class _PrayerTimesState extends State<PrayerTimes> {
     super.dispose();
   }
  
-  // Map<String, String> _getTodaysPrayerTimes()
-  // {
-  //   final today = DateTime.now().day;
-  //   final todayRow = csvData.firstWhere(
-  //     (row) => row['Tag'] == today.toString(),
-  //     orElse: () => {},
-  //   );
-  //   return todayRow;
-  // }
+  Map<String, String> _getTodaysPrayerTimes()
+  {
+    final now = DateTime.now();
+    final todayStr = DateFormat('dd.MM.yyyy').format(now);
+    final todayRow = csvData.firstWhere(
+      (row) => row['Date'] == todayStr,
+      orElse: () => {},
+    );
+    return todayRow;
+  }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -84,12 +85,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     
     final now = DateTime.now();
 
-    final todayStr = DateFormat('dd.MM.yyyy').format(now);
-
-    final todayRow = csvData.firstWhere(
-      (row) => row['Date'] == todayStr,
-      orElse: () => {},
-    );
+    final todayRow = _getTodaysPrayerTimes();
 
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
@@ -114,13 +110,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   bool _checkForCurrentPrayer(String prayer)
   {
     final now = DateTime.now();
-    final todayStr = DateFormat('dd.MM.yyyy').format(now);
-
-    final todayRow = csvData.firstWhere(
-      (row) => row['Date'] == todayStr,
-      orElse: () => {},
-    );
-
+    final todayRow = _getTodaysPrayerTimes();
 
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     String currentKey = "";
@@ -154,13 +144,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Duration _calculateNextPrayerDuration() {
 
   final now = DateTime.now();
-  final todayStr = DateFormat('dd.MM.yyyy').format(now);
   final tomorrowStr = DateFormat('dd.MM.yyyy').format(now.add(Duration(days: 1)));
 
-  final todayRow = csvData.firstWhere(
-    (row) => row['Date'] == todayStr,
-    orElse: () => {},
-  );
+  final todayRow = _getTodaysPrayerTimes();
 
   final tomorrowRow = csvData.firstWhere(
     (row) => row['Date'] == tomorrowStr,
@@ -203,6 +189,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
+        border: Border.all(color: BColors.primary),
         color: isActive ? BColors.primary : Theme.of(context).brightness == Brightness.dark? BColors.prayerRowDark : BColors.prayerRowLight,
         borderRadius: BorderRadius.circular(16),
         
@@ -235,11 +222,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Widget build(BuildContext context) {
 
     final now = DateTime.now();
-    final todayStr = DateFormat('dd.MM.yyyy').format(now);
-    final todayRow = csvData.firstWhere(
-      (row) => row['Date'] == todayStr,
-      orElse: () => {},
-    );
+    final todayRow = _getTodaysPrayerTimes();
 
     String countdownText =
         "${timeUntilNextPrayer.inHours.remainder(60).toString().padLeft(2, '0')}:${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
@@ -252,12 +235,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
               children: <Widget>[
                 const SizedBox(height: 35),
                 Text(
-                  'Bildung und Begegnung - BBF',
+                  'BBF - Freiburg',
                   style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Text(
-                  'Freiburg',
-                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 Text(
