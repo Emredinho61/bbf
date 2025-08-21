@@ -121,7 +121,6 @@ Future<dynamic> registrationButtomSheet(BuildContext context) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    // backgroundColor: BColors.secondary,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
     ),

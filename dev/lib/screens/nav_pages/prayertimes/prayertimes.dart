@@ -189,7 +189,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        border: Border.all(color: BColors.primary),
+        border: _checkForCurrentPrayer(name) ? Border.all(color: Colors.white) : Border.all(color: BColors.primary),
         color: isActive ? BColors.primary : Theme.of(context).brightness == Brightness.dark? BColors.prayerRowDark : BColors.prayerRowLight,
         borderRadius: BorderRadius.circular(16),
         
@@ -200,14 +200,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
           Text(name,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
               )),
           Row(
             children: [
               Text(time ?? "--:--",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
                   )),
               const SizedBox(width: 8),
               Icon(Icons.notifications_none, color: Colors.white),
@@ -233,7 +233,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 35),
+                const SizedBox(height: 20),
                 Text(
                   'BBF - Freiburg',
                   style: Theme.of(context).textTheme.headlineSmall,
@@ -243,7 +243,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   '${_showNextPrayer()} in',
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: BColors.primary),
                 ),
-                const SizedBox(height: 0),
                 Text(
                   countdownText,
                   style: TextStyle(
@@ -253,7 +252,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '<Hidschri Date Placeholder> | ${now.day}, ${_getMonthName(now.month)}',
+                  '<Hidschri Date Placeholder> | ${now.day}. ${_getMonthName(now.month)}',
                   style: TextStyle(color: BColors.primary, fontSize: 13),
                 ),
 

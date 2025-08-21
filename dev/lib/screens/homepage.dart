@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
+import 'package:bbf_app/components/animatedIcons/bottom_nav_items.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
@@ -7,7 +8,7 @@ import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects.dart';
 import 'package:provider/provider.dart';
-
+import 'package:rive/rive.dart';
 
 class NavBarShell extends StatefulWidget {
   const NavBarShell({super.key});
@@ -15,8 +16,6 @@ class NavBarShell extends StatefulWidget {
   @override
   State<NavBarShell> createState() => _NavBarShellState();
 }
-
-
 
 class _NavBarShellState extends State<NavBarShell> {
   final AuthService authService = AuthService();
@@ -41,12 +40,11 @@ class _NavBarShellState extends State<NavBarShell> {
     }
   }
 
-
   static final List<Widget> _pages = <Widget>[
-    Projects(),       // Screen 0
-    PrayerTimes(),    // Screen 1
-    ArabicSchool(),   // Screen 2
-    Settings(),       // Screen 3
+    Projects(), // Screen 0
+    PrayerTimes(), // Screen 1
+    ArabicSchool(), // Screen 2
+    Settings(), // Screen 3
   ];
 
   static final List<String> _titles = <String>[
@@ -65,10 +63,7 @@ class _NavBarShellState extends State<NavBarShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(_titles[_selectedIndex]), centerTitle: true),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -76,10 +71,98 @@ class _NavBarShellState extends State<NavBarShell> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projekte'),
-          BottomNavigationBarItem(icon: Icon(Icons.access_time), label: 'Gebetszeiten'),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Arabische Schule'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Einstellungen'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.access_time),
+            label: 'Gebetszeiten',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: 'Bildung',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Einstellungen',
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class BottomNavWithAnimatedIconState extends StatefulWidget {
+  const BottomNavWithAnimatedIconState({super.key});
+
+  @override
+  State<BottomNavWithAnimatedIconState> createState() =>
+      __BottomNavWithAnimatedIconStateState();
+}
+
+class __BottomNavWithAnimatedIconStateState
+    extends State<BottomNavWithAnimatedIconState> {
+  int _selectedIndex = 0;
+
+  List<SMIBool> riveIconInputs = [];
+  static final List<Widget> _pages = <Widget>[
+    Projects(), // Screen 0
+    PrayerTimes(), // Screen 1
+    ArabicSchool(), // Screen 2
+    Settings(), // Screen 3
+  ];
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(12),
+          margin: EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(
+              bottomNavItems.length,
+              (index) => GestureDetector(
+                onTap: () {
+                  print(index);
+                  _onItemTapped(index);
+                  riveIconInputs[index].change(true);
+                  Future.delayed(Duration(seconds: 1), () {
+                    riveIconInputs[index].change(false);
+                  });
+                },
+                child: SizedBox(
+                  height: 36,
+                  width: 36,
+                  child: RiveAnimation.asset(
+                    bottomNavItems[index].rive.src,
+                    artboard: bottomNavItems[index].rive.artboard,
+                    onInit: (artboard) {
+                      StateMachineController? controller =
+                          StateMachineController.fromArtboard(
+                            artboard,
+                            bottomNavItems[index].rive.stateMachineName,
+                          );
+
+                      artboard.addController(controller!);
+                      riveIconInputs.add(
+                        controller.findInput<bool>('active') as SMIBool,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
