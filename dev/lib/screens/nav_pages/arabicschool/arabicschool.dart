@@ -1,6 +1,7 @@
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArabicSchool extends StatefulWidget {
   const ArabicSchool({super.key});
@@ -74,6 +75,31 @@ class _ArabicSchoolState extends State<ArabicSchool> {
                           Text(
                             'Die Schule umfasst drei Vorbereitungsstufen und sechs Grundstufen.Das Alter der Schüler liegt zwischen 5 und 14 Jahren. Kinder ab 5 Jahren dürfen an der Schule angemeldet werden. Neben dem Arabisch-Unterricht bietet die Schule einen Islam-Unterricht an. Die Anmeldung erfolgt Online. Über die Aufnahme benachrichtigt die Schulleitung die Eltern.',
                             style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text('Hier kommen Sie zur '),
+                              GestureDetector(
+                                onTap: () async {
+                                  final Uri url = Uri.parse(
+                                    'https://docs.google.com/forms/d/1dtCVlQnG9q_QEZIJKn6hrmwdAKrfQCM1d_6KrSD-qJM/viewform?edit_requested=true',
+                                  );
+                                  if (!await launchUrl(
+                                    url,
+                                    mode: LaunchMode.externalApplication,
+                                  )) {
+                                    debugPrint('Konnte $url nicht öffnen');
+                                  } else {
+                                    throw 'Error 404';
+                                  }
+                                },
+
+                                child: UnderlinedText(
+                                  content: Text('Anmeldung'),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
