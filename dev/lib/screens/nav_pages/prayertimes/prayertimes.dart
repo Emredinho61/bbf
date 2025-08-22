@@ -51,7 +51,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString('assets/files/prayer_times.csv'); // the data is being loaded as a string
+    final rawData = await rootBundle.loadString('assets/files/csv_files/prayer_times.csv'); // the data is being loaded as a string
     final lines = LineSplitter.split(rawData).toList(); // Seperates the data at every linebreak to strings
     // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
     // "1,05:12,12:45,15:50,19:10,20:30",]

@@ -54,7 +54,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/files/prayer_times.csv
-    - assets/files/project.md
-    - assets/files/animated_icon_set_-_1_color.riv
-    - assets/files/linkedin_icons_community.riv
+    - assets/files/csv_files/
+    - assets/files/md_files/project.md
+    - assets/files/riv_files/animated_icon_set_-_1_color.riv
+    - assets/files/riv_files/springy_animated_icons.riv
+

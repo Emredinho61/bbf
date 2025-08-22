@@ -12,7 +12,7 @@ class Project extends StatefulWidget {
 
 class _ProjectState extends State<Project> {
   Future<Map<String, String>> loadMarkdownParts() async {
-    final data = await rootBundle.loadString('assets/files/project.md');
+    final data = await rootBundle.loadString('assets/files/md_files/project.md');
     final lines = data.split('\n');
 
     String title = '';

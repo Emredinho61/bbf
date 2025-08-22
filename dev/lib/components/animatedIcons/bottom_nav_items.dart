@@ -11,15 +11,15 @@ List<NavItemModel> bottomNavItems = [
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
-      src: 'assets/files/linkedin_icons_community.riv',
-      artboard: "Jobs",
+      src: 'assets/files/riv_files/springy_animated_icons.riv',
+      artboard: "doc",
       stateMachineName: 'State Machine 1',
     ),
   ),
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
-      src: 'assets/files/animated_icon_set_-_1_color.riv',
+      src: 'assets/files/riv_files/animated_icon_set_-_1_color.riv',
       artboard: "TIMER",
       stateMachineName: 'TIMER_Interactivity',
     ),
@@ -27,18 +27,9 @@ List<NavItemModel> bottomNavItems = [
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
-      src: 'assets/files/animated_icon_set_-_1_color.riv',
+      src: 'assets/files/riv_files/animated_icon_set_-_1_color.riv',
       artboard: "SETTINGS",
       stateMachineName: 'SETTINGS_Interactivity',
     ),
   ),
-  // NavItemModel(
-  //   title: 'Projekte',
-  //   rive: RiveModel(
-  //     src: 'assets/files/animated_icon_set_-_1_color.riv',
-  //     artboard: "HOME",
-  //     stateMachineName: 'HOME_interactivity',
-  //   ),
-  // ),
-  
 ];
