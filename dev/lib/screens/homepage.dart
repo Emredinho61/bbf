@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/components/animatedIcons/bottom_nav_items.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
@@ -123,7 +124,7 @@ class __BottomNavWithAnimatedIconStateState
           padding: EdgeInsets.all(12),
           margin: EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: Color(0xFF17203A),
             borderRadius: BorderRadius.all(Radius.circular(24)),
           ),
           child: Row(
@@ -132,32 +133,41 @@ class __BottomNavWithAnimatedIconStateState
               bottomNavItems.length,
               (index) => GestureDetector(
                 onTap: () {
-                  print(index);
                   _onItemTapped(index);
                   riveIconInputs[index].change(true);
                   Future.delayed(Duration(seconds: 1), () {
                     riveIconInputs[index].change(false);
                   });
                 },
-                child: SizedBox(
-                  height: 36,
-                  width: 36,
-                  child: RiveAnimation.asset(
-                    bottomNavItems[index].rive.src,
-                    artboard: bottomNavItems[index].rive.artboard,
-                    onInit: (artboard) {
-                      StateMachineController? controller =
-                          StateMachineController.fromArtboard(
-                            artboard,
-                            bottomNavItems[index].rive.stateMachineName,
-                          );
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
 
-                      artboard.addController(controller!);
-                      riveIconInputs.add(
-                        controller.findInput<bool>('active') as SMIBool,
-                      );
-                    },
-                  ),
+                    AnimatedBar(isActive: index == _selectedIndex),
+                    SizedBox(
+                      height: 36,
+                      width: 36,
+                      child: Opacity(
+                        opacity: index == _selectedIndex ? 1.0 : 0.5,
+                        child: RiveAnimation.asset(
+                          bottomNavItems[index].rive.src,
+                          artboard: bottomNavItems[index].rive.artboard,
+                          onInit: (artboard) {
+                            StateMachineController? controller =
+                                StateMachineController.fromArtboard(
+                                  artboard,
+                                  bottomNavItems[index].rive.stateMachineName,
+                                );
+                                            
+                            artboard.addController(controller!);
+                            riveIconInputs.add(
+                              controller.findInput<bool>('active') as SMIBool,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -165,5 +175,24 @@ class __BottomNavWithAnimatedIconStateState
         ),
       ),
     );
+  }
+}
+
+class AnimatedBar extends StatelessWidget {
+  AnimatedBar({
+    super.key,
+    required this.isActive,
+  });
+  late bool isActive = isActive;
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200), 
+    margin: EdgeInsets.only(bottom: 2),
+    height: 4,
+     width: isActive ? 20 : 0,
+      decoration: BoxDecoration(
+        color: BColors.primary,
+         borderRadius: BorderRadius.all(Radius.circular(12))),);
   }
 }

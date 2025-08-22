@@ -11,34 +11,34 @@ List<NavItemModel> bottomNavItems = [
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
-      src: 'assets/files/animated_icon_set_-_1_color.riv',
-      artboard: "HOME",
-      stateMachineName: 'HOME_interactivity',
+      src: 'assets/files/linkedin_icons_community.riv',
+      artboard: "Jobs",
+      stateMachineName: 'State Machine 1',
     ),
   ),
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
       src: 'assets/files/animated_icon_set_-_1_color.riv',
-      artboard: "HOME",
-      stateMachineName: 'HOME_interactivity',
+      artboard: "TIMER",
+      stateMachineName: 'TIMER_Interactivity',
     ),
   ),
   NavItemModel(
     title: 'Projekte',
     rive: RiveModel(
       src: 'assets/files/animated_icon_set_-_1_color.riv',
-      artboard: "HOME",
-      stateMachineName: 'HOME_interactivity',
+      artboard: "SETTINGS",
+      stateMachineName: 'SETTINGS_Interactivity',
     ),
   ),
-  NavItemModel(
-    title: 'Projekte',
-    rive: RiveModel(
-      src: 'assets/files/animated_icon_set_-_1_color.riv',
-      artboard: "HOME",
-      stateMachineName: 'HOME_interactivity',
-    ),
-  ),
+  // NavItemModel(
+  //   title: 'Projekte',
+  //   rive: RiveModel(
+  //     src: 'assets/files/animated_icon_set_-_1_color.riv',
+  //     artboard: "HOME",
+  //     stateMachineName: 'HOME_interactivity',
+  //   ),
+  // ),
   
 ];
