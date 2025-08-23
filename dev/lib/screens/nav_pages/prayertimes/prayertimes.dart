@@ -21,7 +21,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
   @override
   void initState() {
     super.initState();
-    loadCSV();
+    loadCSV().then((_) {
+      setState(() {
+        timeUntilNextPrayer = _calculateNextPrayerDuration();
+      });
+    });
     _startTimer();
   }
 
@@ -30,9 +34,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
     _timer.cancel();
     super.dispose();
   }
- 
-  Map<String, String> _getTodaysPrayerTimes()
-  {
+
+  Map<String, String> _getTodaysPrayerTimes() {
     final now = DateTime.now();
     final todayStr = DateFormat('dd.MM.yyyy').format(now);
     final todayRow = csvData.firstWhere(
@@ -51,28 +54,36 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString('assets/files/csv_files/prayer_times.csv'); // the data is being loaded as a string
-    final lines = LineSplitter.split(rawData).toList(); // Seperates the data at every linebreak to strings
+    final rawData = await rootBundle.loadString(
+      'assets/files/csv_files/prayer_times.csv',
+    ); // the data is being loaded as a string
+    final lines = LineSplitter.split(
+      rawData,
+    ).toList(); // Seperates the data at every linebreak to strings
     // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
     // "1,05:12,12:45,15:50,19:10,20:30",]
 
-    final headers = lines.first.split(';'); // first row is being splitted at every comma
+    final headers = lines.first.split(
+      ';',
+    ); // first row is being splitted at every comma
     //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
     final List<Map<String, String>> rows = [];
 
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(';'); // ["1","05:12","12:45","15:50","19:10","20:30"]
+      final values = lines[i].split(
+        ';',
+      ); // ["1","05:12","12:45","15:50","19:10","20:30"]
       final Map<String, String> row = {};
       for (var j = 0; j < headers.length; j++) {
         row[headers[j]] = values[j];
-          // {
-          // "Tag": "1",
-          // "Fajr": "05:12",
-          // "Dhur": "12:45",
-          // "Asr": "15:50",
-          // "Maghrib": "19:10",
-          // "Isha": "20:30"
-          //}
+        // {
+        // "Tag": "1",
+        // "Fajr": "05:12",
+        // "Dhur": "12:45",
+        // "Asr": "15:50",
+        // "Maghrib": "19:10",
+        // "Isha": "20:30"
+        //}
       }
       rows.add(row);
     }
@@ -83,7 +94,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   String _showNextPrayer() {
-    
     final now = DateTime.now();
 
     final todayRow = _getTodaysPrayerTimes();
@@ -108,8 +118,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return 'Fajr';
   }
 
-  bool _checkForCurrentPrayer(String prayer)
-  {
+  bool _checkForCurrentPrayer(String prayer) {
     final now = DateTime.now();
     final todayRow = _getTodaysPrayerTimes();
 
@@ -129,41 +138,39 @@ class _PrayerTimesState extends State<PrayerTimes> {
         if (now.isAfter(prayerTime)) {
           currentKey = key;
         }
-      } 
+      }
     }
-    if(currentKey == prayer)
-    {
+    if (currentKey == prayer) {
+      return true;
+    } else if (currentKey == "" && prayer == 'Isha') {
       return true;
     }
-    else if(currentKey =="" && prayer == 'Isha')
-    {
-      return true;
-    } 
     return false;
-
   }
+
   Duration _calculateNextPrayerDuration() {
+    final now = DateTime.now();
+    final tomorrowStr = DateFormat(
+      'dd.MM.yyyy',
+    ).format(now.add(Duration(days: 1)));
 
-  final now = DateTime.now();
-  final tomorrowStr = DateFormat('dd.MM.yyyy').format(now.add(Duration(days: 1)));
+    final todayRow = _getTodaysPrayerTimes();
 
-  final todayRow = _getTodaysPrayerTimes();
+    final tomorrowRow = csvData.firstWhere(
+      (row) => row['Date'] == tomorrowStr,
+      orElse: () => {},
+    );
 
-  final tomorrowRow = csvData.firstWhere(
-    (row) => row['Date'] == tomorrowStr,
-    orElse: () => {},
-  );
-
-  final tomorrowDate = now.add(Duration(days: 1));
-  final fajrTimeStr = tomorrowRow['Fajr'];
-  final fajrTimeParts = fajrTimeStr!.split(':');
-  final fajrPrayTime = DateTime(
-        tomorrowDate.year,
-        tomorrowDate.month,
-        tomorrowDate.day,
-        int.parse(fajrTimeParts[0]),
-        int.parse(fajrTimeParts[1]),
-      );
+    final tomorrowDate = now.add(Duration(days: 1));
+    final fajrTimeStr = tomorrowRow['Fajr'];
+    final fajrTimeParts = fajrTimeStr!.split(':');
+    final fajrPrayTime = DateTime(
+      tomorrowDate.year,
+      tomorrowDate.month,
+      tomorrowDate.day,
+      int.parse(fajrTimeParts[0]),
+      int.parse(fajrTimeParts[1]),
+    );
 
     final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
@@ -182,7 +189,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         }
       }
     }
-    return(fajrPrayTime.difference(now));
+    return (fajrPrayTime.difference(now));
   }
 
   Widget _buildPrayerRow(String name, String? time, bool isActive) {
@@ -190,26 +197,35 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        border: _checkForCurrentPrayer(name) ? Border.all(color: Colors.white) : Border.all(color: BColors.primary),
-        color: isActive ? BColors.primary : Theme.of(context).brightness == Brightness.dark? BColors.prayerRowDark : BColors.prayerRowLight,
+        border: _checkForCurrentPrayer(name)
+            ? Border.all(color: Colors.white)
+            : Border.all(color: BColors.primary),
+        color: isActive
+            ? BColors.primary
+            : Theme.of(context).brightness == Brightness.dark
+            ? BColors.prayerRowDark
+            : BColors.prayerRowLight,
         borderRadius: BorderRadius.circular(16),
-        
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(name,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
-              )),
+          Text(
+            name,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
+            ),
+          ),
           Row(
             children: [
-              Text(time ?? "--:--",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
-                  )),
+              Text(
+                time ?? "--:--",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
+                ),
+              ),
               const SizedBox(width: 8),
               Icon(Icons.notifications_none, color: Colors.white),
             ],
@@ -221,7 +237,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   @override
   Widget build(BuildContext context) {
-
     final now = DateTime.now();
     final todayRow = _getTodaysPrayerTimes();
     final hijridate = HijriCalendarConfig.now();
@@ -243,14 +258,17 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 const SizedBox(height: 16),
                 Text(
                   '${_showNextPrayer()} in',
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: BColors.primary),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium!.copyWith(color: BColors.primary),
                 ),
                 Text(
                   countdownText,
                   style: TextStyle(
-                      color: BColors.primary,
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold),
+                    color: BColors.primary,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -259,11 +277,31 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
 
                 const SizedBox(height: 16),
-                _buildPrayerRow('Fajr', todayRow['Fajr'], _checkForCurrentPrayer("Fajr")),
-                _buildPrayerRow('Dhuhr', todayRow['Dhur'], _checkForCurrentPrayer("Dhur")),
-                _buildPrayerRow('Asr', todayRow['Asr'], _checkForCurrentPrayer("Asr")),
-                _buildPrayerRow('Maghrib', todayRow['Maghrib'], _checkForCurrentPrayer("Maghrib")),
-                _buildPrayerRow('Isha', todayRow['Isha'], _checkForCurrentPrayer("Isha")),
+                _buildPrayerRow(
+                  'Fajr',
+                  todayRow['Fajr'],
+                  _checkForCurrentPrayer("Fajr"),
+                ),
+                _buildPrayerRow(
+                  'Dhuhr',
+                  todayRow['Dhur'],
+                  _checkForCurrentPrayer("Dhur"),
+                ),
+                _buildPrayerRow(
+                  'Asr',
+                  todayRow['Asr'],
+                  _checkForCurrentPrayer("Asr"),
+                ),
+                _buildPrayerRow(
+                  'Maghrib',
+                  todayRow['Maghrib'],
+                  _checkForCurrentPrayer("Maghrib"),
+                ),
+                _buildPrayerRow(
+                  'Isha',
+                  todayRow['Isha'],
+                  _checkForCurrentPrayer("Isha"),
+                ),
               ],
             ),
     );
@@ -271,8 +309,18 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   String _getMonthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month - 1];
   }
