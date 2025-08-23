@@ -45,7 +45,7 @@ class _NavBarShellState extends State<NavBarShell> {
     Projects(), // Screen 0
     PrayerTimes(), // Screen 1
     ArabicSchool(), // Screen 2
-    Settings(), // Screen 3
+    SettingsPage(), // Screen 3
   ];
 
   static final List<String> _titles = <String>[
@@ -107,7 +107,7 @@ class __BottomNavWithAnimatedIconStateState
     Projects(), // Screen 0
     PrayerTimes(), // Screen 1
     ArabicSchool(), // Screen 2
-    Settings(), // Screen 3
+    SettingsPage(), // Screen 3
   ];
   void _onItemTapped(int index) {
     setState(() {
