@@ -228,7 +228,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        border: _checkForCurrentPrayer(name)
+        border: isActive
             ? Border.all(color: Colors.white)
             : Border.all(color: BColors.primary),
         color: isActive
@@ -245,7 +245,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
             name,
             style: TextStyle(
               color: Colors.white,
-              fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
+              fontSize: isActive ? 22 : 18,
             ),
           ),
           Row(
@@ -254,7 +254,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 time ?? "--:--",
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: _checkForCurrentPrayer(name) ? 22 : 18,
+                  fontSize: isActive ? 22 : 18,
                 ),
               ),
               const SizedBox(width: 4),
@@ -264,7 +264,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   '+$iqamaTime',
                   style: TextStyle(
                   color: Colors.white,
-                  fontSize: _checkForCurrentPrayer(name) ? 16 : 12,
+                  fontSize: isActive ? 16 : 12,
                 ),
                 ),
               ),
