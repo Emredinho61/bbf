@@ -64,7 +64,8 @@ class _NavBarShellState extends State<NavBarShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_selectedIndex]), centerTitle: true),
+      //TODO: Reconsider the implementation of an AppBar, maybe not necessary
+      // appBar: AppBar(title: Text(_titles[_selectedIndex]), centerTitle: true),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
