@@ -1,7 +1,10 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes.dart';
@@ -41,7 +44,7 @@ class _NavBarShellState extends State<NavBarShell> {
     Projects(), // Screen 0
     PrayerTimes(), // Screen 1
     ArabicSchool(), // Screen 2
-    SettingsPage() // Screen 3
+    SettingsPage(), // Screen 3
   ];
 
   // static final List<String> _titles = <String>[
@@ -59,30 +62,43 @@ class _NavBarShellState extends State<NavBarShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       //TODO: Reconsider the implementation of an AppBar, maybe not necessary
       // appBar: AppBar(title: Text(_titles[_selectedIndex]), centerTitle: true),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projekte'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.access_time),
-            label: 'Gebetszeiten',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Bildung',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Einstellungen',
-          ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,
+        color: isDark ? Colors.grey.shade800 : Colors.green.shade300,
+        animationDuration: Duration(milliseconds: 400),
+        onTap: (index){_onItemTapped(index);},
+        items: [
+          Icon(Icons.work),
+          Icon(Icons.access_time),
+          Icon(Icons.school),
+          Icon(Icons.settings),
         ],
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: _selectedIndex,
+      //   onTap: _onItemTapped,
+      //   type: BottomNavigationBarType.fixed,
+      //   items: const [
+      //     BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Projekte'),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.access_time),
+      //       label: 'Gebetszeiten',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.school),
+      //       label: 'Bildung',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.settings),
+      //       label: 'Einstellungen',
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

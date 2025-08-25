@@ -234,36 +234,34 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return (fajrPrayTime.difference(now));
   }
 
-
-  
-
   void loadPrayer() async {
-  final results = await Future.wait([
-    prayertimesService.getFridayPrayer1(),
-    prayertimesService.getFridayPrayer2(),
-    prayertimesService.getFajrIqama(),
-    prayertimesService.getDhurIqama(),
-    prayertimesService.getAsrIqama(),
-    prayertimesService.getMaghribIqama(),
-    prayertimesService.getIshaIqama(),
-  ]);
+    final results = await Future.wait([
+      prayertimesService.getFridayPrayer1(),
+      prayertimesService.getFridayPrayer2(),
+      prayertimesService.getFajrIqama(),
+      prayertimesService.getDhurIqama(),
+      prayertimesService.getAsrIqama(),
+      prayertimesService.getMaghribIqama(),
+      prayertimesService.getIshaIqama(),
+    ]);
 
-  setState(() {
-    fridayPrayer1 = results[0];
-    fridayPrayer2 = results[1];
-    fajrIqama = results[2];
-    dhurIqama = results[3];
-    asrIqama = results[4];
-    maghribIqama = results[5];
-    ishaIqama = results[6];
-  });
-}
-  
+    setState(() {
+      fridayPrayer1 = results[0];
+      fridayPrayer2 = results[1];
+      fajrIqama = results[2];
+      dhurIqama = results[3];
+      asrIqama = results[4];
+      maghribIqama = results[5];
+      ishaIqama = results[6];
+    });
+  }
 
-
-
-
-  Widget _buildPrayerRow(String name, String? time, bool isActive, String iqamaTime) {
+  Widget _buildPrayerRow(
+    String name,
+    String? time,
+    bool isActive,
+    String iqamaTime,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -283,10 +281,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         children: [
           Text(
             name,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isActive ? 22 : 18,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: isActive ? 22 : 18),
           ),
           Row(
             children: [
@@ -303,9 +298,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 child: Text(
                   '+$iqamaTime',
                   style: TextStyle(
-                  color: Colors.white,
-                  fontSize: isActive ? 16 : 12,
-                ),
+                    color: Colors.white,
+                    fontSize: isActive ? 16 : 12,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -323,153 +318,164 @@ class _PrayerTimesState extends State<PrayerTimes> {
     final todayRow = _getTodaysPrayerTimes();
     final hijridate = HijriCalendarConfig.now();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     String countdownText =
         "${timeUntilNextPrayer.inHours.remainder(60).toString().padLeft(2, '0')}:${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
 
-    return SafeArea(
-      child: Scaffold(
-        body: csvData.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    const SizedBox(height: 20),
-                    // ElevatedButton(
-                    //   onPressed: (){
-                    //     openPdf();
-                    //   },
-                    //   child: Text('Download')),
-                    Text(
-                      'BBF - Freiburg',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      '${_showNextPrayer()} in',
-                      style: Theme.of(context).textTheme.headlineMedium!
-                          .copyWith(color: BColors.primary),
-                    ),
-                    Text(
-                      countdownText,
-                      style: TextStyle(
-                        color: BColors.primary,
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-                      style: TextStyle(color: BColors.primary, fontSize: 13),
-                    ),
-
-                    const SizedBox(height: 16),
-                    _buildPrayerRow(
-                      'Fajr',
-                      todayRow['Fajr'],
-                      _checkForCurrentPrayer("Fajr"),
-                      fajrIqama
-                    ),
-                    _buildPrayerRow(
-                      'Dhuhr',
-                      todayRow['Dhur'],
-                      _checkForCurrentPrayer("Dhur"),
-                      dhurIqama
-                    ),
-                    _buildPrayerRow(
-                      'Asr',
-                      todayRow['Asr'],
-                      _checkForCurrentPrayer("Asr"),
-                      asrIqama
-                    ),
-                    _buildPrayerRow(
-                      'Maghrib',
-                      todayRow['Maghrib'],
-                      _checkForCurrentPrayer("Maghrib"),
-                      maghribIqama
-                    ),
-                    _buildPrayerRow(
-                      'Isha',
-                      todayRow['Isha'],
-                      _checkForCurrentPrayer("Isha"),
-                      ishaIqama
-                    ),
-                    SizedBox(height: 6),
-
-                    SizedBox(
-                      width: 250,
-                      child: Divider(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-
-                    SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? BColors.prayerRowDark
-                                : BColors.prayerRowLight,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: BColors.primary),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              'Sonnenaufgang ${getShuruqTimes()}',
-                              style: TextStyle(color: Colors.white),
-                            ),
+    return Scaffold(
+      body: csvData.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: isDark
+                      ? [Colors.green.shade900, Colors.grey.shade700]
+                      : [Colors.grey.shade300, Colors.green.shade200],
+                ),
+              ),
+              child: SafeArea(
+                child: ListView(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        const SizedBox(height: 20),
+                        Text(
+                          'BBF Verein - Freiburg',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          '${_showNextPrayer()} in',
+                          style: Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(color: BColors.primary),
+                        ),
+                        Text(
+                          countdownText,
+                          style: TextStyle(
+                            color: BColors.primary,
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-
-                        Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? BColors.prayerRowDark
-                                : BColors.prayerRowLight,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: BColors.primary),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
+                          style: TextStyle(color: BColors.primary, fontSize: 13),
+                        ),
+                    
+                        const SizedBox(height: 16),
+                        _buildPrayerRow(
+                          'Fajr',
+                          todayRow['Fajr'],
+                          _checkForCurrentPrayer("Fajr"),
+                          fajrIqama,
+                        ),
+                        _buildPrayerRow(
+                          'Dhuhr',
+                          todayRow['Dhur'],
+                          _checkForCurrentPrayer("Dhur"),
+                          dhurIqama,
+                        ),
+                        _buildPrayerRow(
+                          'Asr',
+                          todayRow['Asr'],
+                          _checkForCurrentPrayer("Asr"),
+                          asrIqama,
+                        ),
+                        _buildPrayerRow(
+                          'Maghrib',
+                          todayRow['Maghrib'],
+                          _checkForCurrentPrayer("Maghrib"),
+                          maghribIqama,
+                        ),
+                        _buildPrayerRow(
+                          'Isha',
+                          todayRow['Isha'],
+                          _checkForCurrentPrayer("Isha"),
+                          ishaIqama,
+                        ),
+                        SizedBox(height: 6),
+                    
+                        SizedBox(
+                          width: 250,
+                          child: Divider(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
-                              style: TextStyle(color: Colors.white),
+                        ),
+                    
+                        SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? BColors.prayerRowDark
+                                    : BColors.prayerRowLight,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: BColors.primary),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Text(
+                                  'Sonnenaufgang ${getShuruqTimes()}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                    
+                            Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    isDark
+                                    ? BColors.prayerRowDark
+                                    : BColors.prayerRowLight,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: BColors.primary),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Text(
+                                  'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        TextButton.icon(
+                          onPressed: () {
+                            openPdf();
+                          },
+                          icon: Icon(
+                            Icons.save_alt,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black,
+                            size: 24,
+                          ),
+                          label: UnderlinedText(
+                            content: Text(
+                              'Download PDF',
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
-                    TextButton.icon(
-                      onPressed: () {
-                        openPdf();
-                      },
-                      icon: Icon(
-                        Icons.save_alt,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
-                        size: 24,
-                      ),
-                      label: UnderlinedText(
-                        content: Text(
-                          'Download PDF',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
-      ),
+            ),
     );
   }
 

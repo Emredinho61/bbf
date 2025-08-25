@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
@@ -79,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text('Zurück'),
                   ),
                   MaterialButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       final fridayPrayer1 = fridayPrayer1Controller.text.trim();
                       final fridayPrayer2 = fridayPrayer2Controller.text.trim();
                       await prayertimesService.updateFridayPrayerTimes(
@@ -166,14 +167,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text('Zurück'),
                   ),
                   MaterialButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       final fajrIqama = fajrIqamaController.text.trim();
                       final dhurIqama = dhurIqamaController.text.trim();
                       final asrIqama = asrIqamaController.text.trim();
                       final maghribIqama = maghribIqamaController.text.trim();
                       final ishaIqama = ishaIqamaController.text.trim();
 
-                      await prayertimesService.updateIqamaTimes(fajrIqama, dhurIqama, asrIqama, maghribIqama, ishaIqama);
+                      await prayertimesService.updateIqamaTimes(
+                        fajrIqama,
+                        dhurIqama,
+                        asrIqama,
+                        maghribIqama,
+                        ishaIqama,
+                      );
                       Navigator.pop(context);
                     },
                     child: Text('Ändern'),
@@ -193,111 +200,125 @@ class _SettingsPageState extends State<SettingsPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: ListView(
-        children: [
-          _buildSectionHeader("App"),
-          SwitchListTile(
-            title: const Text("Dunkelmodus"),
-            value: isDark,
-            onChanged: (value) {
-              themeProvider.toggleTheme();
-              firestoreService.updateTheme(value ? "dark" : "light");
-            },
-            secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [Colors.green.shade900, Colors.grey.shade700]
+                : [Colors.grey.shade300, Colors.green.shade200],
           ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text("App-Version"),
-            trailing: const Text(
-              "1.0.0",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
+        ),
+        child: SafeArea(
+          child: ListView(
+            children: [
+              _buildSectionHeader("App"),
+              SwitchListTile(
+                title: const Text("Dunkelmodus"),
+                value: isDark,
+                activeColor: BColors.primary,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                  firestoreService.updateTheme(value ? "dark" : "light");
+                },
+                secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text("App-Version"),
+                trailing: const Text(
+                  "1.0.0",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
 
-          const Divider(),
+              const Divider(),
 
-          _buildSectionHeader("Rechtliches"),
-          _buildLinkTile(
-            context,
-            "Rechtliches",
-            "Alle rechtlichen Hinweise...",
-          ),
-          _buildLinkTile(
-            context,
-            "AGB",
-            "Unsere allgemeinen Geschäftsbedingungen...",
-          ),
-          _buildLinkTile(
-            context,
-            "Datenschutz",
-            "Informationen zum Datenschutz...",
-          ),
-          _buildLinkTile(
-            context,
-            "Über Uns",
-            "Mission, Vorstand, Kontakt, Spendenlinks...",
-          ),
+              _buildSectionHeader("Rechtliches"),
+              _buildLinkTile(
+                context,
+                "Rechtliches",
+                "Alle rechtlichen Hinweise...",
+              ),
+              _buildLinkTile(
+                context,
+                "AGB",
+                "Unsere allgemeinen Geschäftsbedingungen...",
+              ),
+              _buildLinkTile(
+                context,
+                "Datenschutz",
+                "Informationen zum Datenschutz...",
+              ),
+              _buildLinkTile(
+                context,
+                "Über Uns",
+                "Mission, Vorstand, Kontakt, Spendenlinks...",
+              ),
 
-          const Divider(),
+              const Divider(),
 
-          _buildSectionHeader("Benutzer"),
+              _buildSectionHeader("Benutzer"),
 
-          if (isUserAdmin)
-            ListTile(
-              leading: const Icon(Icons.access_time),
-              title: const Text("Freitagsgebetszeiten einstellen"),
-              onTap: () async {
-                _showDialogForFridaysPrayer();
-              },
-            ),
-          if (isUserAdmin)
-            ListTile(
-              leading: const Icon(Icons.access_time),
-              title: const Text("Iqama Zeiten einstellen"),
-              onTap: () async {
-                _showDialogForIqamaTimes();
-              },
-            ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text("Ausloggen"),
-            onTap: () async {
-              await authService.signOut();
-              Navigator.pushNamed(context, '/authpage');
-            },
+              if (isUserAdmin)
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  title: const Text("Freitagsgebetszeiten einstellen"),
+                  onTap: () async {
+                    _showDialogForFridaysPrayer();
+                  },
+                ),
+              if (isUserAdmin)
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  title: const Text("Iqama Zeiten einstellen"),
+                  onTap: () async {
+                    _showDialogForIqamaTimes();
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text("Ausloggen"),
+                onTap: () async {
+                  await authService.signOut();
+                  Navigator.pushNamed(context, '/authpage');
+                },
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: AuthDialogButton(
+                  buttonText: "Konto löschen",
+                  fieldLabels: ["E-Mail", "Passwort"],
+                  passwordFieldIndex: 1,
+                  confirmButtonColor: Colors.red,
+                  confirmButtonText: "Löschen",
+                  onSubmit: (values, context) async {
+                    final email = values["E-Mail"] ?? "";
+                    final password = values["Passwort"] ?? "";
+
+                    try {
+                      await authService.deleteAccount(
+                        email: email,
+                        password: password,
+                      );
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/authpage',
+                        (_) => false,
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Fehler beim Löschen: $e")),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: AuthDialogButton(
-              buttonText: "Konto löschen",
-              fieldLabels: ["E-Mail", "Passwort"],
-              passwordFieldIndex: 1,
-              confirmButtonColor: Colors.red,
-              confirmButtonText: "Löschen",
-              onSubmit: (values, context) async {
-                final email = values["E-Mail"] ?? "";
-                final password = values["Passwort"] ?? "";
-
-                try {
-                  await authService.deleteAccount(
-                    email: email,
-                    password: password,
-                  );
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/authpage',
-                    (_) => false,
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Fehler beim Löschen: $e")),
-                  );
-                }
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
