@@ -83,6 +83,6 @@ class AuthDialogButton extends StatelessWidget {
           ],
         );
       },
-    );
+    ); 
   }
 }
