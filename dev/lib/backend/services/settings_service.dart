@@ -8,7 +8,7 @@ class SettingsService {
     'settings',
   );
 
-  // Create a documentation when user registers 
+  // Create a document when user registers 
   Future<void> addSettings () async
   {
     // get the userId 

@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
+import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
@@ -33,12 +34,14 @@ class _RegisterFormState extends State<RegisterForm> {
 
   static TextEditingController numberController = TextEditingController();
 
-  final SettingsService firestoreService = SettingsService();
+  final SettingsService settingsService = SettingsService();
+  final UserService userService = UserService();
 
   void register() async {
     final username = usernameController.text.trim();
     final email = emailControllerForRegister.text.trim();
     final password = passwordControllerForRegister.text.trim();
+    final number = numberController.text.trim(); 
 
     if(username.isEmpty || email.isEmpty || password.isEmpty)
     {
@@ -53,7 +56,8 @@ class _RegisterFormState extends State<RegisterForm> {
         email: emailControllerForRegister.text,
         password: passwordControllerForRegister.text,
       );
-      firestoreService.addSettings();
+      settingsService.addSettings();
+      userService.addUser(username, email, number);
       Navigator.pushNamed(context, '/homepage');
     } on FirebaseAuthException catch (e) {
       String message = '';
