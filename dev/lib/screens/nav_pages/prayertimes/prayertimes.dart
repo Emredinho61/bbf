@@ -5,7 +5,6 @@ import 'package:bbf_app/components/underlined_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:intl/intl.dart';
 import 'package:hijri_calendar/hijri_calendar.dart';
 import 'package:path_provider/path_provider.dart';
