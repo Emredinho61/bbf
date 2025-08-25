@@ -1,10 +1,11 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/components/animatedIcons/bottom_nav_items.dart';
+import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects.dart';
@@ -20,7 +21,7 @@ class NavBarShell extends StatefulWidget {
 
 class _NavBarShellState extends State<NavBarShell> {
   final AuthService authService = AuthService();
-  final SettingsService firestoreService = SettingsService();
+  final SettingsService settingsService = SettingsService();
 
   int _selectedIndex = 0;
 
@@ -35,7 +36,7 @@ class _NavBarShellState extends State<NavBarShell> {
   Future<void> _loadUserTheme() async {
     final user = authService.currentUser;
     if (user != null) {
-      final String mode = await firestoreService.getUserThemeMode();
+      final String mode = await settingsService.getUserThemeMode();
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       themeProvider.setTheme(mode);
     }
@@ -45,7 +46,7 @@ class _NavBarShellState extends State<NavBarShell> {
     Projects(), // Screen 0
     PrayerTimes(), // Screen 1
     ArabicSchool(), // Screen 2
-    SettingsPage(), // Screen 3
+    SettingsPage() // Screen 3
   ];
 
   static final List<String> _titles = <String>[

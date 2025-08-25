@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -19,9 +20,19 @@ class PrayerTimes extends StatefulWidget {
 }
 
 class _PrayerTimesState extends State<PrayerTimes> {
+  final PrayertimesService prayertimesService = PrayertimesService();
+
   List<Map<String, String>> csvData = [];
   late Timer _timer;
   Duration timeUntilNextPrayer = Duration.zero;
+
+  String fridayPrayer1 = '';
+  String fridayPrayer2 = '';
+  String fajrIqama = '';
+  String dhurIqama = '';
+  String asrIqama = '';
+  String maghribIqama = '';
+  String ishaIqama = '';
 
   @override
   void initState() {
@@ -31,6 +42,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         timeUntilNextPrayer = _calculateNextPrayerDuration();
       });
     });
+    loadPrayer();
     _startTimer();
   }
 
@@ -223,6 +235,35 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return (fajrPrayTime.difference(now));
   }
 
+
+  
+
+  void loadPrayer() async {
+  final results = await Future.wait([
+    prayertimesService.getFridayPrayer1(),
+    prayertimesService.getFridayPrayer2(),
+    prayertimesService.getFajrIqama(),
+    prayertimesService.getDhurIqama(),
+    prayertimesService.getAsrIqama(),
+    prayertimesService.getMaghribIqama(),
+    prayertimesService.getIshaIqama(),
+  ]);
+
+  setState(() {
+    fridayPrayer1 = results[0];
+    fridayPrayer2 = results[1];
+    fajrIqama = results[2];
+    dhurIqama = results[3];
+    asrIqama = results[4];
+    maghribIqama = results[5];
+    ishaIqama = results[6];
+  });
+}
+  
+
+
+
+
   Widget _buildPrayerRow(String name, String? time, bool isActive, String iqamaTime) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -329,35 +370,35 @@ class _PrayerTimesState extends State<PrayerTimes> {
                       'Fajr',
                       todayRow['Fajr'],
                       _checkForCurrentPrayer("Fajr"),
-                      '30'
+                      fajrIqama
                     ),
                     _buildPrayerRow(
                       'Dhuhr',
                       todayRow['Dhur'],
                       _checkForCurrentPrayer("Dhur"),
-                      '10'
+                      dhurIqama
                     ),
                     _buildPrayerRow(
                       'Asr',
                       todayRow['Asr'],
                       _checkForCurrentPrayer("Asr"),
-                      '10'
+                      asrIqama
                     ),
                     _buildPrayerRow(
                       'Maghrib',
                       todayRow['Maghrib'],
                       _checkForCurrentPrayer("Maghrib"),
-                      '10'
+                      maghribIqama
                     ),
                     _buildPrayerRow(
                       'Isha',
                       todayRow['Isha'],
                       _checkForCurrentPrayer("Isha"),
-                      '5'
+                      ishaIqama
                     ),
                     SizedBox(height: 6),
 
-                    Container(
+                    SizedBox(
                       width: 250,
                       child: Divider(
                         color: Theme.of(context).brightness == Brightness.dark
@@ -400,7 +441,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           child: Padding(
                             padding: const EdgeInsets.all(5),
                             child: Text(
-                              'Jumua\'a 13:45 | 14:45',
+                              'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),

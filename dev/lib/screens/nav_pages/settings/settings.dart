@@ -1,3 +1,4 @@
+import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
@@ -5,12 +6,35 @@ import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:bbf_app/components/auth_dialog.dart';
 
-class SettingsPage extends StatelessWidget {
-  final SettingsService firestoreService = SettingsService();
-  final AuthService authService = AuthService();
+class SettingsPage extends StatefulWidget {
 
   SettingsPage({super.key});
 
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final SettingsService firestoreService = SettingsService();
+
+  final AuthService authService = AuthService();
+
+  final UserService userService = UserService();
+
+  bool isUserAdmin = false;
+  
+  @override
+  void initState() {
+    checkUser();
+    super.initState();
+  }
+
+  void checkUser() async{
+    final value = await userService.checkIfUserIsAdmin();
+    setState(() {
+      isUserAdmin = value;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -68,6 +92,8 @@ class SettingsPage extends StatelessWidget {
           const Divider(),
 
           _buildSectionHeader("Benutzer"),
+
+          if(isUserAdmin) Center(child: Text('User is Admin')),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text("Ausloggen"),
