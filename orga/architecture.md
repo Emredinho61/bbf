@@ -16,7 +16,8 @@
 - Passwort vergessen  
 - Registrieren  
 - Automatisches Login/Logout  
-- Als Gast fortfahren  
+- Als Gast fortfahren
+- Passwort zurücksetzen
 
 ## Lizenzkosten umgehen *(2/10)* → **0,5 Tage**
 - Welche Features pro Version benötigt werden
