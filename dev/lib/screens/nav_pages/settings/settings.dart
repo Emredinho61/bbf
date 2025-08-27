@@ -263,7 +263,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
               _buildSectionHeader("Benutzer"),
 
-              if (isUserAdmin)
+              if (isUserAdmin && authService.currentUser != null)
                 ListTile(
                   leading: const Icon(Icons.access_time),
                   title: const Text("Freitagsgebetszeiten einstellen"),
@@ -271,7 +271,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showDialogForFridaysPrayer();
                   },
                 ),
-              if (isUserAdmin)
+              if (isUserAdmin && authService.currentUser != null)
                 ListTile(
                   leading: const Icon(Icons.access_time),
                   title: const Text("Iqama Zeiten einstellen"),
