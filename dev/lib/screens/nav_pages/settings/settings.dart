@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
+import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -284,6 +285,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () async {
                   NotificationServices notificationServices = NotificationServices();
                   await notificationServices.displayNotification();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text("ping"),
+                onTap: () async {
+                  UnoToFlaskService unoToFlaskService = UnoToFlaskService();
+                  await unoToFlaskService.fetchAlbum();
                 },
               ),
               ListTile(
