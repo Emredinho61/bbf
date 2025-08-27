@@ -1,4 +1,5 @@
 // lib/main.dart
+import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -11,13 +12,8 @@ import 'firebase_options.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >()
-      ?.requestNotificationsPermission();
+  await permissionNotification();
+  await initializeNotification();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
@@ -26,6 +22,26 @@ main() async {
       child: MyApp(),
     ),
   );
+}
+
+Future<void> permissionNotification() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.requestNotificationsPermission();
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.requestExactAlarmsPermission();
+}
+
+Future<void> initializeNotification() async {
+  NotificationServices notificationServices = NotificationServices();
+  await notificationServices.initNotification();
 }
 
 class MyApp extends StatelessWidget {

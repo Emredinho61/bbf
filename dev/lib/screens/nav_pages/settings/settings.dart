@@ -1,3 +1,4 @@
+import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
@@ -277,6 +278,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showDialogForIqamaTimes();
                   },
                 ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text("Nachricht"),
+                onTap: () async {
+                  NotificationServices notificationServices = NotificationServices();
+                  await notificationServices.displayNotification();
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text("Ausloggen"),
