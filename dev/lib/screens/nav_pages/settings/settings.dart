@@ -36,6 +36,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void checkUser() async {
+    if (authService.currentUser == null) {
+      return;
+    }
     final value = await userService.checkIfUserIsAdmin();
     setState(() {
       isUserAdmin = value;
@@ -283,7 +286,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: const Icon(Icons.logout),
                 title: const Text("Nachricht"),
                 onTap: () async {
-                  NotificationServices notificationServices = NotificationServices();
+                  NotificationServices notificationServices =
+                      NotificationServices();
                   await notificationServices.displayNotification();
                 },
               ),
