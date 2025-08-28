@@ -1,7 +1,6 @@
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/custom_themes/bottom_sheet_theme.dart';
 import 'package:bbf_app/utils/theme/custom_themes/card_theme.dart';
-import 'package:bbf_app/utils/theme/custom_themes/navbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/utils/theme/custom_themes/elevate_button_theme.dart';
 import 'package:bbf_app/utils/theme/custom_themes/text_field_theme.dart';

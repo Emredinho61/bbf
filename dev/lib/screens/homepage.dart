@@ -1,9 +1,7 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
-import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
