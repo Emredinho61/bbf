@@ -3,6 +3,7 @@ import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -257,10 +258,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Informationen zum Datenschutz...",
               ),
               _buildLinkTile(
-                context,
-                "Über Uns",
-                "Mission, Vorstand, Kontakt, Spendenlinks...",
-              ),
+  context,
+  "Über Uns",
+  "Mission, Vorstand, Kontakt, Spendenlinks...",
+  isAboutPage: true,
+),
+
 
               const Divider(),
 
@@ -359,12 +362,23 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildLinkTile(BuildContext context, String title, String content) {
-    return ListTile(
-      leading: const Icon(Icons.description_outlined),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
+Widget _buildLinkTile(
+  BuildContext context,
+  String title,
+  String content, {
+  bool isAboutPage = false,
+}) {
+  return ListTile(
+    leading: const Icon(Icons.description_outlined),
+    title: Text(title),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: () {
+      if (isAboutPage) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AboutPage()),
+        );
+      } else {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -378,7 +392,9 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         );
-      },
-    );
-  }
+      }
+    },
+  );
+}
+
 }
