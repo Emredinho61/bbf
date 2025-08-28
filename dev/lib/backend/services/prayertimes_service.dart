@@ -32,63 +32,89 @@ class PrayertimesService
   }
 
   Future<String> getFridayPrayer1() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['fridayprayer1'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['fridayprayer1'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getFridayPrayer1: $e");
   }
   return '';
 }
 
 Future<String> getFridayPrayer2() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['fridayprayer2'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['fridayprayer2'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getFridayPrayer2: $e");
   }
   return '';
 }
 
 Future<String> getFajrIqama() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['fajrIqama'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['fajrIqama'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getFajrIqama: $e");
   }
   return '';
 }
+
 Future<String> getDhurIqama() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['dhurIqama'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['dhurIqama'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getDhurIqama: $e");
   }
   return '';
 }
+
 Future<String> getAsrIqama() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['asrIqama'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['asrIqama'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getAsrIqama: $e");
   }
   return '';
 }
+
 Future<String> getMaghribIqama() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['maghribIqama'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['maghribIqama'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getMaghribIqama: $e");
   }
   return '';
 }
+
 Future<String> getIshaIqama() async {
-  final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
-  if(docSnapshot.exists)
-  {
-    return docSnapshot['ishaIqama'] as String;
+  try {
+    final docSnapshot = await prayerTimes.doc('lT2DJFLHlCfSkqFYAf5e').get();
+    if (docSnapshot.exists) {
+      return docSnapshot['ishaIqama'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getIshaIqama: $e");
   }
   return '';
 }
+
 
   
 }
