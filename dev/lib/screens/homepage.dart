@@ -39,8 +39,8 @@ class _NavBarShellState extends State<NavBarShell> {
   }
 
   static final List<Widget> _pages = <Widget>[
-    Projects(), // Screen 0
-    PrayerTimes(), // Screen 1
+    PrayerTimes(), // Screen 0
+    Projects(), // Screen 1
     ArabicSchool(), // Screen 2
     SettingsPage(), // Screen 3
   ];
@@ -71,8 +71,8 @@ class _NavBarShellState extends State<NavBarShell> {
         animationDuration: Duration(milliseconds: 400),
         onTap: (index){_onItemTapped(index);},
         items: [
-          Icon(Icons.work),
           Icon(Icons.access_time),
+          Icon(Icons.work),
           Icon(Icons.school),
           Icon(Icons.settings),
         ],
