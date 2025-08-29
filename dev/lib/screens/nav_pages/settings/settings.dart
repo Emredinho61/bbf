@@ -4,6 +4,7 @@ import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
+import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -292,7 +293,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Mission, Vorstand, Kontakt, Spendenlinks...",
                 isAboutPage: true,
               ),
-
+              _buildLinkTile(
+                context,
+                "Standort der Moschee",
+                "Adresse der BBF",
+                isLocationPage: true,
+              ),
               const Divider(),
 
               _buildSectionHeader("Benutzer"),
@@ -395,6 +401,7 @@ class _SettingsPageState extends State<SettingsPage> {
     String title,
     String content, {
     bool isAboutPage = false,
+    bool isLocationPage= false,
   }) {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
@@ -406,7 +413,14 @@ class _SettingsPageState extends State<SettingsPage> {
             context,
             MaterialPageRoute(builder: (_) => const AboutPage()),
           );
-        } else {
+        } 
+        if (isLocationPage){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MosqueLocationPage()),
+          );
+        }
+        else {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
