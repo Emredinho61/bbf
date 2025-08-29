@@ -11,6 +11,7 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:bbf_app/components/auth_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({super.key});
@@ -219,6 +220,34 @@ class _SettingsPageState extends State<SettingsPage> {
         child: SafeArea(
           child: ListView(
             children: [
+              _buildSectionHeader("Spenden"),
+              ListTile(
+                leading: const Icon(Icons.payments),
+                title: const Text("PayPal"),
+                subtitle: const Text("paypal.me/bbf"), // TODO: richtigen Payapal namen finden
+                onTap: () async {
+                  final Uri url = Uri.parse(
+                    'https://paypal.com', // TODO: richtigen Paypal link finden
+                  );
+                  if (!await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    debugPrint('Konnte $url nicht öffnen');
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance),
+                title: const Text(
+                  " Bildungs- und Begegnungsverein Freiburg e.V.",
+                ),
+                subtitle: const Text(
+                  "IBAN: DE11 6805 0101 0014 3501 24\nBIC: FRSPDE66XXX\nVerwendungszweck: Spende",
+                ),
+              ),
+
+              const Divider(),
               _buildSectionHeader("App"),
               SwitchListTile(
                 title: const Text("Dunkelmodus"),
@@ -258,12 +287,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Informationen zum Datenschutz...",
               ),
               _buildLinkTile(
-  context,
-  "Über Uns",
-  "Mission, Vorstand, Kontakt, Spendenlinks...",
-  isAboutPage: true,
-),
-
+                context,
+                "Über Uns",
+                "Mission, Vorstand, Kontakt, Spendenlinks...",
+                isAboutPage: true,
+              ),
 
               const Divider(),
 
@@ -362,39 +390,38 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-Widget _buildLinkTile(
-  BuildContext context,
-  String title,
-  String content, {
-  bool isAboutPage = false,
-}) {
-  return ListTile(
-    leading: const Icon(Icons.description_outlined),
-    title: Text(title),
-    trailing: const Icon(Icons.chevron_right),
-    onTap: () {
-      if (isAboutPage) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AboutPage()),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Schließen"),
-              ),
-            ],
-          ),
-        );
-      }
-    },
-  );
-}
-
+  Widget _buildLinkTile(
+    BuildContext context,
+    String title,
+    String content, {
+    bool isAboutPage = false,
+  }) {
+    return ListTile(
+      leading: const Icon(Icons.description_outlined),
+      title: Text(title),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () {
+        if (isAboutPage) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AboutPage()),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(title),
+              content: Text(content),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Schließen"),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
 }
