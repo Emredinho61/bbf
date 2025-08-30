@@ -35,11 +35,20 @@ class UserService {
       );
     }
   }
-  Future <String> getUsersRole() async{
-    final userId = authService.currentUser!.uid;
-    final docSnapshot = await users.doc(userId).get();
-    return docSnapshot['role'] as String;
+  Future<String> getUsersRole() async {
+  try {
+    final user = authService.currentUser;
+    if (user == null) return '';
+
+    final docSnapshot = await users.doc(user.uid).get();
+    if (docSnapshot.exists) {
+      return docSnapshot['role'] as String;
+    }
+  } catch (e) {
+    print("Fehler in getUsersRole: $e");
   }
+  return '';
+}
 
   Future <bool> checkIfUserIsAdmin() async{
     final usersRole = await getUsersRole();

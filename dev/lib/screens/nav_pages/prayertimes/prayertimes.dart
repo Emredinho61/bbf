@@ -245,6 +245,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
       prayertimesService.getIshaIqama(),
     ]);
 
+    if (!mounted) return;
+    
     setState(() {
       fridayPrayer1 = results[0];
       fridayPrayer2 = results[1];

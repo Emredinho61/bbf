@@ -3,6 +3,8 @@ import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
+import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +12,7 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:bbf_app/components/auth_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({super.key});
@@ -218,6 +221,34 @@ class _SettingsPageState extends State<SettingsPage> {
         child: SafeArea(
           child: ListView(
             children: [
+              _buildSectionHeader("Spenden"),
+              ListTile(
+                leading: const Icon(Icons.payments),
+                title: const Text("PayPal"),
+                subtitle: const Text("paypal.me/bbf"), // TODO: richtigen Payapal namen finden
+                onTap: () async {
+                  final Uri url = Uri.parse(
+                    'https://paypal.com', // TODO: richtigen Paypal link finden
+                  );
+                  if (!await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    debugPrint('Konnte $url nicht öffnen');
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance),
+                title: const Text(
+                  " Bildungs- und Begegnungsverein Freiburg e.V.",
+                ),
+                subtitle: const Text(
+                  "IBAN: DE11 6805 0101 0014 3501 24\nBIC: FRSPDE66XXX\nVerwendungszweck: Spende",
+                ),
+              ),
+
+              const Divider(),
               _buildSectionHeader("App"),
               SwitchListTile(
                 title: const Text("Dunkelmodus"),
@@ -260,8 +291,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 context,
                 "Über Uns",
                 "Mission, Vorstand, Kontakt, Spendenlinks...",
+                isAboutPage: true,
               ),
-
+              _buildLinkTile(
+                context,
+                "Standort der Moschee",
+                "Adresse der BBF",
+                isLocationPage: true,
+              ),
               const Divider(),
 
               _buildSectionHeader("Benutzer"),
@@ -359,25 +396,45 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildLinkTile(BuildContext context, String title, String content) {
+  Widget _buildLinkTile(
+    BuildContext context,
+    String title,
+    String content, {
+    bool isAboutPage = false,
+    bool isLocationPage= false,
+  }) {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
       title: Text(title),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Schließen"),
-              ),
-            ],
-          ),
-        );
+        if (isAboutPage) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AboutPage()),
+          );
+        } 
+        if (isLocationPage){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MosqueLocationPage()),
+          );
+        }
+        else {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(title),
+              content: Text(content),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Schließen"),
+                ),
+              ],
+            ),
+          );
+        }
       },
     );
   }
