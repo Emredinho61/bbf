@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
+import 'package:bbf_app/backend/services/workmanager_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -9,11 +10,29 @@ import 'package:bbf_app/screens/validation/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'package:workmanager/workmanager.dart';
 
 main() async {
+  final now = DateTime.now();
+  final nextMidnight = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  ).add(Duration(days: 1));
+  final initialDelay = nextMidnight.difference(now);
   WidgetsFlutterBinding.ensureInitialized();
   await permissionNotification();
   await initializeNotification();
+  await Workmanager().initialize(callbackDispatcher);
+  await Workmanager().registerPeriodicTask(
+  "1",
+  prayerNotificationTask,
+  frequency: Duration(hours: 24),
+  initialDelay: Duration(seconds: 10),
+  constraints: Constraints(
+    networkType: NetworkType.notRequired,
+  ),
+);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(

@@ -60,14 +60,16 @@ class NotificationServices {
     );
   }
 
-  Future<void> scheduledNotification() async {
+  Future<void> scheduledNotification(int id, String title, String body, DateTime prayerTime) async {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
+    tz.TZDateTime tzPrayerTime = tz.TZDateTime.from(prayerTime, tz.local);
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
-      'MyBBF',
-      'scheduled body',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      id,
+      title,
+      body,
+      tzPrayerTime,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'your channel id',
