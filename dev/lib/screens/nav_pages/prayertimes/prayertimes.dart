@@ -460,7 +460,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         SizedBox(height: 4),
                         TextButton.icon(
                           onPressed: () {
-                            generateMonthlyPrayerPdf(csvData);
+                            generateMonthlyPrayerPdf(csvData, fridayPrayer1, fridayPrayer2);
                           },
                           icon: Icon(
                             Icons.picture_as_pdf,
