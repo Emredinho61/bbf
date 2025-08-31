@@ -8,6 +8,7 @@ import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:hijri_calendar/hijri_calendar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/monthlypdf.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 
@@ -459,10 +460,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         SizedBox(height: 4),
                         TextButton.icon(
                           onPressed: () {
-                            openPdf();
+                            generateMonthlyPrayerPdf(csvData);
                           },
                           icon: Icon(
-                            Icons.save_alt,
+                            Icons.picture_as_pdf,
                             color:
                                 Theme.of(context).brightness == Brightness.dark
                                 ? Colors.white
@@ -471,7 +472,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           ),
                           label: UnderlinedText(
                             content: Text(
-                              'Download PDF',
+                              'Monat PDF',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),
