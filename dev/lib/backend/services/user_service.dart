@@ -24,33 +24,31 @@ class UserService {
     // If not, create one
 
     if (!docSnapshot.exists) {
-      docRef.set
-      (
-        {
-          'name' : name,
-          'email' : email, 
-          'number': number,
-          'role' : 'user'
-        }
-      );
+      docRef.set({
+        'name': name,
+        'email': email,
+        'number': number,
+        'role': 'user',
+      });
     }
   }
+
   Future<String> getUsersRole() async {
-  try {
-    final user = authService.currentUser;
-    if (user == null) return '';
+    try {
+      final user = authService.currentUser;
+      if (user == null) return '';
 
-    final docSnapshot = await users.doc(user.uid).get();
-    if (docSnapshot.exists) {
-      return docSnapshot['role'] as String;
+      final docSnapshot = await users.doc(user.uid).get();
+      if (docSnapshot.exists) {
+        return docSnapshot['role'] as String;
+      }
+    } catch (e) {
+      print("Fehler in getUsersRole: $e");
     }
-  } catch (e) {
-    print("Fehler in getUsersRole: $e");
+    return '';
   }
-  return '';
-}
 
-  Future <bool> checkIfUserIsAdmin() async{
+  Future<bool> checkIfUserIsAdmin() async {
     final usersRole = await getUsersRole();
     return usersRole == 'admin';
   }

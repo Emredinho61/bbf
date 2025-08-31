@@ -13,7 +13,6 @@ import 'firebase_options.dart';
 import 'package:workmanager/workmanager.dart';
 
 main() async {
-
   // calculating the time left until midnight to start the scheduling in the background
   final now = DateTime.now();
   final nextMidnight = DateTime(
@@ -43,7 +42,7 @@ main() async {
     constraints: Constraints(networkType: NetworkType.notRequired),
   );
 
-  // initialize App 
+  // initialize App
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(

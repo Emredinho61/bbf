@@ -14,13 +14,19 @@ class MosqueLocationPageState extends State<MosqueLocationPage> {
       Completer<GoogleMapController>();
 
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(48.011885215126476, 7.824162285408069), // Should be correct lat/long values ig
+    target: LatLng(
+      48.011885215126476,
+      7.824162285408069,
+    ), // Should be correct lat/long values ig
     zoom: 14.5,
   );
 
   static const CameraPosition _mosquePosition = CameraPosition(
     bearing: 192.8,
-    target: LatLng(48.011885215126476, 7.824162285408069), // TODO check if good zoom values and so on
+    target: LatLng(
+      48.011885215126476,
+      7.824162285408069,
+    ), // TODO check if good zoom values and so on
     tilt: 59.4,
     zoom: 19.2,
   );

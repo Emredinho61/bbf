@@ -88,10 +88,7 @@ class AboutPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            content,
-            style: const TextStyle(fontSize: 15, height: 1.5),
-          ),
+          Text(content, style: const TextStyle(fontSize: 15, height: 1.5)),
         ],
       ),
     );
@@ -118,8 +115,10 @@ class AboutPage extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("• ",
-                      style: TextStyle(fontSize: 18, color: Colors.black87)),
+                  const Text(
+                    "• ",
+                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
                   Expanded(
                     child: Text(
                       item,

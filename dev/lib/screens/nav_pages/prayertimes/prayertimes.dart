@@ -246,7 +246,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     ]);
 
     if (!mounted) return;
-    
+
     setState(() {
       fridayPrayer1 = results[0];
       fridayPrayer2 = results[1];
@@ -366,9 +366,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         const SizedBox(height: 3),
                         Text(
                           '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-                          style: TextStyle(color: BColors.primary, fontSize: 13),
+                          style: TextStyle(
+                            color: BColors.primary,
+                            fontSize: 13,
+                          ),
                         ),
-                    
+
                         const SizedBox(height: 16),
                         _buildPrayerRow(
                           'Fajr',
@@ -401,16 +404,17 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           ishaIqama,
                         ),
                         SizedBox(height: 6),
-                    
+
                         SizedBox(
                           width: 250,
                           child: Divider(
-                            color: Theme.of(context).brightness == Brightness.dark
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
                                 ? Colors.white
                                 : Colors.black,
                           ),
                         ),
-                    
+
                         SizedBox(height: 6),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -433,11 +437,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 ),
                               ),
                             ),
-                    
+
                             Container(
                               decoration: BoxDecoration(
-                                color:
-                                    isDark
+                                color: isDark
                                     ? BColors.prayerRowDark
                                     : BColors.prayerRowLight,
                                 borderRadius: BorderRadius.circular(5),
@@ -460,7 +463,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           },
                           icon: Icon(
                             Icons.save_alt,
-                            color: Theme.of(context).brightness == Brightness.dark
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
                                 ? Colors.white
                                 : Colors.black,
                             size: 24,

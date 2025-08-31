@@ -69,7 +69,9 @@ class _NavBarShellState extends State<NavBarShell> {
         backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,
         color: isDark ? Colors.grey.shade800 : Colors.green.shade300,
         animationDuration: Duration(milliseconds: 400),
-        onTap: (index){_onItemTapped(index);},
+        onTap: (index) {
+          _onItemTapped(index);
+        },
         items: [
           Icon(Icons.access_time),
           Icon(Icons.work),
@@ -169,7 +171,7 @@ class _NavBarShellState extends State<NavBarShell> {
 //                                   artboard,
 //                                   bottomNavItems[index].rive.stateMachineName,
 //                                 );
-                                            
+
 //                             artboard.addController(controller!);
 //                             riveIconInputs.add(
 //                               controller.findInput<bool>('active') as SMIBool,
@@ -198,7 +200,7 @@ class _NavBarShellState extends State<NavBarShell> {
 //   @override
 //   Widget build(BuildContext context) {
 //     return AnimatedContainer(
-//       duration: Duration(milliseconds: 200), 
+//       duration: Duration(milliseconds: 200),
 //     margin: EdgeInsets.only(bottom: 2),
 //     height: 4,
 //      width: isActive ? 20 : 0,

@@ -4,7 +4,8 @@ class AuthDialogButton extends StatelessWidget {
   final String buttonText;
   final List<String> fieldLabels;
   final int passwordFieldIndex;
-  final Future<void> Function(Map<String, String> values, BuildContext context) onSubmit;
+  final Future<void> Function(Map<String, String> values, BuildContext context)
+  onSubmit;
   final Color? confirmButtonColor;
   final String confirmButtonText;
 
@@ -30,8 +31,10 @@ class AuthDialogButton extends StatelessWidget {
   }
 
   void _openDialog(BuildContext context) {
-    final controllers =
-        List.generate(fieldLabels.length, (_) => TextEditingController());
+    final controllers = List.generate(
+      fieldLabels.length,
+      (_) => TextEditingController(),
+    );
 
     showDialog(
       context: context,
@@ -83,6 +86,6 @@ class AuthDialogButton extends StatelessWidget {
           ],
         );
       },
-    ); 
+    );
   }
 }

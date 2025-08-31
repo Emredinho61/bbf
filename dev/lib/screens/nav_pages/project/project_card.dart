@@ -12,7 +12,9 @@ class Project extends StatefulWidget {
 
 class _ProjectState extends State<Project> {
   Future<Map<String, String>> loadMarkdownParts() async {
-    final data = await rootBundle.loadString('assets/files/md_files/project.md');
+    final data = await rootBundle.loadString(
+      'assets/files/md_files/project.md',
+    );
     final lines = data.split('\n');
 
     String title = '';
@@ -29,7 +31,6 @@ class _ProjectState extends State<Project> {
     // map format
     return {'title': title, 'body': body};
   }
-
 
   // used for projects card which only display a small part of the text
   String shortenMarkdown(String body, int maxLines) {
@@ -120,41 +121,41 @@ class _ProjectState extends State<Project> {
           future: loadMarkdownParts(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Fehler beim Laden der Datei.'));
-        } else {
-          final markdownParts = snapshot.data!;
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.9,
-              width: double.infinity,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                    vertical: 16.0,
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        markdownParts['title']!,
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                      SizedBox(height: 10),
-                      Image.asset(
-                        'assets/images/bbf-logo.png',
-                        height: 100,
-                        width: 50,
-                      ),
-                      SizedBox(height: 10),
-                      MarkdownBody(data: markdownParts['body']!),
-                    ],
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Fehler beim Laden der Datei.'));
+            } else {
+              final markdownParts = snapshot.data!;
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.9,
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 16.0,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          markdownParts['title']!,
+                          style: Theme.of(context).textTheme.headlineLarge,
+                        ),
+                        SizedBox(height: 10),
+                        Image.asset(
+                          'assets/images/bbf-logo.png',
+                          height: 100,
+                          width: 50,
+                        ),
+                        SizedBox(height: 10),
+                        MarkdownBody(data: markdownParts['body']!),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }
-          }
+              );
+            }
+          },
         );
       },
     );

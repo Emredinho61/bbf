@@ -108,7 +108,7 @@ class _ArabicSchoolState extends State<ArabicSchool> {
                                         mode: LaunchMode.externalApplication,
                                       )) {
                                         debugPrint('Konnte $url nicht öffnen');
-                                      } 
+                                      }
                                     },
 
                                     child: UnderlinedText(

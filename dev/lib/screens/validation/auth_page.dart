@@ -22,25 +22,19 @@ class _AuthPageState extends State<AuthPage> {
       body: StreamBuilder(
         stream: authService.authStateChanges,
         builder: (context, snapshot) {
-          if(snapshot.hasData)
-          {
+          if (snapshot.hasData) {
             return NavBarShell();
-          }
-          else
-          {
+          } else {
             return WelcomePage();
           }
-          
-        }
+        },
       ),
     );
   }
 }
 
 class WelcomePage extends StatelessWidget {
-  const WelcomePage({
-    super.key,
-  });
+  const WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,17 +50,17 @@ class WelcomePage extends StatelessWidget {
                 width: 200,
                 height: 100,
               ),
-    
+
               SizedBox(height: 30),
-    
+
               // Welcome Text
               Text(
                 'Willkommen',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
-    
+
               SizedBox(height: 30),
-    
+
               Row(
                 children: [
                   // "Bereits registriert ?" - Text
@@ -77,24 +71,24 @@ class WelcomePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 5),
-    
+
               SizedBox(
                 width: double.infinity,
-    
+
                 // Login Button
                 child: ElevatedButton(
                   // opening Bottom Sheet for Login when Button pressed
                   onPressed: () {
                     loginButtomSheet(context);
                   },
-    
+
                   child: Text('Login'),
                 ),
               ),
-    
+
               // Register Button
               SizedBox(height: 10),
-    
+
               Row(
                 children: [
                   Text(
@@ -104,7 +98,7 @@ class WelcomePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 5),
-    
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -114,14 +108,14 @@ class WelcomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 80, 126, 45),
                   ),
-    
+
                   child: Text('Registrieren'),
                 ),
               ),
-    
+
               // "Als Gast fortfahren" - button Text
               SizedBox(height: 3),
-    
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

@@ -14,7 +14,8 @@ void callbackDispatcher() {
       print(
         "Background task is running==========================================================================================>",
       );
-      List<DateTime> todaysPrayerTimes = await getPrayerTimesHelper.getTodaysPrayerTimes();
+      List<DateTime> todaysPrayerTimes = await getPrayerTimesHelper
+          .getTodaysPrayerTimes();
 
       print("[WorkManager] Found ${todaysPrayerTimes.length} prayer times");
       for (int i = 0; i < todaysPrayerTimes.length; i++) {
@@ -26,7 +27,6 @@ void callbackDispatcher() {
         );
         print("[WorkManager] Scheduled notification for index $i");
       }
-    
     }
     return Future.value(true);
   });

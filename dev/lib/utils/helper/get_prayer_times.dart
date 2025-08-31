@@ -54,7 +54,6 @@ class GetPrayerTimesHelper {
   }
 
   Future<List<DateTime>> getTodaysPrayerTimes() async {
-
     List<DateTime> prayerTimes = [];
     // load csv File
     await loadCSV();
@@ -78,7 +77,6 @@ class GetPrayerTimesHelper {
         );
         prayerTimes.add(prayerTime);
       }
-      
     }
     return prayerTimes;
   }

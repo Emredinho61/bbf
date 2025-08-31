@@ -33,12 +33,14 @@ class BTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(label),
-            obligatory ? Text(" *", style: TextStyle(color: Colors.red)): Text(''),
+            obligatory
+                ? Text(" *", style: TextStyle(color: Colors.red))
+                : Text(''),
           ],
         ),
         suffixIcon: suffixIcon,
         errorText: errorText,
-        errorStyle: TextStyle(height: 0, fontSize: 0)
+        errorStyle: TextStyle(height: 0, fontSize: 0),
       ),
     );
   }

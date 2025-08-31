@@ -60,54 +60,54 @@ class _LoginFormState extends State<LoginForm> {
   static String errorMessageLogin = '';
 
   void _handleLogin() async {
-  final email = emailControllerForLogin.text;
-  final password = passwordControllerForLogin.text;
+    final email = emailControllerForLogin.text;
+    final password = passwordControllerForLogin.text;
 
-  if (email.isEmpty && password.isEmpty) {
-    setState(() {
-      errorMessageLogin = 'Bitte E-Mail und Passwort eingeben.';
-    });
-    return;
-  } else if (email.isEmpty) {
-    setState(() {
-      errorMessageLogin = 'Bitte E-Mail eingeben.';
-    });
-    return;
-  } else if (password.isEmpty) {
-    setState(() {
-      errorMessageLogin = 'Bitte Passwort eingeben.';
-    });
-    return;
-  }
-
-  try {
-    final UserCredential userCredential = await authService.signIn(
-      email: email,
-      password: password,
-    );
-
-    final user = userCredential.user;
-    if (user != null) {
-      Navigator.pushNamed(context, '/homepage');
-    } else {
+    if (email.isEmpty && password.isEmpty) {
       setState(() {
-        errorMessageLogin = "Login fehlgeschlagen. Kein Nutzer zurückgegeben.";
+        errorMessageLogin = 'Bitte E-Mail und Passwort eingeben.';
+      });
+      return;
+    } else if (email.isEmpty) {
+      setState(() {
+        errorMessageLogin = 'Bitte E-Mail eingeben.';
+      });
+      return;
+    } else if (password.isEmpty) {
+      setState(() {
+        errorMessageLogin = 'Bitte Passwort eingeben.';
+      });
+      return;
+    }
+
+    try {
+      final UserCredential userCredential = await authService.signIn(
+        email: email,
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user != null) {
+        Navigator.pushNamed(context, '/homepage');
+      } else {
+        setState(() {
+          errorMessageLogin =
+              "Login fehlgeschlagen. Kein Nutzer zurückgegeben.";
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'invalid-email':
+          message = "Bitte eine gültige E-Mail-Adresse eingeben.";
+        default:
+          message = "E-Mail oder Passwort ist falsch.";
+      }
+      setState(() {
+        errorMessageLogin = message;
       });
     }
-  } on FirebaseAuthException catch (e) {
-    String message;
-  switch (e.code) {
-    case 'invalid-email':
-      message = "Bitte eine gültige E-Mail-Adresse eingeben.";
-    default:
-      message = "E-Mail oder Passwort ist falsch.";
   }
-  setState(() {
-    errorMessageLogin = message;
-  });
-  }
-}
-
 
   void toggleObscureText() {
     setState(() {
@@ -138,10 +138,10 @@ class _LoginFormState extends State<LoginForm> {
                     icon: Icons.email,
                     controller: emailForResetController,
                     obscureText: false,
-                    obligatory: false
+                    obligatory: false,
                   ),
-                  SizedBox(height: 5,),
-                  Text(message)
+                  SizedBox(height: 5),
+                  Text(message),
                 ],
               ),
               actions: [
@@ -156,21 +156,17 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        if(emailForResetController.text.isEmpty)
-                        {
-                         setState(() {
-                           message = 'Bitte eine E-Mail-Adresse eingeben.';
-                         },);
-                         return;
-                        }
-                        else{
+                        if (emailForResetController.text.isEmpty) {
+                          setState(() {
+                            message = 'Bitte eine E-Mail-Adresse eingeben.';
+                          });
+                          return;
+                        } else {
                           authService.resetPassword(
-                          email: emailForResetController.text,
-                        );
-                        message = 'Email versendet!';
+                            email: emailForResetController.text,
+                          );
+                          message = 'Email versendet!';
                         }
-                          
-                        
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -204,7 +200,7 @@ class _LoginFormState extends State<LoginForm> {
             obscureText: false,
             label: 'Email',
             icon: Icons.email,
-            obligatory: false
+            obligatory: false,
           ),
 
           SizedBox(height: 10),
@@ -219,7 +215,7 @@ class _LoginFormState extends State<LoginForm> {
               icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
               onPressed: toggleObscureText,
             ),
-            obligatory: false
+            obligatory: false,
           ),
 
           SizedBox(height: 5),

@@ -41,16 +41,15 @@ class _RegisterFormState extends State<RegisterForm> {
     final username = usernameController.text.trim();
     final email = emailControllerForRegister.text.trim();
     final password = passwordControllerForRegister.text.trim();
-    final number = numberController.text.trim(); 
+    final number = numberController.text.trim();
 
-    if(username.isEmpty || email.isEmpty || password.isEmpty)
-    {
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
       setState(() {
-        errorMessageRegister = 'Bitte alle Pflichtfelder ausfüllen.';  
+        errorMessageRegister = 'Bitte alle Pflichtfelder ausfüllen.';
       });
       return;
     }
-    
+
     try {
       await authService.value.createAccount(
         email: emailControllerForRegister.text,
@@ -69,11 +68,11 @@ class _RegisterFormState extends State<RegisterForm> {
         case 'weak-password':
           message = "Das Passwort ist zu schwach (mind. 6 Zeichen).";
         default:
-        message = 'Registrierung fehlgeschlagen aufgrund eines unbekannten Fehlers.';
+          message =
+              'Registrierung fehlgeschlagen aufgrund eines unbekannten Fehlers.';
       }
       setState(() {
-        errorMessageRegister =
-            message;
+        errorMessageRegister = message;
       });
     }
   }
@@ -117,7 +116,7 @@ class _RegisterFormState extends State<RegisterForm> {
               onPressed: toggleObscureText,
             ),
             obligatory: true,
-           errorText: errorMessageRegister.isNotEmpty ? '' : null,
+            errorText: errorMessageRegister.isNotEmpty ? '' : null,
           ),
 
           SizedBox(height: 10),
@@ -133,14 +132,20 @@ class _RegisterFormState extends State<RegisterForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('* Pflichtfelder', style: TextStyle(color: Colors.redAccent),),
+              Text(
+                '* Pflichtfelder',
+                style: TextStyle(color: Colors.redAccent),
+              ),
             ],
           ),
-          const SizedBox(height:5),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(errorMessageRegister, style: TextStyle(color: Colors.redAccent)),
+              Text(
+                errorMessageRegister,
+                style: TextStyle(color: Colors.redAccent),
+              ),
             ],
           ),
           const SizedBox(height: 5),

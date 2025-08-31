@@ -14,17 +14,14 @@ class Projects extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isDark
-              ? [
-                Colors.green.shade900,
-                  Colors.grey.shade700,
-                ]
-              : [Colors.grey.shade300, Colors.green.shade200],
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [Colors.green.shade900, Colors.grey.shade700]
+                : [Colors.grey.shade300, Colors.green.shade200],
+          ),
         ),
-      ), 
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
