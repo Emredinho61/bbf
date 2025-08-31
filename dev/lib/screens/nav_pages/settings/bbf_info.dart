@@ -5,6 +5,7 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Über Uns"),
@@ -46,7 +47,7 @@ class AboutPage extends StatelessWidget {
                 "Ausbau der institutionellen Arbeit und Förderung der Zusammenarbeit aller Muslime in unserer Stadt.",
                 "Den Bedürfnissen der arabischen und muslimischen Gemeinschaft nachzukommen.",
                 "Förderung der akademischen und beruflichen Entwicklung sowie Integration.",
-              ]),
+              ], isDark),
               _buildBulletSection("Unsere Grundsätze", [
                 "Bewahrung der menschlichen, islamischen Werte und Moral.",
                 "Umsetzung der toleranten islamischen Prinzipien.",
@@ -56,7 +57,7 @@ class AboutPage extends StatelessWidget {
                 "Arbeiten in einem wissenschaftlichen Rahmen für höchste Qualität.",
                 "Gute Beziehungen mit allen gesellschaftlichen Partnern pflegen.",
                 "Geordnete institutionelle Arbeit durch Planung und Disziplin.",
-              ]),
+              ],isDark),
               _buildSection(
                 "Der aktuelle Vorstand",
                 "Der aktuelle Vorstand wurde am 09.03.2023 für 4 Jahre gewählt und besteht aus:\n\n"
@@ -94,7 +95,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBulletSection(String title, List<String> items) {
+  Widget _buildBulletSection(String title, List<String> items, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
@@ -115,9 +116,9 @@ class AboutPage extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "• ",
-                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                    style: TextStyle(fontSize: 18, color: isDark ? Colors.white :  Colors.black87),
                   ),
                   Expanded(
                     child: Text(

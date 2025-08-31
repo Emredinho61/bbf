@@ -24,6 +24,9 @@ main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  // initialize App
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // ask for notification permission
   await permissionNotification();
 
@@ -41,9 +44,6 @@ main() async {
     initialDelay: initialDelay, // First execution will be around midnight
     constraints: Constraints(networkType: NetworkType.notRequired),
   );
-
-  // initialize App
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     ChangeNotifierProvider(

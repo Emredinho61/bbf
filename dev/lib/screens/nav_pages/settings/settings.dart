@@ -32,7 +32,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final PrayertimesService prayertimesService = PrayertimesService();
 
   bool isUserAdmin = false;
-  
 
   @override
   void initState() {
@@ -50,13 +49,13 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  Widget _copyableRow(String label, String value, bool isDark) {
+  Widget _copyableRow(String label, String value) {
     return Row(
       children: [
         Expanded(
           child: Text(
             "$label: $value",
-            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+            style: Theme.of(context).textTheme.labelLarge,
           ),
         ),
         IconButton(
@@ -246,47 +245,82 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               _buildSectionHeader("Spenden"),
-              GestureDetector(
-                onTap: () async {
-                  final Uri url = Uri.parse(
-                    'https://paypal.com', // TODO: richtigen Paypal link finden
-                  );
-                  if (!await launchUrl(
-                    url,
-                    mode: LaunchMode.externalApplication,
-                  )) {
-                    debugPrint('Konnte $url nicht öffnen');
-                  }
-                },
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.green.shade700
-                          : Colors.green.shade100,
-                      border: Border.all(color: Colors.white70),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Image.asset('assets/images/PayPalLogo.png'),
-                  ),
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Über eine Spende würden wir uns freuen !',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.account_balance),
-                title: const Text(
-                  "Bildungs- und Begegnungsverein Freiburg e.V.",
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _copyableRow("IBAN", "DE11 6805 0101 0014 3501 24",isDark),
-                    _copyableRow("BIC", "FRSPDE66XXX", isDark),
-                    _copyableRow("Verwendungszweck", "Spende", isDark),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final Uri url = Uri.parse(
+                        'https://paypal.com', // TODO: richtigen Paypal link finden
+                      );
+                      if (!await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        debugPrint('Konnte $url nicht öffnen');
+                      }
+                    },
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.green.shade300
+                              : Colors.green.shade200,
+                          border: Border.all(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset('assets/images/PayPalLogo.png'),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 50,child: Divider(color: isDark ? Colors.white : Colors.black, thickness: 1)),
+                        SizedBox(width: 10,),
+                        Text('oder'),
+                        SizedBox(width: 10,),
+                        SizedBox(width: 50,child: Divider(color:isDark ? Colors.white : Colors.black, thickness: 1))
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 10),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(border: Border.all(color:isDark ? Colors.white : Colors.green)),
+                    child: ListTile(
+                      leading: const Icon(Icons.account_balance),
+                      title: Center(
+                        child: Text(
+                          "Bildungs- und Begegnungsverein Freiburg e.V.",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _copyableRow("IBAN", "DE11 6805 0101 0014 3501 24"),
+                          _copyableRow("BIC", "FRSPDE66XXX"),
+                          _copyableRow("Verwendungszweck", "Spende"),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const Divider(),
