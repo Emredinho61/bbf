@@ -32,6 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final PrayertimesService prayertimesService = PrayertimesService();
 
   bool isUserAdmin = false;
+  
 
   @override
   void initState() {
@@ -49,13 +50,13 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  Widget _copyableRow(String label, String value) {
+  Widget _copyableRow(String label, String value, bool isDark) {
     return Row(
       children: [
         Expanded(
           child: Text(
             "$label: $value",
-            style: const TextStyle(color: Colors.black87),
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
           ),
         ),
         IconButton(
@@ -245,24 +246,6 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               _buildSectionHeader("Spenden"),
-              // ListTile(
-              //   leading: const Icon(Icons.payments),
-              //   title: const Text("PayPal"),
-              //   subtitle: const Text(
-              //     "paypal.me/bbf",
-              //   ), // TODO: richtigen Payapal namen finden
-              //   onTap: () async {
-              //     final Uri url = Uri.parse(
-              //       'https://paypal.com', // TODO: richtigen Paypal link finden
-              //     );
-              //     if (!await launchUrl(
-              //       url,
-              //       mode: LaunchMode.externalApplication,
-              //     )) {
-              //       debugPrint('Konnte $url nicht öffnen');
-              //     }
-              //   },
-              // ),
               GestureDetector(
                 onTap: () async {
                   final Uri url = Uri.parse(
@@ -299,9 +282,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _copyableRow("IBAN", "DE11 6805 0101 0014 3501 24"),
-                    _copyableRow("BIC", "FRSPDE66XXX"),
-                    _copyableRow("Verwendungszweck", "Spende"),
+                    _copyableRow("IBAN", "DE11 6805 0101 0014 3501 24",isDark),
+                    _copyableRow("BIC", "FRSPDE66XXX", isDark),
+                    _copyableRow("Verwendungszweck", "Spende", isDark),
                   ],
                 ),
               ),
