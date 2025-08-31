@@ -29,6 +29,7 @@ Future<void> generateMonthlyPrayerPdf(
 
   pdf.addPage(
     pw.MultiPage(
+      maxPages: 1,
       footer: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.center,

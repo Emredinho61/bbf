@@ -7,6 +7,7 @@ import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -46,6 +47,28 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       isUserAdmin = value;
     });
+  }
+
+  Widget _copyableRow(String label, String value) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            "$label: $value",
+            style: const TextStyle(color: Colors.black87),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy, size: 18),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("$label copied!")));
+          },
+        ),
+      ],
+    );
   }
 
   void _showDialogForFridaysPrayer() {
@@ -258,23 +281,28 @@ class _SettingsPageState extends State<SettingsPage> {
                     height: 60,
                     width: 60,
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.green.shade700 : Colors.green.shade100,
+                      color: isDark
+                          ? Colors.green.shade700
+                          : Colors.green.shade100,
                       border: Border.all(color: Colors.white70),
-                      borderRadius: BorderRadius.circular(12)
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Image.asset(
-                      'assets/images/PayPalLogo.png',
-                    ),
+                    child: Image.asset('assets/images/PayPalLogo.png'),
                   ),
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.account_balance),
                 title: const Text(
-                  " Bildungs- und Begegnungsverein Freiburg e.V.",
+                  "Bildungs- und Begegnungsverein Freiburg e.V.",
                 ),
-                subtitle: const Text(
-                  "IBAN: DE11 6805 0101 0014 3501 24\nBIC: FRSPDE66XXX\nVerwendungszweck: Spende",
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _copyableRow("IBAN", "DE11 6805 0101 0014 3501 24"),
+                    _copyableRow("BIC", "FRSPDE66XXX"),
+                    _copyableRow("Verwendungszweck", "Spende"),
+                  ],
                 ),
               ),
 
