@@ -222,12 +222,25 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               _buildSectionHeader("Spenden"),
-              ListTile(
-                leading: const Icon(Icons.payments),
-                title: const Text("PayPal"),
-                subtitle: const Text(
-                  "paypal.me/bbf",
-                ), // TODO: richtigen Payapal namen finden
+              // ListTile(
+              //   leading: const Icon(Icons.payments),
+              //   title: const Text("PayPal"),
+              //   subtitle: const Text(
+              //     "paypal.me/bbf",
+              //   ), // TODO: richtigen Payapal namen finden
+              //   onTap: () async {
+              //     final Uri url = Uri.parse(
+              //       'https://paypal.com', // TODO: richtigen Paypal link finden
+              //     );
+              //     if (!await launchUrl(
+              //       url,
+              //       mode: LaunchMode.externalApplication,
+              //     )) {
+              //       debugPrint('Konnte $url nicht öffnen');
+              //     }
+              //   },
+              // ),
+              GestureDetector(
                 onTap: () async {
                   final Uri url = Uri.parse(
                     'https://paypal.com', // TODO: richtigen Paypal link finden
@@ -239,6 +252,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     debugPrint('Konnte $url nicht öffnen');
                   }
                 },
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.green.shade700 : Colors.green.shade100,
+                      border: Border.all(color: Colors.white70),
+                      borderRadius: BorderRadius.circular(12)
+                    ),
+                    child: Image.asset(
+                      'assets/images/PayPalLogo.png',
+                    ),
+                  ),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.account_balance),
