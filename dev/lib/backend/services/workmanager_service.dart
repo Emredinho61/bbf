@@ -6,8 +6,6 @@ GetPrayerTimesHelper getPrayerTimesHelper = GetPrayerTimesHelper();
 
 NotificationServices notificationServices = NotificationServices();
 
-const String prayerNotificationTask = "dailyPrayerNotifications";
-
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
