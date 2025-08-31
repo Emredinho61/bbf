@@ -13,6 +13,8 @@ import 'firebase_options.dart';
 import 'package:workmanager/workmanager.dart';
 
 main() async {
+
+  // calculating the time left until midnight to start the scheduling in the background
   final now = DateTime.now();
   final nextMidnight = DateTime(
     now.year,
@@ -20,19 +22,28 @@ main() async {
     now.day,
   ).add(Duration(days: 1));
   final initialDelay = nextMidnight.difference(now);
+
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ask for notification permission
   await permissionNotification();
+
+  // initialize all Notification settings
   await initializeNotification();
+
+  // initiliaze background task
   await Workmanager().initialize(callbackDispatcher);
+
+  // execute background task
   await Workmanager().registerPeriodicTask(
-  "1",
-  prayerNotificationTask,
-  frequency: Duration(hours: 24),
-  initialDelay: Duration(seconds: 10),
-  constraints: Constraints(
-    networkType: NetworkType.notRequired,
-  ),
-);
+    "testing...",
+    "test",
+    frequency: Duration(hours: 24), // every 24 hours will be one execution
+    initialDelay: initialDelay, // First execution will be around midnight
+    constraints: Constraints(networkType: NetworkType.notRequired),
+  );
+
+  // initialize App 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(

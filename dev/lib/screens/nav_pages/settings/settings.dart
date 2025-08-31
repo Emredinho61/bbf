@@ -225,7 +225,9 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: const Icon(Icons.payments),
                 title: const Text("PayPal"),
-                subtitle: const Text("paypal.me/bbf"), // TODO: richtigen Payapal namen finden
+                subtitle: const Text(
+                  "paypal.me/bbf",
+                ), // TODO: richtigen Payapal namen finden
                 onTap: () async {
                   final Uri url = Uri.parse(
                     'https://paypal.com', // TODO: richtigen Paypal link finden
@@ -401,7 +403,7 @@ class _SettingsPageState extends State<SettingsPage> {
     String title,
     String content, {
     bool isAboutPage = false,
-    bool isLocationPage= false,
+    bool isLocationPage = false,
   }) {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
@@ -413,14 +415,13 @@ class _SettingsPageState extends State<SettingsPage> {
             context,
             MaterialPageRoute(builder: (_) => const AboutPage()),
           );
-        } 
-        if (isLocationPage){
+        }
+        if (isLocationPage) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const MosqueLocationPage()),
           );
-        }
-        else {
+        } else {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
