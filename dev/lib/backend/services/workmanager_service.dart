@@ -1,8 +1,8 @@
-import 'package:bbf_app/utils/helper/get_prayer_times.dart';
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:workmanager/workmanager.dart';
 import 'notification_services.dart';
 
-GetPrayerTimesHelper getPrayerTimesHelper = GetPrayerTimesHelper();
+PrayerTimesHelper getPrayerTimesHelper = PrayerTimesHelper();
 
 NotificationServices notificationServices = NotificationServices();
 
@@ -15,7 +15,7 @@ void callbackDispatcher() {
         "Background task is running==========================================================================================>",
       );
       List<DateTime> todaysPrayerTimes = await getPrayerTimesHelper
-          .getTodaysPrayerTimes();
+          .getTodaysPrayerTimesAsDateTimes();
 
       print("[WorkManager] Found ${todaysPrayerTimes.length} prayer times");
       for (int i = 0; i < todaysPrayerTimes.length; i++) {

@@ -98,23 +98,7 @@ class _ArabicSchoolState extends State<ArabicSchool> {
                               Row(
                                 children: [
                                   Text('Hier kommen Sie zur '),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final Uri url = Uri.parse(
-                                        'https://docs.google.com/forms/d/1dtCVlQnG9q_QEZIJKn6hrmwdAKrfQCM1d_6KrSD-qJM/viewform?edit_requested=true',
-                                      );
-                                      if (!await launchUrl(
-                                        url,
-                                        mode: LaunchMode.externalApplication,
-                                      )) {
-                                        debugPrint('Konnte $url nicht öffnen');
-                                      }
-                                    },
-
-                                    child: UnderlinedText(
-                                      content: Text('Anmeldung'),
-                                    ),
-                                  ),
+                                  ArabicSchoolRegistriationLink(),
                                 ],
                               ),
                             ],
@@ -128,6 +112,33 @@ class _ArabicSchoolState extends State<ArabicSchool> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ArabicSchoolRegistriationLink extends StatelessWidget {
+  const ArabicSchoolRegistriationLink({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse(
+          'https://docs.google.com/forms/d/1dtCVlQnG9q_QEZIJKn6hrmwdAKrfQCM1d_6KrSD-qJM/viewform?edit_requested=true',
+        );
+        if (!await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        )) {
+          debugPrint('Konnte $url nicht öffnen');
+        }
+      },
+    
+      child: UnderlinedText(
+        content: Text('Anmeldung'),
       ),
     );
   }

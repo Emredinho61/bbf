@@ -354,7 +354,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         Text(
                           '${_showNextPrayer()} in',
                           style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(color: BColors.primary),
+                              .copyWith(color:isDark ? Colors.white : BColors.primary),
                         ),
                         Text(
                           countdownText,

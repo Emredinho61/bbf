@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 
-class GetPrayerTimesHelper {
+class PrayerTimesHelper {
   List<Map<String, String>> csvData = [];
 
   Future<List<Map<String, String>>> loadCSV() async {
@@ -43,7 +43,7 @@ class GetPrayerTimesHelper {
     return csvData;
   }
 
-  Map<String, String> _getTodaysPrayerRow() {
+  Map<String, String> _getTodaysPrayerTimesAsStringMap() {
     final now = DateTime.now();
     final todayStr = DateFormat('dd.MM.yyyy').format(now);
     final todayRow = csvData.firstWhere(
@@ -53,13 +53,13 @@ class GetPrayerTimesHelper {
     return todayRow;
   }
 
-  Future<List<DateTime>> getTodaysPrayerTimes() async {
+  Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes() async {
     List<DateTime> prayerTimes = [];
     // load csv File
     await loadCSV();
 
     // get todayRow
-    final todayRow = _getTodaysPrayerRow();
+    final todayRow = _getTodaysPrayerTimesAsStringMap();
 
     final now = DateTime.now();
 
