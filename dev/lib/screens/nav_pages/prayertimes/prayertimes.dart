@@ -359,7 +359,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         Text(
                           countdownText,
                           style: TextStyle(
-                            color: BColors.primary,
+                            color: isDark ? Colors.white :  BColors.primary,
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                           ),
@@ -368,7 +368,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         Text(
                           '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
                           style: TextStyle(
-                            color: BColors.primary,
+                            color: isDark ? Colors.white : BColors.primary,
                             fontSize: 13,
                           ),
                         ),
