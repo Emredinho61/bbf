@@ -1,3 +1,4 @@
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -5,6 +6,8 @@ import 'package:timezone/timezone.dart' as tz;
 class NotificationServices {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
+  PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
 
   Future<void> initNotification() async {
     // Android

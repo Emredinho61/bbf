@@ -10,19 +10,20 @@ import 'package:bbf_app/screens/validation/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:workmanager/workmanager.dart';
-
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 main() async {
   // calculating the time left until midnight to start the scheduling in the background
-  final now = DateTime.now();
-  final nextMidnight = DateTime(
-    now.year,
-    now.month,
-    now.day,
-  ).add(Duration(days: 1));
-  final initialDelay = nextMidnight.difference(now);
+  // final now = DateTime.now();
+  // final nextMidnight = DateTime(
+  //   now.year,
+  //   now.month,
+  //   now.day,
+  // ).add(Duration(days: 1));
+  // final initialDelay = nextMidnight.difference(now);
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AndroidAlarmManager.initialize();
 
   // initialize App
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -33,22 +34,24 @@ main() async {
   // initialize all Notification settings
   await initializeNotification();
 
-  // initiliaze background task
-  await Workmanager().initialize(callbackDispatcher);
-
-  // execute background task
-  await Workmanager().registerPeriodicTask(
-    "testing...",
-    "test",
-    frequency: Duration(hours: 24), // every 24 hours will be one execution
-    initialDelay: initialDelay, // First execution will be around midnight
-    constraints: Constraints(networkType: NetworkType.notRequired),
-  );
-
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
       child: MyApp(),
+    ),
+  );
+  final int id = 0;
+  await AndroidAlarmManager.periodic(
+    const Duration(hours: 24),
+    id,
+    automaticNotifications,
+    startAt: DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      0,
+      0,
+      0,
     ),
   );
 }
