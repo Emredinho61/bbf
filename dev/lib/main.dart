@@ -1,6 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
-import 'package:bbf_app/backend/services/workmanager_service.dart';
+import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -11,16 +11,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-main() async {
-  // calculating the time left until midnight to start the scheduling in the background
-  // final now = DateTime.now();
-  // final nextMidnight = DateTime(
-  //   now.year,
-  //   now.month,
-  //   now.day,
-  // ).add(Duration(days: 1));
-  // final initialDelay = nextMidnight.difference(now);
 
+main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AndroidAlarmManager.initialize();
@@ -40,6 +32,7 @@ main() async {
       child: MyApp(),
     ),
   );
+  
   final int id = 0;
   await AndroidAlarmManager.periodic(
     const Duration(hours: 24),
