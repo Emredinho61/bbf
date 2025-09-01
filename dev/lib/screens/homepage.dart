@@ -62,8 +62,6 @@ class _NavBarShellState extends State<NavBarShell> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      //TODO: Reconsider the implementation of an AppBar, maybe not necessary
-      // appBar: AppBar(title: Text(_titles[_selectedIndex]), centerTitle: true),
       body: _pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,

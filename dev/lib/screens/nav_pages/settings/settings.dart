@@ -601,7 +601,7 @@ class IconButtonForPayPal extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final Uri url = Uri.parse(
-          'https://www.paypal.com/donate/?hosted_button_id=ESTNXJLMMQQQS#', // TODO: richtigen Paypal link finden
+          'https://www.paypal.com/donate/?hosted_button_id=ESTNXJLMMQQQS#',
         );
         if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
           debugPrint('Konnte $url nicht öffnen');
