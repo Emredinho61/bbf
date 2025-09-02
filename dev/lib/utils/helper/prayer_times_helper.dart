@@ -53,7 +53,9 @@ class PrayerTimesHelper {
     return csvData;
   }
 
-  Map<String, String> _getTodaysPrayerTimesAsStringMap() {
+  Map<String, String> getTodaysPrayerTimesAsStringMap(
+    List<Map<String, String>> csvData,
+  ) {
     final now = DateTime.now();
     final todayStr = DateFormat('dd.MM.yyyy').format(now);
     final todayRow = csvData.firstWhere(
@@ -69,7 +71,7 @@ class PrayerTimesHelper {
     await loadCSV();
 
     // get todayRow
-    final todayRow = _getTodaysPrayerTimesAsStringMap();
+    final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
 
     final now = DateTime.now();
 
@@ -91,12 +93,26 @@ class PrayerTimesHelper {
     return prayerTimes;
   }
 
+  DateTime convertStringTimeIntoDateTime(String timeStr) {
+    final now = DateTime.now();
+
+    final timeParts = timeStr.split(':');
+    final prayerTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+    return prayerTime;
+  }
+
   Future<DateTime?> getCertainPrayerTimeAsDateTimes(String name) async {
     // load csv File
     await loadCSV();
 
     // get todayRow
-    final todayRow = _getTodaysPrayerTimesAsStringMap();
+    final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
 
     late final DateTime? prayerTime;
 

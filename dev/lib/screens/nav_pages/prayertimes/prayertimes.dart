@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/underlined_text.dart';
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -21,11 +22,16 @@ class PrayerTimes extends StatefulWidget {
 }
 
 class _PrayerTimesState extends State<PrayerTimes> {
+
   final PrayertimesService prayertimesService = PrayertimesService();
 
   List<Map<String, String>> csvData = [];
+
   late Timer _timer;
+
   Duration timeUntilNextPrayer = Duration.zero;
+
+  final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
   String fridayPrayer1 = '';
   String fridayPrayer2 = '';
@@ -75,19 +81,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   String getShuruqTimes() {
-    final todayRow = _getTodaysPrayerTimes();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     return todayRow['Sunrise']!;
   }
 
-  Map<String, String> _getTodaysPrayerTimes() {
-    final now = DateTime.now();
-    final todayStr = DateFormat('dd.MM.yyyy').format(now);
-    final todayRow = csvData.firstWhere(
-      (row) => row['Date'] == todayStr,
-      orElse: () => {},
-    );
-    return todayRow;
-  }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -140,19 +137,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
   String _showNextPrayer() {
     final now = DateTime.now();
 
-    final todayRow = _getTodaysPrayerTimes();
-
-    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final timeParts = timeStr.split(':');
-        final prayerTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(timeParts[0]),
-          int.parse(timeParts[1]),
+        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+          timeStr,
         );
         if (prayerTime.isAfter(now)) {
           return key;
@@ -164,21 +154,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   bool _checkForCurrentPrayer(String prayer) {
     final now = DateTime.now();
-    final todayRow = _getTodaysPrayerTimes();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
 
-    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     String currentKey = "";
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final timeParts = timeStr.split(':');
-        final prayerTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(timeParts[0]),
-          int.parse(timeParts[1]),
-        );
+        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
         if (now.isAfter(prayerTime)) {
           currentKey = key;
         }
@@ -198,7 +180,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       'dd.MM.yyyy',
     ).format(now.add(Duration(days: 1)));
 
-    final todayRow = _getTodaysPrayerTimes();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
 
     final tomorrowRow = csvData.firstWhere(
       (row) => row['Date'] == tomorrowStr,
@@ -216,18 +198,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
       int.parse(fajrTimeParts[1]),
     );
 
-    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final timeParts = timeStr.split(':');
-        final prayerTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(timeParts[0]),
-          int.parse(timeParts[1]),
-        );
+        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
         if (prayerTime.isAfter(now)) {
           return prayerTime.difference(now);
         }
@@ -334,7 +308,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final todayRow = _getTodaysPrayerTimes();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     final hijridate = HijriCalendarConfig.now();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
