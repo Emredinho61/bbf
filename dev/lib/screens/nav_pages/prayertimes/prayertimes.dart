@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
+import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -307,7 +308,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.notifications_none, color: Colors.white),
+              GestureDetector(
+                onTap: () {
+                  prayerTimesHelper.toggleNotification(name);
+                },
+                child: prayerTimesHelper.isNotificationEnabled(name)
+                    ? Icon(Icons.notifications_none, color: Colors.white,)
+                    : Icon(Icons.notifications_off, color: Colors.white),
+              ),
             ],
           ),
         ],
@@ -354,12 +362,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         Text(
                           '${_showNextPrayer()} in',
                           style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(color:isDark ? Colors.white : BColors.primary),
+                              .copyWith(
+                                color: isDark ? Colors.white : BColors.primary,
+                              ),
                         ),
                         Text(
                           countdownText,
                           style: TextStyle(
-                            color: isDark ? Colors.white :  BColors.primary,
+                            color: isDark ? Colors.white : BColors.primary,
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                           ),
@@ -381,7 +391,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           fajrIqama,
                         ),
                         _buildPrayerRow(
-                          'Dhuhr',
+                          'Dhur',
                           todayRow['Dhur'],
                           _checkForCurrentPrayer("Dhur"),
                           dhurIqama,
@@ -460,7 +470,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         SizedBox(height: 4),
                         TextButton.icon(
                           onPressed: () {
-                            generateMonthlyPrayerPdf(csvData, fridayPrayer1, fridayPrayer2);
+                            generateMonthlyPrayerPdf(
+                              csvData,
+                              fridayPrayer1,
+                              fridayPrayer2,
+                            );
                           },
                           icon: Icon(
                             Icons.picture_as_pdf,

@@ -1,8 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrayerTimesHelper {
+  late final SharedPreferencesWithCache prefsWithCache;
+
+  Future<void> initPrefs() async {
+    prefsWithCache = await SharedPreferencesWithCache.create(
+      cacheOptions: const SharedPreferencesWithCacheOptions(),
+    );
+  }
+
   List<Map<String, String>> csvData = [];
 
   Future<List<Map<String, String>>> loadCSV() async {
@@ -79,5 +88,32 @@ class PrayerTimesHelper {
       }
     }
     return prayerTimes;
+  }
+
+  Future<void> toggleNotification(String name) async {
+    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
+    await prefsWithCache.setBool(name, !currentMode);
+  }
+
+  bool isNotificationEnabled(String name) {
+    return (prefsWithCache.get(name) as bool?) ?? false;
+  }
+
+  bool isNotificationEnabledWithId(int id) {
+    String name = '';
+    switch (id) {
+      case 0:
+        name = 'Fajr';
+      case 1:
+        name = 'Dhur';
+      case 2:
+        name = 'Asr';
+      case 3:
+        name = 'Maghrib';
+      case 4:
+        name = 'Isha';
+      default:
+    }
+    return (prefsWithCache.get(name) as bool?) ?? false;
   }
 }

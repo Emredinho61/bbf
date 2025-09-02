@@ -15,6 +15,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await prayerTimesHelper.initPrefs();
   await AndroidAlarmManager.initialize();
 
   // initialize App
@@ -34,18 +35,13 @@ main() async {
   );
   
   final int id = 0;
+  final now = DateTime.now();
+
   await AndroidAlarmManager.periodic(
     const Duration(hours: 24),
     id,
     automaticNotifications,
-    startAt: DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-      0,
-      0,
-      0,
-    ),
+    startAt: DateTime(now.year, now.month, now.day + 1)
   );
 }
 

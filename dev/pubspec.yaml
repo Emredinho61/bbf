@@ -30,10 +30,11 @@ dependencies:
   http: ^1.5.0
   timezone: ^0.10.1
   google_maps_flutter: ^2.12.3
-  workmanager: ^0.9.0+2
   pdf: ^3.11.3
   printing: ^5.14.2
   android_alarm_manager_plus: ^4.0.8
+  shared_preferences_android: ^2.4.12
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
