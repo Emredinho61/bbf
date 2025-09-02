@@ -72,7 +72,7 @@ class NotificationServices {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
     tz.TZDateTime tzPrayerTime = tz.TZDateTime.from(prayerTime, tz.local);
-
+    if(prayerTime.isBefore(DateTime.now())) return;
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
