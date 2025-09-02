@@ -309,11 +309,19 @@ class _PrayerTimesState extends State<PrayerTimes> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () {
-                  prayerTimesHelper.toggleNotification(name);
+                onTap: () async {
+                  final prayerTime = await prayerTimesHelper
+                      .getCertainPrayerTimeAsDateTimes(name);
+                  if (prayerTime != null) {
+                    prayerTimesHelper.updateNotification(
+                      name,
+                      prayerTimesHelper.convertNameIntoId(name),
+                      prayerTime,
+                    );
+                  }
                 },
                 child: prayerTimesHelper.isNotificationEnabled(name)
-                    ? Icon(Icons.notifications_none, color: Colors.white,)
+                    ? Icon(Icons.notifications_none, color: Colors.white)
                     : Icon(Icons.notifications_off, color: Colors.white),
               ),
             ],

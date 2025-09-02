@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,9 +91,51 @@ class PrayerTimesHelper {
     return prayerTimes;
   }
 
-  Future<void> toggleNotification(String name) async {
+  Future<DateTime?> getCertainPrayerTimeAsDateTimes(String name) async {
+    // load csv File
+    await loadCSV();
+
+    // get todayRow
+    final todayRow = _getTodaysPrayerTimesAsStringMap();
+
+    late final DateTime? prayerTime;
+
+    final now = DateTime.now();
+
+    final timeStr = todayRow[name];
+    if (timeStr != null) {
+      final timeParts = timeStr.split(':');
+      prayerTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(timeParts[0]),
+        int.parse(timeParts[1]),
+      );
+    } else {
+      prayerTime = null;
+    }
+    return prayerTime;
+  }
+
+  Future<void> updateNotification(
+    String name,
+    int id,
+    DateTime prayerTime,
+  ) async {
     final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
-    await prefsWithCache.setBool(name, !currentMode);
+    final updatedMode = !currentMode;
+    await prefsWithCache.setBool(name, updatedMode);
+    if (updatedMode == false) {
+      notificationServices.deleteNotification(id);
+    } else {
+      await notificationServices.scheduledNotification(
+        id,
+        'Gebetszeit',
+        'Erinnerung',
+        prayerTime,
+      );
+    }
   }
 
   bool isNotificationEnabled(String name) {
@@ -115,5 +158,23 @@ class PrayerTimesHelper {
       default:
     }
     return (prefsWithCache.get(name) as bool?) ?? false;
+  }
+
+  int convertNameIntoId(String name) {
+    int id = 0;
+    switch (name) {
+      case 'Fajr':
+        id = 0;
+      case 'Dhur':
+        id = 1;
+      case 'Asr':
+        id = 2;
+      case 'Maghrib':
+        id = 3;
+      case 'Isha':
+        id = 4;
+      default:
+    }
+    return id;
   }
 }

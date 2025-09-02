@@ -72,7 +72,11 @@ class NotificationServices {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
     tz.TZDateTime tzPrayerTime = tz.TZDateTime.from(prayerTime, tz.local);
-    if(prayerTime.isBefore(DateTime.now())) return;
+
+    // Only schedule if Notification is in future
+    if (prayerTime.isBefore(DateTime.now())) return;
+
+    // schedule Notification
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
@@ -88,5 +92,12 @@ class NotificationServices {
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+    print('Prayer scheduled for id $id at Time $prayerTime');
+  }
+
+  // delete Notification
+  void deleteNotification(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
+    print('Prayer Notification deleted for id $id');
   }
 }
