@@ -179,6 +179,7 @@ Future<dynamic> registrationButtomSheet(BuildContext context) {
     // Bottom Sheet is draggable and scrollable
     builder: (context) {
       return BDraggableScrollableSheet(
+        scrollViewRequired: true,
         content: Column(
           children: [
             Padding(

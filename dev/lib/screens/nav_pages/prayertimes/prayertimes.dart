@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -285,16 +287,115 @@ class _PrayerTimesState extends State<PrayerTimes> {
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: () async {
-                  final prayerTime = await prayerTimesHelper
-                      .getCertainPrayerTimeAsDateTimes(name);
-                  if (prayerTime != null) {
-                    prayerTimesHelper.updateNotification(
-                      name,
-                      prayerTimesHelper.convertNameIntoId(name),
-                      prayerTime,
-                    );
-                  }
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25.0),
+                      ),
+                    ),
+
+                    builder: (context) {
+                      return BDraggableScrollableSheet(
+                        scrollViewRequired: false,
+                        content: DefaultTabController(
+                          initialIndex: prayerKeys.indexOf(name),
+                          length: 5,
+                          child: Column(
+                            children: [
+                              TabBar(
+                                isScrollable: true,
+                                indicatorColor: BColors.primary,
+                                labelColor: BColors.primary,
+                                unselectedLabelColor: isDark
+                                    ? Colors.white
+                                    : Colors.black,
+                                tabs: [
+                                  Tab(text: 'Fajr'),
+                                  Tab(text: 'Dhur'),
+                                  Tab(text: 'Asr'),
+                                  Tab(text: 'Maghrib'),
+                                  Tab(text: 'Isha'),
+                                ],
+                              ),
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    FutureBuilder(
+                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Fajr"),
+                                      builder: (context, asyncSnapshot) {
+                                        return NotificationSettingsPage(
+                                              name: "Fajr",
+                                              id: prayerTimesHelper.convertNameIntoId("Fajr"),
+                                              prayerTime: asyncSnapshot.data,
+                                            );
+                                      }
+                                    ),
+                                    FutureBuilder(
+                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Dhur"),
+                                      builder: (context, asyncSnapshot) {
+                                        return NotificationSettingsPage(
+                                              name: "Dhur",
+                                              id: prayerTimesHelper.convertNameIntoId("Dhur"),
+                                              prayerTime: asyncSnapshot.data,
+                                            );
+                                      }
+                                    ),
+                                    FutureBuilder(
+                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Asr"),
+                                      builder: (context, asyncSnapshot) {
+                                        return NotificationSettingsPage(
+                                              name: "Asr",
+                                              id: prayerTimesHelper.convertNameIntoId("Asr"),
+                                              prayerTime: asyncSnapshot.data,
+                                            );
+                                      }
+                                    ),
+                                    FutureBuilder(
+                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Maghrib"),
+                                      builder: (context, asyncSnapshot) {
+                                        return NotificationSettingsPage(
+                                              name: "Maghrib",
+                                              id: prayerTimesHelper.convertNameIntoId("Maghrib"),
+                                              prayerTime: asyncSnapshot.data,
+                                            );
+                                      }
+                                    ),
+                                    FutureBuilder(
+                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Isha"),
+                                      builder: (context, asyncSnapshot) {
+                                        return NotificationSettingsPage(
+                                              name: "Isha",
+                                              id: prayerTimesHelper.convertNameIntoId("Isha"),
+                                              prayerTime: asyncSnapshot.data,
+                                            );
+                                      }
+                                    ),
+
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
+                // {
+                //   final prayerTime = await prayerTimesHelper
+                //       .getCertainPrayerTimeAsDateTimes(name);
+                //   if (prayerTime != null) {
+                //     prayerTimesHelper.updateNotification(
+                //       name,
+                //       prayerTimesHelper.convertNameIntoId(name),
+                //       prayerTime,
+                //     );
+                //   }
+                // },
                 child: prayerTimesHelper.isNotificationEnabled(name)
                     ? Icon(Icons.notifications_none, color: Colors.white)
                     : Icon(Icons.notifications_off, color: Colors.white),
@@ -431,7 +532,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                       'Shuruq ${getShuruqTimes()}',
                                       style: TextStyle(color: Colors.white),
                                     ),
-                                    SizedBox(width: 5,),
+                                    SizedBox(width: 5),
                                     GestureDetector(
                                       onTap: () async {
                                         final prayerTime =

@@ -134,6 +134,46 @@ class PrayerTimesHelper {
     return prayerTime;
   }
 
+  Future<void> activateNotification(
+    String name,
+    int id,
+    DateTime prayerTime,
+  ) async {
+    // first, get the current Mode
+    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
+
+    // if its already true, there is no need to activate it again
+    if (currentMode == true) return;
+
+    // if it was false, then update it to true
+    final updatedMode = !currentMode;
+    await prefsWithCache.setBool(name, updatedMode);
+
+    // and schedule the notifcation
+    await notificationServices.scheduledNotification(
+      id,
+      'Erinnerung',
+      prayerTimesHelper.notificationMessage(id),
+      prayerTime,
+    );
+  }
+
+  Future<void> deactivateNotification(String name, int id) async {
+
+    // first, get the current Mode
+    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
+
+    // if its already false, there is no need to activate it again
+    if (currentMode == false) return;
+
+    // if it was true, then update it to false
+    final updatedMode = !currentMode;
+    await prefsWithCache.setBool(name, updatedMode);
+
+    // and delete the notification
+    notificationServices.deleteNotification(id);
+  }
+  
   Future<void> updateNotification(
     String name,
     int id,

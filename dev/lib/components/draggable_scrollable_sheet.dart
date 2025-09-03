@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class BDraggableScrollableSheet extends StatelessWidget {
   final Widget content;
-  const BDraggableScrollableSheet({super.key, required this.content});
+  final bool scrollViewRequired;
+  const BDraggableScrollableSheet({
+    super.key,
+    required this.scrollViewRequired,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +21,16 @@ class BDraggableScrollableSheet extends StatelessWidget {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: content,
-          ),
+          child: scrollViewRequired
+              ? SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  child: content,
+                )
+              : content,
         );
       },
     );
