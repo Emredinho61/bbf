@@ -75,7 +75,7 @@ class PrayerTimesHelper {
 
     final now = DateTime.now();
 
-    final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    final prayerKeys = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
@@ -109,7 +109,7 @@ class PrayerTimesHelper {
 
   Future<DateTime?> getCertainPrayerTimeAsDateTimes(String name) async {
     // load csv File
-    await loadCSV();
+    await loadCSV(); // TODO: Need to optimize, dont want to load CSV File every time
 
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
@@ -147,8 +147,8 @@ class PrayerTimesHelper {
     } else {
       await notificationServices.scheduledNotification(
         id,
-        'Gebetszeit',
         'Erinnerung',
+        prayerTimesHelper.notificationMessage(id),
         prayerTime,
       );
     }
@@ -164,12 +164,14 @@ class PrayerTimesHelper {
       case 0:
         name = 'Fajr';
       case 1:
-        name = 'Dhur';
+        name = 'Sunrise';
       case 2:
-        name = 'Asr';
+        name = 'Dhur';
       case 3:
-        name = 'Maghrib';
+        name = 'Asr';
       case 4:
+        name = 'Maghrib';
+      case 5:
         name = 'Isha';
       default:
     }
@@ -181,16 +183,38 @@ class PrayerTimesHelper {
     switch (name) {
       case 'Fajr':
         id = 0;
-      case 'Dhur':
+      case 'Sunrise':
         id = 1;
-      case 'Asr':
+      case 'Dhur':
         id = 2;
-      case 'Maghrib':
+      case 'Asr':
         id = 3;
-      case 'Isha':
+      case 'Maghrib':
         id = 4;
+      case 'Isha':
+        id = 5;
       default:
     }
     return id;
+  }
+
+  String notificationMessage(int id) {
+    String message = '';
+    switch (id) {
+      case 0:
+        message = 'Zeit für das Fajr Gebet';
+      case 1:
+        message = 'Die Sonne ist aufgegangen';
+      case 2:
+        message = 'Zeit für das Dhur Gebet';
+      case 3:
+        message = 'Zeit für das Asr Gebet';
+      case 4:
+        message = 'Zeit für das Maghrib Gebet';
+      case 5:
+        message = 'Zeit für das Isha Gebet';
+      default:
+    }
+    return message;
   }
 }

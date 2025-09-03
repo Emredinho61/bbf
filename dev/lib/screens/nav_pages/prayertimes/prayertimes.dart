@@ -21,7 +21,6 @@ class PrayerTimes extends StatefulWidget {
 }
 
 class _PrayerTimesState extends State<PrayerTimes> {
-
   final PrayertimesService prayertimesService = PrayertimesService();
 
   List<Map<String, String>> csvData = [];
@@ -83,7 +82,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     return todayRow['Sunrise']!;
   }
-
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -159,7 +157,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
+        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+          timeStr,
+        );
         if (now.isAfter(prayerTime)) {
           currentKey = key;
         }
@@ -200,7 +200,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
+        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+          timeStr,
+        );
         if (prayerTime.isAfter(now)) {
           return prayerTime.difference(now);
         }
@@ -423,9 +425,43 @@ class _PrayerTimesState extends State<PrayerTimes> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(5),
-                                child: Text(
-                                  'Sonnenaufgang ${getShuruqTimes()}',
-                                  style: TextStyle(color: Colors.white),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Shuruq ${getShuruqTimes()}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    SizedBox(width: 5,),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final prayerTime =
+                                            await prayerTimesHelper
+                                                .getCertainPrayerTimeAsDateTimes(
+                                                  'Sunrise',
+                                                );
+                                        if (prayerTime != null) {
+                                          prayerTimesHelper.updateNotification(
+                                            'Sunrise',
+                                            prayerTimesHelper.convertNameIntoId(
+                                              'Sunrise',
+                                            ),
+                                            prayerTime,
+                                          );
+                                        }
+                                      },
+                                      child:
+                                          prayerTimesHelper
+                                              .isNotificationEnabled('Sunrise')
+                                          ? Icon(
+                                              Icons.notifications_none,
+                                              color: Colors.white,
+                                            )
+                                          : Icon(
+                                              Icons.notifications_off,
+                                              color: Colors.white,
+                                            ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

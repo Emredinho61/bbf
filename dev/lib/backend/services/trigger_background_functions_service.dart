@@ -15,8 +15,8 @@ Future<void> automaticNotifications() async {
     if (prayerTimesHelper.isNotificationEnabledWithId(i)) {
       await notificationServices.scheduledNotification(
         i,
-        'Erinnerung',
         'Gebetszeit',
+        prayerTimesHelper.notificationMessage(i),
         todaysPrayerTimes[i],
       );
       print("Scheduled notification for index $i");
