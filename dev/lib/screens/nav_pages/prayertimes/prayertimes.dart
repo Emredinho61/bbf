@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/underlined_text.dart';
-import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
