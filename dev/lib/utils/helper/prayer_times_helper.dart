@@ -134,6 +134,35 @@ class PrayerTimesHelper {
     return prayerTime;
   }
 
+  Future<int> getCurrentPreTimeAsIndex(String prayerName) async {
+    String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
+    int? currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+    int currentIndex = 0;
+    switch (currentPreTime) {
+      case 0:
+        currentIndex = 0;
+      case 5:
+        currentIndex = 1;
+      case 10:
+        currentIndex = 2;
+      case 15:
+        currentIndex = 3;
+      case 20:
+        currentIndex = 4;
+      case 30:
+        currentIndex = 5;
+      case 45:
+        currentIndex = 6;
+      default:
+    }
+    return currentIndex;
+  }
+
+  Future<void> setPrePrayerTime(String prePrayerString) async {
+    int prePrayerTime = convertPreTimeStringIntoInt(prePrayerString);
+    await prefsWithCache.setInt(prePrayerString, prePrayerTime);
+  }
+
   Future<void> activateNotification(
     String name,
     int id,
@@ -158,8 +187,87 @@ class PrayerTimesHelper {
     );
   }
 
-  Future<void> deactivateNotification(String name, int id) async {
+  String convertPrayerNameIntoPrePrayerName(String prayerName) {
+    String prePrayerName = '';
+    switch (prayerName) {
+      case 'Fajr':
+        prePrayerName = 'preFajr';
+      case 'Shuruq':
+        prePrayerName = 'preShuruq';
+      case 'Dhur':
+        prePrayerName = 'preDhur';
+      case 'Asr':
+        prePrayerName = 'preAsr';
+      case 'Maghrib':
+        prePrayerName = 'preMaghrib';
+      case 'Isha':
+        prePrayerName = 'preIsha';
+      default:
+    }
+    return prePrayerName;
+  }
 
+  int convertPreTimeStringIntoInt(String preTimeString) {
+    int preTime = 0;
+    switch (preTimeString) {
+      case 'Keine':
+        preTime = 0;
+      case '5 Minuten':
+        preTime = 5;
+      case '10 Minuten':
+        preTime = 10;
+      case '15 Minuten':
+        preTime = 15;
+      case '20 Minuten':
+        preTime = 20;
+      case '30 Minuten':
+        preTime = 30;
+      case '45 Minuten':
+        preTime = 45;
+      default:
+    }
+    return preTime;
+  }
+
+  Future<void> updatePreNotification(
+    String name,
+    DateTime prayerTime,
+    int minutes,
+  ) async {
+    String prePrayerName = convertPrayerNameIntoPrePrayerName(name);
+
+    // get the current pre time
+    final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+
+    // Check, if the new time is any different from the old
+    // if not, return
+
+    if (currentPreTime == minutes) return;
+
+    // else set the new time
+    await prefsWithCache.setInt(prePrayerName, minutes);
+
+    // Calculate the preNotification using the actual prayerTime - the selected minutes
+    DateTime prePrayerTime = prayerTime.subtract(Duration(minutes: minutes));
+
+    // assign unique id for prePrayerTime
+    final int id = convertNameIntoId(prePrayerName);
+
+    // delete the old notification
+    notificationServices.deleteNotification(id);
+
+    // and schedule the notifcation, if the user didnt decided to choose 'Keine'
+    if (minutes != 0) {
+      await notificationServices.scheduledNotification(
+        id,
+        'Erinnerung',
+        'Noch $minutes bis zum nächsten Gebet',
+        prePrayerTime,
+      );
+    }
+  }
+
+  Future<void> deactivateNotification(String name, int id) async {
     // first, get the current Mode
     final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
 
@@ -173,7 +281,7 @@ class PrayerTimesHelper {
     // and delete the notification
     notificationServices.deleteNotification(id);
   }
-  
+
   Future<void> updateNotification(
     String name,
     int id,
@@ -233,6 +341,18 @@ class PrayerTimesHelper {
         id = 4;
       case 'Isha':
         id = 5;
+      case 'preFajr':
+        id = 10;
+      case 'preShuruq':
+        id = 11;
+      case 'preDhur':
+        id = 12;
+      case 'preAsr':
+        id = 13;
+      case 'preMaghrib':
+        id = 14;
+      case 'preIsha':
+        id = 15;
       default:
     }
     return id;
@@ -257,4 +377,5 @@ class PrayerTimesHelper {
     }
     return message;
   }
+
 }

@@ -33,7 +33,7 @@ main() async {
       child: MyApp(),
     ),
   );
-  
+
   final int id = 0;
   final now = DateTime.now();
 
@@ -41,7 +41,7 @@ main() async {
     const Duration(hours: 24),
     id,
     automaticNotifications,
-    startAt: DateTime(now.year, now.month, now.day + 1)
+    startAt: DateTime(now.year, now.month, now.day + 1),
   );
 }
 
