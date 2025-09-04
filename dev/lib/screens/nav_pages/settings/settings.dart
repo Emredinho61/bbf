@@ -117,43 +117,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-void _showBroadcastDialog() {
-  final _titleController = TextEditingController();
-  final _summaryController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text("Send Broadcast"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(controller: _titleController, decoration: InputDecoration(labelText: "Title")),
-          TextField(controller: _summaryController, decoration: InputDecoration(labelText: "Summary")),
-        ],
-      ),
-      actions: [
-        TextButton(
-          child: Text("Cancel"),
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
-        ElevatedButton(
-          child: Text("Send"),
-          onPressed: () async {
-            // Save message in Firestore
-            await FirebaseFirestore.instance.collection("broadcasts").add({
-              "title": _titleController.text,
-              "summary": _summaryController.text,
-              "timestamp": FieldValue.serverTimestamp(),
-            });
-            Navigator.of(ctx).pop();
-          },
-        ),
-      ],
-    ),
-  );
-}
-
   // Admin can change Iqama times here
   void _showDialogForIqamaTimes() {
     TextEditingController fajrIqamaController = TextEditingController();
@@ -374,14 +337,6 @@ void _showBroadcastDialog() {
                   title: const Text("Iqama Zeiten einstellen"),
                   onTap: () async {
                     _showDialogForIqamaTimes();
-                  },
-                ),
-
-                ListTile(
-                  leading: const Icon(Icons.access_time),
-                  title: const Text("Nachricht broadcasten"),
-                  onTap: () async {
-                    _showBroadcastDialog();
                   },
                 ),
 

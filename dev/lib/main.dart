@@ -30,9 +30,6 @@ main() async {
 
   FirebaseMessaging.instance.subscribeToTopic("all");
 
-  
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -58,11 +55,6 @@ main() async {
     automaticPreNotifications,
     startAt: DateTime(now.year, now.month, now.day + 1),
   );
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
 }
 
 Future<void> permissionNotification() async {
