@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -27,6 +28,11 @@ main() async {
   // initialize all Notification settings
   await initializeNotification();
 
+  FirebaseMessaging.instance.subscribeToTopic("all");
+
+  
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -52,6 +58,11 @@ main() async {
     automaticPreNotifications,
     startAt: DateTime(now.year, now.month, now.day + 1),
   );
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
 }
 
 Future<void> permissionNotification() async {
