@@ -285,109 +285,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () async {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(25.0),
-                      ),
-                    ),
-
-                    builder: (context) {
-                      return BDraggableScrollableSheet(
-                        scrollViewRequired: false,
-                        content: DefaultTabController(
-                          initialIndex: prayerKeys.indexOf(name),
-                          length: 5,
-                          child: Column(
-                            children: [
-                              TabBar(
-                                isScrollable: true,
-                                indicatorColor: BColors.primary,
-                                labelColor: BColors.primary,
-                                unselectedLabelColor: isDark
-                                    ? Colors.white
-                                    : Colors.black,
-                                tabs: [
-                                  Tab(text: 'Fajr'),
-                                  Tab(text: 'Dhur'),
-                                  Tab(text: 'Asr'),
-                                  Tab(text: 'Maghrib'),
-                                  Tab(text: 'Isha'),
-                                ],
-                              ),
-                              Expanded(
-                                child: TabBarView(
-                                  children: [
-                                    FutureBuilder(
-                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Fajr"),
-                                      builder: (context, asyncSnapshot) {
-                                        return NotificationSettingsPage(
-                                              name: "Fajr",
-                                              id: prayerTimesHelper.convertNameIntoId("Fajr"),
-                                              prayerTime: asyncSnapshot.data,
-                                            );
-                                      }
-                                    ),
-                                    FutureBuilder(
-                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Dhur"),
-                                      builder: (context, asyncSnapshot) {
-                                        return NotificationSettingsPage(
-                                              name: "Dhur",
-                                              id: prayerTimesHelper.convertNameIntoId("Dhur"),
-                                              prayerTime: asyncSnapshot.data,
-                                            );
-                                      }
-                                    ),
-                                    FutureBuilder(
-                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Asr"),
-                                      builder: (context, asyncSnapshot) {
-                                        return NotificationSettingsPage(
-                                              name: "Asr",
-                                              id: prayerTimesHelper.convertNameIntoId("Asr"),
-                                              prayerTime: asyncSnapshot.data,
-                                            );
-                                      }
-                                    ),
-                                    FutureBuilder(
-                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Maghrib"),
-                                      builder: (context, asyncSnapshot) {
-                                        return NotificationSettingsPage(
-                                              name: "Maghrib",
-                                              id: prayerTimesHelper.convertNameIntoId("Maghrib"),
-                                              prayerTime: asyncSnapshot.data,
-                                            );
-                                      }
-                                    ),
-                                    FutureBuilder(
-                                      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Isha"),
-                                      builder: (context, asyncSnapshot) {
-                                        return NotificationSettingsPage(
-                                              name: "Isha",
-                                              id: prayerTimesHelper.convertNameIntoId("Isha"),
-                                              prayerTime: asyncSnapshot.data,
-                                            );
-                                      }
-                                    ),
-
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: prayerTimesHelper.isNotificationEnabled(name)
-                    ? Icon(Icons.notifications_none, color: Colors.white)
-                    : Icon(Icons.notifications_off, color: Colors.white),
+              NotificationSettings(
+                context: context,
+                prayerKeys: prayerKeys,
+                name: name,
               ),
             ],
           ),
@@ -523,21 +424,45 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                     ),
                                     SizedBox(width: 5),
                                     GestureDetector(
-                                      onTap: () async {
-                                        final prayerTime =
-                                            await prayerTimesHelper
-                                                .getCertainPrayerTimeAsDateTimes(
-                                                  'Sunrise',
-                                                );
-                                        if (prayerTime != null) {
-                                          prayerTimesHelper.updateNotification(
-                                            'Sunrise',
-                                            prayerTimesHelper.convertNameIntoId(
-                                              'Sunrise',
-                                            ),
-                                            prayerTime,
-                                          );
-                                        }
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            actions: [
+                                              FutureBuilder(
+                                                future: prayerTimesHelper
+                                                    .getCertainPrayerTimeAsDateTimes(
+                                                      "Sunrise",
+                                                    ),
+                                                builder: (context, asyncSnapshot) {
+                                                  return NotificationSettingsPage(
+                                                    name: "Sunrise",
+                                                    id: prayerTimesHelper
+                                                        .convertNameIntoId(
+                                                          "Sunrise",
+                                                        ),
+                                                    prayerTime:
+                                                        asyncSnapshot.data,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        // final prayerTime =
+                                        //     await prayerTimesHelper
+                                        //         .getCertainPrayerTimeAsDateTimes(
+                                        //           'Sunrise',
+                                        //         );
+                                        // if (prayerTime != null) {
+                                        //   prayerTimesHelper.updateNotification(
+                                        //     'Sunrise',
+                                        //     prayerTimesHelper.convertNameIntoId(
+                                        //       'Sunrise',
+                                        //     ),
+                                        //     prayerTime,
+                                        //   );
+                                        // }
                                       },
                                       child:
                                           prayerTimesHelper
@@ -623,5 +548,129 @@ class _PrayerTimesState extends State<PrayerTimes> {
       'Dec',
     ];
     return months[month - 1];
+  }
+}
+
+class NotificationSettings extends StatelessWidget {
+  late final String name;
+  NotificationSettings({
+    super.key,
+    required this.context,
+    required this.prayerKeys,
+    required this.name,
+  });
+
+  final BuildContext context;
+  final List<String> prayerKeys;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+          ),
+
+          builder: (context) {
+            return BDraggableScrollableSheet(
+              scrollViewRequired: false,
+              content: DefaultTabController(
+                initialIndex: prayerKeys.indexOf(name),
+                length: 5,
+                child: Column(
+                  children: [
+                    TabBar(
+                      isScrollable: true,
+                      indicatorColor: BColors.primary,
+                      labelColor: BColors.primary,
+                      unselectedLabelColor: isDark
+                          ? Colors.white
+                          : Colors.black,
+                      tabs: [
+                        Tab(text: 'Fajr'),
+                        Tab(text: 'Dhur'),
+                        Tab(text: 'Asr'),
+                        Tab(text: 'Maghrib'),
+                        Tab(text: 'Isha'),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          FutureBuilder(
+                            future: prayerTimesHelper
+                                .getCertainPrayerTimeAsDateTimes("Fajr"),
+                            builder: (context, asyncSnapshot) {
+                              return NotificationSettingsPage(
+                                name: "Fajr",
+                                id: prayerTimesHelper.convertNameIntoId("Fajr"),
+                                prayerTime: asyncSnapshot.data,
+                              );
+                            },
+                          ),
+                          FutureBuilder(
+                            future: prayerTimesHelper
+                                .getCertainPrayerTimeAsDateTimes("Dhur"),
+                            builder: (context, asyncSnapshot) {
+                              return NotificationSettingsPage(
+                                name: "Dhur",
+                                id: prayerTimesHelper.convertNameIntoId("Dhur"),
+                                prayerTime: asyncSnapshot.data,
+                              );
+                            },
+                          ),
+                          FutureBuilder(
+                            future: prayerTimesHelper
+                                .getCertainPrayerTimeAsDateTimes("Asr"),
+                            builder: (context, asyncSnapshot) {
+                              return NotificationSettingsPage(
+                                name: "Asr",
+                                id: prayerTimesHelper.convertNameIntoId("Asr"),
+                                prayerTime: asyncSnapshot.data,
+                              );
+                            },
+                          ),
+                          FutureBuilder(
+                            future: prayerTimesHelper
+                                .getCertainPrayerTimeAsDateTimes("Maghrib"),
+                            builder: (context, asyncSnapshot) {
+                              return NotificationSettingsPage(
+                                name: "Maghrib",
+                                id: prayerTimesHelper.convertNameIntoId(
+                                  "Maghrib",
+                                ),
+                                prayerTime: asyncSnapshot.data,
+                              );
+                            },
+                          ),
+                          FutureBuilder(
+                            future: prayerTimesHelper
+                                .getCertainPrayerTimeAsDateTimes("Isha"),
+                            builder: (context, asyncSnapshot) {
+                              return NotificationSettingsPage(
+                                name: "Isha",
+                                id: prayerTimesHelper.convertNameIntoId("Isha"),
+                                prayerTime: asyncSnapshot.data,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: prayerTimesHelper.isNotificationEnabled(name)
+          ? Icon(Icons.notifications_none, color: Colors.white)
+          : Icon(Icons.notifications_off, color: Colors.white),
+    );
   }
 }

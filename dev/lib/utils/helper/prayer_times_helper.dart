@@ -73,20 +73,11 @@ class PrayerTimesHelper {
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
 
-    final now = DateTime.now();
-
     final prayerKeys = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr != null) {
-        final timeParts = timeStr.split(':');
-        final prayerTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(timeParts[0]),
-          int.parse(timeParts[1]),
-        );
+        final prayerTime = convertStringTimeIntoDateTime(timeStr);
         prayerTimes.add(prayerTime);
       }
     }
@@ -134,6 +125,7 @@ class PrayerTimesHelper {
     return prayerTime;
   }
 
+  // this is used for the Notification settings UI. When opening the UI, the current setted preTime should be displayed
   Future<int> getCurrentPreTimeAsIndex(String prayerName) async {
     String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
     int? currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
@@ -158,6 +150,7 @@ class PrayerTimesHelper {
     return currentIndex;
   }
 
+  // currently not used
   Future<void> setPrePrayerTime(String prePrayerString) async {
     int prePrayerTime = convertPreTimeStringIntoInt(prePrayerString);
     await prefsWithCache.setInt(prePrayerString, prePrayerTime);
@@ -192,8 +185,8 @@ class PrayerTimesHelper {
     switch (prayerName) {
       case 'Fajr':
         prePrayerName = 'preFajr';
-      case 'Shuruq':
-        prePrayerName = 'preShuruq';
+      case 'Sunrise':
+        prePrayerName = 'preSunrise';
       case 'Dhur':
         prePrayerName = 'preDhur';
       case 'Asr':
@@ -207,6 +200,8 @@ class PrayerTimesHelper {
     return prePrayerName;
   }
 
+  // Since the UI is displayed as a string for the user,
+  // we need to convert the String into int so we can calculate the pre Time
   int convertPreTimeStringIntoInt(String preTimeString) {
     int preTime = 0;
     switch (preTimeString) {
@@ -230,18 +225,17 @@ class PrayerTimesHelper {
   }
 
   Future<void> updatePreNotification(
-    String name,
+    String prayerName,
     DateTime prayerTime,
     int minutes,
   ) async {
-    String prePrayerName = convertPrayerNameIntoPrePrayerName(name);
+    String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
 
     // get the current pre time
     final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
 
     // Check, if the new time is any different from the old
     // if not, return
-
     if (currentPreTime == minutes) return;
 
     // else set the new time
@@ -261,7 +255,7 @@ class PrayerTimesHelper {
       await notificationServices.scheduledNotification(
         id,
         'Erinnerung',
-        'Noch $minutes bis zum nächsten Gebet',
+        'Noch $minutes Minuten bis zum nächsten Gebet',
         prePrayerTime,
       );
     }
@@ -282,6 +276,7 @@ class PrayerTimesHelper {
     notificationServices.deleteNotification(id);
   }
 
+  // currently not used
   Future<void> updateNotification(
     String name,
     int id,
@@ -302,8 +297,22 @@ class PrayerTimesHelper {
     }
   }
 
-  bool isNotificationEnabled(String name) {
-    return (prefsWithCache.get(name) as bool?) ?? false;
+  // checks if the notifications are enabled for prayer times
+  bool isNotificationEnabled(String prayerName) {
+    return (prefsWithCache.get(prayerName) as bool?) ?? false;
+  }
+
+  // checks if the notifications are enabled for pre prayer times
+  bool isPreNotificationEnabled(String prePrayerName) {
+    final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+    if (currentPreTime == 0) return false;
+    return true;
+  }
+
+  // get the preTime of a certain pre Prayer Name
+  int getPreTime(String prePrayerName) {
+    final int preTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+    return preTime;
   }
 
   bool isNotificationEnabledWithId(int id) {
@@ -326,6 +335,7 @@ class PrayerTimesHelper {
     return (prefsWithCache.get(name) as bool?) ?? false;
   }
 
+  // Assign for every Notification Case an unique id
   int convertNameIntoId(String name) {
     int id = 0;
     switch (name) {
@@ -343,7 +353,7 @@ class PrayerTimesHelper {
         id = 5;
       case 'preFajr':
         id = 10;
-      case 'preShuruq':
+      case 'preSunrise':
         id = 11;
       case 'preDhur':
         id = 12;
@@ -378,4 +388,23 @@ class PrayerTimesHelper {
     return message;
   }
 
+  int assignIdForPrePrayerNotification(int id) {
+    int prePrayerId = 0;
+    switch (id) {
+      case 0:
+        prePrayerId = 10;
+      case 1:
+        prePrayerId = 11;
+      case 2:
+        prePrayerId = 12;
+      case 3:
+        prePrayerId = 13;
+      case 4:
+        prePrayerId = 14;
+      case 5:
+        prePrayerId = 15;
+      default:
+    }
+    return prePrayerId;
+  }
 }

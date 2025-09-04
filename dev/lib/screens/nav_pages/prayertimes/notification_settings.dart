@@ -52,10 +52,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       child: Column(
         children: [
           SizedBox(height: 12),
-          Text(
-            'Gebetsbenachrichtigungen',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+          widget.name == 'Sunrise'
+              ? Text(
+                  'Shuruq-Benachrichtigung',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                )
+              : Text(
+                  'Gebetsbenachrichtigungen',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -153,10 +158,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             ],
           ),
           SizedBox(height: 10),
-          Text(
-            'Vor-Gebetsbenachrichtigung',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          widget.name == 'Sunrise'
+              ? Text(
+                  'Vor-Shuruq-Benachrichtigung',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                )
+              : Text(
+                  'Vor-Gebetsbenachrichtigungen',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
           SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -176,14 +186,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         minutes,
                       );
                     });
-                    int minutes = prayerTimesHelper.convertPreTimeStringIntoInt(
-                      prePrayerTimes[updatedIndex],
-                    );
-                    prayerTimesHelper.updatePreNotification(
-                      widget.name,
-                      widget.prayerTime!,
-                      minutes,
-                    );
                   }
                 },
                 child: Container(
