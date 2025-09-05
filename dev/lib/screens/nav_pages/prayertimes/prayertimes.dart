@@ -4,6 +4,7 @@ import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -322,208 +323,256 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
               ),
               child: SafeArea(
-                child: ListView(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        const SizedBox(height: 20),
-                        Text(
-                          'BBF Verein - Freiburg',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          '${_showNextPrayer()} in',
-                          style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(
-                                color: isDark ? Colors.white : BColors.primary,
-                              ),
-                        ),
-                        Text(
-                          countdownText,
-                          style: TextStyle(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(height: 20),
+                    Text(
+                      'BBF Verein - Freiburg',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      '${_showNextPrayer()} in',
+                      style: Theme.of(context).textTheme.headlineMedium!
+                          .copyWith(
                             color: isDark ? Colors.white : BColors.primary,
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-                          style: TextStyle(
-                            color: isDark ? Colors.white : BColors.primary,
-                            fontSize: 13,
-                          ),
-                        ),
+                    ),
+                    Text(
+                      countdownText,
+                      style: TextStyle(
+                        color: isDark ? Colors.white : BColors.primary,
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : BColors.primary,
+                        fontSize: 13,
+                      ),
+                    ),
 
-                        const SizedBox(height: 16),
-                        _buildPrayerRow(
-                          'Fajr',
-                          todayRow['Fajr'],
-                          _checkForCurrentPrayer("Fajr"),
-                          fajrIqama,
-                        ),
-                        _buildPrayerRow(
-                          'Dhur',
-                          todayRow['Dhur'],
-                          _checkForCurrentPrayer("Dhur"),
-                          dhurIqama,
-                        ),
-                        _buildPrayerRow(
-                          'Asr',
-                          todayRow['Asr'],
-                          _checkForCurrentPrayer("Asr"),
-                          asrIqama,
-                        ),
-                        _buildPrayerRow(
-                          'Maghrib',
-                          todayRow['Maghrib'],
-                          _checkForCurrentPrayer("Maghrib"),
-                          maghribIqama,
-                        ),
-                        _buildPrayerRow(
-                          'Isha',
-                          todayRow['Isha'],
-                          _checkForCurrentPrayer("Isha"),
-                          ishaIqama,
-                        ),
-                        SizedBox(height: 6),
-
-                        SizedBox(
-                          width: 250,
-                          child: Divider(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-
-                        SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: DefaultTabController(
+                        length: 2,
+                        initialIndex: 0,
+                        child: Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? BColors.prayerRowDark
-                                    : BColors.prayerRowLight,
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: BColors.primary),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Shuruq ${getShuruqTimes()}',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    SizedBox(width: 5),
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            actions: [
-                                              FutureBuilder(
-                                                future: prayerTimesHelper
-                                                    .getCertainPrayerTimeAsDateTimes(
-                                                      "Sunrise",
-                                                    ),
-                                                builder: (context, asyncSnapshot) {
-                                                  return NotificationSettingsPage(
-                                                    name: "Sunrise",
-                                                    id: prayerTimesHelper
-                                                        .convertNameIntoId(
-                                                          "Sunrise",
+                            TabBar(
+                              indicatorColor: BColors.primary,
+                              labelColor: Colors.black,
+                              tabs: [Text('Gebetszeiten'), Text('Kalender')],
+                            ),
+                            SizedBox(height: 10),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  ListView(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          _buildPrayerRow(
+                                            'Fajr',
+                                            todayRow['Fajr'],
+                                            _checkForCurrentPrayer("Fajr"),
+                                            fajrIqama,
+                                          ),
+                                          _buildPrayerRow(
+                                            'Dhur',
+                                            todayRow['Dhur'],
+                                            _checkForCurrentPrayer("Dhur"),
+                                            dhurIqama,
+                                          ),
+                                          _buildPrayerRow(
+                                            'Asr',
+                                            todayRow['Asr'],
+                                            _checkForCurrentPrayer("Asr"),
+                                            asrIqama,
+                                          ),
+                                          _buildPrayerRow(
+                                            'Maghrib',
+                                            todayRow['Maghrib'],
+                                            _checkForCurrentPrayer("Maghrib"),
+                                            maghribIqama,
+                                          ),
+                                          _buildPrayerRow(
+                                            'Isha',
+                                            todayRow['Isha'],
+                                            _checkForCurrentPrayer("Isha"),
+                                            ishaIqama,
+                                          ),
+                                          SizedBox(height: 6),
+
+                                          SizedBox(
+                                            width: 250,
+                                            child: Divider(
+                                              color:
+                                                  Theme.of(
+                                                        context,
+                                                      ).brightness ==
+                                                      Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          ),
+
+                                          SizedBox(height: 6),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? BColors.prayerRowDark
+                                                      : BColors.prayerRowLight,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                    color: BColors.primary,
+                                                  ),
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    5,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        'Shuruq ${getShuruqTimes()}',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
                                                         ),
-                                                    prayerTime:
-                                                        asyncSnapshot.data,
-                                                  );
-                                                },
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (context) => AlertDialog(
+                                                              actions: [
+                                                                FutureBuilder(
+                                                                  future: prayerTimesHelper
+                                                                      .getCertainPrayerTimeAsDateTimes(
+                                                                        "Sunrise",
+                                                                      ),
+                                                                  builder:
+                                                                      (
+                                                                        context,
+                                                                        asyncSnapshot,
+                                                                      ) {
+                                                                        return NotificationSettingsPage(
+                                                                          name:
+                                                                              "Sunrise",
+                                                                          id: prayerTimesHelper.convertNameIntoId(
+                                                                            "Sunrise",
+                                                                          ),
+                                                                          prayerTime:
+                                                                              asyncSnapshot.data,
+                                                                        );
+                                                                      },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                        child:
+                                                            prayerTimesHelper
+                                                                .isNotificationEnabled(
+                                                                  'Sunrise',
+                                                                )
+                                                            ? Icon(
+                                                                Icons
+                                                                    .notifications_none,
+                                                                color: Colors
+                                                                    .white,
+                                                              )
+                                                            : Icon(
+                                                                Icons
+                                                                    .notifications_off,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: isDark
+                                                      ? BColors.prayerRowDark
+                                                      : BColors.prayerRowLight,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                    color: BColors.primary,
+                                                  ),
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    5,
+                                                  ),
+                                                  child: Text(
+                                                    'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ),
-                                        );
-                                        // final prayerTime =
-                                        //     await prayerTimesHelper
-                                        //         .getCertainPrayerTimeAsDateTimes(
-                                        //           'Sunrise',
-                                        //         );
-                                        // if (prayerTime != null) {
-                                        //   prayerTimesHelper.updateNotification(
-                                        //     'Sunrise',
-                                        //     prayerTimesHelper.convertNameIntoId(
-                                        //       'Sunrise',
-                                        //     ),
-                                        //     prayerTime,
-                                        //   );
-                                        // }
-                                      },
-                                      child:
-                                          prayerTimesHelper
-                                              .isNotificationEnabled('Sunrise')
-                                          ? Icon(
-                                              Icons.notifications_none,
-                                              color: Colors.white,
-                                            )
-                                          : Icon(
-                                              Icons.notifications_off,
-                                              color: Colors.white,
+                                          SizedBox(height: 4),
+                                          TextButton.icon(
+                                            onPressed: () {
+                                              generateMonthlyPrayerPdf(
+                                                csvData,
+                                                fridayPrayer1,
+                                                fridayPrayer2,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.picture_as_pdf,
+                                              color:
+                                                  Theme.of(
+                                                        context,
+                                                      ).brightness ==
+                                                      Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              size: 24,
                                             ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Container(
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? BColors.prayerRowDark
-                                    : BColors.prayerRowLight,
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: BColors.primary),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Text(
-                                  'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                            label: UnderlinedText(
+                                              content: Text(
+                                                'Monat PDF',
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  ListView(children: [CalenderView()]),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
-                        TextButton.icon(
-                          onPressed: () {
-                            generateMonthlyPrayerPdf(
-                              csvData,
-                              fridayPrayer1,
-                              fridayPrayer2,
-                            );
-                          },
-                          icon: Icon(
-                            Icons.picture_as_pdf,
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white
-                                : Colors.black,
-                            size: 24,
-                          ),
-                          label: UnderlinedText(
-                            content: Text(
-                              'Monat PDF',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
