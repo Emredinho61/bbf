@@ -331,7 +331,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showDialogForFridaysPrayer();
                   },
                 ),
-             
+              if (isUserAdmin && authService.currentUser != null)
                 ListTile(
                   leading: const Icon(Icons.access_time),
                   title: const Text("Iqama Zeiten einstellen"),
