@@ -65,6 +65,22 @@ class PrayerTimesHelper {
     return todayRow;
   }
 
+  Map<String, String> getPrayerTimesForDay(
+    List<Map<String, String>> csvData,
+    DateTime givenDay,
+  ) {
+    final day = givenDay;
+    final todayStr = DateFormat('dd.MM.yyyy').format(day);
+    final todayRow = csvData.firstWhere(
+      (row) => row['Date'] == todayStr,
+      orElse: () => {},
+    );
+    final prayerTimes = Map<String, String>.from(todayRow);
+    prayerTimes.remove('Date');
+
+    return prayerTimes;
+  }
+
   Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes() async {
     List<DateTime> prayerTimes = [];
     // load csv File

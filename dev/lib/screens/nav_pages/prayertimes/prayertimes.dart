@@ -4,7 +4,7 @@ import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/calendar.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
