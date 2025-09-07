@@ -329,15 +329,18 @@ class _PrayerTimesState extends State<PrayerTimes> {
                     const SizedBox(height: 20),
                     Text(
                       'BBF Verein - Freiburg',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineSmall!
+                          .copyWith(
+                            color: isDark ? Colors.white : BColors.primary,
+                          ),
                     ),
                     const SizedBox(height: 14),
                     Text(
                       '${_showNextPrayer()} in',
-                      style: Theme.of(context).textTheme.headlineMedium!
-                          .copyWith(
-                            color: isDark ? Colors.white : BColors.primary,
-                          ),
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : BColors.primary,
+                      ),
                     ),
                     Text(
                       countdownText,
@@ -364,8 +367,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         child: Column(
                           children: [
                             TabBar(
+                              dividerColor: isDark
+                                  ? Colors.white54
+                                  : BColors.secondary,
+                              padding: EdgeInsets.symmetric(horizontal: 40),
                               indicatorColor: BColors.primary,
-                              labelColor: Colors.black,
+                              labelColor: isDark ? Colors.white : Colors.black,
                               tabs: [Text('Gebetszeiten'), Text('Kalender')],
                             ),
                             SizedBox(height: 10),

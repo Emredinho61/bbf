@@ -311,12 +311,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Mission, Vorstand, Kontakt, Spendenlinks...",
                 isAboutPage: true,
               ),
-              _buildLinkTile(
-                context,
-                "Standort der Moschee",
-                "Adresse der BBF",
-                isLocationPage: true,
-              ),
+              // TODO: Comment out if its working 
+              // _buildLinkTile(
+              //   context,
+              //   "Standort der Moschee",
+              //   "Adresse der BBF",
+              //   isLocationPage: true,
+              // ),
               const Divider(),
 
               // User Settings

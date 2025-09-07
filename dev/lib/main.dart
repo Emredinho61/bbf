@@ -12,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,12 +31,20 @@ main() async {
 
   FirebaseMessaging.instance.subscribeToTopic("all");
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      child: MyApp(),
+  initializeDateFormatting().then(
+    (_) => runApp(
+      ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        child: MyApp(),
+      ),
     ),
   );
+  // runApp(
+  //   ChangeNotifierProvider(
+  //     create: (context) => ThemeProvider(),
+  //     child: MyApp(),
+  //   ),
+  // );
 
   final int prayerTimesId = 0;
   final int prePrayerTimesId = 1;
