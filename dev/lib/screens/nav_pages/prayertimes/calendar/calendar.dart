@@ -57,7 +57,7 @@ class _CalenderViewState extends State<CalenderView> {
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           decoration: BoxDecoration(
             color: isDark ? BColors.prayerRowDark : BColors.secondary,
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(16),
           ),
           width: 380,
           child: TableCalendar(
@@ -161,41 +161,44 @@ class PrayerTimesTable extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : BColors.secondary,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Table(
-        children: [
-          TableRow(
-            children: prayerTimes.keys
-                .map(
-                  (name) => Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text(name, style: TextStyle(fontSize: 12)),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Table(
+          children: [
+            TableRow(
+              children: prayerTimes.keys
+                  .map(
+                    (name) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Center(
+                        child: Text(name, style: TextStyle(fontSize: 10)),
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
-          ),
-          TableRow(
-            children: prayerTimes.values
-                .map(
-                  (time) => Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                  )
+                  .toList(),
+            ),
+            TableRow(
+              children: prayerTimes.values
+                  .map(
+                    (time) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Center(
+                        child: Text(
+                          time,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
