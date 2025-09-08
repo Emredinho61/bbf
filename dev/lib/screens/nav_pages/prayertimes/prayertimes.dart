@@ -34,13 +34,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
-  String fridayPrayer1 = '';
-  String fridayPrayer2 = '';
-  String fajrIqama = '';
-  String dhurIqama = '';
-  String asrIqama = '';
-  String maghribIqama = '';
-  String ishaIqama = '';
+  String fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
+  String fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
+  String fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
+  String dhurIqama = prayerTimesHelper.getDhurIqamaPreference();
+  String asrIqama = prayerTimesHelper.getAsrIqamaPreference();
+  String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
+  String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
 
   @override
   void initState() {
@@ -226,15 +226,51 @@ class _PrayerTimesState extends State<PrayerTimes> {
     ]);
 
     if (!mounted) return;
-
+    if (fridayPrayer1 != results[0]) {
+      await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer1', results[0]);
+      setState(() {
+        fridayPrayer1 = results[0];
+      });
+    }
+    if (fridayPrayer2 != results[1]) {
+      await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer2', results[1]);
+      setState(() {
+        fridayPrayer2 = results[1];
+      });
+    }
+    if (fajrIqama != results[2]) {
+      await prayerTimesHelper.setIqamaPreference('Fajr', results[2]);
+      setState(() {
+        fajrIqama = results[2];
+      });
+    }
+    if (dhurIqama != results[3]) {
+      await prayerTimesHelper.setIqamaPreference('Dhur', results[3]);
+      setState(() {
+        dhurIqama = results[3];
+      });
+    }
+    if (asrIqama != results[4]) {
+      await prayerTimesHelper.setIqamaPreference('Asr', results[4]);
+      setState(() {
+        asrIqama = results[4];
+      });
+    }
+    if (maghribIqama != results[5]) {
+      await prayerTimesHelper.setIqamaPreference('Maghrib', results[5]);
+      setState(() {
+        maghribIqama = results[5];
+      });
+    }
+    if (ishaIqama != results[6]) {
+      await prayerTimesHelper.setIqamaPreference('Isha', results[6]);
+      setState(() {
+        ishaIqama = results[6];
+      });
+    }
     setState(() {
       fridayPrayer1 = results[0];
       fridayPrayer2 = results[1];
-      fajrIqama = results[2];
-      dhurIqama = results[3];
-      asrIqama = results[4];
-      maghribIqama = results[5];
-      ishaIqama = results[6];
     });
   }
 

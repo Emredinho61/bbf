@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
@@ -6,6 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PrayerTimesHelper {
   late final SharedPreferencesWithCache prefsWithCache;
+  PrayertimesService? _prayertimesService;
+
+  PrayertimesService get prayertimesService {
+    _prayertimesService ??= PrayertimesService();
+    return _prayertimesService!;
+  }
 
   Future<void> initPrefs() async {
     prefsWithCache = await SharedPreferencesWithCache.create(
@@ -422,5 +429,69 @@ class PrayerTimesHelper {
       default:
     }
     return prePrayerId;
+  }
+
+  String getFridaysPrayer1Preference() {
+    String fridayPrayer1 =
+        (prefsWithCache.get('FridaysPrayer1') as String?) ?? '';
+    return fridayPrayer1;
+  }
+
+  String getFridaysPrayer2Preference() {
+    String fridayPrayer2 =
+        (prefsWithCache.get('FridaysPrayer2') as String?) ?? '';
+    return fridayPrayer2;
+  }
+
+  String getFajrIqamaPreference() {
+    String fajrIqama = (prefsWithCache.get('FajrIqama') as String?) ?? '';
+    return fajrIqama;
+  }
+
+  String getDhurIqamaPreference() {
+    String dhurIqama = (prefsWithCache.get('DhurIqama') as String?) ?? '';
+    return dhurIqama;
+  }
+
+  String getAsrIqamaPreference() {
+    String asrIqama = (prefsWithCache.get('AsrIqama') as String?) ?? '';
+    return asrIqama;
+  }
+
+  String getMaghribIqamaPreference() {
+    String maghribIqama = (prefsWithCache.get('MaghribIqama') as String?) ?? '';
+    return maghribIqama;
+  }
+
+  String getIshaIqamaPreference() {
+    String ishaIqama = (prefsWithCache.get('IshaIqama') as String?) ?? '';
+    return ishaIqama;
+  }
+
+  Future<void> setIqamaPreference(String prayer, String iqamaTime) async {
+    switch (prayer) {
+      case 'Fajr':
+        prefsWithCache.setString('FajrIqama', iqamaTime);
+      case 'Dhur':
+        prefsWithCache.setString('DhurIqama', iqamaTime);
+      case 'Asr':
+        prefsWithCache.setString('AsrIqama', iqamaTime);
+      case 'Maghrib':
+        prefsWithCache.setString('MaghribIqama', iqamaTime);
+      case 'Isha':
+        prefsWithCache.setString('IshaIqama', iqamaTime);
+
+      default:
+    }
+  }
+
+  Future<void> setFridaysPrayerPreference(String prayer, String time) async {
+    switch (prayer) {
+      case 'FridaysPrayer1':
+        prefsWithCache.setString('FridaysPrayer1', time);
+      case 'FridaysPrayer2':
+        prefsWithCache.setString('FridaysPrayer2', time);
+      default:
+    }
   }
 }
