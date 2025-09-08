@@ -6,6 +6,7 @@ import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -211,6 +212,43 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showBroadcastDialog() {
+  final _titleController = TextEditingController();
+  final _summaryController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text("Send Broadcast"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(controller: _titleController, decoration: InputDecoration(labelText: "Title")),
+          TextField(controller: _summaryController, decoration: InputDecoration(labelText: "Summary")),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () => Navigator.of(ctx).pop(),
+        ),
+        ElevatedButton(
+          child: Text("Send"),
+          onPressed: () async {
+            // Save message in Firestore
+            await FirebaseFirestore.instance.collection("broadcasts").add({
+              "title": _titleController.text,
+              "summary": _summaryController.text,
+              "timestamp": FieldValue.serverTimestamp(),
+            });
+            Navigator.of(ctx).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
   // UI for settings
 
   @override
@@ -358,6 +396,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   await unoToFlaskService.fetchAlbum();
                 },
               ),
+              ListTile(
+                  leading: const Icon(Icons.message),
+                  title: const Text("Nachricht broadcasten"),
+                  onTap: () async {
+                    _showBroadcastDialog();
+                  },
+                ),
 
               // Log out if user is logged in
               if (authService.currentUser != null)

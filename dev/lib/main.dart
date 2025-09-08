@@ -29,7 +29,7 @@ main() async {
   // initialize all Notification settings
   await initializeNotification();
 
-  FirebaseMessaging.instance.subscribeToTopic("all");
+  FirebaseMessaging.instance.subscribeToTopic("test");
 
   initializeDateFormatting().then(
     (_) => runApp(
