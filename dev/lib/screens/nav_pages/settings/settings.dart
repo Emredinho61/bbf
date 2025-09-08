@@ -213,41 +213,47 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showBroadcastDialog() {
-  final titleController = TextEditingController();
-  final summaryController = TextEditingController();
+    final titleController = TextEditingController();
+    final summaryController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text("Send Broadcast"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(controller: titleController, decoration: InputDecoration(labelText: "Title")),
-          TextField(controller: summaryController, decoration: InputDecoration(labelText: "Summary")),
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Send Broadcast"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(labelText: "Title"),
+            ),
+            TextField(
+              controller: summaryController,
+              decoration: InputDecoration(labelText: "Summary"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+          ElevatedButton(
+            child: Text("Send"),
+            onPressed: () async {
+              // Save message in Firestore
+              await FirebaseFirestore.instance.collection("broadcasts").add({
+                "title": titleController.text,
+                "summary": summaryController.text,
+                "timestamp": FieldValue.serverTimestamp(),
+              });
+              Navigator.of(ctx).pop();
+            },
+          ),
         ],
       ),
-      actions: [
-        TextButton(
-          child: Text("Cancel"),
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
-        ElevatedButton(
-          child: Text("Send"),
-          onPressed: () async {
-            // Save message in Firestore
-            await FirebaseFirestore.instance.collection("broadcasts").add({
-              "title": titleController.text,
-              "summary": summaryController.text,
-              "timestamp": FieldValue.serverTimestamp(),
-            });
-            Navigator.of(ctx).pop();
-          },
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
   // UI for settings
 
@@ -397,12 +403,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
               ListTile(
-                  leading: const Icon(Icons.message),
-                  title: const Text("Nachricht broadcasten"),
-                  onTap: () async {
-                    _showBroadcastDialog();
-                  },
-                ),
+                leading: const Icon(Icons.message),
+                title: const Text("Nachricht broadcasten"),
+                onTap: () async {
+                  _showBroadcastDialog();
+                },
+              ),
 
               // Log out if user is logged in
               if (authService.currentUser != null)
