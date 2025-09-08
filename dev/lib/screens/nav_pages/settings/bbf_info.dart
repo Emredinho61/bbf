@@ -5,7 +5,7 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Über Uns"),
@@ -57,7 +57,7 @@ class AboutPage extends StatelessWidget {
                 "Arbeiten in einem wissenschaftlichen Rahmen für höchste Qualität.",
                 "Gute Beziehungen mit allen gesellschaftlichen Partnern pflegen.",
                 "Geordnete institutionelle Arbeit durch Planung und Disziplin.",
-              ],isDark),
+              ], isDark),
               _buildSection(
                 "Der aktuelle Vorstand",
                 "Der aktuelle Vorstand wurde am 09.03.2023 für 4 Jahre gewählt und besteht aus:\n\n"
@@ -118,7 +118,10 @@ class AboutPage extends StatelessWidget {
                 children: [
                   Text(
                     "• ",
-                    style: TextStyle(fontSize: 18, color: isDark ? Colors.white :  Colors.black87),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                   ),
                   Expanded(
                     child: Text(

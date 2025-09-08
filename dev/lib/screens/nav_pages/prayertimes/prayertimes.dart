@@ -227,13 +227,19 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     if (!mounted) return;
     if (fridayPrayer1 != results[0]) {
-      await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer1', results[0]);
+      await prayerTimesHelper.setFridaysPrayerPreference(
+        'FridaysPrayer1',
+        results[0],
+      );
       setState(() {
         fridayPrayer1 = results[0];
       });
     }
     if (fridayPrayer2 != results[1]) {
-      await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer2', results[1]);
+      await prayerTimesHelper.setFridaysPrayerPreference(
+        'FridaysPrayer2',
+        results[1],
+      );
       setState(() {
         fridayPrayer2 = results[1];
       });

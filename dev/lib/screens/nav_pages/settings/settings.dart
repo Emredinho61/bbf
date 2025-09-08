@@ -6,7 +6,6 @@ import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -311,7 +310,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Mission, Vorstand, Kontakt, Spendenlinks...",
                 isAboutPage: true,
               ),
-              // TODO: Comment out if its working 
+              // TODO: Comment out if its working
               // _buildLinkTile(
               //   context,
               //   "Standort der Moschee",

@@ -71,7 +71,10 @@ class NotificationServices {
   ) async {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
-    tz.TZDateTime tzNotificationTime = tz.TZDateTime.from(notificationTime, tz.local);
+    tz.TZDateTime tzNotificationTime = tz.TZDateTime.from(
+      notificationTime,
+      tz.local,
+    );
 
     // Only schedule if Notification is in future
     if (notificationTime.isBefore(DateTime.now())) return;

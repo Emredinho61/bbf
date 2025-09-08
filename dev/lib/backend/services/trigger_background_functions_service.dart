@@ -75,7 +75,7 @@ Future<void> automaticPreNotifications() async {
     DateTime calculatedPrePrayerTime = prayerTimes[i]!.subtract(
       Duration(minutes: prePrayerTimes[i]),
     );
-    
+
     calculatedPrePrayerTimes.add(calculatedPrePrayerTime);
     print('${prePrayerNames[i]} : ${calculatedPrePrayerTimes[i]}');
   }

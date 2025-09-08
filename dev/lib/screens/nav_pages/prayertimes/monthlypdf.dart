@@ -72,7 +72,15 @@ Future<void> generateMonthlyPrayerPdf(
         pw.SizedBox(height: 20),
         pw.Center(
           child: pw.TableHelper.fromTextArray(
-            headers: ['Datum', 'Fajr', 'Sonnenaufgang', 'Dhur', 'Asr', 'Maghrib', 'Isha'],
+            headers: [
+              'Datum',
+              'Fajr',
+              'Sonnenaufgang',
+              'Dhur',
+              'Asr',
+              'Maghrib',
+              'Isha',
+            ],
             data: monthRows.map((row) {
               return [
                 row['Date'] ?? '',
@@ -82,7 +90,6 @@ Future<void> generateMonthlyPrayerPdf(
                 row['Asr'] ?? '',
                 row['Maghrib'] ?? '',
                 row['Isha'] ?? '',
-                
               ];
             }).toList(),
             border: pw.TableBorder.all(),
