@@ -1,23 +1,30 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import admin from "firebase-admin";
 
 admin.initializeApp();
 
-exports.sendBroadcast = functions.firestore
-  .document("broadcasts/{broadcastId}")
-  .onCreate(async (snap, context) => {
-    const data = snap.data();
+export const addmessage = onDocumentCreated(
+  "broadcasts/{broadcastId}",      // Firestore-Pfad    // Optionen
+  async (event) => {                // Handler
+    const data = event.data.data();
 
-    const payload = {
+    const message = {
+      topic: "all",
       notification: {
         title: data.title,
         body: data.summary,
       },
-      android: {
-        priority: "high",
-      },
+      android: { priority: "high" },
+      apns: { payload: { aps: { sound: "default" } } },
     };
 
-    // Send to everyone subscribed to "all"
-    return admin.messaging().sendToTopic("all", payload);
-  });
+    try {
+      const response = await admin.messaging().send(message);
+      console.log("Broadcast sent:", response);
+      return response;
+    } catch (error) {
+      console.error("Error sending broadcast:", error);
+      throw error;
+    }
+  }
+);
