@@ -9,7 +9,7 @@ export const addmessage = onDocumentCreated(
     const data = event.data.data();
 
     const message = {
-      topic: "all",
+      topic: "test",
       notification: {
         title: data.title,
         body: data.summary,
