@@ -213,8 +213,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showBroadcastDialog() {
-  final _titleController = TextEditingController();
-  final _summaryController = TextEditingController();
+  final titleController = TextEditingController();
+  final summaryController = TextEditingController();
 
   showDialog(
     context: context,
@@ -223,8 +223,8 @@ class _SettingsPageState extends State<SettingsPage> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(controller: _titleController, decoration: InputDecoration(labelText: "Title")),
-          TextField(controller: _summaryController, decoration: InputDecoration(labelText: "Summary")),
+          TextField(controller: titleController, decoration: InputDecoration(labelText: "Title")),
+          TextField(controller: summaryController, decoration: InputDecoration(labelText: "Summary")),
         ],
       ),
       actions: [
@@ -237,8 +237,8 @@ class _SettingsPageState extends State<SettingsPage> {
           onPressed: () async {
             // Save message in Firestore
             await FirebaseFirestore.instance.collection("broadcasts").add({
-              "title": _titleController.text,
-              "summary": _summaryController.text,
+              "title": titleController.text,
+              "summary": summaryController.text,
               "timestamp": FieldValue.serverTimestamp(),
             });
             Navigator.of(ctx).pop();
