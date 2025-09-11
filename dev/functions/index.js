@@ -3,7 +3,7 @@ import admin from "firebase-admin";
 import { onTaskDispatched } from "firebase-functions/tasks";
 import { GoogleAuth } from "google-auth-library";
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { getFunctions } from "firebase-admin/functions";
+import { getFunctions} from "firebase-admin/functions"
 
 admin.initializeApp();
 
@@ -96,7 +96,7 @@ export const scheduleDailyPrayers = onSchedule(
     console.log("Berechne Gebetszeiten für heute...");
     
     // for testing purposes: static 
-    const prayerTimes = {
+     const prayerTimes = {
       fajr: "05:15",
       dhuhr: "13:10",
       asr: "17:00",
@@ -107,7 +107,7 @@ export const scheduleDailyPrayers = onSchedule(
     // seperating date from time, and only take the date
     // the time will be appended as soon as we get it from the prayer times
     const today = new Date().toISOString().split("T")[0];
-    const queue = getFunctions().taskQueue("prayer-queue");// queue in order to append tasks to the queue
+    const queue = getFunctions().taskQueue("sendPrayerNotification");// queue in order to append tasks to the queue
     const targetUri = await getFunctionUrl("sendPrayerNotification"); //  gives as back the url to the function, which will finally trigger the notification
 
     for (const [prayer, time] of Object.entries(prayerTimes)) {
@@ -119,7 +119,7 @@ export const scheduleDailyPrayers = onSchedule(
         { prayerName: prayer },
         {
           uri: targetUri,
-          scheduleTime: sendTime.toISOString(), 
+          scheduleTime: sendTime, 
         }
       );
 

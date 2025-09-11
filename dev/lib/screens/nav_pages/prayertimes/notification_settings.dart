@@ -68,7 +68,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 onTap: () {
                   prayerTimesHelper.deactivateNotification(
                     widget.name,
-                    widget.id,
                   );
                   setState(() {
                     isNotificationActive = prayerTimesHelper
@@ -113,8 +112,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 onTap: () {
                   prayerTimesHelper.activateNotification(
                     widget.name,
-                    widget.id,
-                    widget.prayerTime!,
                   );
                   setState(() {
                     isNotificationActive = prayerTimesHelper

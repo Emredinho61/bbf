@@ -4,6 +4,7 @@ import 'package:bbf_app/backend/services/trigger_background_functions_service.da
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class PrayerTimesHelper {
   late final SharedPreferencesWithCache prefsWithCache;
@@ -181,9 +182,8 @@ class PrayerTimesHelper {
 
   Future<void> activateNotification(
     String name,
-    int id,
-    DateTime prayerTime,
   ) async {
+
     // first, get the current Mode
     final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
 
@@ -194,13 +194,9 @@ class PrayerTimesHelper {
     final updatedMode = !currentMode;
     await prefsWithCache.setBool(name, updatedMode);
 
-    // and schedule the notifcation
-    await notificationServices.scheduledNotification(
-      id,
-      'Erinnerung',
-      prayerTimesHelper.notificationMessage(id),
-      prayerTime,
-    );
+    // subscribe to topic 
+    await FirebaseMessaging.instance.subscribeToTopic(name);
+
   }
 
   String convertPrayerNameIntoPrePrayerName(String prayerName) {
@@ -284,7 +280,7 @@ class PrayerTimesHelper {
     }
   }
 
-  Future<void> deactivateNotification(String name, int id) async {
+  Future<void> deactivateNotification(String name) async {
     // first, get the current Mode
     final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
 
@@ -295,8 +291,9 @@ class PrayerTimesHelper {
     final updatedMode = !currentMode;
     await prefsWithCache.setBool(name, updatedMode);
 
-    // and delete the notification
-    notificationServices.deleteNotification(id);
+    // and unsubscribe to topic 
+    await FirebaseMessaging.instance.unsubscribeFromTopic(name);
+    
   }
 
   // currently not used
@@ -494,4 +491,8 @@ class PrayerTimesHelper {
       default:
     }
   }
+  Future<void> resetPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); 
+}
 }
