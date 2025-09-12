@@ -6,6 +6,7 @@ import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/preach/preach.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -583,33 +584,100 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                             ],
                                           ),
                                           SizedBox(height: 4),
-                                          TextButton.icon(
-                                            onPressed: () {
-                                              generateMonthlyPrayerPdf(
-                                                csvData,
-                                                fridayPrayer1,
-                                                fridayPrayer2,
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.picture_as_pdf,
-                                              color:
-                                                  Theme.of(
-                                                        context,
-                                                      ).brightness ==
-                                                      Brightness.dark
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              size: 24,
-                                            ),
-                                            label: UnderlinedText(
-                                              content: Text(
-                                                'Monat PDF',
-                                                style: Theme.of(
-                                                  context,
-                                                ).textTheme.bodyMedium,
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              // PDF button
+                                              TextButton.icon(
+                                                onPressed: () {
+                                                  generateMonthlyPrayerPdf(
+                                                    csvData,
+                                                    fridayPrayer1,
+                                                    fridayPrayer2,
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.picture_as_pdf,
+                                                  color:
+                                                      Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  size: 24,
+                                                ),
+                                                label: UnderlinedText(
+                                                  content: Text(
+                                                    'Monat PDF',
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.bodyMedium,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+
+                                              const SizedBox(width: 12),
+
+                                              // Khutba button
+                                              TextButton.icon(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) => AlertDialog(
+                                                      title: const Text(
+                                                        "Wöchentliche Khutba",
+                                                      ),
+                                                      content: SingleChildScrollView(
+                                                        child: const Text(
+                                                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                                                          "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                                                          "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi "
+                                                          "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit "
+                                                          "in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\n"
+                                                          "Aliquam erat volutpat. Curabitur nec lacus sit amet turpis suscipit "
+                                                          "faucibus. Integer vehicula, mauris at fermentum hendrerit, neque dui "
+                                                          "elementum nulla, sed viverra nunc justo eget velit.",
+                                                          textAlign:
+                                                              TextAlign.justify,
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                              ),
+                                                          child: const Text(
+                                                            "Schließen",
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.menu_book,
+                                                  color:
+                                                      Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  size: 24,
+                                                ),
+                                                label: UnderlinedText(
+                                                  content: Text(
+                                                    'Khutba',
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.bodyMedium,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
