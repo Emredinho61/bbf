@@ -180,10 +180,7 @@ class PrayerTimesHelper {
     await prefsWithCache.setInt(prePrayerString, prePrayerTime);
   }
 
-  Future<void> activateNotification(
-    String name,
-  ) async {
-
+  Future<void> activateNotification(String name) async {
     // first, get the current Mode
     final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
 
@@ -194,9 +191,8 @@ class PrayerTimesHelper {
     final updatedMode = !currentMode;
     await prefsWithCache.setBool(name, updatedMode);
 
-    // subscribe to topic 
+    // subscribe to topic
     await FirebaseMessaging.instance.subscribeToTopic(name);
-
   }
 
   String convertPrayerNameIntoPrePrayerName(String prayerName) {
@@ -291,9 +287,8 @@ class PrayerTimesHelper {
     final updatedMode = !currentMode;
     await prefsWithCache.setBool(name, updatedMode);
 
-    // and unsubscribe to topic 
+    // and unsubscribe to topic
     await FirebaseMessaging.instance.unsubscribeFromTopic(name);
-    
   }
 
   // currently not used
@@ -491,8 +486,9 @@ class PrayerTimesHelper {
       default:
     }
   }
+
   Future<void> resetPrefs() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.clear(); 
-}
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 }

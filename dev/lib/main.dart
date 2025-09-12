@@ -41,25 +41,26 @@ main() async {
     ),
   );
 
-//   final int prayerTimesId = 0;
-//   final int prePrayerTimesId = 1;
+  //   final int prayerTimesId = 0;
+  //   final int prePrayerTimesId = 1;
 
-//   final now = DateTime.now();
+  //   final now = DateTime.now();
 
-//   await AndroidAlarmManager.periodic(
-//     const Duration(hours: 24),
-//     prayerTimesId,
-//     automaticNotifications,
-//     startAt: DateTime(now.year, now.month, now.day + 1),
-//   );
+  //   await AndroidAlarmManager.periodic(
+  //     const Duration(hours: 24),
+  //     prayerTimesId,
+  //     automaticNotifications,
+  //     startAt: DateTime(now.year, now.month, now.day + 1),
+  //   );
 
-//   await AndroidAlarmManager.periodic(
-//     const Duration(hours: 24),
-//     prePrayerTimesId,
-//     automaticPreNotifications,
-//     startAt: DateTime(now.year, now.month, now.day + 1),
-//   );
+  //   await AndroidAlarmManager.periodic(
+  //     const Duration(hours: 24),
+  //     prePrayerTimesId,
+  //     automaticPreNotifications,
+  //     startAt: DateTime(now.year, now.month, now.day + 1),
+  //   );
 }
+
 Future<void> permissionNotification() async {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();

@@ -66,9 +66,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             children: [
               GestureDetector(
                 onTap: () {
-                  prayerTimesHelper.deactivateNotification(
-                    widget.name,
-                  );
+                  prayerTimesHelper.deactivateNotification(widget.name);
                   setState(() {
                     isNotificationActive = prayerTimesHelper
                         .isNotificationEnabled(widget.name);
@@ -110,9 +108,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ),
               GestureDetector(
                 onTap: () {
-                  prayerTimesHelper.activateNotification(
-                    widget.name,
-                  );
+                  prayerTimesHelper.activateNotification(widget.name);
                   setState(() {
                     isNotificationActive = prayerTimesHelper
                         .isNotificationEnabled(widget.name);
