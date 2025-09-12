@@ -97,11 +97,11 @@ export const scheduleDailyPrayers = onSchedule(
     
     // for testing purposes: static 
      const prayerTimes = {
-      fajr: "05:15",
-      dhuhr: "13:10",
-      asr: "17:00",
-      maghrib: "20:15",
-      isha: "22:00",
+      Fajr: "05:15",
+      Dhur: "13:10",
+      Asr: "17:00",
+      Maghrib: "20:15",
+      Isha: "22:00",
     };
 
     // seperating date from time, and only take the date
