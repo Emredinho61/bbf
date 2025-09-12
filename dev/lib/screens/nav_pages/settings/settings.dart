@@ -2,6 +2,7 @@ import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
@@ -383,6 +384,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showDialogForIqamaTimes();
                   },
                 ),
+
+              ListTile(
+                leading: const Icon(Icons.upload_file),
+                title: const Text("Khutba hochladen"),
+                subtitle: const Text("PDF auswählen und speichern"),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const UploadKhutbaDialog(),
+                  );
+                },
+              ),
 
               // Testing purposes TODO: Remove later
               ListTile(

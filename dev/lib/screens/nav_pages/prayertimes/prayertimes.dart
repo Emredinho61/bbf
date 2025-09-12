@@ -6,7 +6,7 @@ import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/preach/preach.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -16,6 +16,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/monthlypdf.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -622,26 +624,49 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                                               // Khutba button
                                               TextButton.icon(
-                                                onPressed: () {
+                                                onPressed: () async {
+                                                  final snapshot =
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection('khutbas')
+                                                          .orderBy(
+                                                            'date',
+                                                            descending: true,
+                                                          )
+                                                          .limit(1)
+                                                          .get();
+
+                                                  if (snapshot.docs.isEmpty) {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (_) => const AlertDialog(
+                                                        title: Text(
+                                                          "Keine Khutba verfügbar",
+                                                        ),
+                                                        content: Text(
+                                                          "Es wurde noch keine Khutba hochgeladen.",
+                                                        ),
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  final khutba = snapshot
+                                                      .docs
+                                                      .first
+                                                      .data();
+                                                  final pdfUrl =
+                                                      khutba['pdfUrl']
+                                                          as String;
+
                                                   showDialog(
                                                     context: context,
                                                     builder: (context) => AlertDialog(
                                                       title: const Text(
                                                         "Wöchentliche Khutba",
                                                       ),
-                                                      content: SingleChildScrollView(
-                                                        child: const Text(
-                                                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                                                          "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                                                          "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi "
-                                                          "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit "
-                                                          "in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\n"
-                                                          "Aliquam erat volutpat. Curabitur nec lacus sit amet turpis suscipit "
-                                                          "faucibus. Integer vehicula, mauris at fermentum hendrerit, neque dui "
-                                                          "elementum nulla, sed viverra nunc justo eget velit.",
-                                                          textAlign:
-                                                              TextAlign.justify,
-                                                        ),
+                                                      content: Text(
+                                                        "Eine Khutba ist verfügbar.\n\nTitel: ${khutba['title']}",
                                                       ),
                                                       actions: [
                                                         TextButton(
@@ -651,6 +676,26 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                               ),
                                                           child: const Text(
                                                             "Schließen",
+                                                          ),
+                                                        ),
+                                                        ElevatedButton.icon(
+                                                          onPressed: () async {
+                                                            // Open in browser
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                            await launchUrl(
+                                                              Uri.parse(pdfUrl),
+                                                              mode: LaunchMode
+                                                                  .externalApplication,
+                                                            );
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons
+                                                                .picture_as_pdf,
+                                                          ),
+                                                          label: const Text(
+                                                            "Ansehen",
                                                           ),
                                                         ),
                                                       ],
