@@ -3,7 +3,9 @@ import admin from "firebase-admin";
 import { onTaskDispatched } from "firebase-functions/tasks";
 import { GoogleAuth } from "google-auth-library";
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { getFunctions} from "firebase-admin/functions"
+import { getFunctions } from "firebase-admin/functions";
+import moment from 'moment-timezone';
+
 
 admin.initializeApp();
 
@@ -65,7 +67,7 @@ export const sendPrayerNotification = onTaskDispatched(
 let auth;
 
 
-async function getFunctionUrl(name, location="us-central1") {
+async function getFunctionUrl(name, location = "us-central1") {
   if (!auth) {
     auth = new GoogleAuth({
       scopes: "https://www.googleapis.com/auth/cloud-platform",
@@ -76,7 +78,7 @@ async function getFunctionUrl(name, location="us-central1") {
     `projects/${projectId}/locations/${location}/functions/${name}`;
 
   const client = await auth.getClient();
-  const res = await client.request({url});
+  const res = await client.request({ url });
   const uri = res.data?.serviceConfig?.uri;
   if (!uri) {
     throw new Error(`Unable to retreive uri for function at ${url}`);
@@ -94,9 +96,9 @@ export const scheduleDailyPrayers = onSchedule(
   },
   async () => {
     console.log("Berechne Gebetszeiten für heute...");
-    
+
     // for testing purposes: static 
-     const prayerTimes = {
+    const prayerTimes = {
       Fajr: "05:15",
       Dhur: "13:10",
       Asr: "17:00",
@@ -104,22 +106,20 @@ export const scheduleDailyPrayers = onSchedule(
       Isha: "22:00",
     };
 
-    // seperating date from time, and only take the date
-    // the time will be appended as soon as we get it from the prayer times
-    const today = new Date().toISOString().split("T")[0];
+
+    const today = moment().tz("Europe/Berlin").format("YYYY-MM-DD");
     const queue = getFunctions().taskQueue("sendPrayerNotification");// queue in order to append tasks to the queue
     const targetUri = await getFunctionUrl("sendPrayerNotification"); //  gives as back the url to the function, which will finally trigger the notification
 
     for (const [prayer, time] of Object.entries(prayerTimes)) {
       const [hour, minute] = time.split(":").map(Number);
-      const sendTime = new Date(today);
-      sendTime.setHours(hour, minute, 0, 0);
+      const sendTime = moment.tz(`${today} ${time}`, "YYYY-MM-DD HH:mm", "Europe/Berlin").toDate();
 
       await queue.enqueue(
         { prayerName: prayer },
         {
           uri: targetUri,
-          scheduleTime: sendTime, 
+          scheduleTime: sendTime,
         }
       );
 
