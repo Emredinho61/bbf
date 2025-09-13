@@ -239,9 +239,53 @@ class PrayerTimesHelper {
     return preTime;
   }
 
+  // Future<void> updatePreNotification(
+  //   String prayerName,
+  //   DateTime prayerTime,
+  //   int minutes,
+  // ) async {
+  //   String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
+
+  //   // get the current pre time
+  //   final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+
+  //   // Check, if the new time is any different from the old
+  //   // if not, return
+  //   if (currentPreTime == minutes) return;
+
+  //   // else set the new time
+  //   await prefsWithCache.setInt(prePrayerName, minutes);
+
+  //   // Calculate the preNotification using the actual prayerTime - the selected minutes
+  //   DateTime prePrayerTime = prayerTime.subtract(Duration(minutes: minutes));
+
+  //   // assign unique id for prePrayerTime
+  //   final int id = convertNameIntoId(prePrayerName);
+
+  //   // delete the old notification
+  //   notificationServices.deleteNotification(id);
+
+  //   // and schedule the notifcation, if the user didnt decided to choose 'Keine'
+  //   if (minutes != 0) {
+  //     await notificationServices.scheduledNotification(
+  //       id,
+  //       'Erinnerung',
+  //       'Noch $minutes Minuten bis zum nächsten Gebet',
+  //       prePrayerTime,
+  //     );
+  //   }
+  // }
+String getPrePrayerTopic(String prayerName, int preTime) {
+  const allowedTimes = [5, 10, 15, 20, 30, 45];
+  if (allowedTimes.contains(preTime)) {
+    return '$prayerName$preTime';
+  }
+  return '';
+}
+
+
   Future<void> updatePreNotification(
     String prayerName,
-    DateTime prayerTime,
     int minutes,
   ) async {
     String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
@@ -249,30 +293,24 @@ class PrayerTimesHelper {
     // get the current pre time
     final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
 
+    final currentPrePrayerTopic = getPrePrayerTopic(prayerName, currentPreTime); 
+
     // Check, if the new time is any different from the old
     // if not, return
     if (currentPreTime == minutes) return;
 
     // else set the new time
     await prefsWithCache.setInt(prePrayerName, minutes);
+    
+    // else unsubscribe
+    await FirebaseMessaging.instance.unsubscribeFromTopic(currentPrePrayerTopic);
+    
+    final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes); 
 
-    // Calculate the preNotification using the actual prayerTime - the selected minutes
-    DateTime prePrayerTime = prayerTime.subtract(Duration(minutes: minutes));
-
-    // assign unique id for prePrayerTime
-    final int id = convertNameIntoId(prePrayerName);
-
-    // delete the old notification
-    notificationServices.deleteNotification(id);
-
-    // and schedule the notifcation, if the user didnt decided to choose 'Keine'
-    if (minutes != 0) {
-      await notificationServices.scheduledNotification(
-        id,
-        'Erinnerung',
-        'Noch $minutes Minuten bis zum nächsten Gebet',
-        prePrayerTime,
-      );
+    // only subscribe, if new minutes is not 0
+    if(minutes != 0)
+    {
+      await FirebaseMessaging.instance.subscribeToTopic(updatedPrePrayerTopic); 
     }
   }
 

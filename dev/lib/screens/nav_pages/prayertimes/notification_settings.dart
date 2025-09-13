@@ -175,7 +175,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                           );
                       prayerTimesHelper.updatePreNotification(
                         widget.name,
-                        widget.prayerTime!,
                         minutes,
                       );
                     });
@@ -206,7 +205,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                           );
                       prayerTimesHelper.updatePreNotification(
                         widget.name,
-                        widget.prayerTime!,
                         minutes,
                       );
                     });
