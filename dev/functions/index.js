@@ -354,7 +354,7 @@ async function getFunctionUrl(name, location = "us-central1") {
 // The queue will execute all the tasks when their time arrives
 export const scheduleDailyPrayers = onSchedule(
   {
-    schedule: "every day 00:00",
+    schedule: "every day 00:42",
     timeZone: "Europe/Berlin",
   },
   async () => {
@@ -444,7 +444,7 @@ export const scheduleDailyPrayers = onSchedule(
         }
       );
 
-      console.log(`Task für ${prayer} geplant um ${sendTime.toISOString()}`);
+      console.log(`Task für ${prayer} geplant um ${sendTime}`);
     }
     for (const [prePrayer5, preTime5] of Object.entries(prePrayerTimes5)) {
 
@@ -471,7 +471,7 @@ export const scheduleDailyPrayers = onSchedule(
           scheduleTime: sendPreTime10,
         }
       );
-      console.log(`Task für ${prePrayer5} geplant um ${sendPreTime5.toISOString()}`);
+      console.log(`Task für ${prePrayer10} geplant um ${sendPreTime10.toISOString()}`);
     }
 
     for (const [prePrayer15, preTime15] of Object.entries(prePrayerTimes15)) {
