@@ -299,11 +299,11 @@ String getPrePrayerTopic(String prayerName, int preTime) {
     // if not, return
     if (currentPreTime == minutes) return;
 
-    // else set the new time
-    await prefsWithCache.setInt(prePrayerName, minutes);
-    
     // else unsubscribe
     await FirebaseMessaging.instance.unsubscribeFromTopic(currentPrePrayerTopic);
+    
+    // else set the new time
+    await prefsWithCache.setInt(prePrayerName, minutes);
     
     final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes); 
 
