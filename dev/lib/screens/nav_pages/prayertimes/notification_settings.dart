@@ -39,8 +39,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     _loadCurrentIndex();
   }
 
-  Future<void> _loadCurrentIndex() async {
-    final value = await prayerTimesHelper.getCurrentPreTimeAsIndex(widget.name);
+  void _loadCurrentIndex()  {
+    final value =  prayerTimesHelper.getCurrentPreTimeAsIndex(widget.name);
     setState(() {
       currentIndex = value;
     });

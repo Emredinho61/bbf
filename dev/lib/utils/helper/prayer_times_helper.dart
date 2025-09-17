@@ -258,6 +258,7 @@ class PrayerTimesHelper {
     // if not, return
     if (currentPreTime == minutes ) return;
 
+     await prefsWithCache.setInt(prePrayerName, minutes);
     // else unsubscribe every topic
     for(int i = 0; i < preTimes.length; i++)
     {
@@ -267,7 +268,7 @@ class PrayerTimesHelper {
     }
 
     // else set the new time
-    await prefsWithCache.setInt(prePrayerName, minutes);
+   
 
     final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes);
 
