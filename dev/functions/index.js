@@ -5,9 +5,33 @@ import { GoogleAuth } from "google-auth-library";
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { getFunctions } from "firebase-admin/functions";
 import moment from 'moment-timezone';
+import fs from "fs";
+import path from "path";
+import csv from "csv-parser";
 
 
 admin.initializeApp();
+
+async function getTodaysPrayerTimes() {
+  const filePath = path.join(__dirname, "assets", "prayer_times.csv");
+  return new Promise((resolve, reject) => {
+    const results = [];
+    fs.createReadStream(filePath)
+      .pipe(csv({ separator: ";" })) 
+      .on("data", (data) => results.push(data))
+      .on("end", () => {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, "0");
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const yyyy = today.getFullYear();
+        const todayStr = `${dd}.${mm}.${yyyy}`;
+
+        const todayRow = results.find((row) => row.Date === todayStr);
+        resolve(todayRow || {});
+      })
+      .on("error", reject);
+  });
+}
 
 export const addmessage = onDocumentCreated(
   "broadcasts/{broadcastId}",
@@ -180,7 +204,7 @@ export const sendPrePrayerNotification15 = onTaskDispatched(
       topic: prePrayerName,
       notification: {
         title: "Erinnerung",
-        body: `Bis zu ${actualPrayerName} sind noch 15 Mineuten.`,
+        body: `Bis zu ${actualPrayerName} sind noch 15 Minuten.`,
       },
       android: { priority: "high" },
       apns: { payload: { aps: { sound: "default" } } },
@@ -360,14 +384,17 @@ export const scheduleDailyPrayers = onSchedule(
   async () => {
     console.log("Berechne Gebetszeiten für heute...");
 
+    
     // for testing purposes: static 
-    const prayerTimes = {
-      Fajr: "05:15",
-      Dhur: "13:10",
-      Asr: "17:00",
-      Maghrib: "20:15",
-      Isha: "22:00",
-    };
+    // const prayerTimes = {
+    //   Fajr: "05:15",
+    //   Dhur: "13:10",
+    //   Asr: "17:00",
+    //   Maghrib: "20:15",
+    //   Isha: "22:00",
+    // };
+
+    const prayerTimes = await getTodaysPrayerTimes();
 
     const prePrayerTimes5 = {
       Fajr5: "05:10",
