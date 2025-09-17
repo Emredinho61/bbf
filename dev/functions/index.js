@@ -8,7 +8,10 @@ import moment from 'moment-timezone';
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 admin.initializeApp();
 
@@ -17,7 +20,7 @@ async function getTodaysPrayerTimes() {
   return new Promise((resolve, reject) => {
     const results = [];
     fs.createReadStream(filePath)
-      .pipe(csv({ separator: ";" })) 
+      .pipe(csv({ separator: ";" }))
       .on("data", (data) => results.push(data))
       .on("end", () => {
         const today = new Date();
@@ -27,7 +30,13 @@ async function getTodaysPrayerTimes() {
         const todayStr = `${dd}.${mm}.${yyyy}`;
 
         const todayRow = results.find((row) => row.Date === todayStr);
-        resolve(todayRow || {});
+
+        if (todayRow) {
+          const { Date, ...times } = todayRow;
+          resolve(times);
+        } else {
+          resolve({});
+        }
       })
       .on("error", reject);
   });
@@ -378,7 +387,7 @@ async function getFunctionUrl(name, location = "us-central1") {
 // The queue will execute all the tasks when their time arrives
 export const scheduleDailyPrayers = onSchedule(
   {
-    schedule: "every day 00:42",
+    schedule: "every day 00:12",
     timeZone: "Europe/Berlin",
   },
   async () => {
