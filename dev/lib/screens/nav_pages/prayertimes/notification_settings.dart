@@ -30,12 +30,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     '45 Minuten',
   ];
   int currentIndex = 0;
+  bool showSubmitButton = false;
 
   @override
   void initState() {
     super.initState();
     isNotificationActive = prayerTimesHelper.isNotificationEnabled(widget.name);
-
     _loadCurrentIndex();
   }
 
@@ -48,6 +48,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    String currentPreTime = prePrayerTimes[currentIndex];
+    int tempPreTimeIndex = prayerTimesHelper.getCurrentPreTimeAsIndex(
+      widget.name,
+    );
     return Center(
       child: Column(
         children: [
@@ -167,16 +171,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               GestureDetector(
                 onTap: () {
                   if (currentIndex != 0) {
-                    int updatedIndex = currentIndex -= 1;
+                    currentIndex -= 1;
                     setState(() {
-                      int minutes = prayerTimesHelper
-                          .convertPreTimeStringIntoInt(
-                            prePrayerTimes[updatedIndex],
-                          );
-                      prayerTimesHelper.updatePreNotification(
-                        widget.name,
-                        minutes,
-                      );
+                      showSubmitButton = true;
                     });
                   }
                 },
@@ -192,21 +189,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.all(5),
-                child: Text(prePrayerTimes[currentIndex]),
+                child: Text(currentPreTime),
               ),
               GestureDetector(
                 onTap: () {
                   if (currentIndex != prePrayerTimes.length - 1) {
-                    int updatedIndex = currentIndex += 1;
+                    currentIndex += 1;
                     setState(() {
-                      int minutes = prayerTimesHelper
-                          .convertPreTimeStringIntoInt(
-                            prePrayerTimes[updatedIndex],
-                          );
-                      prayerTimesHelper.updatePreNotification(
-                        widget.name,
-                        minutes,
-                      );
+                      showSubmitButton = true;
                     });
                   }
                 },
@@ -221,6 +211,46 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ),
             ],
           ),
+          SizedBox(height: 10),
+          if (showSubmitButton)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showSubmitButton = false;
+                      currentIndex = tempPreTimeIndex;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    side: BorderSide(color: Colors.white),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text('Abbrechen'),
+                  ),
+                ),
+
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showSubmitButton = false;
+                      int minutes = prayerTimesHelper
+                          .convertPreTimeStringIntoInt(
+                            prePrayerTimes[currentIndex],
+                          );
+                      prayerTimesHelper.updatePreNotification(widget.name, minutes);
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text('Bestätigen'),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
