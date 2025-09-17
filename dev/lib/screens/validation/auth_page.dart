@@ -15,6 +15,7 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final ScrollController scrollController = ScrollController();
   final AuthService authService = AuthService();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +122,7 @@ class WelcomePage extends StatelessWidget {
                 children: [
                   BTextButton(
                     onPressed: () {
+                      authService.value.logInAnymously();
                       Navigator.pushNamed(context, '/homepage');
                     },
                     text: 'Als Gast fortfahren',

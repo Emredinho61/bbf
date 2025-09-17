@@ -424,7 +424,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
 
               // Log out if user is logged in
-              if (authService.currentUser != null)
+              if (!authService.currentUser!.isAnonymous)
                 ListTile(
                   leading: const Icon(Icons.logout),
                   title: const Text("Ausloggen"),
@@ -433,9 +433,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.pushNamed(context, '/authpage');
                   },
                 ),
+              
+              // registration or login for guest user
+              if (authService.currentUser!.isAnonymous)
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text("Account erstellen / einloggen"),
+                  onTap: () async {
+                    await authService.signOut();
+                    Navigator.pushNamed(context, '/authpage');
+                  },
+                ),
 
               // Delete Button if User is logged in
-              if (authService.currentUser != null)
+              if (!authService.currentUser!.isAnonymous)
                 DeleteAccountButton(authService: authService),
             ],
           ),
