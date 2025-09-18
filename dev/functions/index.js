@@ -15,19 +15,19 @@ const __dirname = path.dirname(__filename);
 
 admin.initializeApp();
 
-async function getTodaysPrayerTimes() {
-  const filePath = path.join(__dirname, "assets", "prayer_times.csv");
+export async function getTodaysPrayerTimes() {
+  const filePath = path.join(process.cwd(), "assets", "prayer_times.csv");
   return new Promise((resolve, reject) => {
     const results = [];
     fs.createReadStream(filePath)
       .pipe(csv({ separator: ";" }))
       .on("data", (data) => results.push(data))
       .on("end", () => {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, "0");
-        const mm = String(today.getMonth() + 1).padStart(2, "0");
-        const yyyy = today.getFullYear();
-        const todayStr = `${dd}.${mm}.${yyyy}`;
+        const todayStr = new Date().toLocaleDateString("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
 
         const todayRow = results.find((row) => row.Date === todayStr);
 
@@ -41,6 +41,18 @@ async function getTodaysPrayerTimes() {
       .on("error", reject);
   });
 }
+
+function subtractMinutes(timeStr, minutesToSubtract) {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  date.setMinutes(date.getMinutes() - minutesToSubtract);
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
 
 export const addmessage = onDocumentCreated(
   "broadcasts/{broadcastId}",
@@ -75,13 +87,17 @@ export const addmessage = onDocumentCreated(
 export const sendPrayerNotification = onTaskDispatched(
   async (req) => {
     const { prayerName } = req.body || req.data; // retrieves the data coming with every task
-
+    let displayName = prayerName;
+    if(displayName == 'Sunrise')
+    {
+      displayName = 'Shuruq';
+    }
     // creating necessary information for prayer
     const message = {
       topic: prayerName,
       notification: {
         title: "Gebetszeit",
-        body: `Es ist Zeit für ${prayerName}`,
+        body: `Es ist Zeit für ${displayName}`,
       },
       android: { priority: "high" },
       apns: { payload: { aps: { sound: "default" } } },
@@ -103,6 +119,9 @@ export const sendPrePrayerNotification5 = onTaskDispatched(
     switch (prePrayerName) {
       case 'Fajr5':
         actualPrayerName = 'Fajr';
+        break;
+      case 'Sunrise5':
+        actualPrayerName = 'Shuruq';
         break;
       case 'Dhur5':
         actualPrayerName = 'Dhur';
@@ -148,6 +167,9 @@ export const sendPrePrayerNotification10 = onTaskDispatched(
       case 'Fajr10':
         actualPrayerName = 'Fajr';
         break;
+      case 'Sunrise10':
+        actualPrayerName = 'Shuruq';
+        break;
       case 'Dhur10':
         actualPrayerName = 'Dhur';
         break;
@@ -191,6 +213,9 @@ export const sendPrePrayerNotification15 = onTaskDispatched(
     switch (prePrayerName) {
       case 'Fajr15':
         actualPrayerName = 'Fajr';
+        break;
+      case 'Sunrise15':
+        actualPrayerName = 'Shuruq';
         break;
       case 'Dhur15':
         actualPrayerName = 'Dhur';
@@ -236,6 +261,9 @@ export const sendPrePrayerNotification20 = onTaskDispatched(
       case 'Fajr20':
         actualPrayerName = 'Fajr';
         break;
+      case 'Sunrise20':
+        actualPrayerName = 'Shuruq';
+        break;
       case 'Dhur20':
         actualPrayerName = 'Dhur';
         break;
@@ -280,6 +308,9 @@ export const sendPrePrayerNotification30 = onTaskDispatched(
       case 'Fajr30':
         actualPrayerName = 'Fajr';
         break;
+      case 'Sunrise30':
+        actualPrayerName = 'Shuruq';
+        break;
       case 'Dhur30':
         actualPrayerName = 'Dhur';
         break;
@@ -323,6 +354,9 @@ export const sendPrePrayerNotification45 = onTaskDispatched(
     switch (prePrayerName) {
       case 'Fajr45':
         actualPrayerName = 'Fajr';
+        break;
+      case 'Sunrise45':
+        actualPrayerName = 'Shuruq';
         break;
       case 'Dhur45':
         actualPrayerName = 'Dhur';
@@ -387,71 +421,37 @@ async function getFunctionUrl(name, location = "us-central1") {
 // The queue will execute all the tasks when their time arrives
 export const scheduleDailyPrayers = onSchedule(
   {
-    schedule: "every day 00:12",
+    schedule: "every day 00:00",
     timeZone: "Europe/Berlin",
   },
   async () => {
     console.log("Berechne Gebetszeiten für heute...");
 
-    
-    // for testing purposes: static 
-    // const prayerTimes = {
-    //   Fajr: "05:15",
-    //   Dhur: "13:10",
-    //   Asr: "17:00",
-    //   Maghrib: "20:15",
-    //   Isha: "22:00",
-    // };
-
     const prayerTimes = await getTodaysPrayerTimes();
 
-    const prePrayerTimes5 = {
-      Fajr5: "05:10",
-      Dhur5: "13:05",
-      Asr5: "16:55",
-      Maghrib5: "20:10",
-      Isha5: "21:55",
-    };
+    const prePrayerTimes5 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}5`, subtractMinutes(value, 5)])
+    );
 
-    const prePrayerTimes10 = {
-      Fajr10: "05:05",
-      Dhur10: "13:00",
-      Asr10: "16:50",
-      Maghrib10: "20:05",
-      Isha10: "21:50",
-    };
+    const prePrayerTimes10 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}10`, subtractMinutes(value, 10)])
+    );
 
-    const prePrayerTimes15 = {
-      Fajr15: "05:00",
-      Dhur15: "12:55",
-      Asr15: "16:45",
-      Maghrib15: "20:00",
-      Isha15: "21:45",
-    };
+    const prePrayerTimes15 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}15`, subtractMinutes(value, 15)])
+    );
 
-    const prePrayerTimes20 = {
-      Fajr20: "04:55",
-      Dhur20: "12:50",
-      Asr20: "16:40",
-      Maghrib20: "19:55",
-      Isha20: "21:40",
-    };
+    const prePrayerTimes20 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}20`, subtractMinutes(value, 20)])
+    );
 
-    const prePrayerTimes30 = {
-      Fajr30: "04:45",
-      Dhur30: "12:40",
-      Asr30: "16:30",
-      Maghrib30: "19:45",
-      Isha30: "21:30",
-    };
+    const prePrayerTimes30 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}30`, subtractMinutes(value, 30)])
+    );
 
-    const prePrayerTimes45 = {
-      Fajr45: "04:30",
-      Dhur45: "12:25",
-      Asr45: "16:15",
-      Maghrib45: "19:30",
-      Isha45: "21:15",
-    };
+    const prePrayerTimes45 = Object.fromEntries(
+      Object.entries(prayerTimes).map(([key, value]) => [`${key}45`, subtractMinutes(value, 45)])
+    );
 
     const today = moment().tz("Europe/Berlin").format("YYYY-MM-DD");
     const prayerQueue = getFunctions().taskQueue("sendPrayerNotification");// queue in order to append tasks to the queue
