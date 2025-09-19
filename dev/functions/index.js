@@ -26,7 +26,8 @@ export async function getTodaysPrayerTimes() {
         const todayStr = new Date().toLocaleDateString("de-DE", {
           day: "2-digit",
           month: "2-digit",
-          year: "numeric"
+          year: "numeric",
+          timeZone: "Europe/Berlin",
         });
 
         const todayRow = results.find((row) => row.Date === todayStr);
