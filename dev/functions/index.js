@@ -89,8 +89,7 @@ export const sendPrayerNotification = onTaskDispatched(
   async (req) => {
     const { prayerName } = req.body || req.data; // retrieves the data coming with every task
     let displayName = prayerName;
-    if(displayName == 'Sunrise')
-    {
+    if (displayName == 'Sunrise') {
       displayName = 'Shuruq';
     }
     // creating necessary information for prayer

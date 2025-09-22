@@ -5,6 +5,7 @@ import 'package:bbf_app/backend/services/trigger_background_functions_service.da
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar/calendar.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/notification_settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -407,7 +408,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                     const SizedBox(height: 16),
                     Expanded(
                       child: DefaultTabController(
-                        length: 2,
+                        length: 3,
                         initialIndex: 0,
                         child: Column(
                           children: [
@@ -415,10 +416,23 @@ class _PrayerTimesState extends State<PrayerTimes> {
                               dividerColor: isDark
                                   ? Colors.white54
                                   : BColors.secondary,
-                              padding: EdgeInsets.symmetric(horizontal: 40),
+                              padding: EdgeInsets.symmetric(horizontal: 10),
                               indicatorColor: BColors.primary,
                               labelColor: isDark ? Colors.white : Colors.black,
-                              tabs: [Text('Gebetszeiten'), Text('Kalender')],
+                              tabs: [
+                                Text(
+                                  'Gebetszeiten',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Text(
+                                  'Kalender',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Text(
+                                  'Informationen',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                             ),
                             SizedBox(height: 10),
                             Expanded(
@@ -729,6 +743,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                     ],
                                   ),
                                   ListView(children: [CalenderView()]),
+
+                                  // Information page
+                                  InformationPage(),
                                 ],
                               ),
                             ),
