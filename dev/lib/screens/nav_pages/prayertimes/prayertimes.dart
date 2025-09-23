@@ -647,7 +647,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                             'date',
                                                             descending: true,
                                                           )
-                                                          .limit(1) // show only one file
+                                                          .limit(
+                                                            1,
+                                                          ) // show only one file
                                                           .get();
 
                                                   if (snapshot.docs.isEmpty) {
@@ -679,15 +681,19 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                       title: const Text(
                                                         "Wöchentliche Khutba",
                                                       ),
-                                                      content: Text(
-                                                        "Eine Khutba ist verfügbar.\n\nTitel: ${khutba['title']}",
-                                                      ),
                                                       actions: [
                                                         TextButton(
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                 context,
                                                               ),
+                                                          style: TextButton.styleFrom(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      16,
+                                                                ),
+                                                          ),
                                                           child: const Text(
                                                             "Schließen",
                                                           ),
@@ -715,10 +721,25 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                     ),
                                                   );
                                                 },
-                                                icon: const Icon(
+                                                icon: Icon(
                                                   Icons.menu_book,
+                                                  color:
+                                                      Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  size: 24,
                                                 ),
-                                                label: const Text("Khutba"),
+                                                label: UnderlinedText(
+                                                  content: Text(
+                                                    'Khutba',
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.bodyMedium,
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ),

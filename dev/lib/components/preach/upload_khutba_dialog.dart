@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-
 class UploadKhutbaDialog extends StatefulWidget {
   const UploadKhutbaDialog({super.key});
 
@@ -31,7 +30,7 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
 
       final file = File(filePath);
 
-      // fiirebase Storage upload
+      // firebase Storage upload
       final storageRef = FirebaseStorage.instance.ref().child(
         'khutbas/$fileName',
       );
@@ -68,18 +67,24 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Abbrechen"),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
         ),
         ElevatedButton(
           onPressed: _selectedFileName != null
-    ? () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Khutba hochgeladen!")),
-        );
-      }
-    : null,
+              ? () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Khutba hochgeladen!")),
+                  );
+                }
+              : null,
 
           child: const Text("Speichern"),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
         ),
       ],
     );

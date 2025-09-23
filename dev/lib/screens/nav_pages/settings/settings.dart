@@ -384,8 +384,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showDialogForIqamaTimes();
                   },
                 ),
-
-              ListTile(
+                if(isUserAdmin)
+                ListTile(
                 leading: const Icon(Icons.upload_file),
                 title: const Text("Khutba hochladen"),
                 subtitle: const Text("PDF auswählen und speichern"),
