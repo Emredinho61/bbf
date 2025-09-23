@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 class UploadKhutbaDialog extends StatefulWidget {
   const UploadKhutbaDialog({super.key});
@@ -18,13 +22,29 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
     );
 
     if (result != null && result.files.single.path != null) {
+      final filePath = result.files.single.path!;
+      final fileName = result.files.single.name;
+
       setState(() {
-        _selectedFileName = result.files.single.name;
+        _selectedFileName = fileName;
       });
 
-      // final file = File(result.files.single.path!);
-      // await FirebaseStorage.instance.ref('khutbas/${result.files.single.name}')
-      //   .putFile(file);
+      final file = File(filePath);
+
+      // fiirebase Storage upload
+      final storageRef = FirebaseStorage.instance.ref().child(
+        'khutbas/$fileName',
+      );
+      await storageRef.putFile(file);
+
+      final pdfUrl = await storageRef.getDownloadURL();
+
+      // reference to firestore -> save
+      await FirebaseFirestore.instance.collection('khutbas').add({
+        'title': fileName,
+        'pdfUrl': pdfUrl,
+        'date': FieldValue.serverTimestamp(),
+      });
     }
   }
 
@@ -51,10 +71,16 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
         ),
         ElevatedButton(
           onPressed: _selectedFileName != null
-              ? () {
+              ? () async {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Khutba hochgeladen!")),
+                    const SnackBar(content: Text("Khutba wird hochgeladen...")),
+                  );
+                  await _pickFile(); // ensures upload + firestore write
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Khutba erfolgreich hochgeladen!"),
+                    ),
                   );
                 }
               : null,

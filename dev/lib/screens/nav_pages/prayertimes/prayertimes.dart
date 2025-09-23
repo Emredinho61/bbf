@@ -694,7 +694,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                         ),
                                                         ElevatedButton.icon(
                                                           onPressed: () async {
-                                                            // Open in browser
                                                             Navigator.pop(
                                                               context,
                                                             );
@@ -716,25 +715,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                     ),
                                                   );
                                                 },
-                                                icon: Icon(
+                                                icon: const Icon(
                                                   Icons.menu_book,
-                                                  color:
-                                                      Theme.of(
-                                                            context,
-                                                          ).brightness ==
-                                                          Brightness.dark
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                  size: 24,
                                                 ),
-                                                label: UnderlinedText(
-                                                  content: Text(
-                                                    'Khutba',
-                                                    style: Theme.of(
-                                                      context,
-                                                    ).textTheme.bodyMedium,
-                                                  ),
-                                                ),
+                                                label: const Text("Khutba"),
                                               ),
                                             ],
                                           ),
