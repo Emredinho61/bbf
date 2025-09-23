@@ -20,9 +20,18 @@ class ExpanedInformationPage extends StatelessWidget {
                     ListTile(
                       title: Padding(
                         padding: const EdgeInsets.only(bottom: 20),
-                        child: Text(information['Titel']),
+                        child: Text(information['Titel'], style: Theme.of(context).textTheme.headlineMedium),
                       ),
-                      subtitle: Text(information['Expanded']),
+                      subtitle: Text(information['Text'], style: Theme.of(context).textTheme.bodyLarge,),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(information['Expanded'], style: Theme.of(context).textTheme.bodyMedium),
+                        ],
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),

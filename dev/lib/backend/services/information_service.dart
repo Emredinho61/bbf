@@ -5,7 +5,7 @@ class InformationService {
 
   // get all Information
   Future<List<Map<String, dynamic>>> getAllInformation() async {
-    final querySnapshots = await information.get();
+    final querySnapshots = await information.orderBy('createdAt', descending: true).get();
     final allInformation = querySnapshots.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
@@ -13,8 +13,37 @@ class InformationService {
   }
 
   // add a new Information to backend
+  Future<void> addInformation(
+    String title,
+    String text,
+    String expanded,
+  ) async {
+    information.doc(title).set({
+      'Titel': title,
+      'Text': text,
+      'Expanded': expanded,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
 
   // delete a certain Information
+  Future<void> deleteInformation(String informationName) async {
+    await information.doc(informationName).delete();
+  }
 
   // update a certain Information
+  Future<void> updateInformation(
+    String title,
+    String text,
+    String expanded,
+  ) async {
+    information.doc(title).update({
+      'Titel': title,
+      'Text': text,
+      'Expanded': expanded,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+
 }
