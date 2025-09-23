@@ -71,19 +71,14 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
         ),
         ElevatedButton(
           onPressed: _selectedFileName != null
-              ? () async {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Khutba wird hochgeladen...")),
-                  );
-                  await _pickFile(); // ensures upload + firestore write
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Khutba erfolgreich hochgeladen!"),
-                    ),
-                  );
-                }
-              : null,
+    ? () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Khutba hochgeladen!")),
+        );
+      }
+    : null,
+
           child: const Text("Speichern"),
         ),
       ],

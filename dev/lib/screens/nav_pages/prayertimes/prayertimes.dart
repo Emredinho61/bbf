@@ -647,7 +647,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                                             'date',
                                                             descending: true,
                                                           )
-                                                          .limit(1)
+                                                          .limit(1) // show only one file
                                                           .get();
 
                                                   if (snapshot.docs.isEmpty) {
