@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ExpanedInformationPage extends StatelessWidget {
-  final information;
+  final Map<String, dynamic> information;
   ExpanedInformationPage({super.key, required this.information});
 
   @override

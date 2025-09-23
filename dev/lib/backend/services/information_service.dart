@@ -9,7 +9,7 @@ class InformationService {
         .orderBy('createdAt', descending: true)
         .get();
     final allInformation = querySnapshots.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
+        .map((doc) => doc.data())
         .toList();
     return allInformation;
   }

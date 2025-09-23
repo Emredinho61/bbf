@@ -5,7 +5,7 @@ import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/prayertimes.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects.dart';
 import 'package:provider/provider.dart';
 

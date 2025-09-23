@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 If Admin want to change any part of the information card, then he can do it here
 */
 
+// ignore: must_be_immutable
 class UpdateInformationPage extends StatelessWidget {
   String title;
   String text;

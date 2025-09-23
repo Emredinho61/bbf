@@ -566,7 +566,7 @@ class LightDarkModeSwitch extends StatelessWidget {
     return SwitchListTile(
       title: const Text("Dunkelmodus"),
       value: isDark,
-      activeColor: BColors.primary,
+      activeThumbColor: BColors.primary,
       onChanged: (value) {
         themeProvider.toggleTheme();
         firestoreService.updateTheme(value ? "dark" : "light");

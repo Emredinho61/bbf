@@ -66,10 +66,10 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Abbrechen"),
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
+          child: const Text("Abbrechen"),
         ),
         ElevatedButton(
           onPressed: _selectedFileName != null
@@ -80,11 +80,11 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
                   );
                 }
               : null,
-
-          child: const Text("Speichern"),
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
+
+          child: const Text("Speichern"),
         ),
       ],
     );
