@@ -256,19 +256,17 @@ class PrayerTimesHelper {
 
     // Check, if the new time is any different from the old
     // if not, return
-    if (currentPreTime == minutes ) return;
+    if (currentPreTime == minutes) return;
 
-     await prefsWithCache.setInt(prePrayerName, minutes);
+    await prefsWithCache.setInt(prePrayerName, minutes);
     // else unsubscribe every topic
-    for(int i = 0; i < preTimes.length; i++)
-    {
+    for (int i = 0; i < preTimes.length; i++) {
       final preTimeTopic = getPrePrayerTopic(prayerName, preTimes[i]);
       await FirebaseMessaging.instance.unsubscribeFromTopic(preTimeTopic);
       print('Unsubscribing from $preTimeTopic');
     }
 
     // else set the new time
-   
 
     final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes);
 

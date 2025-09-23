@@ -39,8 +39,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     _loadCurrentIndex();
   }
 
-  void _loadCurrentIndex()  {
-    final value =  prayerTimesHelper.getCurrentPreTimeAsIndex(widget.name);
+  void _loadCurrentIndex() {
+    final value = prayerTimesHelper.getCurrentPreTimeAsIndex(widget.name);
     setState(() {
       currentIndex = value;
     });
@@ -241,7 +241,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                           .convertPreTimeStringIntoInt(
                             prePrayerTimes[currentIndex],
                           );
-                      prayerTimesHelper.updatePreNotification(widget.name, minutes);
+                      prayerTimesHelper.updatePreNotification(
+                        widget.name,
+                        minutes,
+                      );
                     });
                   },
                   child: Padding(

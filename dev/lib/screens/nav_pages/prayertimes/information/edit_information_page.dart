@@ -16,9 +16,15 @@ class UpdateInformaionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     InformationService informationService = InformationService();
-    final TextEditingController titelController = TextEditingController(text: title);
-    final TextEditingController textController = TextEditingController(text: text);
-    final TextEditingController expandedController = TextEditingController(text: expanded);
+    final TextEditingController titelController = TextEditingController(
+      text: title,
+    );
+    final TextEditingController textController = TextEditingController(
+      text: text,
+    );
+    final TextEditingController expandedController = TextEditingController(
+      text: expanded,
+    );
     return SafeArea(
       child: Scaffold(
         body: Padding(

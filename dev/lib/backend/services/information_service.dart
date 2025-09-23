@@ -5,7 +5,9 @@ class InformationService {
 
   // get all Information
   Future<List<Map<String, dynamic>>> getAllInformation() async {
-    final querySnapshots = await information.orderBy('createdAt', descending: true).get();
+    final querySnapshots = await information
+        .orderBy('createdAt', descending: true)
+        .get();
     final allInformation = querySnapshots.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
@@ -44,6 +46,4 @@ class InformationService {
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
-
-
 }

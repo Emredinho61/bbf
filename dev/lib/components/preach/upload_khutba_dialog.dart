@@ -41,8 +41,7 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
             label: const Text("PDF auswählen"),
           ),
           const SizedBox(height: 16),
-          if (_selectedFileName != null)
-            Text("Ausgewählt: $_selectedFileName"),
+          if (_selectedFileName != null) Text("Ausgewählt: $_selectedFileName"),
         ],
       ),
       actions: [

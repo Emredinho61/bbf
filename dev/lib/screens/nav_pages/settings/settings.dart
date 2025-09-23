@@ -433,7 +433,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.pushNamed(context, '/authpage');
                   },
                 ),
-              
+
               // registration or login for guest user
               if (authService.currentUser!.isAnonymous)
                 ListTile(
