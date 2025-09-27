@@ -1,6 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -17,8 +17,8 @@ import 'package:intl/date_symbol_data_local.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await prayerTimesHelper.initPrefs();
-  // await prayerTimesHelper.resetPrefs();
+  await SharedPreferencesService.instance.initPrefs();
+
   await AndroidAlarmManager.initialize();
 
   // initialize App

@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   final String name;
-  final int id;
   final DateTime? prayerTime;
   NotificationSettingsPage({
     super.key,
     required this.name,
-    required this.id,
     required this.prayerTime,
   });
 

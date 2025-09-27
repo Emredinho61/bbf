@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class PrayerTimesHelper {
-  late final SharedPreferencesWithCache prefsWithCache;
+  final prefsWithCache = SharedPreferencesService.instance.prefsWithCache;
+
   PrayertimesService? _prayertimesService;
 
   PrayertimesService get prayertimesService {
@@ -15,15 +16,9 @@ class PrayerTimesHelper {
     return _prayertimesService!;
   }
 
-  Future<void> initPrefs() async {
-    prefsWithCache = await SharedPreferencesWithCache.create(
-      cacheOptions: const SharedPreferencesWithCacheOptions(),
-    );
-  }
-
-  List<Map<String, String>> csvData = [];
-
   Future<List<Map<String, String>>> loadCSV() async {
+    List<Map<String, String>> csvData = [];
+
     final rawData = await rootBundle.loadString(
       'assets/files/csv_files/prayer_times.csv',
     ); // the data is being loaded as a string
@@ -89,10 +84,12 @@ class PrayerTimesHelper {
     return prayerTimes;
   }
 
-  Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes() async {
+  Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes(
+    List<Map<String, String>> csvData,
+  ) async {
     List<DateTime> prayerTimes = [];
     // load csv File
-    await loadCSV();
+    // await loadCSV();
 
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
@@ -122,9 +119,12 @@ class PrayerTimesHelper {
     return prayerTime;
   }
 
-  Future<DateTime?> getCertainPrayerTimeAsDateTimes(String name) async {
+  Future<DateTime?> getCertainPrayerTimeAsDateTimes(
+    String name,
+    List<Map<String, String>> csvData,
+  ) async {
     // load csv File
-    await loadCSV(); // TODO: Need to optimize, dont want to load CSV File every time
+    // await loadCSV(); // TODO: Need to optimize, dont want to load CSV File every time
 
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
@@ -172,12 +172,6 @@ class PrayerTimesHelper {
       default:
     }
     return currentIndex;
-  }
-
-  // currently not used
-  Future<void> setPrePrayerTime(String prePrayerString) async {
-    int prePrayerTime = convertPreTimeStringIntoInt(prePrayerString);
-    await prefsWithCache.setInt(prePrayerString, prePrayerTime);
   }
 
   Future<void> activateNotification(String name) async {
@@ -239,6 +233,7 @@ class PrayerTimesHelper {
     return preTime;
   }
 
+  // returns the correct pre prayer topic based on prayer name and preTime
   String getPrePrayerTopic(String prayerName, int preTime) {
     const allowedTimes = [5, 10, 15, 20, 30, 45];
     if (allowedTimes.contains(preTime)) {
@@ -247,6 +242,7 @@ class PrayerTimesHelper {
     return '';
   }
 
+  // if User decides to change preNotification time, then this function is updating it
   Future<void> updatePreNotification(String prayerName, int minutes) async {
     final preTimes = [5, 10, 15, 20, 30, 45];
     String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
@@ -267,7 +263,6 @@ class PrayerTimesHelper {
     }
 
     // else set the new time
-
     final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes);
 
     // only subscribe, if new minutes is not 0
@@ -292,136 +287,9 @@ class PrayerTimesHelper {
     await FirebaseMessaging.instance.unsubscribeFromTopic(name);
   }
 
-  // currently not used
-  Future<void> updateNotification(
-    String name,
-    int id,
-    DateTime prayerTime,
-  ) async {
-    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
-    final updatedMode = !currentMode;
-    await prefsWithCache.setBool(name, updatedMode);
-    if (updatedMode == false) {
-      notificationServices.deleteNotification(id);
-    } else {
-      await notificationServices.scheduledNotification(
-        id,
-        'Erinnerung',
-        prayerTimesHelper.notificationMessage(id),
-        prayerTime,
-      );
-    }
-  }
-
   // checks if the notifications are enabled for prayer times
   bool isNotificationEnabled(String prayerName) {
     return (prefsWithCache.get(prayerName) as bool?) ?? false;
-  }
-
-  // checks if the notifications are enabled for pre prayer times
-  bool isPreNotificationEnabled(String prePrayerName) {
-    final currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
-    if (currentPreTime == 0) return false;
-    return true;
-  }
-
-  // get the preTime of a certain pre Prayer Name
-  int getPreTime(String prePrayerName) {
-    final int preTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
-    return preTime;
-  }
-
-  bool isNotificationEnabledWithId(int id) {
-    String name = '';
-    switch (id) {
-      case 0:
-        name = 'Fajr';
-      case 1:
-        name = 'Sunrise';
-      case 2:
-        name = 'Dhur';
-      case 3:
-        name = 'Asr';
-      case 4:
-        name = 'Maghrib';
-      case 5:
-        name = 'Isha';
-      default:
-    }
-    return (prefsWithCache.get(name) as bool?) ?? false;
-  }
-
-  // Assign for every Notification Case an unique id
-  int convertNameIntoId(String name) {
-    int id = 0;
-    switch (name) {
-      case 'Fajr':
-        id = 0;
-      case 'Sunrise':
-        id = 1;
-      case 'Dhur':
-        id = 2;
-      case 'Asr':
-        id = 3;
-      case 'Maghrib':
-        id = 4;
-      case 'Isha':
-        id = 5;
-      case 'preFajr':
-        id = 10;
-      case 'preSunrise':
-        id = 11;
-      case 'preDhur':
-        id = 12;
-      case 'preAsr':
-        id = 13;
-      case 'preMaghrib':
-        id = 14;
-      case 'preIsha':
-        id = 15;
-      default:
-    }
-    return id;
-  }
-
-  String notificationMessage(int id) {
-    String message = '';
-    switch (id) {
-      case 0:
-        message = 'Zeit für das Fajr Gebet';
-      case 1:
-        message = 'Die Sonne ist aufgegangen';
-      case 2:
-        message = 'Zeit für das Dhur Gebet';
-      case 3:
-        message = 'Zeit für das Asr Gebet';
-      case 4:
-        message = 'Zeit für das Maghrib Gebet';
-      case 5:
-        message = 'Zeit für das Isha Gebet';
-      default:
-    }
-    return message;
-  }
-
-  int assignIdForPrePrayerNotification(int id) {
-    int prePrayerId = 0;
-    switch (id) {
-      case 0:
-        prePrayerId = 10;
-      case 1:
-        prePrayerId = 11;
-      case 2:
-        prePrayerId = 12;
-      case 3:
-        prePrayerId = 13;
-      case 4:
-        prePrayerId = 14;
-      case 5:
-        prePrayerId = 15;
-      default:
-    }
-    return prePrayerId;
   }
 
   String getFridaysPrayer1Preference() {

@@ -25,7 +25,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Initialize Services
+  /*--Initialize Services-------------------------------------------------------*/
 
   final SettingsService firestoreService = SettingsService();
 
@@ -35,13 +35,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final PrayertimesService prayertimesService = PrayertimesService();
 
-  // only display certain Widgets if user is Admin
-  bool isUserAdmin = false;
+  /*--Initialize Variables-------------------------------------------------------*/
+  bool isUserAdmin = false; // used for displaying widgets only for admin
 
+  /*--Initialize State-------------------------------------------------------*/
   @override
   void initState() {
-    checkUser();
     super.initState();
+    checkUser();
   }
 
   // check if user is admin
@@ -55,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  // Widgets for admin
+  /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
 
   // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() {
@@ -68,53 +69,75 @@ class _SettingsPageState extends State<SettingsPage> {
         return SingleChildScrollView(
           child: AlertDialog(
             title: Text('Iqama & Jumua\'a Zeiten ändern'),
-            content: Column(
-              children: [
-                BTextField(
-                  label: '1. Freitagsgebet',
-                  icon: Icons.access_time,
-                  controller: fridayPrayer1Controller,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-                SizedBox(height: 5),
-                BTextField(
-                  label: '2. Freitagsgebet',
-                  icon: Icons.access_time,
-                  controller: fridayPrayer2Controller,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-              ],
+            content: _fridaysPrayerTextFields(
+              fridayPrayer1Controller,
+              fridayPrayer2Controller,
             ),
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  MaterialButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Zurück'),
-                  ),
-                  MaterialButton(
-                    onPressed: () async {
-                      final fridayPrayer1 = fridayPrayer1Controller.text.trim();
-                      final fridayPrayer2 = fridayPrayer2Controller.text.trim();
-                      await prayertimesService.updateFridayPrayerTimes(
-                        fridayPrayer1,
-                        fridayPrayer2,
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text('Ändern'),
-                  ),
-                ],
+              _actionsRowForFridaysPrayer(
+                context,
+                fridayPrayer1Controller,
+                fridayPrayer2Controller,
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Row _actionsRowForFridaysPrayer(
+    BuildContext context,
+    TextEditingController fridayPrayer1Controller,
+    TextEditingController fridayPrayer2Controller,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        MaterialButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Zurück'),
+        ),
+        MaterialButton(
+          onPressed: () async {
+            final fridayPrayer1 = fridayPrayer1Controller.text.trim();
+            final fridayPrayer2 = fridayPrayer2Controller.text.trim();
+            await prayertimesService.updateFridayPrayerTimes(
+              fridayPrayer1,
+              fridayPrayer2,
+            );
+            Navigator.pop(context);
+          },
+          child: Text('Ändern'),
+        ),
+      ],
+    );
+  }
+
+  Column _fridaysPrayerTextFields(
+    TextEditingController fridayPrayer1Controller,
+    TextEditingController fridayPrayer2Controller,
+  ) {
+    return Column(
+      children: [
+        BTextField(
+          label: '1. Freitagsgebet',
+          icon: Icons.access_time,
+          controller: fridayPrayer1Controller,
+          obscureText: false,
+          obligatory: false,
+        ),
+        SizedBox(height: 5),
+        BTextField(
+          label: '2. Freitagsgebet',
+          icon: Icons.access_time,
+          controller: fridayPrayer2Controller,
+          obscureText: false,
+          obligatory: false,
+        ),
+      ],
     );
   }
 
@@ -132,84 +155,118 @@ class _SettingsPageState extends State<SettingsPage> {
         return SingleChildScrollView(
           child: AlertDialog(
             title: Text('Iqama & Jumua\'a Zeiten ändern'),
-            content: Column(
-              children: [
-                BTextField(
-                  label: 'Fajr Iqama',
-                  icon: Icons.access_time,
-                  controller: fajrIqamaController,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-                SizedBox(height: 5),
-                BTextField(
-                  label: 'Dhur Iqama',
-                  icon: Icons.access_time,
-                  controller: dhurIqamaController,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-                SizedBox(height: 5),
-                BTextField(
-                  label: 'Asr Iqama',
-                  icon: Icons.access_time,
-                  controller: asrIqamaController,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-                SizedBox(height: 5),
-                BTextField(
-                  label: 'Maghrib Iqama',
-                  icon: Icons.access_time,
-                  controller: maghribIqamaController,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-                SizedBox(height: 5),
-                BTextField(
-                  label: 'Isha Iqama',
-                  icon: Icons.access_time,
-                  controller: ishaIqamaController,
-                  obscureText: false,
-                  obligatory: false,
-                ),
-              ],
+            content: _iqamaTimesTextFields(
+              fajrIqamaController,
+              dhurIqamaController,
+              asrIqamaController,
+              maghribIqamaController,
+              ishaIqamaController,
             ),
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  MaterialButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Zurück'),
-                  ),
-                  MaterialButton(
-                    onPressed: () async {
-                      final fajrIqama = fajrIqamaController.text.trim();
-                      final dhurIqama = dhurIqamaController.text.trim();
-                      final asrIqama = asrIqamaController.text.trim();
-                      final maghribIqama = maghribIqamaController.text.trim();
-                      final ishaIqama = ishaIqamaController.text.trim();
-
-                      await prayertimesService.updateIqamaTimes(
-                        fajrIqama,
-                        dhurIqama,
-                        asrIqama,
-                        maghribIqama,
-                        ishaIqama,
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text('Ändern'),
-                  ),
-                ],
+              _actionsRowForIqama(
+                context,
+                fajrIqamaController,
+                dhurIqamaController,
+                asrIqamaController,
+                maghribIqamaController,
+                ishaIqamaController,
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Row _actionsRowForIqama(
+    BuildContext context,
+    TextEditingController fajrIqamaController,
+    TextEditingController dhurIqamaController,
+    TextEditingController asrIqamaController,
+    TextEditingController maghribIqamaController,
+    TextEditingController ishaIqamaController,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        MaterialButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Zurück'),
+        ),
+        MaterialButton(
+          onPressed: () async {
+            final fajrIqama = fajrIqamaController.text.trim();
+            final dhurIqama = dhurIqamaController.text.trim();
+            final asrIqama = asrIqamaController.text.trim();
+            final maghribIqama = maghribIqamaController.text.trim();
+            final ishaIqama = ishaIqamaController.text.trim();
+
+            await prayertimesService.updateIqamaTimes(
+              fajrIqama,
+              dhurIqama,
+              asrIqama,
+              maghribIqama,
+              ishaIqama,
+            );
+            Navigator.pop(context);
+          },
+          child: Text('Ändern'),
+        ),
+      ],
+    );
+  }
+
+  Column _iqamaTimesTextFields(
+    TextEditingController fajrIqamaController,
+    TextEditingController dhurIqamaController,
+    TextEditingController asrIqamaController,
+    TextEditingController maghribIqamaController,
+    TextEditingController ishaIqamaController,
+  ) {
+    return Column(
+      children: [
+        BTextField(
+          label: 'Fajr Iqama',
+          icon: Icons.access_time,
+          controller: fajrIqamaController,
+          obscureText: false,
+          obligatory: false,
+        ),
+        SizedBox(height: 5),
+        BTextField(
+          label: 'Dhur Iqama',
+          icon: Icons.access_time,
+          controller: dhurIqamaController,
+          obscureText: false,
+          obligatory: false,
+        ),
+        SizedBox(height: 5),
+        BTextField(
+          label: 'Asr Iqama',
+          icon: Icons.access_time,
+          controller: asrIqamaController,
+          obscureText: false,
+          obligatory: false,
+        ),
+        SizedBox(height: 5),
+        BTextField(
+          label: 'Maghrib Iqama',
+          icon: Icons.access_time,
+          controller: maghribIqamaController,
+          obscureText: false,
+          obligatory: false,
+        ),
+        SizedBox(height: 5),
+        BTextField(
+          label: 'Isha Iqama',
+          icon: Icons.access_time,
+          controller: ishaIqamaController,
+          obscureText: false,
+          obligatory: false,
+        ),
+      ],
     );
   }
 
@@ -221,55 +278,74 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text("Send Broadcast"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(labelText: "Title"),
-            ),
-            TextField(
-              controller: summaryController,
-              decoration: InputDecoration(labelText: "Summary"),
-            ),
-          ],
-        ),
+        content: _broadcastTextFields(titleController, summaryController),
         actions: [
-          TextButton(
-            child: Text("Cancel"),
-            onPressed: () => Navigator.of(ctx).pop(),
-          ),
-          ElevatedButton(
-            child: Text("Send"),
-            onPressed: () async {
-              // Save message in Firestore
-              await FirebaseFirestore.instance.collection("broadcasts").add({
-                "title": titleController.text,
-                "summary": summaryController.text,
-                "timestamp": FieldValue.serverTimestamp(),
-              });
-              Navigator.of(ctx).pop();
-            },
+          _actionsRowForSendingBroadcast(
+            ctx,
+            titleController,
+            summaryController,
           ),
         ],
       ),
     );
   }
 
-  // UI for settings
+  Row _actionsRowForSendingBroadcast(
+    BuildContext ctx,
+    TextEditingController titleController,
+    TextEditingController summaryController,
+  ) {
+    return Row(
+      children: [
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () => Navigator.of(ctx).pop(),
+        ),
+        ElevatedButton(
+          child: Text("Send"),
+          onPressed: () async {
+            // Save message in Firestore
+            await FirebaseFirestore.instance.collection("broadcasts").add({
+              "title": titleController.text,
+              "summary": summaryController.text,
+              "timestamp": FieldValue.serverTimestamp(),
+            });
+            Navigator.of(ctx).pop();
+          },
+        ),
+      ],
+    );
+  }
 
+  Column _broadcastTextFields(
+    TextEditingController titleController,
+    TextEditingController summaryController,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: titleController,
+          decoration: InputDecoration(labelText: "Title"),
+        ),
+        TextField(
+          controller: summaryController,
+          decoration: InputDecoration(labelText: "Summary"),
+        ),
+      ],
+    );
+  }
+
+  /*--Settings UI-------------------------------------------------------*/
   @override
   Widget build(BuildContext context) {
-    // helper Widgets
-
-    // themeProvider is used to change theme of App, if u user wants so
+    // themeProvider is used to change theme of App, if user wants so
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     // bool to check if current theme is dark theme
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // Container which contains the whole UI in settings in order to set a gradient color for background
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -283,7 +359,18 @@ class _SettingsPageState extends State<SettingsPage> {
         child: SafeArea(
           child: ListView(
             children: [
-              // Donation Section
+              // /*--Admin Section-------------------------------------------------------*/
+              _buildSectionHeader("Admin"),
+
+              // display settings for admins
+              if (isUserAdmin && authService.currentUser != null)
+                _modifyFridayPrayerTimes(),
+              if (isUserAdmin && authService.currentUser != null)
+                _modifyIqamaTimes(),
+              if (isUserAdmin) _uploadKhutba(context),
+              if (isUserAdmin) _broadcastMessage(),
+
+              /*--Donation Section-------------------------------------------------------*/
               _buildSectionHeader("Spenden"),
               SizedBox(height: 10),
               Align(
@@ -310,7 +397,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
               const Divider(),
 
-              // App Info Section
+              /*--App Info Section-------------------------------------------------------*/
               _buildSectionHeader("App"),
 
               // Switch Light/Dark Mode
@@ -321,15 +408,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
 
               // App version
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text("App-Version"),
-                trailing: Text(
-                  "1.0.0",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-
+              _appVersionText(context),
               const Divider(),
 
               // General information
@@ -367,83 +446,12 @@ class _SettingsPageState extends State<SettingsPage> {
               // User Settings
               _buildSectionHeader("Benutzer"),
 
-              // display settings for admins
-              if (isUserAdmin && authService.currentUser != null)
-                ListTile(
-                  leading: const Icon(Icons.access_time),
-                  title: const Text("Freitagsgebetszeiten einstellen"),
-                  onTap: () async {
-                    _showDialogForFridaysPrayer();
-                  },
-                ),
-              if (isUserAdmin && authService.currentUser != null)
-                ListTile(
-                  leading: const Icon(Icons.access_time),
-                  title: const Text("Iqama Zeiten einstellen"),
-                  onTap: () async {
-                    _showDialogForIqamaTimes();
-                  },
-                ),
-                if(isUserAdmin)
-                ListTile(
-                leading: const Icon(Icons.upload_file),
-                title: const Text("Khutba hochladen"),
-                subtitle: const Text("PDF auswählen und speichern"),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const UploadKhutbaDialog(),
-                  );
-                },
-              ),
-
-              // Testing purposes TODO: Remove later
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("Nachricht"),
-                onTap: () async {
-                  NotificationServices notificationServices =
-                      NotificationServices();
-                  await notificationServices.displayNotification();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("ping"),
-                onTap: () async {
-                  UnoToFlaskService unoToFlaskService = UnoToFlaskService();
-                  await unoToFlaskService.fetchAlbum();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.message),
-                title: const Text("Nachricht broadcasten"),
-                onTap: () async {
-                  _showBroadcastDialog();
-                },
-              ),
-
               // Log out if user is logged in
-              if (!authService.currentUser!.isAnonymous)
-                ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text("Ausloggen"),
-                  onTap: () async {
-                    await authService.signOut();
-                    Navigator.pushNamed(context, '/authpage');
-                  },
-                ),
+              if (!authService.currentUser!.isAnonymous) _logOut(context),
 
               // registration or login for guest user
               if (authService.currentUser!.isAnonymous)
-                ListTile(
-                  leading: const Icon(Icons.person),
-                  title: const Text("Account erstellen / einloggen"),
-                  onTap: () async {
-                    await authService.signOut();
-                    Navigator.pushNamed(context, '/authpage');
-                  },
-                ),
+                _registerOrLogin(context),
 
               // Delete Button if User is logged in
               if (!authService.currentUser!.isAnonymous)
@@ -452,6 +460,80 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ),
+    );
+  }
+
+  ListTile _uploadKhutba(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.upload_file),
+      title: const Text("Khutba hochladen"),
+      subtitle: const Text("PDF auswählen und speichern"),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => const UploadKhutbaDialog(),
+        );
+      },
+    );
+  }
+
+  ListTile _modifyIqamaTimes() {
+    return ListTile(
+      leading: const Icon(Icons.access_time),
+      title: const Text("Iqama Zeiten einstellen"),
+      onTap: () async {
+        _showDialogForIqamaTimes();
+      },
+    );
+  }
+
+  ListTile _modifyFridayPrayerTimes() {
+    return ListTile(
+      leading: const Icon(Icons.access_time),
+      title: const Text("Freitagsgebetszeiten einstellen"),
+      onTap: () async {
+        _showDialogForFridaysPrayer();
+      },
+    );
+  }
+
+  ListTile _registerOrLogin(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.person),
+      title: const Text("Account erstellen / einloggen"),
+      onTap: () async {
+        await authService.signOut();
+        Navigator.pushNamed(context, '/authpage');
+      },
+    );
+  }
+
+  ListTile _logOut(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.logout),
+      title: const Text("Ausloggen"),
+      onTap: () async {
+        await authService.signOut();
+        Navigator.pushNamed(context, '/authpage');
+      },
+    );
+  }
+
+  ListTile _broadcastMessage() {
+    return ListTile(
+      leading: const Icon(Icons.message),
+      title: const Text("Nachricht broadcasten"),
+      onTap: () async {
+        _showBroadcastDialog();
+      },
+    );
+  }
+
+  ListTile _appVersionText(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.info_outline),
+      title: const Text("App-Version"),
+      trailing: Text("1.0.0", style: Theme.of(context).textTheme.bodyMedium),
     );
   }
 
