@@ -123,8 +123,6 @@ class PrayerTimesHelper {
     String name,
     List<Map<String, String>> csvData,
   ) async {
-    // load csv File
-    // await loadCSV(); // TODO: Need to optimize, dont want to load CSV File every time
 
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);

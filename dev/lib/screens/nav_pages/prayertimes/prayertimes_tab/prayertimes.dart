@@ -329,7 +329,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   // opens Notification setting if Icon is tapped
-  NotificationSettings _notificationSettingsIcon(String name, List<Map<String, String>> csvData) {
+  NotificationSettings _notificationSettingsIcon(
+    String name,
+    List<Map<String, String>> csvData,
+  ) {
     return NotificationSettings(
       context: context,
       prayerKeys: prayerKeys,
@@ -677,7 +680,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   FutureBuilder<DateTime?> _shuruqNotificationSettings() {
     return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Sunrise", csvData),
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Sunrise",
+        csvData,
+      ),
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Sunrise",
@@ -767,7 +773,7 @@ class NotificationSettings extends StatelessWidget {
     required this.context,
     required this.prayerKeys,
     required this.name,
-    required this.csvData
+    required this.csvData,
   });
 
   final BuildContext context;
@@ -835,7 +841,10 @@ class NotificationSettings extends StatelessWidget {
 
   FutureBuilder<DateTime?> _ishaNotificationSettings() {
     return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Isha", csvData),
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Isha",
+        csvData,
+      ),
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Isha",
@@ -847,7 +856,10 @@ class NotificationSettings extends StatelessWidget {
 
   FutureBuilder<DateTime?> _maghribNotificationSettings() {
     return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Maghrib", csvData),
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Maghrib",
+        csvData,
+      ),
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Maghrib",
@@ -871,7 +883,10 @@ class NotificationSettings extends StatelessWidget {
 
   FutureBuilder<DateTime?> _dhurNotificationSettings() {
     return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Dhur", csvData),
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Dhur",
+        csvData,
+      ),
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Dhur",
@@ -883,7 +898,10 @@ class NotificationSettings extends StatelessWidget {
 
   FutureBuilder<DateTime?> _fajrNotificationSettings() {
     return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Fajr", csvData),
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Fajr",
+        csvData,
+      ),
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Fajr",

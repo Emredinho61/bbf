@@ -61,12 +61,14 @@ class ActionsRow extends StatelessWidget {
     required this.titelController,
     required this.textController,
     required this.expandedController,
+    
   });
 
   final InformationService informationService;
   final TextEditingController titelController;
   final TextEditingController textController;
   final TextEditingController expandedController;
+
 
   @override
   Widget build(BuildContext context) {

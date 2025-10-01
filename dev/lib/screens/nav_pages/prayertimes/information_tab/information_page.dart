@@ -50,7 +50,6 @@ class _InformationPageState extends State<InformationPage> {
     });
   }
 
-
   // Displays all Information as Cards below each other
   @override
   Widget build(BuildContext context) {
@@ -59,9 +58,9 @@ class _InformationPageState extends State<InformationPage> {
       body: Column(
         children: [
           // if user is Admin, user can either edit Information card or add a new one
-          if (isUserAdmin) _buildAdminActionRow(context), 
+          if (isUserAdmin) _buildAdminActionRow(context),
 
-          // building all the Information Cards 
+          // building all the Information Cards
           Expanded(
             child: ListView.builder(
               itemCount: _allInformation.length,
@@ -101,156 +100,156 @@ class _InformationPageState extends State<InformationPage> {
           ),
 
           // if edit mode is active, delete and edit Icons are displayed
-          if (editMode)
-            _editInformationRow(information, context),
+          if (editMode) _editInformationRow(information, context),
         ],
       ),
     );
   }
 
   // remove and edit information card
-  Padding _editInformationRow(Map<String, dynamic> information, BuildContext context) {
+  Padding _editInformationRow(
+    Map<String, dynamic> information,
+    BuildContext context,
+  ) {
     return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _deleteInformation(information),
-                _routeToEditInformationPage(context, information),
-              ],
-            ),
-          );
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _deleteInformation(information),
+          _routeToEditInformationPage(context, information),
+        ],
+      ),
+    );
   }
 
   // if admin wants to edit Card, a new Page is opended for editing
-  GestureDetector _routeToEditInformationPage(BuildContext context, Map<String, dynamic> information) {
+  GestureDetector _routeToEditInformationPage(
+    BuildContext context,
+    Map<String, dynamic> information,
+  ) {
     return GestureDetector(
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => UpdateInformationPage(
-                          title: information['Titel'],
-                          text: information['Text'],
-                          expanded: information['Expanded'],
-                        ),
-                      ),
-                    );
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UpdateInformationPage(
+              title: information['Titel'],
+              text: information['Text'],
+              expanded: information['Expanded'],
+            ),
+          ),
+        );
 
-                    if (result == true) {
-                      _loadInformation();
-                    }
-                  },
-                  child: Icon(Icons.edit, color: Colors.blue, size: 30),
-                );
+        if (result == true) {
+          _loadInformation();
+        }
+      },
+      child: Icon(Icons.edit, color: Colors.blue, size: 30),
+    );
   }
 
   // deleting Information Card..
   GestureDetector _deleteInformation(Map<String, dynamic> information) {
     return GestureDetector(
-                  onTap: () async {
-                    setState(() {
-                      informationService.deleteInformation(
-                        information['Titel'],
-                      );
-                      _loadInformation();
-                    });
-                  },
-                  child: Icon(Icons.delete, color: Colors.red, size: 30),
-                );
+      onTap: () async {
+        setState(() {
+          informationService.deleteInformation(information['Titel']);
+          _loadInformation();
+        });
+      },
+      child: Icon(Icons.delete, color: Colors.red, size: 30),
+    );
   }
 
   // if information contains details, this will lead the user to a new page with all the information details
-  Padding _routeToExpandedInformationPage(BuildContext context, Map<String, dynamic> information) {
+  Padding _routeToExpandedInformationPage(
+    BuildContext context,
+    Map<String, dynamic> information,
+  ) {
     return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ExpanedInformationPage(
-                              information: information,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Icon(Icons.arrow_forward_ios),
-                    ),
-                  );
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ExpanedInformationPage(information: information),
+            ),
+          );
+        },
+        child: Icon(Icons.arrow_forward_ios),
+      ),
+    );
   }
 
   // information (excluding the details) will be displayed on information card
   Expanded _informationTextContent(Map<String, dynamic> information) {
     return Expanded(
-              child: ListTile(
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(information['Titel'] ?? ''),
-                ),
-                subtitle: Text(information['Text'] ?? ''),
-              ),
-            );
+      child: ListTile(
+        title: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(information['Titel'] ?? ''),
+        ),
+        subtitle: Text(information['Text'] ?? ''),
+      ),
+    );
   }
-
 
   Padding _buildAdminActionRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _editInformationIcon(),
-          _addInformationIcon(context),
-        ],
+        children: [_editInformationIcon(), _addInformationIcon(context)],
       ),
     );
   }
 
   GestureDetector _addInformationIcon(BuildContext context) {
     return GestureDetector(
-          onTap: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddInformationPage()),
-            );
-
-            if (result == true) {
-              _loadInformation();
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: BColors.secondary,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: BColors.primary),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.add, size: 35, color: BColors.primary),
-            ),
-          ),
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AddInformationPage()),
         );
+
+        if (result == true) {
+          _loadInformation();
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: BColors.secondary,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: BColors.primary),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.add, size: 35, color: BColors.primary),
+        ),
+      ),
+    );
   }
 
   GestureDetector _editInformationIcon() {
     return GestureDetector(
-          onTap: () {
-            setState(() {
-              editMode = !editMode;
-            });
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: BColors.secondary,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: BColors.primary),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.edit, size: 35, color: BColors.primary),
-            ),
-          ),
-        );
+      onTap: () {
+        setState(() {
+          editMode = !editMode;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: BColors.secondary,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: BColors.primary),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.edit, size: 35, color: BColors.primary),
+        ),
+      ),
+    );
   }
 }

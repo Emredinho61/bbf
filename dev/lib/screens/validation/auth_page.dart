@@ -1,5 +1,7 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
+import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/homepage.dart';
+import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/validation/registration_handler.dart';
@@ -15,14 +17,19 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final ScrollController scrollController = ScrollController();
   final AuthService authService = AuthService();
-
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    final showGuestLogin = args?['showGuestLogin'] ?? false;
     return Scaffold(
       body: StreamBuilder(
         stream: authService.authStateChanges,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            if (showGuestLogin) {
+              return WelcomePage();
+            }
+
             return NavBarShell();
           } else {
             return WelcomePage();
@@ -38,6 +45,9 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsService settingsService = SettingsService();
+    final AuthPageHelper authPageHelper = AuthPageHelper();
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -115,17 +125,29 @@ class WelcomePage extends StatelessWidget {
 
               // "Als Gast fortfahren" - button Text
               SizedBox(height: 3),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BTextButton(
-                    onPressed: () {
-                      authService.value.logInAnymously();
-                      Navigator.pushNamed(context, '/homepage');
-                    },
-                    text: 'Als Gast fortfahren',
-                  ),
+                  if (!authPageHelper.isUserGuest())
+                    BTextButton(
+                      onPressed: () async {
+                        await authService.value.logInAnymously();
+                        final user = authService.value.currentUser;
+                        if (user != null) {
+                          await settingsService.addSettings();
+                          await authPageHelper.setUserAsAGuest();
+                          Navigator.pushNamed(context, '/homepage');
+                        }
+                      },
+                      text: 'Als Gast fortfahren',
+                    ),
+                  if (authPageHelper.isUserGuest())
+                    BTextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/homepage');
+                      },
+                      text: 'Zurück',
+                    ),
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
+import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
@@ -51,6 +52,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final AuthService authService = AuthService();
+  final AuthPageHelper authPageHelper = AuthPageHelper();
 
   bool obscureText = true;
 
@@ -89,7 +91,9 @@ class _LoginFormState extends State<LoginForm> {
 
       final user = userCredential.user;
       if (user != null) {
+        await authPageHelper.setGuestAsUser();
         Navigator.pushNamed(context, '/homepage');
+
       } else {
         setState(() {
           errorMessageLogin =

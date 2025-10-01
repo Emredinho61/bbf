@@ -32,6 +32,7 @@ main() async {
 
   FirebaseMessaging.instance.subscribeToTopic("test");
 
+
   initializeDateFormatting().then(
     (_) => runApp(
       ChangeNotifierProvider(
@@ -40,41 +41,25 @@ main() async {
       ),
     ),
   );
-
-  //   final int prayerTimesId = 0;
-  //   final int prePrayerTimesId = 1;
-
-  //   final now = DateTime.now();
-
-  //   await AndroidAlarmManager.periodic(
-  //     const Duration(hours: 24),
-  //     prayerTimesId,
-  //     automaticNotifications,
-  //     startAt: DateTime(now.year, now.month, now.day + 1),
-  //   );
-
-  //   await AndroidAlarmManager.periodic(
-  //     const Duration(hours: 24),
-  //     prePrayerTimesId,
-  //     automaticPreNotifications,
-  //     startAt: DateTime(now.year, now.month, now.day + 1),
-  //   );
 }
 
 Future<void> permissionNotification() async {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  // Android 13+ Request-Permission
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >()
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.requestNotificationsPermission();
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >()
-      ?.requestExactAlarmsPermission();
+
+  // iOS Request-Permission
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 }
+
 
 Future<void> initializeNotification() async {
   NotificationServices notificationServices = NotificationServices();

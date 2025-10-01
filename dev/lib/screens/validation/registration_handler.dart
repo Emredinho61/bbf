@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
@@ -36,6 +37,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   final SettingsService settingsService = SettingsService();
   final UserService userService = UserService();
+  final AuthPageHelper authPageHelper = AuthPageHelper();
 
   void register() async {
     final username = usernameController.text.trim();
@@ -55,6 +57,7 @@ class _RegisterFormState extends State<RegisterForm> {
         email: emailControllerForRegister.text,
         password: passwordControllerForRegister.text,
       );
+      authPageHelper.setGuestAsUser();
       settingsService.addSettings();
       userService.addUser(username, email, number);
       Navigator.pushNamed(context, '/homepage');

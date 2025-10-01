@@ -1,12 +1,11 @@
-import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
-import 'package:bbf_app/backend/services/uno_to_flask_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -360,8 +359,8 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               // /*--Admin Section-------------------------------------------------------*/
-              _buildSectionHeader("Admin"),
-
+              if (isUserAdmin && authService.currentUser != null)
+                _buildSectionHeader("Admin"),
               // display settings for admins
               if (isUserAdmin && authService.currentUser != null)
                 _modifyFridayPrayerTimes(),
@@ -498,12 +497,13 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   ListTile _registerOrLogin(BuildContext context) {
+    AuthPageHelper authPageHelper = AuthPageHelper();
     return ListTile(
       leading: const Icon(Icons.person),
       title: const Text("Account erstellen / einloggen"),
       onTap: () async {
-        await authService.signOut();
-        Navigator.pushNamed(context, '/authpage');
+        
+        Navigator.pushNamed(context, '/authpage', arguments: {'showGuestLogin': true},);
       },
     );
   }
