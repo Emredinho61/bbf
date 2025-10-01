@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -11,24 +14,7 @@ class CalenderView extends StatefulWidget {
 }
 
 class _CalenderViewState extends State<CalenderView> {
-  @override
-  void initState() {
-    super.initState();
-    _loadCSV();
-  }
-
-  Future<void> _loadCSV() async {
-    csvData = await prayerTimesHelper.loadCSV();
-    print('${csvData[0]} ');
-    setState(() {});
-  }
-
-  List _getEventsForDay(DateTime day) {
-    return [];
-  }
-
-  DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
-
+  List<Event> _selectedEvents = [];
   List<Map<String, String>> csvData = [];
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -42,6 +28,35 @@ class _CalenderViewState extends State<CalenderView> {
     );
     return todayPrayerTimes;
   }
+
+  final eventSource = {
+    DateTime(2025, 10, 1, 8, 0): [Event('Test2', '', '',  '')],
+    DateTime(2025, 10, 3, 20, 0): [Event('Test', '', '',  '')],
+  };
+
+  late final events = LinkedHashMap<DateTime, List<Event>>(
+    equals: isSameDay,
+    hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
+  )..addAll(eventSource);
+
+  List<Event> _getEventsForDay(DateTime day) {
+    return events[day] ?? [];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCSV();
+    _selectedEvents = _getEventsForDay(DateTime.now());
+  }
+
+  Future<void> _loadCSV() async {
+    csvData = await prayerTimesHelper.loadCSV();
+    print('${csvData[0]} ');
+    setState(() {});
+  }
+
+  DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +140,7 @@ class _CalenderViewState extends State<CalenderView> {
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
+                _selectedEvents = _getEventsForDay(selectedDay);
               });
             },
             calendarFormat: _calendarFormat,
@@ -138,11 +154,16 @@ class _CalenderViewState extends State<CalenderView> {
             },
             eventLoader: (day) {
               return _getEventsForDay(day);
+              // if (day.weekday == DateTime.monday) {
+              //   return ["Meeting"];
+              // }
+              // return [];
             },
           ),
         ),
         SizedBox(height: 20),
         PrayerTimesTable(prayerTimes: prayerTimes),
+        Column(children: _selectedEvents.map((event) => Text(event.title)).toList()),
       ],
     );
   }
