@@ -5,6 +5,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/add_inform
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/edit_information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expaned_information_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:flutter/material.dart';
 
 class InformationPage extends StatefulWidget {
@@ -16,6 +17,7 @@ class InformationPage extends StatefulWidget {
 
 class _InformationPageState extends State<InformationPage> {
   final InformationService informationService = InformationService();
+  final InformationPageHelper informationPageHelper = InformationPageHelper();
   final AuthService authService = AuthService();
   final UserService userService = UserService();
 
@@ -27,8 +29,20 @@ class _InformationPageState extends State<InformationPage> {
   @override
   void initState() {
     super.initState();
-    _loadInformation();
+    _initPage();
+  }
+
+  Future<void> _initPage() async {
+    await _loadInformation();
+    await userOpenedInformationPage();
     checkUser();
+  }
+
+  // if user opens information page, this means that there are currently no new information unseen
+  Future<void> userOpenedInformationPage() async {
+    await informationPageHelper.setTotalInformationNumber(
+      _allInformation.length,
+    );
   }
 
   // loads all Information from backend

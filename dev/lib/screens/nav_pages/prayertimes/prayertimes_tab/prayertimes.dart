@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
@@ -7,6 +8,7 @@ import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
+import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -30,8 +32,9 @@ class PrayerTimes extends StatefulWidget {
 class _PrayerTimesState extends State<PrayerTimes> {
   /* Initializing variables and objects */
   final PrayertimesService prayertimesService = PrayertimesService();
-
+  final InformationService informationService = InformationService();
   List<Map<String, String>> csvData = [];
+  List<Map<String, dynamic>> _allInformation = [];
 
   late Timer _timer;
 
@@ -39,6 +42,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
+  int informationSum = informationPageHelper
+      .getTotalInformationNumberFromBackend();
   String fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
   String fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
   String fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
@@ -58,6 +63,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     });
     loadIqamaAndFridayTimes();
     _startTimer();
+    _initPage();
   }
 
   @override
@@ -66,8 +72,30 @@ class _PrayerTimesState extends State<PrayerTimes> {
     super.dispose();
   }
 
-  /* Defining all nessecary functions */
+  Future<void> _initPage() async {
+    await _loadInformation();
+    await _loadInformationSum();
+  }
 
+  // loads all Information from backend
+  Future<void> _loadInformation() async {
+    final data = await informationService.getAllInformation();
+    setState(() {
+      _allInformation = data;
+    });
+  }
+
+  Future<void> _loadInformationSum() async {
+    final informationSumFromBackend = _allInformation.length;
+    if (informationSumFromBackend != informationSum) {
+      informationPageHelper.setTotalInformationNumberFromBackend(informationSumFromBackend);
+      setState(() {
+        informationSum = informationSumFromBackend;
+      });
+    }
+  }
+
+  /* Defining all nessecary functions */
   Future<void> openPdf() async {
     final byteData = await rootBundle.load(
       'assets/files/pdf_files/Curriculum_Vitae_Emre.pdf',
@@ -425,10 +453,37 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                   'Kalender',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
-                                Text(
-                                  'Informationen',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
+                                informationPageHelper
+                                            .getTotalInformationNumber() == informationSum
+                                    ? Text(
+                                        'Information',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      )
+                                    : Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Text(
+                                            'Information',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                          ),
+                                          Positioned(
+                                            right: -8,
+                                            top: -6,
+                                            child: Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                               ],
                             ),
                             SizedBox(height: 10),
