@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
@@ -123,7 +124,6 @@ class PrayerTimesHelper {
     String name,
     List<Map<String, String>> csvData,
   ) async {
-
     // get todayRow
     final todayRow = getTodaysPrayerTimesAsStringMap(csvData);
 
@@ -170,21 +170,6 @@ class PrayerTimesHelper {
       default:
     }
     return currentIndex;
-  }
-
-  Future<void> activateNotification(String name) async {
-    // first, get the current Mode
-    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
-
-    // if its already true, there is no need to activate it again
-    if (currentMode == true) return;
-
-    // if it was false, then update it to true
-    final updatedMode = !currentMode;
-    await prefsWithCache.setBool(name, updatedMode);
-
-    // subscribe to topic
-    await FirebaseMessaging.instance.subscribeToTopic(name);
   }
 
   String convertPrayerNameIntoPrePrayerName(String prayerName) {
@@ -260,7 +245,7 @@ class PrayerTimesHelper {
       print('Unsubscribing from $preTimeTopic');
     }
 
-    // else set the new time
+    // then set the new time
     final updatedPrePrayerTopic = getPrePrayerTopic(prayerName, minutes);
 
     // only subscribe, if new minutes is not 0
@@ -268,6 +253,28 @@ class PrayerTimesHelper {
       await FirebaseMessaging.instance.subscribeToTopic(updatedPrePrayerTopic);
       print('Subscribed to Topic: $updatedPrePrayerTopic');
     }
+  }
+
+  Future<void> updateAllPreNotifications(int minutes) async {
+    final allPrayers = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    for (String prayerName in allPrayers){
+      await updatePreNotification(prayerName, minutes);
+    }
+  }
+
+  Future<void> activateNotification(String name) async {
+    // first, get the current Mode
+    final currentMode = (prefsWithCache.get(name) as bool?) ?? false;
+
+    // if its already true, there is no need to activate it again
+    if (currentMode == true) return;
+
+    // if it was false, then update it to true
+    final updatedMode = !currentMode;
+    await prefsWithCache.setBool(name, updatedMode);
+
+    // subscribe to topic
+    await FirebaseMessaging.instance.subscribeToTopic(name);
   }
 
   Future<void> deactivateNotification(String name) async {
@@ -283,6 +290,22 @@ class PrayerTimesHelper {
 
     // and unsubscribe to topic
     await FirebaseMessaging.instance.unsubscribeFromTopic(name);
+  }
+
+  Future<void> activateAllNotifications() async {
+    final allPrayers = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+
+    for (String prayerName in allPrayers) {
+      await activateNotification(prayerName);
+    }
+  }
+
+  Future<void> deactivateAllNotifications() async {
+    final allPrayers = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+
+    for (String prayerName in allPrayers) {
+      await deactivateNotification(prayerName);
+    }
   }
 
   // checks if the notifications are enabled for prayer times

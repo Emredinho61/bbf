@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
+import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -32,11 +33,13 @@ main() async {
 
   FirebaseMessaging.instance.subscribeToTopic("test");
 
-
   initializeDateFormatting().then(
     (_) => runApp(
-      ChangeNotifierProvider(
-        create: (context) => ThemeProvider(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => ThemeProvider()),
+          ChangeNotifierProvider(create: (context) => LoadingProvider()),
+        ],
         child: MyApp(),
       ),
     ),
@@ -49,7 +52,8 @@ Future<void> permissionNotification() async {
   // Android 13+ Request-Permission
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.requestNotificationsPermission();
 
   // iOS Request-Permission
@@ -59,7 +63,6 @@ Future<void> permissionNotification() async {
     sound: true,
   );
 }
-
 
 Future<void> initializeNotification() async {
   NotificationServices notificationServices = NotificationServices();

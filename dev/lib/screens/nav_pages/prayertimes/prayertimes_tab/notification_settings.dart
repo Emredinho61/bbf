@@ -1,6 +1,8 @@
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   final String name;
@@ -46,6 +48,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<LoadingProvider>().isLoading;
+    final loadingProvider = context.read<LoadingProvider>();
+    final showCheckmark = loadingProvider.showCheckmark;
+
     String currentPreTime = prePrayerTimes[currentIndex];
     int tempPreTimeIndex = prayerTimesHelper.getCurrentPreTimeAsIndex(
       widget.name,
@@ -252,6 +258,74 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ),
               ],
             ),
+          SizedBox(height: 20),
+          GestureDetector(
+            onTap: () async {
+              int minutes = prayerTimesHelper.convertPreTimeStringIntoInt(
+                prePrayerTimes[currentIndex],
+              );
+
+              loadingProvider.startLoading();
+              try {
+                if (isNotificationActive) {
+                  await prayerTimesHelper.activateAllNotifications();
+                } else {
+                  await prayerTimesHelper.deactivateAllNotifications();
+                }
+
+                await prayerTimesHelper.updateAllPreNotifications(minutes);
+                loadingProvider.stopLoadingWithCheckmark();
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+              } 
+
+            },
+            child: Center(
+              child: isLoading
+                  ? CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: BColors.primary,
+                    )
+                  : showCheckmark
+                  ? Container(
+                      decoration: BoxDecoration(
+                        color: BColors.primary,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.check, color: Colors.white),
+                      ),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: BColors.primary,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.all_inclusive,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Setze dies für jedes Gebet',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ),
         ],
       ),
     );
