@@ -8,7 +8,6 @@ import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
-import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 
 class InformationPageHelper {

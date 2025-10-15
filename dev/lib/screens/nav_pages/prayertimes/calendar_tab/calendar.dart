@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
