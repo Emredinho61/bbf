@@ -20,6 +20,10 @@ class _CalenderViewState extends State<CalenderView> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   String placeHolder = '';
   Map<DateTime, List<Event>> eventSource = {};
+  LinkedHashMap<DateTime, List<Event>> events = LinkedHashMap(
+    equals: isSameDay,
+    hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
+  );
 
   Map<String, String> _getPrayerTimesForDay(DateTime day) {
     final todayPrayerTimes = prayerTimesHelper.getPrayerTimesForDay(
@@ -28,11 +32,6 @@ class _CalenderViewState extends State<CalenderView> {
     );
     return todayPrayerTimes;
   }
-
-  late var events = LinkedHashMap<DateTime, List<Event>>(
-    equals: isSameDay,
-    hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
-  )..addAll(eventSource);
 
   List<Event> _getEventsForDay(DateTime day) {
     return events[day] ?? [];
@@ -53,12 +52,14 @@ class _CalenderViewState extends State<CalenderView> {
   }
 
   Future<void> _loadEvents() async {
-    eventSource = await calendarService.getAllEvents();
-    events = LinkedHashMap<DateTime, List<Event>>(
-      equals: isSameDay,
-      hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
-    )..addAll(eventSource);
-    _selectedEvents = _getEventsForDay(DateTime.now());
+    final eventSource = await calendarService.getAllEvents();
+
+    setState(() {
+      events
+        ..clear()
+        ..addAll(eventSource);
+      _selectedEvents = _getEventsForDay(DateTime.now());
+    });
   }
 
   DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
@@ -78,6 +79,7 @@ class _CalenderViewState extends State<CalenderView> {
           decoration: BoxDecoration(
             color: isDark ? BColors.prayerRowDark : BColors.secondary,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: BColors.primary),
           ),
           width: 380,
           child: TableCalendar(
@@ -190,6 +192,7 @@ class PrayerTimesTable extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : BColors.secondary,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: BColors.primary),
       ),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
