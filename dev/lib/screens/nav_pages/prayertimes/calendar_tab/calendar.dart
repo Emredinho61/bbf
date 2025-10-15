@@ -1,8 +1,8 @@
 import 'dart:collection';
-
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -20,6 +20,7 @@ class _CalenderViewState extends State<CalenderView> {
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   String placeHolder = '';
+  Map<DateTime, List<Event>> eventSource = {};
 
   Map<String, String> _getPrayerTimesForDay(DateTime day) {
     final todayPrayerTimes = prayerTimesHelper.getPrayerTimesForDay(
@@ -29,12 +30,7 @@ class _CalenderViewState extends State<CalenderView> {
     return todayPrayerTimes;
   }
 
-  final eventSource = {
-    DateTime(2025, 10, 1, 8, 0): [Event('Test2', '', '',  '')],
-    DateTime(2025, 10, 3, 20, 0): [Event('Test', '', '',  '')],
-  };
-
-  late final events = LinkedHashMap<DateTime, List<Event>>(
+  late var events = LinkedHashMap<DateTime, List<Event>>(
     equals: isSameDay,
     hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
   )..addAll(eventSource);
@@ -47,6 +43,7 @@ class _CalenderViewState extends State<CalenderView> {
   void initState() {
     super.initState();
     _loadCSV();
+    _loadEvents();
     _selectedEvents = _getEventsForDay(DateTime.now());
   }
 
@@ -54,6 +51,15 @@ class _CalenderViewState extends State<CalenderView> {
     csvData = await prayerTimesHelper.loadCSV();
     print('${csvData[0]} ');
     setState(() {});
+  }
+
+  Future<void> _loadEvents() async {
+    eventSource = await calendarService.getAllEvents();
+    events = LinkedHashMap<DateTime, List<Event>>(
+      equals: isSameDay,
+      hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
+    )..addAll(eventSource);
+    _selectedEvents = _getEventsForDay(DateTime.now());
   }
 
   DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
@@ -163,7 +169,9 @@ class _CalenderViewState extends State<CalenderView> {
         ),
         SizedBox(height: 20),
         PrayerTimesTable(prayerTimes: prayerTimes),
-        Column(children: _selectedEvents.map((event) => Text(event.title)).toList()),
+        Column(
+          children: _selectedEvents.map((event) => Text(event.title)).toList(),
+        ),
       ],
     );
   }
