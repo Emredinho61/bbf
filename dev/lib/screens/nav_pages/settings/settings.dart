@@ -56,7 +56,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
-
   // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() {
     TextEditingController fridayPrayer1Controller = TextEditingController();

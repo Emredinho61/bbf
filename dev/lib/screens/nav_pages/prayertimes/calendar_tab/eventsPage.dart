@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class Eventspage extends StatefulWidget {
   final List<Event> events;
   final DateTime focusedDay;
-  Eventspage({super.key, required this.events, required this.focusedDay});
+  final bool isUserAdmin;
+  Eventspage({super.key, required this.events, required this.focusedDay, required this.isUserAdmin});
 
   @override
   State<Eventspage> createState() => _EventspageState();
@@ -58,6 +59,11 @@ class _EventspageState extends State<Eventspage> {
                                     ).textTheme.bodyLarge,
                                   ),
                                 ),
+                              ),
+                              if(widget.isUserAdmin)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('id: ${event.id}'),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),

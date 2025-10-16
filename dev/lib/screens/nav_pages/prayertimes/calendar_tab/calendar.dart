@@ -1,5 +1,8 @@
 import 'dart:collection';
+import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/add_event_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/eventsPage.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -14,6 +17,10 @@ class CalenderView extends StatefulWidget {
 }
 
 class _CalenderViewState extends State<CalenderView> {
+  UserService userService = UserService();
+  AuthService authService = AuthService();
+
+  bool _isUserAdmin = false;
   List<Event> _selectedEvents = [];
   List<Map<String, String>> csvData = [];
   DateTime _focusedDay = DateTime.now();
@@ -41,9 +48,21 @@ class _CalenderViewState extends State<CalenderView> {
   @override
   void initState() {
     super.initState();
+    checkUser();
     _loadCSV();
     _loadEvents();
     _selectedEvents = _getEventsForDay(DateTime.now());
+  }
+
+  // check if user is admin
+  void checkUser() async {
+    if (authService.currentUser == null) {
+      return;
+    }
+    final value = await userService.checkIfUserIsAdmin();
+    setState(() {
+      _isUserAdmin = value;
+    });
   }
 
   Future<void> _loadCSV() async {
@@ -65,6 +84,28 @@ class _CalenderViewState extends State<CalenderView> {
 
   DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
+  GestureDetector _addEventIcon(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AddEventPage()),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: BColors.secondary,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: BColors.primary),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.add, size: 35, color: BColors.primary),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -74,6 +115,11 @@ class _CalenderViewState extends State<CalenderView> {
     }
     return Column(
       children: [
+        if (_isUserAdmin)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [_addEventIcon(context)],
+          ),
         SizedBox(height: 10),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -187,6 +233,7 @@ class _CalenderViewState extends State<CalenderView> {
                   builder: (context) => Eventspage(
                     events: _selectedEvents,
                     focusedDay: _focusedDay,
+                    isUserAdmin: _isUserAdmin,
                   ),
                 ),
               );

@@ -39,4 +39,38 @@ class CalendarService {
 
     return calendarPageHelper.eventSource;
   }
+
+  Future<void> addEventToBackEnd(
+    String id,
+    String title,
+    String content,
+    String location,
+    String time,
+    String year,
+    String month,
+    String day,
+    String hour,
+    String minute,
+  ) async {
+    // since these are saved as ints in backend, parse it
+    int yearInInt = int.parse(year);
+    int monthInInt = int.parse(month);
+    int dayInInt = int.parse(day);
+    int hourInInt = int.parse(hour);
+    int minuteInInt = int.parse(minute);
+
+    // add to backend
+    projects.doc(id).set({
+      'id': id,
+      'title': title,
+      'content': content,
+      'time': time,
+      'location': location,
+      'year' : yearInInt,
+      'month' : monthInInt,
+      'day' : dayInInt,
+      'hour' : hourInInt,
+      'minute' : minuteInInt
+    });
+  }
 }
