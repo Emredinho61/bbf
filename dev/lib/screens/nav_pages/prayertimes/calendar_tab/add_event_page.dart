@@ -22,6 +22,8 @@ class _AddEventPageState extends State<AddEventPage> {
   final TextEditingController dayTextController = TextEditingController();
   final TextEditingController hourTextController = TextEditingController();
   final TextEditingController minuteTextController = TextEditingController();
+  final TextEditingController repeatTextController = TextEditingController();
+  final TextEditingController frequencyTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +221,46 @@ class _AddEventPageState extends State<AddEventPage> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 5),
+
+                    TextField(
+                      controller: repeatTextController,
+                      cursorColor: BColors.primary,
+                      minLines: 1,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        labelText: 'Wiederholen - daily oder weekly oder none',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: BColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+
+                    TextField(
+                      controller: frequencyTextController,
+                      cursorColor: BColors.primary,
+                      minLines: 1,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        labelText: 'Häufigkeit - zB. 5',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: BColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -241,8 +283,10 @@ class _AddEventPageState extends State<AddEventPage> {
                               dayTextController.text,
                               hourTextController.text,
                               minuteTextController.text,
+                              repeatTextController.text,
+                              frequencyTextController.text,
                             );
-                            Navigator.pop(context);
+                            Navigator.pop(context, true);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),

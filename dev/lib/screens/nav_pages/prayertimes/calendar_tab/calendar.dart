@@ -91,6 +91,11 @@ class _CalenderViewState extends State<CalenderView> {
           context,
           MaterialPageRoute(builder: (_) => const AddEventPage()),
         );
+        if (result == true) {
+          setState(() {
+            _loadEvents();
+          });
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -208,10 +213,6 @@ class _CalenderViewState extends State<CalenderView> {
             },
             eventLoader: (day) {
               return _getEventsForDay(day);
-              // if (day.weekday == DateTime.monday) {
-              //   return ["Meeting"];
-              // }
-              // return [];
             },
           ),
         ),
@@ -258,9 +259,6 @@ class _CalenderViewState extends State<CalenderView> {
             ),
           ),
         ),
-        // Column(
-        //   children: _selectedEvents.map((event) => Text(event.title)).toList(),
-        // ),
       ],
     );
   }

@@ -17,6 +17,8 @@ class CalendarService {
     for (var doc in querySnapshots.docs) {
       // data from backend
       final data = doc.data();
+      final repeat = data['repeat'] ?? 'none';
+      final frequency = data['frequency'] ?? 1;
 
       // creating a DateTime object out of year, month, day, hour, minute fields of data
       final DateTime dateTime = DateTime(
@@ -34,7 +36,25 @@ class CalendarService {
         data['time'],
         data['location'],
       );
-      calendarPageHelper.addEvent(dateTime, event);
+
+      // if repetitive weekly 
+      if (repeat == 'weekly') {
+        for (int i = 0; i <= frequency; i++) {
+          final newDatetime = dateTime.add(Duration(days: i * 7));
+          calendarPageHelper.addEvent(newDatetime, event);
+        }
+      }
+      // else if repetitive daily
+      if (repeat == 'daily') {
+        for (int i = 0; i <= frequency; i++) {
+          final newDatetime = dateTime.add(Duration(days: i));
+          calendarPageHelper.addEvent(newDatetime, event);
+        }
+      }
+      // else (not repetitive)
+      else {
+        calendarPageHelper.addEvent(dateTime, event);
+      }
     }
 
     return calendarPageHelper.eventSource;
@@ -51,6 +71,8 @@ class CalendarService {
     String day,
     String hour,
     String minute,
+    String repeat,
+    String frequency
   ) async {
     // since these are saved as ints in backend, parse it
     int yearInInt = int.parse(year);
@@ -58,6 +80,7 @@ class CalendarService {
     int dayInInt = int.parse(day);
     int hourInInt = int.parse(hour);
     int minuteInInt = int.parse(minute);
+    int frequencyInInt = int.parse(frequency);
 
     // add to backend
     projects.doc(id).set({
@@ -66,11 +89,13 @@ class CalendarService {
       'content': content,
       'time': time,
       'location': location,
-      'year' : yearInInt,
-      'month' : monthInInt,
-      'day' : dayInInt,
-      'hour' : hourInInt,
-      'minute' : minuteInInt
+      'year': yearInInt,
+      'month': monthInInt,
+      'day': dayInInt,
+      'hour': hourInInt,
+      'minute': minuteInInt,
+      'repeat': repeat,
+      'frequency' : frequencyInInt
     });
   }
 }
