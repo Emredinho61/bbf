@@ -70,14 +70,9 @@ class ExpandedText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            information['Expanded'],
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
+      child: Text(
+        information['Expanded'],
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

@@ -30,20 +30,26 @@ class UpdateInformationPage extends StatelessWidget {
     final TextEditingController expandedController = TextEditingController(
       text: expanded,
     );
-    return SafeArea(
-      child: Scaffold(
-        body: Padding(
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-          child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Title(),
-                TitleTextField(titelController: titelController),
-                MainTextField(textController: textController),
-                ExpandedTextField(expandedController: expandedController),
-                ActionsRow(informationService: informationService, titelController: titelController, textController: textController, expandedController: expandedController),
-              ],
+          child: SingleChildScrollView(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Title(),
+                    SizedBox(height:10),
+                    TitleTextField(titelController: titelController),
+                    MainTextField(textController: textController),
+                    ExpandedTextField(expandedController: expandedController),
+                    ActionsRow(informationService: informationService, titelController: titelController, textController: textController, expandedController: expandedController),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -87,7 +93,7 @@ class ActionsRow extends StatelessWidget {
             Navigator.pop(context, true);
           },
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text('Ändern'),
           ),
         ),
