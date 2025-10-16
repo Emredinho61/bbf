@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/eventsPage.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -170,9 +171,49 @@ class _CalenderViewState extends State<CalenderView> {
         ),
         SizedBox(height: 20),
         PrayerTimesTable(prayerTimes: prayerTimes),
-        Column(
-          children: _selectedEvents.map((event) => Text(event.title)).toList(),
+        SizedBox(height: 5),
+        Container(
+          margin: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            border: Border.all(color: BColors.primary),
+            borderRadius: BorderRadius.circular(16),
+            color: isDark ? BColors.prayerRowDark : BColors.secondary,
+          ),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Eventspage(
+                    events: _selectedEvents,
+                    focusedDay: _focusedDay,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(
+                    Icons.event,
+                    color: isDark ? Colors.white : BColors.primary,
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    'Alle Projekte des Tages ansehen',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
+        // Column(
+        //   children: _selectedEvents.map((event) => Text(event.title)).toList(),
+        // ),
       ],
     );
   }

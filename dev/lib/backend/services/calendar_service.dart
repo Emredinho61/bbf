@@ -8,7 +8,10 @@ class CalendarService {
   // get all Events from backend
   Future<Map<DateTime, List<Event>>> getAllEvents() async {
     // contains all docs in following format: Map<String, dynamic>; ex. {'title' : 'Quran Schule'}
-    final querySnapshots = await projects.get();
+    final querySnapshots = await projects
+        .orderBy('hour', descending: false)
+        .orderBy('minute', descending: false)
+        .get();
 
     // iterating through all docs, restructuring the type first and then adding them in all Events
     for (var doc in querySnapshots.docs) {
