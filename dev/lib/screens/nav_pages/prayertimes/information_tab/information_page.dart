@@ -3,7 +3,7 @@ import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/add_information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/edit_information_page.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expaned_information_page.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expanded_information_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:flutter/material.dart';
