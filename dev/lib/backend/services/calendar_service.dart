@@ -5,8 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CalendarService {
   final projects = FirebaseFirestore.instance.collection('calendarEntries');
 
+  bool isException(DateTime newDatetime, List<DateTime> exceptions) {
+    return exceptions.any(
+      (exceptionDate) =>
+          exceptionDate.year == newDatetime.year &&
+          exceptionDate.month == newDatetime.month &&
+          exceptionDate.day == newDatetime.day,
+    );
+  }
+
   // get all Events from backend
   Future<Map<DateTime, List<Event>>> getAllEvents() async {
+    calendarPageHelper.eventSource.clear();
     // contains all docs in following format: Map<String, dynamic>; ex. {'title' : 'Quran Schule'}
     final querySnapshots = await projects
         .orderBy('hour', descending: false)
@@ -19,6 +29,39 @@ class CalendarService {
       final data = doc.data();
       final repeat = data['repeat'] ?? 'none';
       final frequency = data['frequency'] ?? 1;
+      final Map<String, dynamic> allExceptions = Map<String, dynamic>.from(
+        data['exceptions'] ?? {},
+      ); // Format: {1:['2025', '10', '17']}
+
+      // creating a List of DateTimes containing all exceptions
+      List<DateTime> exceptionList = [];
+
+      // iterating through map
+      if (allExceptions.isNotEmpty) {
+        print('Found exceptions: ${allExceptions.values}');
+        for (var exception in allExceptions.entries) {
+          final List<dynamic> datePartsDynamic = exception.value;
+          final List<String> dateParts = datePartsDynamic
+              .map((e) => e.toString())
+              .toList();
+
+          if (dateParts.length != 3) {
+            continue;
+          }
+          DateTime exceptionDate = DateTime(
+            int.parse(dateParts[0]),
+            int.parse(dateParts[1]),
+            int.parse(dateParts[2]),
+            (data['hour'] as num).toInt(),
+            (data['minute'] as num).toInt(),
+          );
+          print(
+            '$exceptionDate---------------------------------------------------------------------------------------------',
+          );
+
+          exceptionList.add(exceptionDate);
+        }
+      }
 
       // creating a DateTime object out of year, month, day, hour, minute fields of data
       final DateTime dateTime = DateTime(
@@ -37,18 +80,24 @@ class CalendarService {
         data['location'],
       );
 
-      // if repetitive weekly 
+      // if repetitive weekly
       if (repeat == 'weekly') {
         for (int i = 0; i <= frequency; i++) {
           final newDatetime = dateTime.add(Duration(days: i * 7));
-          calendarPageHelper.addEvent(newDatetime, event);
+
+          if (!isException(newDatetime, exceptionList)) {
+            calendarPageHelper.addEvent(newDatetime, event);
+          }
         }
       }
       // else if repetitive daily
       if (repeat == 'daily') {
         for (int i = 0; i <= frequency; i++) {
           final newDatetime = dateTime.add(Duration(days: i));
-          calendarPageHelper.addEvent(newDatetime, event);
+
+          if (!isException(newDatetime, exceptionList)) {
+            calendarPageHelper.addEvent(newDatetime, event);
+          }
         }
       }
       // else (not repetitive)
@@ -72,7 +121,7 @@ class CalendarService {
     String hour,
     String minute,
     String repeat,
-    String frequency
+    String frequency,
   ) async {
     // since these are saved as ints in backend, parse it
     int yearInInt = int.parse(year);
@@ -95,7 +144,40 @@ class CalendarService {
       'hour': hourInInt,
       'minute': minuteInInt,
       'repeat': repeat,
-      'frequency' : frequencyInInt
+      'frequency': frequencyInInt,
     });
+  }
+
+  Future<void> deleteEventsWithId(String id) async {
+    await projects.doc(id).delete();
+  }
+
+  Future<void> addExceptionOrDeleteSingleEvent(
+    String id,
+    String year,
+    String month,
+    String day,
+  ) async {
+    final dateParts = [year, month, day];
+    final docRef = projects.doc(id);
+    final snapshot = await docRef.get();
+
+    // if event is not a repetitive one, then just delete it
+    if (snapshot.data()!['repeat'] == 'none') 
+    {
+      await deleteEventsWithId(id);
+      return;
+    }
+
+    // get existing Exceptions and if there is none, create a new empty one
+    Map<String, dynamic> existingExceptions = Map<String, dynamic>.from(
+      snapshot.data()?['exceptions'] ?? {},
+    );
+
+    final newKey = (existingExceptions.length + 1).toString();
+
+    existingExceptions[newKey] = dateParts;
+
+    await docRef.update({'exceptions': existingExceptions});
   }
 }

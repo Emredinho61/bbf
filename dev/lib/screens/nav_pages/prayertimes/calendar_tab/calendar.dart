@@ -3,6 +3,8 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/add_event_page.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_event_page.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_single_event.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/eventsPage.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -80,6 +82,9 @@ class _CalenderViewState extends State<CalenderView> {
         ..addAll(eventSource);
       _selectedEvents = _getEventsForDay(DateTime.now());
     });
+    print(
+      'Events Loaded ---------------------------------------------------------------------------------->',
+    );
   }
 
   DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
@@ -111,6 +116,63 @@ class _CalenderViewState extends State<CalenderView> {
     );
   }
 
+  GestureDetector _deleteCertainEventIcon(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const DeleteSingleEvent()),
+        );
+        if (result == true) {
+          setState(() {
+            _loadEvents();
+          });
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: BColors.secondary,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: BColors.primary),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.delete_forever, size: 35, color: BColors.primary),
+        ),
+      ),
+    );
+  }
+
+  GestureDetector _deleteEventIcon(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const DeleteEventPage()),
+        );
+        if (result == true) {
+          print(
+            'Result is actually true ------------------------------------------------------------------------>',
+          );
+          setState(() {
+            _loadEvents();
+          });
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: BColors.secondary,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: BColors.primary),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.delete, size: 35, color: BColors.primary),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -122,8 +184,12 @@ class _CalenderViewState extends State<CalenderView> {
       children: [
         if (_isUserAdmin)
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [_addEventIcon(context)],
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _deleteEventIcon(context),
+              _deleteCertainEventIcon(context),
+              _addEventIcon(context),
+            ],
           ),
         SizedBox(height: 10),
         Container(
