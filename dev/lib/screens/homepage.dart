@@ -71,7 +71,7 @@ class _NavBarShellState extends State<NavBarShell> {
           Icon(Icons.school),
           Icon(Icons.access_time, size: 30,),
           Icon(Icons.settings),
-          Icon(Icons.compass_calibration),
+          Icon(Icons.explore),
         ],
       ),
     );
