@@ -51,5 +51,11 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- Standortberechtigungen für Kompass -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Diese App benötigt den Standort, um die Kompassrichtung korrekt anzuzeigen.</string>
+
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Diese App benötigt den Standort auch im Hintergrund, um den Kompass korrekt zu kalibrieren.</string>
 	</dict>
 </plist>

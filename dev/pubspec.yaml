@@ -39,6 +39,10 @@ dependencies:
   table_calendar: ^3.2.0
   file_picker: ^10.3.3
   firebase_storage: ^12.4.10
+  flutter_qiblah: ^3.1.0+1
+  geolocator: 13.0.4
+  flutter_svg: ^2.2.1
+  
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +73,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/qiblah_compass/
     - assets/icons/
     - assets/files/csv_files/
     - assets/files/md_files/project.md

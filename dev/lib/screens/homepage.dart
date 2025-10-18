@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
+import 'package:bbf_app/screens/nav_pages/qiblah/qiblah.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -20,7 +21,7 @@ class _NavBarShellState extends State<NavBarShell> {
   final AuthService authService = AuthService();
   final SettingsService settingsService = SettingsService();
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   @override
   void initState() {
@@ -39,10 +40,11 @@ class _NavBarShellState extends State<NavBarShell> {
   }
 
   static final List<Widget> _pages = <Widget>[
-    PrayerTimes(), // Screen 0
-    Projects(), // Screen 1
-    ArabicSchool(), // Screen 2
-    SettingsPage(), // Screen 3
+    Projects(),
+    ArabicSchool(),
+    PrayerTimes(),
+    SettingsPage(),
+    CompassWithQiblah(),
   ];
 
   void _onItemTapped(int index) {
@@ -57,6 +59,7 @@ class _NavBarShellState extends State<NavBarShell> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedIndex,
         backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,
         color: isDark ? Colors.grey.shade800 : Colors.green.shade300,
         animationDuration: Duration(milliseconds: 400),
@@ -64,10 +67,11 @@ class _NavBarShellState extends State<NavBarShell> {
           _onItemTapped(index);
         },
         items: [
-          Icon(Icons.access_time),
           Icon(Icons.work),
           Icon(Icons.school),
+          Icon(Icons.access_time, size: 30,),
           Icon(Icons.settings),
+          Icon(Icons.compass_calibration),
         ],
       ),
     );
