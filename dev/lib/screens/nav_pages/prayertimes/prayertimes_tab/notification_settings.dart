@@ -88,6 +88,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         ? Color.fromARGB(255, 185, 185, 185)
                         : BColors.primary,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isNotificationActive
+                          ? BColors.primary
+                          : Colors.white,
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -130,6 +135,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         ? BColors.primary
                         : Color.fromARGB(255, 185, 185, 185),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isNotificationActive
+                          ? Colors.white
+                          : BColors.primary,
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -193,7 +203,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.all(5),
-                child: Text(currentPreTime),
+                width: 125,
+                child: Center(child: Text(currentPreTime)),
               ),
               GestureDetector(
                 onTap: () {
@@ -218,7 +229,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           SizedBox(height: 10),
           if (showSubmitButton)
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -279,8 +290,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text('Fehler: $e')));
-              } 
-
+              }
             },
             child: Center(
               child: isLoading

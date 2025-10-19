@@ -803,16 +803,16 @@ class _PrayerTimesState extends State<PrayerTimes> {
     const months = [
       'Jan',
       'Feb',
-      'Mar',
+      'Mär',
       'Apr',
-      'May',
+      'Mai',
       'Jun',
       'Jul',
       'Aug',
       'Sep',
-      'Oct',
+      'Okt',
       'Nov',
-      'Dec',
+      'Dez',
     ];
     return months[month - 1];
   }
@@ -857,9 +857,7 @@ class NotificationSettings extends StatelessWidget {
                       isScrollable: true,
                       indicatorColor: BColors.primary,
                       labelColor: BColors.primary,
-                      unselectedLabelColor: isDark
-                          ? Colors.white
-                          : Colors.black,
+                      unselectedLabelColor: isDark? Colors.white : Colors.black,
                       tabs: [
                         Tab(text: 'Fajr'),
                         Tab(text: 'Dhur'),

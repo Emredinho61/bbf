@@ -6,6 +6,7 @@ import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/auth_page_helper.dart';
+import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,13 +35,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final PrayertimesService prayertimesService = PrayertimesService();
 
+  final CheckUserHelper checkUserHelper = CheckUserHelper();
+
   /*--Initialize Variables-------------------------------------------------------*/
-  bool isUserAdmin = false; // used for displaying widgets only for admin
+  late bool isUserAdmin; // used for displaying widgets only for admin
 
   /*--Initialize State-------------------------------------------------------*/
   @override
   void initState() {
     super.initState();
+    isUserAdmin = checkUserHelper.getUsersPrefs();
     checkUser();
   }
 
@@ -51,7 +55,10 @@ class _SettingsPageState extends State<SettingsPage> {
     }
     final value = await userService.checkIfUserIsAdmin();
     setState(() {
-      isUserAdmin = value;
+      if(value != isUserAdmin) {
+        checkUserHelper.setCheckUsersPrefs(value);
+        isUserAdmin = value;
+      }
     });
   }
 

@@ -11,13 +11,6 @@ class BAppTheme {
     useMaterial3: true, // latest Material Design in Flutter
     fontFamily: 'Poppins',
     brightness: Brightness.light,
-    // scaffoldBackgroundColor: Colors.grey.shade300,
-    appBarTheme: AppBarTheme(
-      backgroundColor: BColors.appbarLight,
-      elevation: 3,
-      shadowColor: BColors.primary,
-    ),
-    // bottomNavigationBarTheme: BBottomNavBarTheme.bottomNavigationBarLightTheme,
     cardTheme: BCardTheme.cardLightThemeData,
     textTheme: BTextTheme.lightTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.lightElevatedButtonTheme,
@@ -25,16 +18,14 @@ class BAppTheme {
     bottomSheetTheme: BBottomSheetTheme.lightBottomSheetThemeData,
   );
   static ThemeData darkTheme = ThemeData(
-    useMaterial3: true, // latest Material Design in Flutter
+    useMaterial3: true,
     fontFamily: 'Poppins',
     brightness: Brightness.dark,
     scaffoldBackgroundColor: Colors.grey.shade800,
     appBarTheme: AppBarTheme(
-      backgroundColor: BColors.appbarDark,
       elevation: 3,
       shadowColor: BColors.primary,
     ),
-    // bottomNavigationBarTheme: BBottomNavBarTheme.bottomNavigationBarDarkTheme,
     cardTheme: BCardTheme.cardDarkThemeData,
     textTheme: BTextTheme.darkTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.darkElevatedButtonTheme,

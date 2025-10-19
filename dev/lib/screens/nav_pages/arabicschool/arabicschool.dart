@@ -43,8 +43,8 @@ class _ArabicSchoolState extends State<ArabicSchool> {
                       ),
                       elevation: 4,
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade600
-                          : BColors.secondary,
+                          ? BColors.prayerRowDark
+                          : BColors.prayerRowLight,
                       child: SingleChildScrollView(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -56,48 +56,60 @@ class _ArabicSchoolState extends State<ArabicSchool> {
                               UnderlinedText(
                                 content: Text(
                                   'Unsere Mission',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineSmall,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                               SizedBox(height: 8),
                               Text(
                                 'Eines unserer wichtigsten Ziele bei der Gründung unseres Vereins war die Errichtung einer Schule, die die heranwachsende Generation durch qualifizierte Fachkräfte dabei unterstützt, ihre Identität und Kultur aufzubewahren.',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall!
+                                    .copyWith(color: Colors.white),
                               ),
                               SizedBox(height: 14),
                               UnderlinedText(
                                 content: Text(
                                   'Vorstellung der Schule',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineSmall,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                               SizedBox(height: 8),
                               Text(
                                 'Die arabische Schule wurde 2017 mit Unterstützung und unter der Aufsicht des Vereins gegründet und wird von ca. 200 Schülern aller Altersgruppen besucht.',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall!
+                                    .copyWith(color: Colors.white),
                               ),
                               SizedBox(height: 14),
                               UnderlinedText(
                                 content: Text(
                                   'Stufen und Alter',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineSmall,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                               SizedBox(height: 8),
                               Text(
                                 'Die Schule umfasst drei Vorbereitungsstufen und sechs Grundstufen.Das Alter der Schüler liegt zwischen 5 und 14 Jahren. Kinder ab 5 Jahren dürfen an der Schule angemeldet werden. Neben dem Arabisch-Unterricht bietet die Schule einen Islam-Unterricht an. Die Anmeldung erfolgt Online. Über die Aufnahme benachrichtigt die Schulleitung die Eltern.',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall!
+                                    .copyWith(color: Colors.white),
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 16),
                               Row(
                                 children: [
-                                  Text('Hier kommen Sie zur '),
+                                  Text(
+                                    'Hier kommen Sie zur ',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(color: Colors.white),
+                                  ),
                                   ArabicSchoolRegistriationLink(),
                                 ],
                               ),
@@ -132,7 +144,7 @@ class ArabicSchoolRegistriationLink extends StatelessWidget {
         }
       },
 
-      child: UnderlinedText(content: Text('Anmeldung')),
+      child: UnderlinedText(content: Text('Anmeldung', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),), ),
     );
   }
 }

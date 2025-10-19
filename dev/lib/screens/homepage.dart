@@ -2,6 +2,7 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/nav_pages/qiblah/qiblah.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -43,14 +44,18 @@ class _NavBarShellState extends State<NavBarShell> {
     Projects(),
     ArabicSchool(),
     PrayerTimes(),
-    SettingsPage(),
     CompassWithQiblah(),
+    SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  bool _isActive(int index) {
+    return _selectedIndex == index;
   }
 
   @override
@@ -61,17 +66,17 @@ class _NavBarShellState extends State<NavBarShell> {
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedIndex,
         backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,
-        color: isDark ? Colors.grey.shade800 : Colors.green.shade300,
+        color: isDark ? BColors.navbarDark : Colors.green.shade300,
         animationDuration: Duration(milliseconds: 400),
         onTap: (index) {
           _onItemTapped(index);
         },
         items: [
-          Icon(Icons.work),
-          Icon(Icons.school),
-          Icon(Icons.access_time, size: 30,),
-          Icon(Icons.settings),
-          Icon(Icons.explore),
+          Icon(Icons.work_outline,  color: _isActive(0) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ,),
+          Icon(Icons.school_outlined, color: _isActive(1) ? Colors.white :const Color.fromARGB(255, 174, 239, 174)  ),
+          Icon(Icons.access_time_outlined, size: 30, color: _isActive(2) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
+          Icon(Icons.explore_outlined,  color: _isActive(3) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
+          Icon(Icons.menu_outlined,  color: _isActive(4) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
         ],
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class BBottomSheetTheme {
   static BottomSheetThemeData lightBottomSheetThemeData = BottomSheetThemeData(
-    backgroundColor: BColors.secondary,
+    backgroundColor:  Colors.grey.shade300,
   );
 
   static BottomSheetThemeData darkBottomSheetThemeData = BottomSheetThemeData(

@@ -8,7 +8,6 @@ class UserService {
   );
 
   // Create a document when user registers if no document exists for that user
-
   Future<void> addUser(String name, String email, [String? number]) async {
     // get user ID
 

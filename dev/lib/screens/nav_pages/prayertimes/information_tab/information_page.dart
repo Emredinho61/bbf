@@ -5,6 +5,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/add_inform
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/edit_information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expanded_information_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -20,15 +21,17 @@ class _InformationPageState extends State<InformationPage> {
   final InformationPageHelper informationPageHelper = InformationPageHelper();
   final AuthService authService = AuthService();
   final UserService userService = UserService();
+  final CheckUserHelper checkUserHelper = CheckUserHelper();
 
   List<Map<String, dynamic>> _allInformation = [];
 
-  bool isUserAdmin = false;
+  late bool isUserAdmin;
   bool editMode = false;
 
   @override
   void initState() {
     super.initState();
+    isUserAdmin = checkUserHelper.getUsersPrefs();
     _initPage();
   }
 
@@ -60,7 +63,10 @@ class _InformationPageState extends State<InformationPage> {
     }
     final value = await userService.checkIfUserIsAdmin();
     setState(() {
-      isUserAdmin = value;
+      if (value != isUserAdmin) {
+        checkUserHelper.setCheckUsersPrefs(value);
+        isUserAdmin = value;
+      }
     });
   }
 

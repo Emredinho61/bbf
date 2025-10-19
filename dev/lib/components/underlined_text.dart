@@ -10,9 +10,7 @@ class UnderlinedText extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
+            color: Colors.white,
             width: 1,
           ),
         ),
