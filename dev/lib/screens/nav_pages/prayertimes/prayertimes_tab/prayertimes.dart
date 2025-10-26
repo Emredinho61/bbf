@@ -87,7 +87,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Future<void> _loadInformationSum() async {
     final informationSumFromBackend = _allInformation.length;
     if (informationSumFromBackend != informationSum) {
-      informationPageHelper.setTotalInformationNumberFromBackend(informationSumFromBackend);
+      informationPageHelper.setTotalInformationNumberFromBackend(
+        informationSumFromBackend,
+      );
       setState(() {
         informationSum = informationSumFromBackend;
       });
@@ -453,7 +455,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 informationPageHelper
-                                            .getTotalInformationNumber() == informationSum
+                                            .getTotalInformationNumber() ==
+                                        informationSum
                                     ? Text(
                                         'Information',
                                         style: Theme.of(
@@ -857,7 +860,9 @@ class NotificationSettings extends StatelessWidget {
                       isScrollable: true,
                       indicatorColor: BColors.primary,
                       labelColor: BColors.primary,
-                      unselectedLabelColor: isDark? Colors.white : Colors.black,
+                      unselectedLabelColor: isDark
+                          ? Colors.white
+                          : Colors.black,
                       tabs: [
                         Tab(text: 'Fajr'),
                         Tab(text: 'Dhur'),

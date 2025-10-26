@@ -7,13 +7,11 @@ class AuthPageHelper {
     return prefsWithCache.getBool('isUserGuest') ?? false;
   }
 
-  Future<void> setUserAsAGuest()async
-  {
+  Future<void> setUserAsAGuest() async {
     await prefsWithCache.setBool('isUserGuest', true);
   }
 
-  Future<void> setGuestAsUser()async
-  {
+  Future<void> setGuestAsUser() async {
     await prefsWithCache.setBool('isUserGuest', false);
   }
 
@@ -21,8 +19,7 @@ class AuthPageHelper {
     return prefsWithCache.getString('guestId') ?? '';
   }
 
-  Future<void> setGuestsId(String guestId)async
-  {
+  Future<void> setGuestsId(String guestId) async {
     await prefsWithCache.setString('guestId', guestId);
   }
 }

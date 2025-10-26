@@ -39,10 +39,12 @@ class _QiblahMapsState extends State<QiblahMaps> {
       child: FutureBuilder(
         future: _future,
         builder: (_, AsyncSnapshot<Position?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return LoadingIndicator();
-          if (snapshot.hasError)
+          }
+          if (snapshot.hasError) {
             return LocationErrorWidget(error: snapshot.error.toString());
+          }
 
           if (snapshot.data != null) {
             final loc = LatLng(
@@ -50,8 +52,9 @@ class _QiblahMapsState extends State<QiblahMaps> {
               snapshot.data!.longitude,
             );
             position = loc;
-          } else
+          } else {
             _positionStream.sink.add(position);
+          }
 
           return StreamBuilder(
             stream: _positionStream.stream,

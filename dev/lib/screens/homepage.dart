@@ -72,11 +72,37 @@ class _NavBarShellState extends State<NavBarShell> {
           _onItemTapped(index);
         },
         items: [
-          Icon(Icons.work_outline,  color: _isActive(0) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ,),
-          Icon(Icons.school_outlined, color: _isActive(1) ? Colors.white :const Color.fromARGB(255, 174, 239, 174)  ),
-          Icon(Icons.access_time_outlined, size: 30, color: _isActive(2) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
-          Icon(Icons.explore_outlined,  color: _isActive(3) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
-          Icon(Icons.menu_outlined,  color: _isActive(4) ? Colors.white :const Color.fromARGB(255, 174, 239, 174) ),
+          Icon(
+            Icons.work_outline,
+            color: _isActive(0)
+                ? Colors.white
+                : const Color.fromARGB(255, 174, 239, 174),
+          ),
+          Icon(
+            Icons.school_outlined,
+            color: _isActive(1)
+                ? Colors.white
+                : const Color.fromARGB(255, 174, 239, 174),
+          ),
+          Icon(
+            Icons.access_time_outlined,
+            size: 30,
+            color: _isActive(2)
+                ? Colors.white
+                : const Color.fromARGB(255, 174, 239, 174),
+          ),
+          Icon(
+            Icons.explore_outlined,
+            color: _isActive(3)
+                ? Colors.white
+                : const Color.fromARGB(255, 174, 239, 174),
+          ),
+          Icon(
+            Icons.menu_outlined,
+            color: _isActive(4)
+                ? Colors.white
+                : const Color.fromARGB(255, 174, 239, 174),
+          ),
         ],
       ),
     );

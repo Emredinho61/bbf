@@ -93,7 +93,6 @@ class _LoginFormState extends State<LoginForm> {
       if (user != null) {
         await authPageHelper.setGuestAsUser();
         Navigator.pushNamed(context, '/homepage');
-
       } else {
         setState(() {
           errorMessageLogin =

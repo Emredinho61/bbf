@@ -257,7 +257,7 @@ class PrayerTimesHelper {
 
   Future<void> updateAllPreNotifications(int minutes) async {
     final allPrayers = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
-    for (String prayerName in allPrayers){
+    for (String prayerName in allPrayers) {
       await updatePreNotification(prayerName, minutes);
     }
   }

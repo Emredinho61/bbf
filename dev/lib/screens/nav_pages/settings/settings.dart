@@ -55,7 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
     final value = await userService.checkIfUserIsAdmin();
     setState(() {
-      if(value != isUserAdmin) {
+      if (value != isUserAdmin) {
         checkUserHelper.setCheckUsersPrefs(value);
         isUserAdmin = value;
       }
@@ -508,8 +508,11 @@ class _SettingsPageState extends State<SettingsPage> {
       leading: const Icon(Icons.person),
       title: const Text("Account erstellen / einloggen"),
       onTap: () async {
-        
-        Navigator.pushNamed(context, '/authpage', arguments: {'showGuestLogin': true},);
+        Navigator.pushNamed(
+          context,
+          '/authpage',
+          arguments: {'showGuestLogin': true},
+        );
       },
     );
   }
@@ -654,7 +657,8 @@ class LightDarkModeSwitch extends StatelessWidget {
     return SwitchListTile(
       title: const Text("Dunkelmodus"),
       value: isDark,
-      activeThumbColor: BColors.primary,
+      // TODO: check if this exists
+      // activeThumbColor: BColors.primary,
       onChanged: (value) {
         themeProvider.toggleTheme();
         firestoreService.updateTheme(value ? "dark" : "light");

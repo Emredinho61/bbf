@@ -42,11 +42,16 @@ class UpdateInformationPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Title(),
-                    SizedBox(height:10),
+                    SizedBox(height: 10),
                     TitleTextField(titelController: titelController),
                     MainTextField(textController: textController),
                     ExpandedTextField(expandedController: expandedController),
-                    ActionsRow(informationService: informationService, titelController: titelController, textController: textController, expandedController: expandedController),
+                    ActionsRow(
+                      informationService: informationService,
+                      titelController: titelController,
+                      textController: textController,
+                      expandedController: expandedController,
+                    ),
                   ],
                 ),
               ),
@@ -103,10 +108,7 @@ class ActionsRow extends StatelessWidget {
 }
 
 class ExpandedTextField extends StatelessWidget {
-  const ExpandedTextField({
-    super.key,
-    required this.expandedController,
-  });
+  const ExpandedTextField({super.key, required this.expandedController});
 
   final TextEditingController expandedController;
 
@@ -124,10 +126,7 @@ class ExpandedTextField extends StatelessWidget {
           labelText: 'Erweiterten Text',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),
@@ -136,10 +135,7 @@ class ExpandedTextField extends StatelessWidget {
 }
 
 class MainTextField extends StatelessWidget {
-  const MainTextField({
-    super.key,
-    required this.textController,
-  });
+  const MainTextField({super.key, required this.textController});
 
   final TextEditingController textController;
 
@@ -157,10 +153,7 @@ class MainTextField extends StatelessWidget {
           labelText: 'Text',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),
@@ -169,10 +162,7 @@ class MainTextField extends StatelessWidget {
 }
 
 class TitleTextField extends StatelessWidget {
-  const TitleTextField({
-    super.key,
-    required this.titelController,
-  });
+  const TitleTextField({super.key, required this.titelController});
 
   final TextEditingController titelController;
 
@@ -187,10 +177,7 @@ class TitleTextField extends StatelessWidget {
           labelText: 'Titel',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),
@@ -199,9 +186,7 @@ class TitleTextField extends StatelessWidget {
 }
 
 class Title extends StatelessWidget {
-  const Title({
-    super.key,
-  });
+  const Title({super.key});
 
   @override
   Widget build(BuildContext context) {

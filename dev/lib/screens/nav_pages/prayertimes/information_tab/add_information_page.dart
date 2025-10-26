@@ -2,7 +2,6 @@ import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-
 /*
 If admin chooses to add a new Information, then he will be redirected to this page.
 This page allows the admin to a new Information card containing title, the actual information 
@@ -30,7 +29,12 @@ class AddInformationPage extends StatelessWidget {
                 TitleTextField(titelController: titelController),
                 MainTextField(textController: textController),
                 ExpandedTextField(expandedController: expandedController),
-                ActionsRow(informationService: informationService, titelController: titelController, textController: textController, expandedController: expandedController),
+                ActionsRow(
+                  informationService: informationService,
+                  titelController: titelController,
+                  textController: textController,
+                  expandedController: expandedController,
+                ),
               ],
             ),
           ),
@@ -41,9 +45,7 @@ class AddInformationPage extends StatelessWidget {
 }
 
 class Title extends StatelessWidget {
-  const Title({
-    super.key,
-  });
+  const Title({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,6 @@ class ActionsRow extends StatelessWidget {
     required this.titelController,
     required this.textController,
     required this.expandedController,
-    
   });
 
   final InformationService informationService;
@@ -69,14 +70,18 @@ class ActionsRow extends StatelessWidget {
   final TextEditingController textController;
   final TextEditingController expandedController;
 
-
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         GoBackIcon(),
-        AddInformationButton(informationService: informationService, titelController: titelController, textController: textController, expandedController: expandedController),
+        AddInformationButton(
+          informationService: informationService,
+          titelController: titelController,
+          textController: textController,
+          expandedController: expandedController,
+        ),
       ],
     );
   }
@@ -116,9 +121,7 @@ class AddInformationButton extends StatelessWidget {
 }
 
 class GoBackIcon extends StatelessWidget {
-  const GoBackIcon({
-    super.key,
-  });
+  const GoBackIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +135,7 @@ class GoBackIcon extends StatelessWidget {
 }
 
 class ExpandedTextField extends StatelessWidget {
-  const ExpandedTextField({
-    super.key,
-    required this.expandedController,
-  });
+  const ExpandedTextField({super.key, required this.expandedController});
 
   final TextEditingController expandedController;
 
@@ -153,10 +153,7 @@ class ExpandedTextField extends StatelessWidget {
           labelText: 'Erweiterten Text',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),
@@ -165,10 +162,7 @@ class ExpandedTextField extends StatelessWidget {
 }
 
 class MainTextField extends StatelessWidget {
-  const MainTextField({
-    super.key,
-    required this.textController,
-  });
+  const MainTextField({super.key, required this.textController});
 
   final TextEditingController textController;
 
@@ -186,10 +180,7 @@ class MainTextField extends StatelessWidget {
           labelText: 'Text',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),
@@ -198,10 +189,7 @@ class MainTextField extends StatelessWidget {
 }
 
 class TitleTextField extends StatelessWidget {
-  const TitleTextField({
-    super.key,
-    required this.titelController,
-  });
+  const TitleTextField({super.key, required this.titelController});
 
   final TextEditingController titelController;
 
@@ -216,10 +204,7 @@ class TitleTextField extends StatelessWidget {
           labelText: 'Titel',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: BColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: BColors.primary, width: 2),
           ),
         ),
       ),

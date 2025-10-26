@@ -22,10 +22,7 @@ class BAppTheme {
     fontFamily: 'Poppins',
     brightness: Brightness.dark,
     scaffoldBackgroundColor: Colors.grey.shade800,
-    appBarTheme: AppBarTheme(
-      elevation: 3,
-      shadowColor: BColors.primary,
-    ),
+    appBarTheme: AppBarTheme(elevation: 3, shadowColor: BColors.primary),
     cardTheme: BCardTheme.cardDarkThemeData,
     textTheme: BTextTheme.darkTextTheme,
     elevatedButtonTheme: BElevatedButtonTheme.darkElevatedButtonTheme,

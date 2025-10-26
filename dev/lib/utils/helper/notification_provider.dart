@@ -28,4 +28,3 @@ class LoadingProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

@@ -61,9 +61,7 @@ class _CompassWithQiblahState extends State<CompassWithQiblah> {
         child: SafeArea(
           child: _isChecking
               ? LoadingIndicator()
-              : (_deviceSupported == true
-                  ? QiblahCompass()
-                  : QiblahMaps()),
+              : (_deviceSupported == true ? QiblahCompass() : QiblahMaps()),
         ),
       ),
     );

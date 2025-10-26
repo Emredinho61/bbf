@@ -163,8 +163,7 @@ class CalendarService {
     final snapshot = await docRef.get();
 
     // if event is not a repetitive one, then just delete it
-    if (snapshot.data()!['repeat'] == 'none') 
-    {
+    if (snapshot.data()!['repeat'] == 'none') {
       await deleteEventsWithId(id);
       return;
     }

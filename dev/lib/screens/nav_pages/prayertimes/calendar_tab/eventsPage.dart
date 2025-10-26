@@ -5,7 +5,12 @@ class Eventspage extends StatefulWidget {
   final List<Event> events;
   final DateTime focusedDay;
   final bool isUserAdmin;
-  Eventspage({super.key, required this.events, required this.focusedDay, required this.isUserAdmin});
+  Eventspage({
+    super.key,
+    required this.events,
+    required this.focusedDay,
+    required this.isUserAdmin,
+  });
 
   @override
   State<Eventspage> createState() => _EventspageState();
@@ -60,11 +65,11 @@ class _EventspageState extends State<Eventspage> {
                                   ),
                                 ),
                               ),
-                              if(widget.isUserAdmin)
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('id: ${event.id}'),
-                              ),
+                              if (widget.isUserAdmin)
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('id: ${event.id}'),
+                                ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text('Beschreibung: ${event.content}'),
@@ -81,7 +86,7 @@ class _EventspageState extends State<Eventspage> {
                           ),
                         ),
                       ),
-                      ActionsRow()
+                      ActionsRow(),
                     ],
                   ),
                 ),
@@ -96,9 +101,7 @@ class _EventspageState extends State<Eventspage> {
 
 // this class also exists in information page -> double code
 class ActionsRow extends StatelessWidget {
-  const ActionsRow({
-    super.key,
-  });
+  const ActionsRow({super.key});
 
   @override
   Widget build(BuildContext context) {

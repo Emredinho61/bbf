@@ -288,7 +288,9 @@ class _AddEventPageState extends State<AddEventPage> {
                             Navigator.pop(context, true);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
                             child: Text('Hinzufügen'),
                           ),
                         ),

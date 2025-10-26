@@ -8,12 +8,7 @@ class UnderlinedText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white,
-            width: 1,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.white, width: 1)),
       ),
       child: content,
     );

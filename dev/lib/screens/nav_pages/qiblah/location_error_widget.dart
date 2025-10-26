@@ -15,11 +15,7 @@ class LocationErrorWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(
-            Icons.location_off,
-            size: 150,
-            color: errorColor,
-          ),
+          Icon(Icons.location_off, size: 150, color: errorColor),
           box,
           Text(
             error!,
@@ -31,7 +27,7 @@ class LocationErrorWidget extends StatelessWidget {
             onPressed: () {
               if (callback != null) callback!();
             },
-          )
+          ),
         ],
       ),
     );

@@ -144,7 +144,14 @@ class ArabicSchoolRegistriationLink extends StatelessWidget {
         }
       },
 
-      child: UnderlinedText(content: Text('Anmeldung', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),), ),
+      child: UnderlinedText(
+        content: Text(
+          'Anmeldung',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall!.copyWith(color: Colors.white),
+        ),
+      ),
     );
   }
 }

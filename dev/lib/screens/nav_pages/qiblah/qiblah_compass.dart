@@ -16,7 +16,8 @@ class QiblahCompass extends StatefulWidget {
 }
 
 class _QiblahCompassState extends State<QiblahCompass> {
-  final _locationStreamController = StreamController<LocationStatus>.broadcast();
+  final _locationStreamController =
+      StreamController<LocationStatus>.broadcast();
 
   bool? _cachedEnabled;
   LocationPermission? _cachedPermission;
@@ -59,7 +60,9 @@ class _QiblahCompassState extends State<QiblahCompass> {
 
     setState(() {
       _cachedEnabled = enabled;
-      _cachedPermission = statusIndex != null ? LocationPermission.values[statusIndex] : null;
+      _cachedPermission = statusIndex != null
+          ? LocationPermission.values[statusIndex]
+          : null;
     });
 
     _checkLocationStatus();
@@ -82,7 +85,8 @@ class _QiblahCompassState extends State<QiblahCompass> {
     final locationStatus = await FlutterQiblah.checkLocationStatus();
     await _saveCachedStatus(locationStatus);
 
-    if (locationStatus.enabled && locationStatus.status == LocationPermission.denied) {
+    if (locationStatus.enabled &&
+        locationStatus.status == LocationPermission.denied) {
       await FlutterQiblah.requestPermissions();
       final s = await FlutterQiblah.checkLocationStatus();
       await _saveCachedStatus(s);
@@ -168,11 +172,14 @@ class CachedQiblahCompassWidget extends StatefulWidget {
   });
 
   @override
-  State<CachedQiblahCompassWidget> createState() => _CachedQiblahCompassWidgetState();
+  State<CachedQiblahCompassWidget> createState() =>
+      _CachedQiblahCompassWidgetState();
 }
 
 class _CachedQiblahCompassWidgetState extends State<CachedQiblahCompassWidget> {
-  final _compassSvg = SvgPicture.asset('assets/images/qiblah_compass/compass.svg');
+  final _compassSvg = SvgPicture.asset(
+    'assets/images/qiblah_compass/compass.svg',
+  );
   final _needleSvg = SvgPicture.asset(
     'assets/images/qiblah_compass/needle.svg',
     width: 300,
@@ -216,7 +223,8 @@ class _CachedQiblahCompassWidgetState extends State<CachedQiblahCompassWidget> {
     return StreamBuilder<QiblahDirection>(
       stream: FlutterQiblah.qiblahStream,
       builder: (_, AsyncSnapshot<QiblahDirection> snapshot) {
-        if (snapshot.hasData && snapshot.connectionState == ConnectionState.active) {
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.active) {
           final qiblahDirection = snapshot.data!;
 
           double direction;
@@ -253,7 +261,8 @@ class _CachedQiblahCompassWidgetState extends State<CachedQiblahCompassWidget> {
         final offset = displayData['offset'] ?? 0.0;
 
         Widget cacheIndicator = const SizedBox.shrink();
-        if (_usingCachedData && snapshot.connectionState != ConnectionState.waiting) {
+        if (_usingCachedData &&
+            snapshot.connectionState != ConnectionState.waiting) {
           cacheIndicator = Positioned(
             top: 8,
             child: Container(

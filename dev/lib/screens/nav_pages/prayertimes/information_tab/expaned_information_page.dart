@@ -35,9 +35,7 @@ class ExpanedInformationPage extends StatelessWidget {
 }
 
 class ActionsRow extends StatelessWidget {
-  const ActionsRow({
-    super.key,
-  });
+  const ActionsRow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +57,7 @@ class ActionsRow extends StatelessWidget {
 }
 
 class ExpandedText extends StatelessWidget {
-  const ExpandedText({
-    super.key,
-    required this.information,
-  });
+  const ExpandedText({super.key, required this.information});
 
   final dynamic information;
 
@@ -79,10 +74,7 @@ class ExpandedText extends StatelessWidget {
 }
 
 class MainText extends StatelessWidget {
-  const MainText({
-    super.key,
-    required this.information,
-  });
+  const MainText({super.key, required this.information});
 
   final dynamic information;
 
@@ -96,10 +88,7 @@ class MainText extends StatelessWidget {
 }
 
 class TitleText extends StatelessWidget {
-  const TitleText({
-    super.key,
-    required this.information,
-  });
+  const TitleText({super.key, required this.information});
 
   final dynamic information;
 
