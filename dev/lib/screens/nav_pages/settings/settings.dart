@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
@@ -373,6 +374,7 @@ class _SettingsPageState extends State<SettingsPage> {
               if (isUserAdmin && authService.currentUser != null)
                 _modifyIqamaTimes(),
               if (isUserAdmin) _uploadKhutba(context),
+              if (isUserAdmin) _uploadEvent(context),
               if (isUserAdmin) _broadcastMessage(),
 
               /*--Donation Section-------------------------------------------------------*/
@@ -477,6 +479,20 @@ class _SettingsPageState extends State<SettingsPage> {
         showDialog(
           context: context,
           builder: (context) => const UploadKhutbaDialog(),
+        );
+      },
+    );
+  }
+
+  ListTile _uploadEvent(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.upload_file),
+      title: const Text("Event hochladen"),
+      subtitle: const Text("Markdown auswählen und speichern"),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => const UploadProjectDialog(),
         );
       },
     );
@@ -658,7 +674,7 @@ class LightDarkModeSwitch extends StatelessWidget {
       title: const Text("Dunkelmodus"),
       value: isDark,
       // TODO: check if this exists
-      // activeThumbColor: BColors.primary,
+      activeThumbColor: BColors.primary,
       onChanged: (value) {
         themeProvider.toggleTheme();
         firestoreService.updateTheme(value ? "dark" : "light");
