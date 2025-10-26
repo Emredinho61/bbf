@@ -1,7 +1,8 @@
-import 'package:bbf_app/screens/nav_pages/project/project_card.dart';
-import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
+import 'project_card.dart';
 
 class Projects extends StatelessWidget {
   Projects({super.key});
@@ -11,6 +12,7 @@ class Projects extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -23,30 +25,48 @@ class Projects extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                'Projekte',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: PageView(
-                  controller: _controller,
-                  children: [Project(), Project(), Project()],
-                ),
-              ),
-              SmoothPageIndicator(
-                controller: _controller,
-                count: 3,
-                effect: ScrollingDotsEffect(
-                  activeDotColor: BColors.primary,
-                  dotColor: Colors.green.shade300,
-                  spacing: 10,
-                ),
-              ),
-            ],
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('projects')
+                .orderBy('date', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text("Keine Projekte verfügbar"));
+              }
+
+              final projects = snapshot.data!.docs;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('Projekte',
+                      style: Theme.of(context).textTheme.headlineLarge),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: PageView.builder(
+                      controller: _controller,
+                      itemCount: projects.length,
+                      itemBuilder: (context, index) {
+                        return Project(docId: projects[index].id);
+                      },
+                    ),
+                  ),
+                  SmoothPageIndicator(
+                    controller: _controller,
+                    count: projects.length,
+                    effect: ScrollingDotsEffect(
+                      activeDotColor: BColors.primary,
+                      dotColor: Colors.green.shade300,
+                      spacing: 10,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

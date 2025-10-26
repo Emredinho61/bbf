@@ -1,10 +1,14 @@
-import 'package:bbf_app/utils/constants/colors.dart';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:bbf_app/utils/constants/colors.dart';
 
 class Project extends StatefulWidget {
-  const Project({super.key});
+  final String docId; // Firestore document ID
+
+  const Project({super.key, required this.docId});
 
   @override
   State<Project> createState() => _ProjectState();
@@ -12,27 +16,34 @@ class Project extends StatefulWidget {
 
 class _ProjectState extends State<Project> {
   Future<Map<String, String>> loadMarkdownParts() async {
-    final data = await rootBundle.loadString(
-      'assets/files/md_files/project.md',
-    );
-    final lines = data.split('\n');
+    // Fetch document
+    final doc = await FirebaseFirestore.instance
+        .collection('projects')
+        .doc(widget.docId)
+        .get();
 
-    String title = '';
-    String body = '';
+    if (!doc.exists) throw Exception("Projekt nicht gefunden.");
 
-    // if there is a title
-    if (lines.isNotEmpty && lines.first.startsWith('#')) {
-      title = lines.first.replaceFirst('#', '').trim();
-      body = lines.skip(1).join('\n').trim(); // Rest als Body
-    } else {
-      // if not title is there
-      body = data;
+    final data = doc.data()!;
+    final title = data['title'] ?? '';
+    final markdownUrl = data['markdownUrl'] ?? '';
+    final imageUrl = data['imageUrl'] ?? '';
+
+    // Download markdown text
+    final response = await http.get(Uri.parse(markdownUrl));
+    if (response.statusCode != 200) {
+      throw Exception("Fehler beim Laden der Markdown-Datei");
     }
-    // map format
-    return {'title': title, 'body': body};
+
+    final markdown = utf8.decode(response.bodyBytes);
+
+    return {
+      'title': title,
+      'body': markdown,
+      'imageUrl': imageUrl,
+    };
   }
 
-  // used for projects card which only display a small part of the text
   String shortenMarkdown(String body, int maxLines) {
     final lines = body.split('\n');
     if (lines.length <= maxLines) {
@@ -48,46 +59,50 @@ class _ProjectState extends State<Project> {
       future: loadMarkdownParts(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Fehler beim Laden der Datei.'));
+          return const Center(child: Text('Fehler beim Laden der Datei.'));
         } else {
-          final markdownParts = snapshot.data!;
+          final data = snapshot.data!;
           return Padding(
-            padding: EdgeInsetsGeometry.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Card(
               child: Padding(
-                padding: EdgeInsetsGeometry.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
-                      markdownParts['title']!,
+                      data['title']!,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 10),
-                    Image.asset(
-                      'assets/images/bbf-logo.png',
-                      height: 100,
-                      width: 50,
-                    ),
-                    SizedBox(height: 15),
-
+                    const SizedBox(height: 10),
+                    data['imageUrl']!.isNotEmpty
+                        ? Image.network(
+                            data['imageUrl']!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/bbf-logo.png',
+                            height: 100,
+                            width: 50,
+                          ),
+                    const SizedBox(height: 15),
                     Expanded(
                       child: MarkdownBody(
-                        data: shortenMarkdown(markdownParts['body']!, 3),
+                        data: shortenMarkdown(data['body']!, 3),
                       ),
                     ),
-                    SizedBox(height: 5),
-
-                    // Centering the button
+                    const SizedBox(height: 5),
                     Align(
                       alignment: Alignment.center,
                       child: SizedBox(
-                        width: 100,
+                        width: 120,
                         child: ElevatedButton(
                           onPressed: () {
-                            showMoreBottomSheet(context);
+                            showMoreBottomSheet(context, data);
                           },
                           child: Text(
                             'Mehr anzeigen',
@@ -106,56 +121,50 @@ class _ProjectState extends State<Project> {
     );
   }
 
-  Future<dynamic> showMoreBottomSheet(BuildContext context) {
+  Future<dynamic> showMoreBottomSheet(
+      BuildContext context, Map<String, String> data) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? Colors.grey.shade600
           : BColors.secondary,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) {
-        return FutureBuilder(
-          future: loadMarkdownParts(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Fehler beim Laden der Datei.'));
-            } else {
-              final markdownParts = snapshot.data!;
-              return SizedBox(
-                height: MediaQuery.of(context).size.height * 0.9,
-                width: double.infinity,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 16.0,
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          markdownParts['title']!,
-                          style: Theme.of(context).textTheme.headlineLarge,
-                        ),
-                        SizedBox(height: 10),
-                        Image.asset(
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.9,
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+              child: Column(
+                children: [
+                  Text(
+                    data['title']!,
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                  const SizedBox(height: 10),
+                  data['imageUrl']!.isNotEmpty
+                      ? Image.network(
+                          data['imageUrl']!,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
                           'assets/images/bbf-logo.png',
                           height: 100,
                           width: 50,
                         ),
-                        SizedBox(height: 10),
-                        MarkdownBody(data: markdownParts['body']!),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-          },
+                  const SizedBox(height: 10),
+                  MarkdownBody(data: data['body']!),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
