@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class UploadProjectDialog extends StatefulWidget {
   const UploadProjectDialog({super.key});
@@ -59,13 +60,26 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       await markdownRef.putFile(_markdownFile!);
       final markdownUrl = await markdownRef.getDownloadURL();
 
-      // Upload image (optional?) TODO: decide if this is going to be optional or not
+      // Upload image (optional)
       String imageUrl = '';
       if (_imageFile != null) {
+        final originalImage = _imageFile!;
+        final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+          originalImage.path,
+          '${originalImage.path}_compressed.jpg',
+          quality: 70,
+        );
+
+        final compressedImage = compressedXFile != null
+            ? File(compressedXFile.path)
+            : null;
+
+        final fileToUpload = compressedImage ?? originalImage;
+
         final imageRef = storage.ref().child(
           'project_images/${_selectedImageName}',
         );
-        await imageRef.putFile(_imageFile!);
+        await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
       }
 

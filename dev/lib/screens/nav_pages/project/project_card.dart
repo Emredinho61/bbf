@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Project extends StatefulWidget {
   final String docId; // Firestore document ID
@@ -94,16 +94,21 @@ class _ProjectState extends State<Project> {
                   children: [
                     const SizedBox(height: 10),
                     Text(
-                      data['title']!,
+                      data['title'] ?? '',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 10),
-                    data['imageUrl']!.isNotEmpty
-                        ? Image.network(
-                            data['imageUrl']!,
+                    (data['imageUrl'] ?? '').isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: data['imageUrl'],
                             height: 100,
                             width: 100,
                             fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           )
                         : Image.asset(
                             'assets/images/bbf-logo.png',
@@ -113,7 +118,7 @@ class _ProjectState extends State<Project> {
                     const SizedBox(height: 15),
                     Expanded(
                       child: MarkdownBody(
-                        data: shortenMarkdown(data['body']!, 3),
+                        data: shortenMarkdown(data['body'] ?? '', 3),
                       ),
                     ),
                     const SizedBox(height: 5),
@@ -168,16 +173,20 @@ class _ProjectState extends State<Project> {
               child: Column(
                 children: [
                   Text(
-                    data['title']!,
+                    data['title'] ?? '',
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 10),
-                  data['imageUrl']!.isNotEmpty
-                      ? Image.network(
-                          data['imageUrl']!,
+                  (data['imageUrl'] ?? '').isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: data['imageUrl'],
                           height: 100,
                           width: 100,
                           fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                         )
                       : Image.asset(
                           'assets/images/bbf-logo.png',
@@ -185,7 +194,7 @@ class _ProjectState extends State<Project> {
                           width: 50,
                         ),
                   const SizedBox(height: 10),
-                  MarkdownBody(data: data['body']!),
+                  MarkdownBody(data: data['body'] ?? ''),
                 ],
               ),
             ),
