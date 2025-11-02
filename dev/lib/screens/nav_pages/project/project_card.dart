@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:bbf_app/backend/services/projects_service.dart';
+import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -15,12 +17,24 @@ class Project extends StatefulWidget {
 }
 
 class _ProjectState extends State<Project> {
-  Future<Map<String, String>> loadMarkdownParts() async {
-    // Fetch document
-    final doc = await FirebaseFirestore.instance
-        .collection('projects')
-        .doc(widget.docId)
-        .get();
+  Future<Map<String, dynamic>> loadMarkdownParts() async {
+    final ProjectsPageHelper projectsPageHelper = ProjectsPageHelper();
+    final ProjectsService projectsService = ProjectsService();
+
+    // check, if there is already a project saved in prefs
+    final cachedData = projectsPageHelper.getCertainProject(widget.docId);
+    // if so, return the data
+    if (cachedData != null) {
+      final decoded = jsonDecode(cachedData) as Map<String, dynamic>;
+      return {
+        'title': decoded['title'] ?? '',
+        'body': decoded['body'] ?? '',
+        'imageUrl': decoded['imageUrl'] ?? '',
+      };
+    }
+
+    // if there is new project, then fetch from backend
+    final doc = await projectsService.getCertainProject(widget.docId);
 
     if (!doc.exists) throw Exception("Projekt nicht gefunden.");
 
@@ -29,7 +43,7 @@ class _ProjectState extends State<Project> {
     final markdownUrl = data['markdownUrl'] ?? '';
     final imageUrl = data['imageUrl'] ?? '';
 
-    // Download markdown text
+    // fetch md data
     final response = await http.get(Uri.parse(markdownUrl));
     if (response.statusCode != 200) {
       throw Exception("Fehler beim Laden der Markdown-Datei");
@@ -37,11 +51,18 @@ class _ProjectState extends State<Project> {
 
     final markdown = utf8.decode(response.bodyBytes);
 
-    return {
+    // save new project in prefs
+    final projectData = {
       'title': title,
       'body': markdown,
       'imageUrl': imageUrl,
     };
+    await projectsPageHelper.setCertainProject(
+      'project_${widget.docId}',
+      jsonEncode(projectData),
+    );
+
+    return projectData;
   }
 
   String shortenMarkdown(String body, int maxLines) {
@@ -122,7 +143,9 @@ class _ProjectState extends State<Project> {
   }
 
   Future<dynamic> showMoreBottomSheet(
-      BuildContext context, Map<String, String> data) {
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -138,8 +161,10 @@ class _ProjectState extends State<Project> {
           width: double.infinity,
           child: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 children: [
                   Text(
