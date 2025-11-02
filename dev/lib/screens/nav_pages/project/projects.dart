@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'project_card.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class Projects extends StatefulWidget {
   Projects({super.key});
@@ -17,18 +18,17 @@ class _ProjectsState extends State<Projects> {
   final ProjectsPageHelper projectsPageHelper = ProjectsPageHelper();
   final ProjectsService projectsService = ProjectsService();
   bool _isLoading = true;
-  // init Page Function
+
+  final PageController _controller = PageController(viewportFraction: 0.8);
+
   @override
   void initState() {
     super.initState();
-    // Function to load projects from prefs instead of backend first
     allProjects = projectsPageHelper.getAllProjects();
     _initPage();
   }
 
   Future<void> _initPage() async {
-    // Function to load projects from backend and then compare them with prefs
-    // If there is a difference, then update prefs and show user updated version
     final loadedProjects = await projectsService.getAllProjects();
     if (loadedProjects != allProjects) {
       projectsPageHelper.setallProjects(loadedProjects);
@@ -36,13 +36,8 @@ class _ProjectsState extends State<Projects> {
         allProjects = loadedProjects;
       });
     }
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
   }
-
-  // function which returns the loadMarkdownParts from already loaded docs
-  final PageController _controller = PageController(viewportFraction: 0.8);
 
   @override
   Widget build(BuildContext context) {
@@ -61,38 +56,103 @@ class _ProjectsState extends State<Projects> {
         ),
         child: SafeArea(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Skeletonizer(
+                    enabled: true,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 40,
+                          width: 200,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: PageView.builder(
+                            controller: _controller,
+                            itemCount: 3, // z.B. 3 Skeleton-Karten
+                            itemBuilder: (context, index) {
+                              return Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 24,
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Container(
+                                        height: 100,
+                                        width: 100,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 15),
+                                      Container(
+                                        height: 60,
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Container(
+                                        height: 40,
+                                        width: 120,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SmoothPageIndicator(
+                          controller: _controller,
+                          count: 3,
+                          effect: ScrollingDotsEffect(
+                            activeDotColor: BColors.primary,
+                            dotColor: Colors.green.shade300,
+                            spacing: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : allProjects.isEmpty
-              ? const Center(child: Text("Keine Projekte verfügbar"))
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      'Projekte',
-                      style: Theme.of(context).textTheme.headlineLarge,
+                  ? const Center(child: Text("Keine Projekte verfügbar"))
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          'Projekte',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: PageView.builder(
+                            controller: _controller,
+                            itemCount: allProjects.length,
+                            itemBuilder: (context, index) {
+                              final project = allProjects[index];
+                              return Project(docId: project['id']);
+                            },
+                          ),
+                        ),
+                        SmoothPageIndicator(
+                          controller: _controller,
+                          count: allProjects.length,
+                          effect: ScrollingDotsEffect(
+                            activeDotColor: BColors.primary,
+                            dotColor: Colors.green.shade300,
+                            spacing: 10,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: PageView.builder(
-                        controller: _controller,
-                        itemCount: allProjects.length,
-                        itemBuilder: (context, index) {
-                          final project = allProjects[index];
-                          return Project(docId: project['id']);
-                        },
-                      ),
-                    ),
-                    SmoothPageIndicator(
-                      controller: _controller,
-                      count: allProjects.length,
-                      effect: ScrollingDotsEffect(
-                        activeDotColor: BColors.primary,
-                        dotColor: Colors.green.shade300,
-                        spacing: 10,
-                      ),
-                    ),
-                  ],
-                ),
         ),
       ),
     );
