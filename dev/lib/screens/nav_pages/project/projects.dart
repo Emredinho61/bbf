@@ -63,36 +63,36 @@ class _ProjectsState extends State<Projects> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : allProjects.isEmpty
-                  ? const Center(child: Text("Keine Projekte verfügbar"))
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          'Projekte',
-                          style: Theme.of(context).textTheme.headlineLarge,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: PageView.builder(
-                            controller: _controller,
-                            itemCount: allProjects.length,
-                            itemBuilder: (context, index) {
-                              final project = allProjects[index];
-                              return Project(docId: project['id']);
-                            },
-                          ),
-                        ),
-                        SmoothPageIndicator(
-                          controller: _controller,
-                          count: allProjects.length,
-                          effect: ScrollingDotsEffect(
-                            activeDotColor: BColors.primary,
-                            dotColor: Colors.green.shade300,
-                            spacing: 10,
-                          ),
-                        ),
-                      ],
+              ? const Center(child: Text("Keine Projekte verfügbar"))
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      'Projekte',
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: PageView.builder(
+                        controller: _controller,
+                        itemCount: allProjects.length,
+                        itemBuilder: (context, index) {
+                          final project = allProjects[index];
+                          return Project(docId: project['id']);
+                        },
+                      ),
+                    ),
+                    SmoothPageIndicator(
+                      controller: _controller,
+                      count: allProjects.length,
+                      effect: ScrollingDotsEffect(
+                        activeDotColor: BColors.primary,
+                        dotColor: Colors.green.shade300,
+                        spacing: 10,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

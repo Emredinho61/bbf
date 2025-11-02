@@ -4,7 +4,9 @@ class ProjectsService {
   final projects = FirebaseFirestore.instance.collection('projects');
 
   Future<List<Map<String, dynamic>>> getAllProjects() async {
-    final allProjectsSnapshot = await projects.orderBy('date', descending: true).get();
+    final allProjectsSnapshot = await projects
+        .orderBy('date', descending: true)
+        .get();
 
     final allProjects = allProjectsSnapshot.docs.map((doc) {
       final data = doc.data();

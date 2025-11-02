@@ -35,9 +35,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   }
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
 
     if (result != null && result.files.single.path != null) {
       setState(() {
@@ -55,17 +53,18 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       final storage = FirebaseStorage.instance;
 
       // Upload markdown
-      final markdownRef = storage
-          .ref()
-          .child('projects/${_selectedMarkdownName ?? 'project.md'}');
+      final markdownRef = storage.ref().child(
+        'projects/${_selectedMarkdownName ?? 'project.md'}',
+      );
       await markdownRef.putFile(_markdownFile!);
       final markdownUrl = await markdownRef.getDownloadURL();
 
       // Upload image (optional?) TODO: decide if this is going to be optional or not
       String imageUrl = '';
       if (_imageFile != null) {
-        final imageRef =
-            storage.ref().child('project_images/${_selectedImageName}');
+        final imageRef = storage.ref().child(
+          'project_images/${_selectedImageName}',
+        );
         await imageRef.putFile(_imageFile!);
         imageUrl = await imageRef.getDownloadURL();
       }
@@ -89,9 +88,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     } catch (e) {
       debugPrint('Upload failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Hochladen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -147,8 +146,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
           child: const Text("Abbrechen"),
         ),
         ElevatedButton(
-          onPressed:
-              _isUploading || _markdownFile == null ? null : _uploadProject,
+          onPressed: _isUploading || _markdownFile == null
+              ? null
+              : _uploadProject,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16),
           ),

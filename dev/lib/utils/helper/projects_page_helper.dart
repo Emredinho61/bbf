@@ -15,9 +15,7 @@ class ProjectsPageHelper {
     return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<void> setallProjects(
-    List<Map<String, dynamic>> products,
-  ) async {
+  Future<void> setallProjects(List<Map<String, dynamic>> products) async {
     final jsonString = jsonEncode(products);
     await prefs.setString('allProjects', jsonString);
   }
@@ -26,10 +24,7 @@ class ProjectsPageHelper {
     return prefs.getString('project_$id');
   }
 
-  Future<void> setCertainProject(String id, String jsonData) async{
+  Future<void> setCertainProject(String id, String jsonData) async {
     await prefs.setString(id, jsonData);
-    
   }
-
-
 }
