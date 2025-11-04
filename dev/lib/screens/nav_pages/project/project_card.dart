@@ -10,8 +10,17 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 class Project extends StatefulWidget {
   final String docId; // Firestore document ID
+  final int year;
+  final int month;
+  final int day;
 
-  const Project({super.key, required this.docId});
+  const Project({
+    super.key,
+    required this.docId,
+    required this.year,
+    required this.month,
+    required this.day,
+  });
 
   @override
   State<Project> createState() => _ProjectState();
@@ -79,7 +88,8 @@ class _ProjectState extends State<Project> {
       builder: (context, snapshot) {
         final data = snapshot.data;
         return Skeletonizer(
-          enabled: _loading || snapshot.connectionState == ConnectionState.waiting,
+          enabled:
+              _loading || snapshot.connectionState == ConnectionState.waiting,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
@@ -87,6 +97,14 @@ class _ProjectState extends State<Project> {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${widget.day}.${widget.month}.${widget.year}',
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       data != null ? data['title'] ?? '' : 'Titel',
@@ -96,12 +114,15 @@ class _ProjectState extends State<Project> {
                     (data != null && (data['imageUrl'] ?? '').isNotEmpty)
                         ? CachedNetworkImage(
                             imageUrl: data['imageUrl'],
-                            height: 100,
-                            width: 100,
+                            height: 200,
+                            width: 200,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                Skeletonizer(enabled: true, child: Container(height: 100, width: 100)),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            placeholder: (context, url) => Skeletonizer(
+                              enabled: true,
+                              child: Container(height: 100, width: 100),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           )
                         : Image.asset(
                             'assets/images/bbf-logo.png',
@@ -109,13 +130,13 @@ class _ProjectState extends State<Project> {
                             width: 50,
                           ),
                     const SizedBox(height: 15),
-                    Expanded(
-                      child: MarkdownBody(
-                        data: data != null
-                            ? shortenMarkdown(data['body'] ?? '', 3)
-                            : 'Lorem ipsum dolor sit amet...',
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: MarkdownBody(
+                    //     data: data != null
+                    //         ? shortenMarkdown(data['body'] ?? '', 3)
+                    //         : 'Lorem ipsum dolor sit amet...',
+                    //   ),
+                    // ),
                     const SizedBox(height: 5),
                     Align(
                       alignment: Alignment.center,
@@ -143,7 +164,9 @@ class _ProjectState extends State<Project> {
   }
 
   Future<dynamic> showMoreBottomSheet(
-      BuildContext context, Map<String, dynamic> data) {
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -159,8 +182,10 @@ class _ProjectState extends State<Project> {
           width: double.infinity,
           child: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 children: [
                   Text(
@@ -174,8 +199,10 @@ class _ProjectState extends State<Project> {
                           height: 100,
                           width: 100,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              Skeletonizer(enabled: true, child: Container(height: 100, width: 100)),
+                          placeholder: (context, url) => Skeletonizer(
+                            enabled: true,
+                            child: Container(height: 100, width: 100),
+                          ),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                         )

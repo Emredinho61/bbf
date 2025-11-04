@@ -48,7 +48,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     }
   }
 
-  Future<void> _uploadProject(year, month, day) async {
+  Future<void> _uploadProject(int year,int month,int day) async {
     if (_markdownFile == null) return;
     setState(() => _isUploading = true);
 
@@ -214,9 +214,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             if (_isUploading || _markdownFile == null) return;
 
             _uploadProject(
-              yearTextEditingController.text,
-              monthTextEditingController.text,
-              dayTextEditingController.text,
+              int.parse(yearTextEditingController.text),
+              int.parse(monthTextEditingController.text),
+              int.parse(dayTextEditingController.text)
             );
           },
           style: ElevatedButton.styleFrom(

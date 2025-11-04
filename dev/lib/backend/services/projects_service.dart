@@ -10,34 +10,29 @@ class ProjectsService {
 
     // snapshot data
     final allProjectsSnapshot = await projects
-        .orderBy('date', descending: true)
+        .orderBy('year', descending: true)
+        .orderBy('month', descending: true)
+        .orderBy('day', descending: true)
         .get();
 
     final oldProjects = allProjectsSnapshot.docs
         .where((doc) {
           final data = doc.data();
 
-          final yearStr = data['year'] as String?;
-          final monthStr = data['month'] as String?;
-          final dayStr = data['day'] as String?;
+          final yearInt = data['year'] as int?;
+          final monthInt = data['month'] as int?;
+          final dayInt = data['day'] as int?;
 
-          if (yearStr == null || monthStr == null || dayStr == null) {
+          if (yearInt == null || monthInt == null || dayInt == null) {
             return false;
           }
 
-          final year = int.tryParse(yearStr);
-          final month = int.tryParse(monthStr);
-          final day = int.tryParse(dayStr);
-
-          if (year == null || month == null || day == null) return false;
-
-          final projectDate = DateTime(year, month, day);
+          final projectDate = DateTime(yearInt, monthInt, dayInt);
 
           return projectDate.isBefore(todaysDate);
         })
         .map((doc) => {'id': doc.id, ...doc.data()})
         .toList();
-
     return oldProjects;
   }
 
@@ -48,28 +43,24 @@ class ProjectsService {
 
     // snapshot data
     final allProjectsSnapshot = await projects
-        .orderBy('date', descending: true)
+        .orderBy('year', descending: false)
+        .orderBy('month', descending: false)
+        .orderBy('day', descending: false)
         .get();
 
     final futureProjects = allProjectsSnapshot.docs
         .where((doc) {
           final data = doc.data();
 
-          final yearStr = data['year'] as String?;
-          final monthStr = data['month'] as String?;
-          final dayStr = data['day'] as String?;
+          final yearInt = data['year'] as int?;
+          final monthInt = data['month'] as int?;
+          final dayInt = data['day'] as int?;
 
-          if (yearStr == null || monthStr == null || dayStr == null) {
+          if (yearInt == null || monthInt == null || dayInt == null) {
             return false;
           }
 
-          final year = int.tryParse(yearStr);
-          final month = int.tryParse(monthStr);
-          final day = int.tryParse(dayStr);
-
-          if (year == null || month == null || day == null) return false;
-
-          final projectDate = DateTime(year, month, day);
+          final projectDate = DateTime(yearInt, monthInt, dayInt);
 
           return projectDate.isAfter(todaysDate) ||
               projectDate.isAtSameMomentAs(todaysDate);

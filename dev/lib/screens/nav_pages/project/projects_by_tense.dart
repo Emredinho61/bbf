@@ -150,7 +150,12 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
                         itemCount: allProjects.length,
                         itemBuilder: (context, index) {
                           final project = allProjects[index];
-                          return Project(docId: project['id']);
+                          return Project(
+                            docId: project['id'],
+                            year: project['year'],
+                            month: project['month'],
+                            day: project['day'],
+                          );
                         },
                       ),
                     ),
