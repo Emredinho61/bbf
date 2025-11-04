@@ -27,7 +27,7 @@ class _ArabicSchoolState extends State<ArabicSchool> {
         child: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               child: Column(
                 children: [
                   Text(

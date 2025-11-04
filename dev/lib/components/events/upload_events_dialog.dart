@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bbf_app/components/text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,6 +21,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   final TextEditingController _titleController = TextEditingController();
 
   bool _isUploading = false;
+  bool _displayErrorText = false;
 
   Future<void> _pickMarkdown() async {
     final result = await FilePicker.platform.pickFiles(
@@ -46,7 +48,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     }
   }
 
-  Future<void> _uploadProject() async {
+  Future<void> _uploadProject(year, month, day) async {
     if (_markdownFile == null) return;
     setState(() => _isUploading = true);
 
@@ -77,7 +79,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         final fileToUpload = compressedImage ?? originalImage;
 
         final imageRef = storage.ref().child(
-          'project_images/${_selectedImageName}',
+          'project_images/$_selectedImageName',
         );
         await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
@@ -91,6 +93,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         'markdownUrl': markdownUrl,
         'imageUrl': imageUrl,
         'date': FieldValue.serverTimestamp(),
+        'year': year,
+        'month': month,
+        'day': day,
       });
 
       if (mounted) {
@@ -113,6 +118,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController yearTextEditingController = TextEditingController();
+    TextEditingController monthTextEditingController = TextEditingController();
+    TextEditingController dayTextEditingController = TextEditingController();
     return AlertDialog(
       title: const Text("Projekt hochladen"),
       content: SingleChildScrollView(
@@ -148,6 +156,37 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text("Bild: $_selectedImageName"),
               ),
+            const SizedBox(height: 12),
+            BTextField(
+              label: 'Jahr',
+              icon: Icons.time_to_leave_rounded,
+              controller: yearTextEditingController,
+              obscureText: false,
+              obligatory: true,
+            ),
+            const SizedBox(height: 8),
+            BTextField(
+              label: 'Monat',
+              icon: Icons.time_to_leave_rounded,
+              controller: monthTextEditingController,
+              obscureText: false,
+              obligatory: true,
+            ),
+            const SizedBox(height: 8),
+            BTextField(
+              label: 'Tag',
+              icon: Icons.time_to_leave_rounded,
+              controller: dayTextEditingController,
+              obscureText: false,
+              obligatory: true,
+            ),
+            const SizedBox(height: 8),
+            if (_displayErrorText)
+              Text(
+                'Bitte alle Felder ausfüllen!',
+                style: TextStyle(color: Colors.red),
+              ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -160,9 +199,26 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
           child: const Text("Abbrechen"),
         ),
         ElevatedButton(
-          onPressed: _isUploading || _markdownFile == null
-              ? null
-              : _uploadProject,
+          onPressed: () {
+            setState(() {
+              if (yearTextEditingController.text.isEmpty ||
+                  monthTextEditingController.text.isEmpty ||
+                  dayTextEditingController.text.isEmpty) {
+                _displayErrorText = true;
+                return;
+              } else {
+                _displayErrorText = false;
+              }
+            });
+
+            if (_isUploading || _markdownFile == null) return;
+
+            _uploadProject(
+              yearTextEditingController.text,
+              monthTextEditingController.text,
+              dayTextEditingController.text,
+            );
+          },
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16),
           ),

@@ -5,8 +5,8 @@ import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 class ProjectsPageHelper {
   final prefs = SharedPreferencesService.instance.prefsWithCache;
 
-  List<Map<String, dynamic>> getAllProjects() {
-    final jsonString = prefs.getString('allProjects');
+  List<Map<String, dynamic>> getPastProjects() {
+    final jsonString = prefs.getString('pastProjects');
 
     if (jsonString == null) return [];
 
@@ -15,9 +15,24 @@ class ProjectsPageHelper {
     return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<void> setallProjects(List<Map<String, dynamic>> products) async {
+  List<Map<String, dynamic>> getFutureProjects() {
+    final jsonString = prefs.getString('futureProjects');
+
+    if (jsonString == null) return [];
+
+    final List<dynamic> decoded = jsonDecode(jsonString);
+
+    return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  Future<void> setPastProjects(List<Map<String, dynamic>> products) async {
     final jsonString = jsonEncode(products);
-    await prefs.setString('allProjects', jsonString);
+    await prefs.setString('pastProjects', jsonString);
+  }
+
+  Future<void> setFutureProjects(List<Map<String, dynamic>> products) async {
+    final jsonString = jsonEncode(products);
+    await prefs.setString('futureProjects', jsonString);
   }
 
   String? getCertainProject(String id) {

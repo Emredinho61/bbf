@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
+import 'package:bbf_app/screens/nav_pages/project/projects_page.dart';
 import 'package:bbf_app/screens/nav_pages/qiblah/qiblah.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -8,7 +9,6 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/prayertimes.dart';
-import 'package:bbf_app/screens/nav_pages/project/projects.dart';
 import 'package:provider/provider.dart';
 
 class NavBarShell extends StatefulWidget {
@@ -41,7 +41,7 @@ class _NavBarShellState extends State<NavBarShell> {
   }
 
   static final List<Widget> _pages = <Widget>[
-    Projects(),
+    AllProjects(),
     ArabicSchool(),
     PrayerTimes(),
     CompassWithQiblah(),

@@ -6,14 +6,15 @@ import 'package:bbf_app/utils/constants/colors.dart';
 import 'project_card.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class Projects extends StatefulWidget {
-  Projects({super.key});
+class ProjectsByTense extends StatefulWidget {
+  final String tense;
+  ProjectsByTense({super.key, required this.tense});
 
   @override
-  State<Projects> createState() => _ProjectsState();
+  State<ProjectsByTense> createState() => _ProjectsByTenseState();
 }
 
-class _ProjectsState extends State<Projects> {
+class _ProjectsByTenseState extends State<ProjectsByTense> {
   late List<Map<String, dynamic>> allProjects;
   final ProjectsPageHelper projectsPageHelper = ProjectsPageHelper();
   final ProjectsService projectsService = ProjectsService();
@@ -24,19 +25,38 @@ class _ProjectsState extends State<Projects> {
   @override
   void initState() {
     super.initState();
-    allProjects = projectsPageHelper.getAllProjects();
-    _initPage();
+    allProjects = getEitherPastOrFutureProjects(widget.tense);
+    _initPage(widget.tense);
   }
 
-  Future<void> _initPage() async {
-    final loadedProjects = await projectsService.getAllProjects();
-    if (loadedProjects != allProjects) {
-      projectsPageHelper.setallProjects(loadedProjects);
-      setState(() {
-        allProjects = loadedProjects;
-      });
+  List<Map<String, dynamic>> getEitherPastOrFutureProjects(String tense) {
+    if (tense == 'past') {
+      return projectsPageHelper.getPastProjects();
+    } else {
+      return projectsPageHelper.getFutureProjects();
     }
-    setState(() => _isLoading = false);
+  }
+
+  Future<void> _initPage(String tense) async {
+    if (tense == 'past') {
+      final loadedPastProjects = await projectsService.getPastProjects();
+      if (loadedPastProjects != allProjects) {
+        projectsPageHelper.setPastProjects(loadedPastProjects);
+        setState(() {
+          allProjects = loadedPastProjects;
+        });
+        setState(() => _isLoading = false);
+      }
+    } else {
+      final loadedFutureProjects = await projectsService.getFutureProjects();
+      if (loadedFutureProjects != allProjects) {
+        projectsPageHelper.setFutureProjects(loadedFutureProjects);
+        setState(() {
+          allProjects = loadedFutureProjects;
+        });
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -63,16 +83,12 @@ class _ProjectsState extends State<Projects> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Container(
-                          height: 40,
-                          width: 200,
-                          color: Colors.white,
-                        ),
+                        Container(height: 40, width: 200, color: Colors.white),
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.6,
                           child: PageView.builder(
                             controller: _controller,
-                            itemCount: 3, // z.B. 3 Skeleton-Karten
+                            itemCount: 3,
                             itemBuilder: (context, index) {
                               return Card(
                                 child: Padding(
@@ -123,36 +139,32 @@ class _ProjectsState extends State<Projects> {
                   ),
                 )
               : allProjects.isEmpty
-                  ? const Center(child: Text("Keine Projekte verfügbar"))
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          'Projekte',
-                          style: Theme.of(context).textTheme.headlineLarge,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: PageView.builder(
-                            controller: _controller,
-                            itemCount: allProjects.length,
-                            itemBuilder: (context, index) {
-                              final project = allProjects[index];
-                              return Project(docId: project['id']);
-                            },
-                          ),
-                        ),
-                        SmoothPageIndicator(
-                          controller: _controller,
-                          count: allProjects.length,
-                          effect: ScrollingDotsEffect(
-                            activeDotColor: BColors.primary,
-                            dotColor: Colors.green.shade300,
-                            spacing: 10,
-                          ),
-                        ),
-                      ],
+              ? const Center(child: Text("Keine Projekte verfügbar"))
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: PageView.builder(
+                        controller: _controller,
+                        itemCount: allProjects.length,
+                        itemBuilder: (context, index) {
+                          final project = allProjects[index];
+                          return Project(docId: project['id']);
+                        },
+                      ),
                     ),
+                    SmoothPageIndicator(
+                      controller: _controller,
+                      count: allProjects.length,
+                      effect: ScrollingDotsEffect(
+                        activeDotColor: BColors.primary,
+                        dotColor: Colors.green.shade300,
+                        spacing: 10,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
