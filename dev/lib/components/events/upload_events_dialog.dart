@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,6 +20,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   File? _markdownFile;
   File? _imageFile;
   final TextEditingController _titleController = TextEditingController();
+  ProjectsService projectsService = ProjectsService();
 
   bool _isUploading = false;
   bool _displayErrorText = false;
@@ -48,7 +50,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     }
   }
 
-  Future<void> _uploadProject(int year,int month,int day) async {
+  Future<void> _uploadProject(int year, int month, int day) async {
     if (_markdownFile == null) return;
     setState(() => _isUploading = true);
 
@@ -86,18 +88,18 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       }
 
       // Save Firestore entry
-      await FirebaseFirestore.instance.collection('projects').add({
-        'title': _titleController.text.isNotEmpty
+      await projectsService.addProjectToBackend(
+        _titleController.text.isNotEmpty
             ? _titleController.text
             : (_selectedMarkdownName ?? 'Unbenannt'),
-        'markdownUrl': markdownUrl,
-        'imageUrl': imageUrl,
-        'date': FieldValue.serverTimestamp(),
-        'year': year,
-        'month': month,
-        'day': day,
-      });
-
+        markdownUrl,
+        imageUrl,
+        FieldValue.serverTimestamp(),
+        year,
+        month,
+        day,
+      );
+      
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +218,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             _uploadProject(
               int.parse(yearTextEditingController.text),
               int.parse(monthTextEditingController.text),
-              int.parse(dayTextEditingController.text)
+              int.parse(dayTextEditingController.text),
             );
           },
           style: ElevatedButton.styleFrom(

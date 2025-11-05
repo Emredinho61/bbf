@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bbf_app/backend/services/khutba_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,6 +14,7 @@ class UploadKhutbaDialog extends StatefulWidget {
 
 class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
   String? _selectedFileName;
+  KhutbaService khutbaService = KhutbaService();
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -39,11 +41,11 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
       final pdfUrl = await storageRef.getDownloadURL();
 
       // reference to firestore -> save
-      await FirebaseFirestore.instance.collection('khutbas').add({
-        'title': fileName,
-        'pdfUrl': pdfUrl,
-        'date': FieldValue.serverTimestamp(),
-      });
+      await khutbaService.addKhutbaToBackend(
+        fileName,
+        pdfUrl,
+        FieldValue.serverTimestamp(),
+      );
     }
   }
 

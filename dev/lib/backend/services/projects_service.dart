@@ -3,6 +3,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ProjectsService {
   final projects = FirebaseFirestore.instance.collection('projects');
 
+  Future<void> addProjectToBackend(
+    String title,
+    String markdownUrl,
+    String imageUrl,
+    date,
+    int year,
+    int month,
+    int day,
+  ) async {
+    projects.add({
+      'title': title,
+      'markdownUrl': markdownUrl,
+      'imageUrl': imageUrl,
+      'date': date,
+      'year': year,
+      'month': month,
+      'day': day,
+    });
+  }
+
   Future<List<Map<String, dynamic>>> getPastProjects() async {
     // todays date
     final now = DateTime.now();
