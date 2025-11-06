@@ -50,7 +50,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     }
   }
 
-  Future<void> _uploadProject(int year, int month, int day) async {
+  Future<void> _uploadProject(String id, int year, int month, int day) async {
     if (_markdownFile == null) return;
     setState(() => _isUploading = true);
 
@@ -89,6 +89,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
       // Save Firestore entry
       await projectsService.addProjectToBackend(
+        id,
         _titleController.text.isNotEmpty
             ? _titleController.text
             : (_selectedMarkdownName ?? 'Unbenannt'),
@@ -99,7 +100,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         month,
         day,
       );
-      
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -120,6 +121,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController idTextEditingController = TextEditingController();
     TextEditingController yearTextEditingController = TextEditingController();
     TextEditingController monthTextEditingController = TextEditingController();
     TextEditingController dayTextEditingController = TextEditingController();
@@ -158,6 +160,14 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text("Bild: $_selectedImageName"),
               ),
+            const SizedBox(height: 12),
+            BTextField(
+              label: 'id',
+              icon: Icons.time_to_leave_rounded,
+              controller: idTextEditingController,
+              obscureText: false,
+              obligatory: true,
+            ),
             const SizedBox(height: 12),
             BTextField(
               label: 'Jahr',
@@ -203,7 +213,8 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              if (yearTextEditingController.text.isEmpty ||
+              if (idTextEditingController.text.isEmpty ||
+                  yearTextEditingController.text.isEmpty ||
                   monthTextEditingController.text.isEmpty ||
                   dayTextEditingController.text.isEmpty) {
                 _displayErrorText = true;
@@ -216,6 +227,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             if (_isUploading || _markdownFile == null) return;
 
             _uploadProject(
+              idTextEditingController.text,
               int.parse(yearTextEditingController.text),
               int.parse(monthTextEditingController.text),
               int.parse(dayTextEditingController.text),

@@ -4,6 +4,7 @@ class ProjectsService {
   final projects = FirebaseFirestore.instance.collection('projects');
 
   Future<void> addProjectToBackend(
+    String id,
     String title,
     String markdownUrl,
     String imageUrl,
@@ -12,7 +13,8 @@ class ProjectsService {
     int month,
     int day,
   ) async {
-    projects.add({
+    projects.doc(id).set({
+      'id': id,
       'title': title,
       'markdownUrl': markdownUrl,
       'imageUrl': imageUrl,
@@ -21,6 +23,10 @@ class ProjectsService {
       'month': month,
       'day': day,
     });
+  }
+
+  Future<void> deleteProjectFromBackend(String id) async {
+    await projects.doc(id).delete();
   }
 
   Future<List<Map<String, dynamic>>> getPastProjects() async {

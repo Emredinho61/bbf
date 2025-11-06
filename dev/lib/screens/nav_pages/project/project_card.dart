@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/projects_service.dart';
+import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/screens/nav_pages/project/projects_page.dart';
+import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -27,12 +31,37 @@ class Project extends StatefulWidget {
 }
 
 class _ProjectState extends State<Project> {
+  final projectsPageHelper = ProjectsPageHelper();
+  final projectsService = ProjectsService();
+  final CheckUserHelper checkUserHelper = CheckUserHelper();
+  final AuthService authService = AuthService();
+  final UserService userService = UserService();
+
   bool _loading = true;
+  late bool isUserAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    isUserAdmin = checkUserHelper.getUsersPrefs();
+    checkUser();
+  }
+
+  // check if user is admin
+  void checkUser() async {
+    if (authService.currentUser == null) {
+      return;
+    }
+    final value = await userService.checkIfUserIsAdmin();
+    setState(() {
+      if (value != isUserAdmin) {
+        checkUserHelper.setCheckUsersPrefs(value);
+        isUserAdmin = value;
+      }
+    });
+  }
 
   Future<Map<String, dynamic>> loadMarkdownParts() async {
-    final projectsPageHelper = ProjectsPageHelper();
-    final projectsService = ProjectsService();
-
     final cachedData = projectsPageHelper.getCertainProject(widget.docId);
 
     if (cachedData != null) {
@@ -100,9 +129,7 @@ class _ProjectState extends State<Project> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          '${widget.day}.${widget.month}.${widget.year}',
-                        ),
+                        Text('${widget.day}.${widget.month}.${widget.year}'),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -130,14 +157,6 @@ class _ProjectState extends State<Project> {
                             width: 50,
                           ),
                     const SizedBox(height: 15),
-                    // Expanded(
-                    //   child: MarkdownBody(
-                    //     data: data != null
-                    //         ? shortenMarkdown(data['body'] ?? '', 3)
-                    //         : 'Lorem ipsum dolor sit amet...',
-                    //   ),
-                    // ),
-                    const SizedBox(height: 5),
                     Align(
                       alignment: Alignment.center,
                       child: SizedBox(
@@ -149,6 +168,39 @@ class _ProjectState extends State<Project> {
                           child: Text(
                             'Mehr anzeigen',
                             style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () async {
+                            await projectsService.deleteProjectFromBackend(
+                              widget.docId,
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => (AllProjects()),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: BColors.secondary,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.red),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.delete,
+                                size: 20,
+                                color: Colors.red,
+                              ),
+                            ),
                           ),
                         ),
                       ),

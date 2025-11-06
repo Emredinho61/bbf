@@ -1,5 +1,8 @@
+import 'package:bbf_app/backend/services/auth_services.dart';
+import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects_by_tense.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:flutter/material.dart';
 
 class AllProjects extends StatefulWidget {
@@ -10,6 +13,12 @@ class AllProjects extends StatefulWidget {
 }
 
 class _AllProjectsState extends State<AllProjects> {
+  AuthService authService = AuthService();
+  UserService userService = UserService();
+  CheckUserHelper checkUserHelper = CheckUserHelper();
+
+  late bool isUserAdmin;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
