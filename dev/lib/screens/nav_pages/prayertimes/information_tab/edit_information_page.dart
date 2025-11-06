@@ -8,11 +8,13 @@ If Admin want to change any part of the information card, then he can do it here
 
 // ignore: must_be_immutable
 class UpdateInformationPage extends StatelessWidget {
+  String id;
   String title;
   String text;
   String expanded;
   UpdateInformationPage({
     super.key,
+    required this.id,
     required this.title,
     required this.text,
     required this.expanded,
@@ -21,6 +23,7 @@ class UpdateInformationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     InformationService informationService = InformationService();
+
     final TextEditingController titelController = TextEditingController(
       text: title,
     );
@@ -47,6 +50,7 @@ class UpdateInformationPage extends StatelessWidget {
                     MainTextField(textController: textController),
                     ExpandedTextField(expandedController: expandedController),
                     ActionsRow(
+                      id: id,
                       informationService: informationService,
                       titelController: titelController,
                       textController: textController,
@@ -66,12 +70,14 @@ class UpdateInformationPage extends StatelessWidget {
 class ActionsRow extends StatelessWidget {
   const ActionsRow({
     super.key,
+    required this.id,
     required this.informationService,
     required this.titelController,
     required this.textController,
     required this.expandedController,
   });
 
+  final String id;
   final InformationService informationService;
   final TextEditingController titelController;
   final TextEditingController textController;
@@ -91,6 +97,7 @@ class ActionsRow extends StatelessWidget {
         ElevatedButton(
           onPressed: () async {
             await informationService.updateInformation(
+              id,
               titelController.text,
               textController.text,
               expandedController.text,

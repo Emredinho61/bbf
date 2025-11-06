@@ -154,6 +154,7 @@ class _InformationPageState extends State<InformationPage> {
           context,
           MaterialPageRoute(
             builder: (_) => UpdateInformationPage(
+              id: information['id'],
               title: information['Titel'],
               text: information['Text'],
               expanded: information['Expanded'],
@@ -174,7 +175,7 @@ class _InformationPageState extends State<InformationPage> {
     return GestureDetector(
       onTap: () async {
         setState(() {
-          informationService.deleteInformation(information['Titel']);
+          informationService.deleteInformation(information['id']);
           _loadInformation();
         });
       },

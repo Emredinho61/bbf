@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class BTextField extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final TextEditingController controller;
   final bool obscureText;
   final Widget? suffixIcon;
@@ -13,7 +13,7 @@ class BTextField extends StatelessWidget {
   const BTextField({
     super.key,
     required this.label,
-    required this.icon,
+    this.icon,
     required this.controller,
     required this.obscureText,
     required this.obligatory,
@@ -28,7 +28,7 @@ class BTextField extends StatelessWidget {
       obscureText: obscureText,
       cursorColor: BColors.primary,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon),
+        prefixIcon: icon != null ? Icon(icon) : null,
         label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

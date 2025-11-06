@@ -16,11 +16,13 @@ class InformationService {
 
   // add a new Information to backend
   Future<void> addInformation(
+    String id,
     String title,
     String text,
     String expanded,
   ) async {
-    information.doc(title).set({
+    information.doc(id).set({
+      'id' : id,
       'Titel': title,
       'Text': text,
       'Expanded': expanded,
@@ -29,17 +31,19 @@ class InformationService {
   }
 
   // delete a certain Information
-  Future<void> deleteInformation(String informationName) async {
-    await information.doc(informationName).delete();
+  Future<void> deleteInformation(String id) async {
+    await information.doc(id).delete();
   }
 
   // update a certain Information
   Future<void> updateInformation(
+    String id,
     String title,
     String text,
     String expanded,
   ) async {
-    information.doc(title).update({
+    information.doc(id).update({
+      'id' : id,
       'Titel': title,
       'Text': text,
       'Expanded': expanded,
