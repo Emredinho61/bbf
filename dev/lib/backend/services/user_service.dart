@@ -32,6 +32,10 @@ class UserService {
     }
   }
 
+  Future<void> deleteUserFromBackend() async {
+    await users.doc(authService.currentUser!.uid).delete();
+  }
+
   Future<String> getUsersRole() async {
     try {
       final user = authService.currentUser;

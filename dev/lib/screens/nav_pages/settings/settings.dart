@@ -635,6 +635,7 @@ class DeleteAccountButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserService userService = UserService();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: AuthDialogButton(
@@ -648,6 +649,7 @@ class DeleteAccountButton extends StatelessWidget {
           final password = values["Passwort"] ?? "";
 
           try {
+            await userService.deleteUserFromBackend();
             await authService.deleteAccount(email: email, password: password);
             Navigator.pushNamedAndRemoveUntil(
               context,
