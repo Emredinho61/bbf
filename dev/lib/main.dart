@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
+import 'package:bbf_app/backend/services/scheduler_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -29,7 +30,7 @@ main() async {
   await permissionNotification();
 
   // initialize all Notification settings
-  await initializeNotification();
+  await setupNotifications();
 
   FirebaseMessaging.instance.subscribeToTopic("test");
 
@@ -46,27 +47,56 @@ main() async {
   );
 }
 
+// Future<void> permissionNotification() async {
+//   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+//   // Android 13+ Request-Permission
+//   await flutterLocalNotificationsPlugin
+//       .resolvePlatformSpecificImplementation<
+//         AndroidFlutterLocalNotificationsPlugin
+//       >()
+//       ?.requestNotificationsPermission();
+
+//   // iOS Request-Permission
+//   await FirebaseMessaging.instance.requestPermission(
+//     alert: true,
+//     badge: true,
+//     sound: true,
+//   );
+// }
+
 Future<void> permissionNotification() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  // Android 13+ Request-Permission
-  await flutterLocalNotificationsPlugin
+  final android = flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
-      >()
-      ?.requestNotificationsPermission();
+      >();
 
-  // iOS Request-Permission
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  await android?.requestNotificationsPermission();
+
+  await android?.requestExactAlarmsPermission();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin
+      >()
+      ?.requestPermissions(alert: true, badge: true, sound: true);
 }
 
-Future<void> initializeNotification() async {
+Future<void> setupNotifications() async {
   NotificationServices notificationServices = NotificationServices();
+  SchedulerService schedulerService = SchedulerService();
   await notificationServices.initNotification();
+  final today = DateTime.now();
+  // delete all Notifications before scheduling new once
+  await notificationServices.flutterLocalNotificationsPlugin.cancelAll();
+
+  // Plan the next 4 days
+  for (int i = 0; i < 4; i++) {
+    final day = today.add(Duration(days: i));
+    await schedulerService.scheduleDailyPrayers(day);
+  }
 }
 
 class MyApp extends StatelessWidget {

@@ -1,4 +1,5 @@
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
+import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -8,6 +9,7 @@ class NotificationServices {
       FlutterLocalNotificationsPlugin();
 
   PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
+  SchedulerHelper schedulerHelper = SchedulerHelper();
 
   Future<void> initNotification() async {
     // Android
@@ -75,6 +77,14 @@ class NotificationServices {
       notificationTime,
       tz.local,
     );
+    // Only schedule if Notification is activated
+    final currentSettings = schedulerHelper.getCurrentPrayerSettings(
+      'notify_${title.toLowerCase()}',
+    );
+    if (!currentSettings) {
+      print('$title notification ist deaktiviert, wird nicht geplant.');
+      return;
+    }
 
     // Only schedule if Notification is in future
     if (notificationTime.isBefore(DateTime.now())) return;

@@ -69,6 +69,18 @@ class PrayerTimesHelper {
     return todayRow;
   }
 
+  Map<String, String> getAnyDayPrayerTimesAsStringMap(
+    List<Map<String, String>> csvData,
+    DateTime day
+  ) {
+    final todayStr = DateFormat('dd.MM.yyyy').format(day);
+    final todayRow = csvData.firstWhere(
+      (row) => row['Date'] == todayStr,
+      orElse: () => {},
+    );
+    return todayRow;
+  }
+
   Map<String, String> getPrayerTimesForDay(
     List<Map<String, String>> csvData,
     DateTime givenDay,
@@ -106,6 +118,26 @@ class PrayerTimesHelper {
     return prayerTimes;
   }
 
+  Future<List<DateTime>> getAnyDayPrayerTimesAsDateTimes(
+    List<Map<String, String>> csvData,
+    DateTime date
+  ) async {
+    List<DateTime> prayerTimes = [];
+
+    // get todayRow
+    final todayRow = getAnyDayPrayerTimesAsStringMap(csvData, date);
+
+    final prayerKeys = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+    for (final key in prayerKeys) {
+      final timeStr = todayRow[key];
+      if (timeStr != null) {
+        final prayerTime = convertStringTimeIntoAnyDateTime(timeStr, date);
+        prayerTimes.add(prayerTime);
+      }
+    }
+    return prayerTimes;
+  }
+
   DateTime convertStringTimeIntoDateTime(String timeStr) {
     final now = DateTime.now();
 
@@ -114,6 +146,19 @@ class PrayerTimesHelper {
       now.year,
       now.month,
       now.day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+    return prayerTime;
+  }
+
+  DateTime convertStringTimeIntoAnyDateTime(String timeStr, DateTime date) {
+
+    final timeParts = timeStr.split(':');
+    final prayerTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
       int.parse(timeParts[0]),
       int.parse(timeParts[1]),
     );
