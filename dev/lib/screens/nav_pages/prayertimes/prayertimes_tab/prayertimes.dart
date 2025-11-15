@@ -8,6 +8,7 @@ import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
+import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -32,6 +33,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   /* Initializing variables and objects */
   final PrayertimesService prayertimesService = PrayertimesService();
   final InformationService informationService = InformationService();
+  final SchedulerHelper schedulerHelper = SchedulerHelper();
   List<Map<String, String>> csvData = [];
   List<Map<String, dynamic>> _allInformation = [];
 
@@ -825,6 +827,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 class NotificationSettings extends StatelessWidget {
   late final String name;
   List<Map<String, String>> csvData;
+  SchedulerHelper schedulerHelper = SchedulerHelper();
   NotificationSettings({
     super.key,
     required this.context,
@@ -890,7 +893,7 @@ class NotificationSettings extends StatelessWidget {
         );
       },
       // bell icon either on or off, depending on settings
-      child: prayerTimesHelper.isNotificationEnabled(name)
+      child: schedulerHelper.getCurrentPrayerSettings('notify_$name')
           ? Icon(Icons.notifications_none, color: Colors.white)
           : Icon(Icons.notifications_off, color: Colors.white),
     );

@@ -10,6 +10,8 @@ class NotificationServices {
 
   PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
   SchedulerHelper schedulerHelper = SchedulerHelper();
+  List<Map<String, String>> csvData = [];
+  List<String> prayerNames = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
   Future<void> initNotification() async {
     // Android
@@ -106,6 +108,34 @@ class NotificationServices {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
     print('Prayer scheduled for id $id at Time $notificationTime');
+  }
+
+  // schedule Notifications for the next four days
+  Future<void> scheduleAllNotifications() async {
+    final today = DateTime.now();
+    // delete all Notifications before scheduling new once
+    await flutterLocalNotificationsPlugin.cancelAll();
+
+    // Plan the next 4 days
+    for (int i = 0; i < 4; i++) {
+      final day = today.add(Duration(days: i));
+      await scheduleDailyPrayers(day);
+    }
+  } 
+
+  Future<void> scheduleDailyPrayers(DateTime date) async {
+    // loading all prayer times from csv file
+    csvData = await prayerTimesHelper.loadCSV();
+
+    // getting prayer times as Datetimes for the given day
+    List<DateTime> prayerTimes = await prayerTimesHelper.getAnyDayPrayerTimesAsDateTimes(csvData, date);
+
+    // iterate through prayerTimes and schedule them
+    for (int i= 0; i < prayerNames.length; i++)
+    {
+      final notificationId = date.day * 10 + i;
+      scheduledNotification(notificationId, prayerNames[i], 'Gebetszeit eingetroffen', prayerTimes[i]);
+    }
   }
 
   // delete Notification

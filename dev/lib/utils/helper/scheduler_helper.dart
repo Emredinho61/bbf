@@ -3,9 +3,12 @@ import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 class SchedulerHelper {
   final prefsWithCache = SharedPreferencesService.instance.prefsWithCache;
 
-  Future<void> togglePrayerSettings(String prayer) async {
-    final currentSettings = prefsWithCache.getBool(prayer) ?? false;
-    await prefsWithCache.setBool(prayer, !currentSettings);
+  Future<void> activatePrayerNotification(String prayer) async {
+    await prefsWithCache.setBool(prayer, true);
+  }
+
+   Future<void> deactivatePrayerNotification(String prayer) async {
+    await prefsWithCache.setBool(prayer, false);
   }
 
   bool getCurrentPrayerSettings(String prayer) {

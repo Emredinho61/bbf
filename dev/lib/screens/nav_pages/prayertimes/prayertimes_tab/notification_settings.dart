@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
+import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ class NotificationSettingsPage extends StatefulWidget {
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   late bool isNotificationActive;
+  final SchedulerHelper schedulerHelper = SchedulerHelper();
   List<String> prePrayerTimes = [
     'Keine',
     '5 Minuten',
@@ -35,7 +37,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   void initState() {
     super.initState();
-    isNotificationActive = prayerTimesHelper.isNotificationEnabled(widget.name);
+    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
     _loadCurrentIndex();
   }
 
@@ -73,11 +75,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () {
-                  prayerTimesHelper.deactivateNotification(widget.name);
+                onTap: () async{
+                  await schedulerHelper.deactivatePrayerNotification('notify_${widget.name}');
+                  await notificationServices.scheduleAllNotifications();
                   setState(() {
-                    isNotificationActive = prayerTimesHelper
-                        .isNotificationEnabled(widget.name);
+                    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
                   });
                 },
                 child: Container(
@@ -120,11 +122,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  prayerTimesHelper.activateNotification(widget.name);
+                onTap: () async{
+                  await schedulerHelper.activatePrayerNotification('notify_${widget.name}');
+                  await notificationServices.scheduleAllNotifications();
                   setState(() {
-                    isNotificationActive = prayerTimesHelper
-                        .isNotificationEnabled(widget.name);
+                    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
                   });
                 },
                 child: Container(
