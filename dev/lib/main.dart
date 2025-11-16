@@ -1,7 +1,9 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
+import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -30,6 +32,8 @@ main() async {
 
   // initialize all Notification settings
   await setupNotifications();
+
+
 
   FirebaseMessaging.instance.subscribeToTopic("test");
 
@@ -85,9 +89,11 @@ Future<void> permissionNotification() async {
 
 Future<void> setupNotifications() async {
   NotificationServices notificationServices = NotificationServices();
+  PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
+  List<Map<String, String>> csvData = await prayerTimesHelper.loadCSV();
   await notificationServices.initNotification();
-  await notificationServices.scheduleAllNotifications();
-  await notificationServices.scheduleAllPreNotifications();
+  await notificationServices.scheduleAllNotifications(csvData);
+  await notificationServices.scheduleAllPreNotifications(csvData);
 }
 
 class MyApp extends StatelessWidget {

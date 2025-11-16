@@ -157,7 +157,9 @@ class NotificationServices {
   }
 
   // schedule Notifications for the next four days
-  Future<void> scheduleAllNotifications() async {
+  Future<void> scheduleAllNotifications(
+    List<Map<String, String>> csvData,
+  ) async {
     final today = DateTime.now();
     // delete all Notifications before scheduling new once
     await flutterLocalNotificationsPlugin.cancelAll();
@@ -165,11 +167,14 @@ class NotificationServices {
     // Plan the next 4 days
     for (int i = 0; i < 4; i++) {
       final day = today.add(Duration(days: i));
-      await scheduleDailyPrayers(day);
+      await scheduleDailyPrayers(csvData, day);
     }
   }
+
   // schedule Pre Notifications for the next four days
-  Future<void> scheduleAllPreNotifications() async {
+  Future<void> scheduleAllPreNotifications(
+    List<Map<String, String>> csvData,
+  ) async {
     final today = DateTime.now();
     // delete all Notifications before scheduling new once
     await flutterLocalNotificationsPlugin.cancelAll();
@@ -177,14 +182,14 @@ class NotificationServices {
     // Plan the next 4 days
     for (int i = 0; i < 4; i++) {
       final day = today.add(Duration(days: i));
-      await scheduleDailyPrePrayers(day);
+      await scheduleDailyPrePrayers(csvData, day);
     }
   }
 
-  Future<void> scheduleDailyPrayers(DateTime date) async {
-    // loading all prayer times from csv file
-    csvData = await prayerTimesHelper.loadCSV();
-
+  Future<void> scheduleDailyPrayers(
+    List<Map<String, String>> csvData,
+    DateTime date,
+  ) async {
     // getting prayer times as Datetimes for the given day
     List<DateTime> prayerTimes = await prayerTimesHelper
         .getAnyDayPrayerTimesAsDateTimes(csvData, date);
@@ -202,10 +207,10 @@ class NotificationServices {
   }
 
   // schedule Pre Prayer Notifications for a certain given day
-  Future<void> scheduleDailyPrePrayers(DateTime date) async {
-    // get all regular prayer Times
-    csvData = await prayerTimesHelper.loadCSV();
-
+  Future<void> scheduleDailyPrePrayers(
+    List<Map<String, String>> csvData,
+    DateTime date,
+  ) async {
     // convert prayer times from Strings into Datetime
     List<DateTime> prayerTimes = await prayerTimesHelper
         .getAnyDayPrayerTimesAsDateTimes(csvData, date);

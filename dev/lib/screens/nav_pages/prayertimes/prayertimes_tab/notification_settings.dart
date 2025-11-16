@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
@@ -33,6 +35,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   ];
   int currentIndex = 0;
   bool showSubmitButton = false;
+  List<Map<String, String>> csvData = [];
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       'notify_${widget.name}',
     );
     _loadCurrentIndex();
+    _loadCSV();
   }
 
   void _loadCurrentIndex() {
@@ -50,6 +54,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     setState(() {
       currentIndex = value;
     });
+  }
+
+  Future<void> _loadCSV() async {
+    csvData = await prayerTimesHelper.loadCSV();
   }
 
   @override
@@ -77,14 +85,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             children: [
               GestureDetector(
                 onTap: () async {
+                  setState(() {
+                    isNotificationActive = false;
+                  });
                   await schedulerHelper.deactivatePrayerNotification(
                     'notify_${widget.name}',
                   );
-                  await notificationServices.scheduleAllNotifications();
-                  setState(() {
-                    isNotificationActive = schedulerHelper
-                        .getCurrentPrayerSettings('notify_${widget.name}');
-                  });
+                  await notificationServices.scheduleAllNotifications(csvData);
                 },
                 child: Container(
                   margin: EdgeInsets.all(16),
@@ -127,14 +134,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ),
               GestureDetector(
                 onTap: () async {
+                  setState(() {
+                    isNotificationActive = true;
+                  });
                   await schedulerHelper.activatePrayerNotification(
                     'notify_${widget.name}',
                   );
-                  await notificationServices.scheduleAllNotifications();
-                  setState(() {
-                    isNotificationActive = schedulerHelper
-                        .getCurrentPrayerSettings('notify_${widget.name}');
-                  });
+                  await notificationServices.scheduleAllNotifications(csvData);
                 },
                 child: Container(
                   margin: EdgeInsets.all(16),
@@ -192,7 +198,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () async{
+                onTap: () async {
                   if (currentIndex != 0) {
                     setState(() {
                       currentIndex -= 1;
@@ -202,7 +208,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       'notifyPre_${widget.name}',
                       newValue,
                     );
-                    await notificationServices.scheduleAllPreNotifications();
+                    await notificationServices.scheduleAllPreNotifications(
+                      csvData,
+                    );
                   }
                 },
                 child: Container(
@@ -221,7 +229,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 child: Center(child: Text(currentPreTime)),
               ),
               GestureDetector(
-                onTap: () async{
+                onTap: () async {
                   if (currentIndex != prePrayerTimes.length - 1) {
                     setState(() {
                       currentIndex += 1;
@@ -231,7 +239,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       'notifyPre_${widget.name}',
                       newValue,
                     );
-                    await notificationServices.scheduleAllPreNotifications();
+                    await notificationServices.scheduleAllPreNotifications(
+                      csvData,
+                    );
                   }
                 },
                 child: Container(
@@ -248,15 +258,16 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           SizedBox(height: 20),
           GestureDetector(
             onTap: () async {
-              String minutes = 
-                prePrayerTimes[currentIndex];
-              bool mode = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
+              String minutes = prePrayerTimes[currentIndex];
+              bool mode = schedulerHelper.getCurrentPrayerSettings(
+                'notify_${widget.name}',
+              );
               loadingProvider.startLoading();
               try {
                 await schedulerHelper.setAllUsersPrayerSettings(mode);
                 await schedulerHelper.setAllUsersPrePrayerSettings(minutes);
-                await notificationServices.scheduleAllNotifications();
-                await notificationServices.scheduleAllPreNotifications();
+                await notificationServices.scheduleAllNotifications(csvData);
+                await notificationServices.scheduleAllPreNotifications(csvData);
                 loadingProvider.stopLoadingWithCheckmark();
               } catch (e) {
                 ScaffoldMessenger.of(
