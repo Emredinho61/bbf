@@ -37,12 +37,16 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   void initState() {
     super.initState();
-    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
+    isNotificationActive = schedulerHelper.getCurrentPrayerSettings(
+      'notify_${widget.name}',
+    );
     _loadCurrentIndex();
   }
 
   void _loadCurrentIndex() {
-    final value = prayerTimesHelper.getCurrentPreTimeAsIndex(widget.name);
+    final value = prayerTimesHelper.getCurrentPreTimeAsIndex(
+      'notifyPre_${widget.name}',
+    );
     setState(() {
       currentIndex = value;
     });
@@ -55,9 +59,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final showCheckmark = loadingProvider.showCheckmark;
 
     String currentPreTime = prePrayerTimes[currentIndex];
-    int tempPreTimeIndex = prayerTimesHelper.getCurrentPreTimeAsIndex(
-      widget.name,
-    );
     return Center(
       child: Column(
         children: [
@@ -75,11 +76,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () async{
-                  await schedulerHelper.deactivatePrayerNotification('notify_${widget.name}');
+                onTap: () async {
+                  await schedulerHelper.deactivatePrayerNotification(
+                    'notify_${widget.name}',
+                  );
                   await notificationServices.scheduleAllNotifications();
                   setState(() {
-                    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
+                    isNotificationActive = schedulerHelper
+                        .getCurrentPrayerSettings('notify_${widget.name}');
                   });
                 },
                 child: Container(
@@ -122,11 +126,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ),
               ),
               GestureDetector(
-                onTap: () async{
-                  await schedulerHelper.activatePrayerNotification('notify_${widget.name}');
+                onTap: () async {
+                  await schedulerHelper.activatePrayerNotification(
+                    'notify_${widget.name}',
+                  );
                   await notificationServices.scheduleAllNotifications();
                   setState(() {
-                    isNotificationActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
+                    isNotificationActive = schedulerHelper
+                        .getCurrentPrayerSettings('notify_${widget.name}');
                   });
                 },
                 child: Container(
@@ -185,12 +192,17 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () {
+                onTap: () async{
                   if (currentIndex != 0) {
-                    currentIndex -= 1;
                     setState(() {
-                      showSubmitButton = true;
+                      currentIndex -= 1;
                     });
+                    final newValue = prePrayerTimes[currentIndex];
+                    await schedulerHelper.setUsersPrePrayerSettings(
+                      'notifyPre_${widget.name}',
+                      newValue,
+                    );
+                    await notificationServices.scheduleAllPreNotifications();
                   }
                 },
                 child: Container(
@@ -209,12 +221,17 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 child: Center(child: Text(currentPreTime)),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: () async{
                   if (currentIndex != prePrayerTimes.length - 1) {
-                    currentIndex += 1;
                     setState(() {
-                      showSubmitButton = true;
+                      currentIndex += 1;
                     });
+                    final newValue = prePrayerTimes[currentIndex];
+                    await schedulerHelper.setUsersPrePrayerSettings(
+                      'notifyPre_${widget.name}',
+                      newValue,
+                    );
+                    await notificationServices.scheduleAllPreNotifications();
                   }
                 },
                 child: Container(
@@ -228,65 +245,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ),
             ],
           ),
-          SizedBox(height: 10),
-          if (showSubmitButton)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      showSubmitButton = false;
-                      currentIndex = tempPreTimeIndex;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    side: BorderSide(color: Colors.white),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text('Abbrechen'),
-                  ),
-                ),
-
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      showSubmitButton = false;
-                      int minutes = prayerTimesHelper
-                          .convertPreTimeStringIntoInt(
-                            prePrayerTimes[currentIndex],
-                          );
-                      prayerTimesHelper.updatePreNotification(
-                        widget.name,
-                        minutes,
-                      );
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text('Bestätigen'),
-                  ),
-                ),
-              ],
-            ),
           SizedBox(height: 20),
           GestureDetector(
             onTap: () async {
-              int minutes = prayerTimesHelper.convertPreTimeStringIntoInt(
-                prePrayerTimes[currentIndex],
-              );
-
+              String minutes = 
+                prePrayerTimes[currentIndex];
+              bool mode = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
               loadingProvider.startLoading();
               try {
-                if (isNotificationActive) {
-                  await prayerTimesHelper.activateAllNotifications();
-                } else {
-                  await prayerTimesHelper.deactivateAllNotifications();
-                }
-
-                await prayerTimesHelper.updateAllPreNotifications(minutes);
+                await schedulerHelper.setAllUsersPrayerSettings(mode);
+                await schedulerHelper.setAllUsersPrePrayerSettings(minutes);
+                await notificationServices.scheduleAllNotifications();
+                await notificationServices.scheduleAllPreNotifications();
                 loadingProvider.stopLoadingWithCheckmark();
               } catch (e) {
                 ScaffoldMessenger.of(

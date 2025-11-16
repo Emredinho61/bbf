@@ -11,7 +11,14 @@ class NotificationServices {
   PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
   SchedulerHelper schedulerHelper = SchedulerHelper();
   List<Map<String, String>> csvData = [];
-  List<String> prayerNames = ['Fajr', 'Sunrise', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+  List<String> prayerNames = [
+    'Fajr',
+    'Sunrise',
+    'Dhur',
+    'Asr',
+    'Maghrib',
+    'Isha',
+  ];
 
   Future<void> initNotification() async {
     // Android
@@ -81,7 +88,7 @@ class NotificationServices {
     );
     // Only schedule if Notification is activated
     final currentSettings = schedulerHelper.getCurrentPrayerSettings(
-      'notify_${title.toLowerCase()}',
+      'notify_$title',
     );
     if (!currentSettings) {
       print('$title notification ist deaktiviert, wird nicht geplant.');
@@ -110,6 +117,45 @@ class NotificationServices {
     print('Prayer scheduled for id $id at Time $notificationTime');
   }
 
+  Future<void> scheduledPreNotification(
+    int id,
+    String title,
+    String body,
+    DateTime notificationTime,
+    String preLabel,
+  ) async {
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
+    tz.TZDateTime tzNotificationTime = tz.TZDateTime.from(
+      notificationTime,
+      tz.local,
+    );
+
+    // Only schedule if Notification is in future
+    if (notificationTime.isBefore(DateTime.now())) return;
+
+    // schedule Notification
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tzNotificationTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'pre_prayer_channel',
+          'Pre-Prayer Notifications',
+          channelDescription: 'Notifications before prayer times',
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+    print(
+      'Pre-prayer notification scheduled: '
+      '$title ($preLabel) at $notificationTime | id=$id',
+    );
+  }
+
   // schedule Notifications for the next four days
   Future<void> scheduleAllNotifications() async {
     final today = DateTime.now();
@@ -121,20 +167,86 @@ class NotificationServices {
       final day = today.add(Duration(days: i));
       await scheduleDailyPrayers(day);
     }
-  } 
+  }
+  // schedule Pre Notifications for the next four days
+  Future<void> scheduleAllPreNotifications() async {
+    final today = DateTime.now();
+    // delete all Notifications before scheduling new once
+    await flutterLocalNotificationsPlugin.cancelAll();
+
+    // Plan the next 4 days
+    for (int i = 0; i < 4; i++) {
+      final day = today.add(Duration(days: i));
+      await scheduleDailyPrePrayers(day);
+    }
+  }
 
   Future<void> scheduleDailyPrayers(DateTime date) async {
     // loading all prayer times from csv file
     csvData = await prayerTimesHelper.loadCSV();
 
     // getting prayer times as Datetimes for the given day
-    List<DateTime> prayerTimes = await prayerTimesHelper.getAnyDayPrayerTimesAsDateTimes(csvData, date);
+    List<DateTime> prayerTimes = await prayerTimesHelper
+        .getAnyDayPrayerTimesAsDateTimes(csvData, date);
 
     // iterate through prayerTimes and schedule them
-    for (int i= 0; i < prayerNames.length; i++)
-    {
+    for (int i = 0; i < prayerNames.length; i++) {
       final notificationId = date.day * 10 + i;
-      scheduledNotification(notificationId, prayerNames[i], 'Gebetszeit eingetroffen', prayerTimes[i]);
+      scheduledNotification(
+        notificationId,
+        prayerNames[i],
+        'Gebetszeit eingetroffen',
+        prayerTimes[i],
+      );
+    }
+  }
+
+  // schedule Pre Prayer Notifications for a certain given day
+  Future<void> scheduleDailyPrePrayers(DateTime date) async {
+    // get all regular prayer Times
+    csvData = await prayerTimesHelper.loadCSV();
+
+    // convert prayer times from Strings into Datetime
+    List<DateTime> prayerTimes = await prayerTimesHelper
+        .getAnyDayPrayerTimesAsDateTimes(csvData, date);
+
+    final Map<String, Duration> preOptions = {
+      '5 Minuten': Duration(minutes: 5),
+      '10 Minuten': Duration(minutes: 10),
+      '15 Minuten': Duration(minutes: 15),
+      '20 Minuten': Duration(minutes: 20),
+      '30 Minuten': Duration(minutes: 30),
+      '45 Minuten': Duration(minutes: 45),
+    };
+
+    // iterate through every pre notification and look for which prayer the user wants a pre notification
+    for (var entry in preOptions.entries) {
+      final String preLabel = entry.key; // e.g '5 Minuten'
+      final Duration preDuration = entry.value; // e.g 'Duration(minutes:5)'
+
+      // now iterate through every prayer and check if user wants a prayer pre Notification
+      for (int i = 0; i < prayerTimes.length; i++) {
+        // get User settings for this prayer
+        final userSetting = schedulerHelper.getUsersPrePrayerSettings(
+          'notifyPre_${prayerNames[i]}',
+        ); // e.g '10 Minuten'
+
+        // if user settings doesnt match the current pre Time notification, skip
+        if (userSetting != preLabel) continue;
+
+        // since the current user setting matches the current pre time, then schedule a notification
+        final preTime = prayerTimes[i].subtract(preDuration);
+
+        final notificationId = date.day * 100 + i * 10 + preDuration.inMinutes;
+
+        await scheduledPreNotification(
+          notificationId,
+          prayerNames[i],
+          'Noch $preLabel bis ${prayerNames[i]}',
+          preTime,
+          preLabel,
+        );
+      }
     }
   }
 

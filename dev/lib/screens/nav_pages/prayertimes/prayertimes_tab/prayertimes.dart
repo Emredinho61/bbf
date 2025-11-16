@@ -731,7 +731,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
               AlertDialog(actions: [_shuruqNotificationSettings()]),
         );
       },
-      child: prayerTimesHelper.isNotificationEnabled('Sunrise')
+      child: schedulerHelper.getCurrentPrayerSettings('notify_Sunrise')
           ? Icon(Icons.notifications_none, color: Colors.white)
           : Icon(Icons.notifications_off, color: Colors.white),
     );

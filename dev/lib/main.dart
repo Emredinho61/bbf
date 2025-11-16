@@ -87,6 +87,7 @@ Future<void> setupNotifications() async {
   NotificationServices notificationServices = NotificationServices();
   await notificationServices.initNotification();
   await notificationServices.scheduleAllNotifications();
+  await notificationServices.scheduleAllPreNotifications();
 }
 
 class MyApp extends StatelessWidget {

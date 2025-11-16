@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
+import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,7 @@ class PrayerTimesHelper {
   final prefsWithCache = SharedPreferencesService.instance.prefsWithCache;
 
   PrayertimesService? _prayertimesService;
+  SchedulerHelper schedulerHelper = SchedulerHelper();
 
   PrayertimesService get prayertimesService {
     _prayertimesService ??= PrayertimesService();
@@ -193,24 +195,48 @@ class PrayerTimesHelper {
   }
 
   // this is used for the Notification settings UI. When opening the UI, the current setted preTime should be displayed
+  // int getCurrentPreTimeAsIndex(String prayerName) {
+  //   String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
+  //   int? currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+  //   int currentIndex = 0;
+  //   switch (currentPreTime) {
+  //     case 0:
+  //       currentIndex = 0;
+  //     case 5:
+  //       currentIndex = 1;
+  //     case 10:
+  //       currentIndex = 2;
+  //     case 15:
+  //       currentIndex = 3;
+  //     case 20:
+  //       currentIndex = 4;
+  //     case 30:
+  //       currentIndex = 5;
+  //     case 45:
+  //       currentIndex = 6;
+  //     default:
+  //   }
+  //   return currentIndex;
+  // }
+
   int getCurrentPreTimeAsIndex(String prayerName) {
-    String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
-    int? currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
+    // String currentPreTime = (prefsWithCache.get(prayerName) as String);
+    String currentPreTime = schedulerHelper.getUsersPrePrayerSettings(prayerName);
     int currentIndex = 0;
     switch (currentPreTime) {
-      case 0:
+      case 'Keine':
         currentIndex = 0;
-      case 5:
+      case '5 Minuten':
         currentIndex = 1;
-      case 10:
+      case '10 Minuten':
         currentIndex = 2;
-      case 15:
+      case '15 Minuten':
         currentIndex = 3;
-      case 20:
+      case '20 Minuten':
         currentIndex = 4;
-      case 30:
+      case '30 Minuten':
         currentIndex = 5;
-      case 45:
+      case '45 Minuten':
         currentIndex = 6;
       default:
     }
@@ -221,17 +247,17 @@ class PrayerTimesHelper {
     String prePrayerName = '';
     switch (prayerName) {
       case 'Fajr':
-        prePrayerName = 'preFajr';
+        prePrayerName = 'notifyPre_Fajr';
       case 'Sunrise':
-        prePrayerName = 'preSunrise';
+        prePrayerName = 'notifyPre_Sunrise';
       case 'Dhur':
-        prePrayerName = 'preDhur';
+        prePrayerName = 'notifyPre_Dhur';
       case 'Asr':
-        prePrayerName = 'preAsr';
+        prePrayerName = 'notifyPre_Asr';
       case 'Maghrib':
-        prePrayerName = 'preMaghrib';
+        prePrayerName = 'notifyPre_Maghrib';
       case 'Isha':
-        prePrayerName = 'preIsha';
+        prePrayerName = 'notifyPre_Isha';
       default:
     }
     return prePrayerName;
