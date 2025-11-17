@@ -91,7 +91,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   await schedulerHelper.deactivatePrayerNotification(
                     'notify_${widget.name}',
                   );
-                  await notificationServices.scheduleAllNotifications(csvData);
+                  await notificationServices.rescheduleEverything(csvData);
                 },
                 child: Container(
                   margin: EdgeInsets.all(16),
@@ -140,7 +140,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   await schedulerHelper.activatePrayerNotification(
                     'notify_${widget.name}',
                   );
-                  await notificationServices.scheduleAllNotifications(csvData);
+                  await notificationServices.rescheduleEverything(csvData);
                 },
                 child: Container(
                   margin: EdgeInsets.all(16),
@@ -208,9 +208,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       'notifyPre_${widget.name}',
                       newValue,
                     );
-                    await notificationServices.scheduleAllPreNotifications(
-                      csvData,
-                    );
+                    await notificationServices.rescheduleEverything(csvData);
                   }
                 },
                 child: Container(
@@ -239,9 +237,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       'notifyPre_${widget.name}',
                       newValue,
                     );
-                    await notificationServices.scheduleAllPreNotifications(
-                      csvData,
-                    );
+                    await notificationServices.rescheduleEverything(csvData);
                   }
                 },
                 child: Container(
@@ -266,8 +262,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               try {
                 await schedulerHelper.setAllUsersPrayerSettings(mode);
                 await schedulerHelper.setAllUsersPrePrayerSettings(minutes);
-                await notificationServices.scheduleAllNotifications(csvData);
-                await notificationServices.scheduleAllPreNotifications(csvData);
+                await notificationServices.rescheduleEverything(csvData);
                 loadingProvider.stopLoadingWithCheckmark();
               } catch (e) {
                 ScaffoldMessenger.of(

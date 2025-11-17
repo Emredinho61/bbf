@@ -92,8 +92,7 @@ Future<void> setupNotifications() async {
   PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
   List<Map<String, String>> csvData = await prayerTimesHelper.loadCSV();
   await notificationServices.initNotification();
-  await notificationServices.scheduleAllNotifications(csvData);
-  await notificationServices.scheduleAllPreNotifications(csvData);
+  await notificationServices.rescheduleEverything(csvData);
 }
 
 class MyApp extends StatelessWidget {

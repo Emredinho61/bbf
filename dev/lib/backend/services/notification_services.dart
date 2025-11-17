@@ -161,8 +161,6 @@ class NotificationServices {
     List<Map<String, String>> csvData,
   ) async {
     final today = DateTime.now();
-    // delete all Notifications before scheduling new once
-    await flutterLocalNotificationsPlugin.cancelAll();
 
     // Plan the next 4 days
     for (int i = 0; i < 4; i++) {
@@ -176,14 +174,23 @@ class NotificationServices {
     List<Map<String, String>> csvData,
   ) async {
     final today = DateTime.now();
-    // delete all Notifications before scheduling new once
-    await flutterLocalNotificationsPlugin.cancelAll();
 
     // Plan the next 4 days
     for (int i = 0; i < 4; i++) {
       final day = today.add(Duration(days: i));
       await scheduleDailyPrePrayers(csvData, day);
     }
+  }
+
+  Future<void> deleteAllNotifications() async {
+    // delete all Notifications before scheduling new once
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  Future<void> rescheduleEverything(List<Map<String, String>> csvData) async {
+    await deleteAllNotifications();
+    await scheduleAllNotifications(csvData);
+    await scheduleAllPreNotifications(csvData);
   }
 
   Future<void> scheduleDailyPrayers(
