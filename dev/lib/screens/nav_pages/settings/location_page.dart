@@ -23,10 +23,7 @@ class MosqueLocationPageState extends State<MosqueLocationPage> {
 
   static const CameraPosition _mosquePosition = CameraPosition(
     bearing: 192.8,
-    target: LatLng(
-      48.011885215126476,
-      7.824162285408069,
-    ),
+    target: LatLng(48.011885215126476, 7.824162285408069),
     tilt: 59.4,
     zoom: 19.2,
   );

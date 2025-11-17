@@ -22,7 +22,7 @@ class InformationService {
     String expanded,
   ) async {
     information.doc(id).set({
-      'id' : id,
+      'id': id,
       'Titel': title,
       'Text': text,
       'Expanded': expanded,
@@ -43,7 +43,7 @@ class InformationService {
     String expanded,
   ) async {
     information.doc(id).update({
-      'id' : id,
+      'id': id,
       'Titel': title,
       'Text': text,
       'Expanded': expanded,

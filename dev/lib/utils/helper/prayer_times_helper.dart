@@ -73,7 +73,7 @@ class PrayerTimesHelper {
 
   Map<String, String> getAnyDayPrayerTimesAsStringMap(
     List<Map<String, String>> csvData,
-    DateTime day
+    DateTime day,
   ) {
     final todayStr = DateFormat('dd.MM.yyyy').format(day);
     final todayRow = csvData.firstWhere(
@@ -122,7 +122,7 @@ class PrayerTimesHelper {
 
   Future<List<DateTime>> getAnyDayPrayerTimesAsDateTimes(
     List<Map<String, String>> csvData,
-    DateTime date
+    DateTime date,
   ) async {
     List<DateTime> prayerTimes = [];
 
@@ -155,7 +155,6 @@ class PrayerTimesHelper {
   }
 
   DateTime convertStringTimeIntoAnyDateTime(String timeStr, DateTime date) {
-
     final timeParts = timeStr.split(':');
     final prayerTime = DateTime(
       date.year,
@@ -221,7 +220,9 @@ class PrayerTimesHelper {
 
   int getCurrentPreTimeAsIndex(String prayerName) {
     // String currentPreTime = (prefsWithCache.get(prayerName) as String);
-    String currentPreTime = schedulerHelper.getUsersPrePrayerSettings(prayerName);
+    String currentPreTime = schedulerHelper.getUsersPrePrayerSettings(
+      prayerName,
+    );
     int currentIndex = 0;
     switch (currentPreTime) {
       case 'Keine':

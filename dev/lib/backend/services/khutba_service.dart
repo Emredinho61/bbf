@@ -9,10 +9,6 @@ class KhutbaService {
     String pdfUrl,
     timeStamp,
   ) async {
-    await khutba.add({
-      'title': fileName,
-      'pdfUrl': pdfUrl,
-      'date': timeStamp,
-    });
+    await khutba.add({'title': fileName, 'pdfUrl': pdfUrl, 'date': timeStamp});
   }
 }

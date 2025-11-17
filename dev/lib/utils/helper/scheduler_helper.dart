@@ -1,5 +1,4 @@
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
-import 'package:english_words/english_words.dart';
 
 class SchedulerHelper {
   final prefsWithCache = SharedPreferencesService.instance.prefsWithCache;
@@ -34,8 +33,7 @@ class SchedulerHelper {
       'notifyPre_Isha',
     ];
 
-    for (int i = 0; i < allPrePrayers.length;i++)
-    {
+    for (int i = 0; i < allPrePrayers.length; i++) {
       await setUsersPrePrayerSettings(allPrePrayers[i], minutes);
     }
   }
@@ -50,8 +48,7 @@ class SchedulerHelper {
       'notify_Isha',
     ];
 
-    for (int i = 0; i < allPrayers.length;i++)
-    {
+    for (int i = 0; i < allPrayers.length; i++) {
       await prefsWithCache.setBool(allPrayers[i], mode);
     }
   }

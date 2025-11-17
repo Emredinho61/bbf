@@ -1,7 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -32,8 +31,6 @@ main() async {
 
   // initialize all Notification settings
   await setupNotifications();
-
-
 
   FirebaseMessaging.instance.subscribeToTopic("test");
 

@@ -65,10 +65,16 @@ class _SettingsPageState extends State<SettingsPage> {
   /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
   // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() async {
-    final String currentFridayPrayer1 = await prayertimesService.getFridayPrayer1();
-    final String currentFridayPrayer2 = await prayertimesService.getFridayPrayer2();
-    TextEditingController fridayPrayer1Controller = TextEditingController(text: currentFridayPrayer1);
-    TextEditingController fridayPrayer2Controller = TextEditingController(text: currentFridayPrayer2);
+    final String currentFridayPrayer1 = await prayertimesService
+        .getFridayPrayer1();
+    final String currentFridayPrayer2 = await prayertimesService
+        .getFridayPrayer2();
+    TextEditingController fridayPrayer1Controller = TextEditingController(
+      text: currentFridayPrayer1,
+    );
+    TextEditingController fridayPrayer2Controller = TextEditingController(
+      text: currentFridayPrayer2,
+    );
 
     showDialog(
       context: context,
@@ -149,18 +155,26 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Admin can change Iqama times here
-  void _showDialogForIqamaTimes() async{
+  void _showDialogForIqamaTimes() async {
     final String fajr = await prayertimesService.getFajrIqama();
     final String dhur = await prayertimesService.getDhurIqama();
     final String asr = await prayertimesService.getAsrIqama();
     final String maghrib = await prayertimesService.getMaghribIqama();
     final String isha = await prayertimesService.getIshaIqama();
 
-    TextEditingController fajrIqamaController = TextEditingController(text: fajr);
-    TextEditingController dhurIqamaController = TextEditingController(text: dhur);
+    TextEditingController fajrIqamaController = TextEditingController(
+      text: fajr,
+    );
+    TextEditingController dhurIqamaController = TextEditingController(
+      text: dhur,
+    );
     TextEditingController asrIqamaController = TextEditingController(text: asr);
-    TextEditingController maghribIqamaController = TextEditingController(text: maghrib);
-    TextEditingController ishaIqamaController = TextEditingController(text: isha);
+    TextEditingController maghribIqamaController = TextEditingController(
+      text: maghrib,
+    );
+    TextEditingController ishaIqamaController = TextEditingController(
+      text: isha,
+    );
 
     showDialog(
       context: context,
