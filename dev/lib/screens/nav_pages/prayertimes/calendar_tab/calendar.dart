@@ -6,7 +6,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/add_event_pag
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_event_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_single_event_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/eventsPage.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';

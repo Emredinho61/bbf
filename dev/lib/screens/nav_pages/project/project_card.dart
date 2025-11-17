@@ -146,7 +146,7 @@ class _ProjectState extends State<Project> {
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Skeletonizer(
                               enabled: true,
-                              child: Container(height: 100, width: 100),
+                              child: SizedBox(height: 100, width: 100),
                             ),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.error),
@@ -253,7 +253,7 @@ class _ProjectState extends State<Project> {
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Skeletonizer(
                             enabled: true,
-                            child: Container(height: 100, width: 100),
+                            child: SizedBox(height: 100, width: 100),
                           ),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),

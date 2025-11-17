@@ -6,9 +6,7 @@ import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
-import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -528,7 +526,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   ListTile _registerOrLogin(BuildContext context) {
-    AuthPageHelper authPageHelper = AuthPageHelper();
     return ListTile(
       leading: const Icon(Icons.person),
       title: const Text("Account erstellen / einloggen"),

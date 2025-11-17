@@ -26,7 +26,7 @@ class MosqueLocationPageState extends State<MosqueLocationPage> {
     target: LatLng(
       48.011885215126476,
       7.824162285408069,
-    ), // TODO check if good zoom values and so on
+    ),
     tilt: 59.4,
     zoom: 19.2,
   );

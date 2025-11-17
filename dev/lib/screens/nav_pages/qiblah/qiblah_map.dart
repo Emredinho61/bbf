@@ -17,10 +17,10 @@ class QiblahMaps extends StatefulWidget {
   );
 
   @override
-  _QiblahMapsState createState() => _QiblahMapsState();
+  QiblahMapsState createState() => QiblahMapsState();
 }
 
-class _QiblahMapsState extends State<QiblahMaps> {
+class QiblahMapsState extends State<QiblahMaps> {
   final Completer<GoogleMapController> _controller = Completer();
   LatLng position = LatLng(36.800636, 10.180358);
 
@@ -35,81 +35,74 @@ class _QiblahMapsState extends State<QiblahMaps> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: FutureBuilder(
-        future: _future,
-        builder: (_, AsyncSnapshot<Position?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return LoadingIndicator();
-          }
-          if (snapshot.hasError) {
-            return LocationErrorWidget(error: snapshot.error.toString());
-          }
+    return FutureBuilder(
+      future: _future,
+      builder: (_, AsyncSnapshot<Position?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingIndicator();
+        }
+        if (snapshot.hasError) {
+          return LocationErrorWidget(error: snapshot.error.toString());
+        }
 
-          if (snapshot.data != null) {
-            final loc = LatLng(
-              snapshot.data!.latitude,
-              snapshot.data!.longitude,
-            );
-            position = loc;
-          } else {
-            _positionStream.sink.add(position);
-          }
+        if (snapshot.data != null) {
+          final loc = LatLng(snapshot.data!.latitude, snapshot.data!.longitude);
+          position = loc;
+        } else {
+          _positionStream.sink.add(position);
+        }
 
-          return StreamBuilder(
-            stream: _positionStream.stream,
-            builder: (_, AsyncSnapshot<LatLng> snapshot) => GoogleMap(
-              mapType: MapType.normal,
-              zoomGesturesEnabled: true,
-              compassEnabled: true,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              initialCameraPosition: CameraPosition(target: position, zoom: 11),
-              markers: <Marker>{
-                QiblahMaps.meccaMarker,
-                Marker(
-                  draggable: true,
-                  markerId: MarkerId('Marker'),
-                  position: position,
-                  icon: BitmapDescriptor.defaultMarker,
-                  onTap: _updateCamera,
-                  onDragEnd: (LatLng value) {
-                    position = value;
-                    _positionStream.sink.add(value);
-                  },
-                  zIndexInt: 5,
-                ),
-              },
-              circles: <Circle>{
-                Circle(
-                  circleId: CircleId("Circle"),
-                  radius: 10,
-                  center: position,
-                  fillColor: Theme.of(context).primaryColorLight.withAlpha(100),
-                  strokeWidth: 1,
-                  strokeColor: Theme.of(
-                    context,
-                  ).primaryColorDark.withAlpha(100),
-                  zIndex: 3,
-                ),
-              },
-              polylines: <Polyline>{
-                Polyline(
-                  polylineId: PolylineId("Line"),
-                  points: [position, QiblahMaps.meccaLatLong],
-                  color: Theme.of(context).primaryColor,
-                  width: 5,
-                  zIndex: 4,
-                  geodesic: true,
-                ),
-              },
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-            ),
-          );
-        },
-      ),
+        return StreamBuilder(
+          stream: _positionStream.stream,
+          builder: (_, AsyncSnapshot<LatLng> snapshot) => GoogleMap(
+            mapType: MapType.normal,
+            zoomGesturesEnabled: true,
+            compassEnabled: true,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            initialCameraPosition: CameraPosition(target: position, zoom: 11),
+            markers: <Marker>{
+              QiblahMaps.meccaMarker,
+              Marker(
+                draggable: true,
+                markerId: MarkerId('Marker'),
+                position: position,
+                icon: BitmapDescriptor.defaultMarker,
+                onTap: _updateCamera,
+                onDragEnd: (LatLng value) {
+                  position = value;
+                  _positionStream.sink.add(value);
+                },
+                zIndexInt: 5,
+              ),
+            },
+            circles: <Circle>{
+              Circle(
+                circleId: CircleId("Circle"),
+                radius: 10,
+                center: position,
+                fillColor: Theme.of(context).primaryColorLight.withAlpha(100),
+                strokeWidth: 1,
+                strokeColor: Theme.of(context).primaryColorDark.withAlpha(100),
+                zIndex: 3,
+              ),
+            },
+            polylines: <Polyline>{
+              Polyline(
+                polylineId: PolylineId("Line"),
+                points: [position, QiblahMaps.meccaLatLong],
+                color: Theme.of(context).primaryColor,
+                width: 5,
+                zIndex: 4,
+                geodesic: true,
+              ),
+            },
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
+        );
+      },
     );
   }
 
