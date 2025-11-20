@@ -163,7 +163,6 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             const SizedBox(height: 12),
             BTextField(
               label: 'id',
-              icon: Icons.time_to_leave_rounded,
               controller: idTextEditingController,
               obscureText: false,
               obligatory: true,
@@ -171,7 +170,6 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             const SizedBox(height: 12),
             BTextField(
               label: 'Jahr',
-              icon: Icons.time_to_leave_rounded,
               controller: yearTextEditingController,
               obscureText: false,
               obligatory: true,
@@ -179,7 +177,6 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             const SizedBox(height: 8),
             BTextField(
               label: 'Monat',
-              icon: Icons.time_to_leave_rounded,
               controller: monthTextEditingController,
               obscureText: false,
               obligatory: true,
@@ -187,7 +184,6 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             const SizedBox(height: 8),
             BTextField(
               label: 'Tag',
-              icon: Icons.time_to_leave_rounded,
               controller: dayTextEditingController,
               obscureText: false,
               obligatory: true,

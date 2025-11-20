@@ -206,8 +206,8 @@ class NotificationServices {
       final notificationId = date.day * 10 + i;
       scheduledNotification(
         notificationId,
-        prayerNames[i],
-        'Gebetszeit eingetroffen',
+        '🕌 Es ist Zeit für das ${prayerNames[i]} Gebet',
+        'Versuche, dein Gebet pünktlich zu verrichten.',
         prayerTimes[i],
       );
     }
@@ -253,8 +253,8 @@ class NotificationServices {
 
         await scheduledPreNotification(
           notificationId,
-          prayerNames[i],
-          'Noch $preLabel bis ${prayerNames[i]}',
+          '⏳ Noch $preLabel bis ${prayerNames[i]}',
+          'Nicht zu lange verzögern — das Gebet wartet auf dich.',
           preTime,
           preLabel,
         );
