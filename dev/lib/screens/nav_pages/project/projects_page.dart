@@ -46,6 +46,7 @@ class _AllProjectsState extends State<AllProjects> {
                 Expanded(
                   child: DefaultTabController(
                     length: 2,
+                    initialIndex: 1,
                     child: Column(
                       children: [
                         TabBar(
