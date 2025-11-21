@@ -63,8 +63,8 @@ class _LoginFormState extends State<LoginForm> {
   static String errorMessageLogin = '';
 
   void _handleLogin() async {
-    final email = emailControllerForLogin.text;
-    final password = passwordControllerForLogin.text;
+    final email = emailControllerForLogin.text.trim();
+    final password = passwordControllerForLogin.text.trim();
 
     if (email.isEmpty && password.isEmpty) {
       setState(() {

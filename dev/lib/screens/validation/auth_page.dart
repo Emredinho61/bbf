@@ -136,7 +136,7 @@ class WelcomePage extends StatelessWidget {
                         if (user != null) {
                           await settingsService.addSettings();
                           await authPageHelper.setUserAsAGuest();
-                          if (!context.mounted) return;
+                          // if (!context.mounted) return;
                           Navigator.pushNamed(context, '/homepage');
                         }
                       },
