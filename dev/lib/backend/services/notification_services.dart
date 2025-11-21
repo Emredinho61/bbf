@@ -206,8 +206,8 @@ class NotificationServices {
       final notificationId = date.day * 10 + i;
       scheduledNotification(
         notificationId,
-        '🕌 Es ist Zeit für das ${prayerNames[i]} Gebet',
-        'Versuche, dein Gebet pünktlich zu verrichten.',
+        getNotificationTitleForPrayer(prayerNames[i]),
+        getNotificationBodyForPrayer(prayerNames[i]),
         prayerTimes[i],
       );
     }
@@ -253,8 +253,8 @@ class NotificationServices {
 
         await scheduledPreNotification(
           notificationId,
-          '⏳ Noch $preLabel bis ${prayerNames[i]}',
-          'Nicht zu lange verzögern — das Gebet wartet auf dich.',
+          getNotificationTitleForPrePrayer(prayerNames[i], preLabel),
+          getNotificationBodyForPrePrayer(prayerNames[i], preLabel),
           preTime,
           preLabel,
         );
@@ -266,5 +266,45 @@ class NotificationServices {
   void deleteNotification(int id) async {
     await flutterLocalNotificationsPlugin.cancel(id);
     print('Prayer Notification deleted for id $id');
+  }
+
+  // get suitable notification title for prayers
+  String getNotificationTitleForPrayer(String prayerName)
+  {
+    if(prayerName == 'Sunrise')
+    {
+      return 'Die Sonne ist aufgegangen 🌞';
+    }
+    return 'Es ist Zeit für das $prayerName Gebet 🕌';
+  }
+
+  // get suitable notification body for prayers
+  String getNotificationBodyForPrayer(String prayerName)
+  {
+    if(prayerName == 'Sunrise')
+    {
+      return 'Hast du das Fajr Gebet verrichtet ?';
+    }
+    return 'Versuche, dein Gebet pünktlich zu verrichten.';
+  }
+
+  // get suitable notification Title for pre prayers
+  String getNotificationTitleForPrePrayer(String prayerName, String preTime)
+  {
+    if(prayerName == 'Sunrise')
+    {
+      return '⏳ Noch $preTime bis zum Sonnenaufgang';
+    }
+    return '⏳ Noch $preTime bis $prayerName';
+  }
+
+  // get suitable notification body for pre prayers
+  String getNotificationBodyForPrePrayer(String prayerName, String preTime)
+  {
+    if(prayerName == 'Fajr')
+    {
+      return 'Bereite dich auf das Fajr Gebet vor.';
+    }
+    return 'Nicht zu lange verzögern — das Gebet wartet auf dich.';
   }
 }

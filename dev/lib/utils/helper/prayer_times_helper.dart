@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
@@ -84,20 +85,33 @@ class PrayerTimesHelper {
   }
 
   Map<String, String> getPrayerTimesForDay(
-    List<Map<String, String>> csvData,
-    DateTime givenDay,
-  ) {
-    final day = givenDay;
-    final todayStr = DateFormat('dd.MM.yyyy').format(day);
-    final todayRow = csvData.firstWhere(
-      (row) => row['Date'] == todayStr,
-      orElse: () => {},
-    );
-    final prayerTimes = Map<String, String>.from(todayRow);
-    prayerTimes.remove('Date');
+  List<Map<String, String>> csvData,
+  DateTime givenDay,
+) {
+  final day = givenDay;
+  final todayStr = DateFormat('dd.MM.yyyy').format(day);
 
-    return prayerTimes;
-  }
+  final todayRow = csvData.firstWhere(
+    (row) => row['Date'] == todayStr,
+    orElse: () => {},
+  );
+
+  final oldMap = Map<String, String>.from(todayRow);
+  oldMap.remove('Date');
+
+  final LinkedHashMap<String, String> newMap = LinkedHashMap();
+
+  oldMap.forEach((key, value) {
+    if (key == 'Sunrise') {
+      newMap['Shuruq'] = value;
+    } else {
+      newMap[key] = value;
+    }
+  });
+
+  return newMap;
+}
+
 
   Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes(
     List<Map<String, String>> csvData,
