@@ -40,6 +40,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   late Timer _timer;
 
   Duration timeUntilNextPrayer = Duration.zero;
+  bool isIqamaRunning = false;
 
   final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
@@ -217,6 +218,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   Duration _calculateNextPrayerDuration() {
     final now = DateTime.now();
+
+    // this is used to get the difference time between isha and next day fajr
     final tomorrowStr = DateFormat(
       'dd.MM.yyyy',
     ).format(now.add(Duration(days: 1)));
@@ -241,13 +244,29 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     for (final key in prayerKeys) {
       final timeStr = todayRow[key];
-      if (timeStr != null) {
-        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
-          timeStr,
-        );
-        if (prayerTime.isAfter(now)) {
-          return prayerTime.difference(now);
-        }
+      if (timeStr == null) {
+        continue;
+      }
+
+      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+        timeStr,
+      );
+      final iqamaMinutes = prayerTimesHelper.getCertainIqamaPreference(key);
+      final prayerIqamaEndTime = prayerTime.add(
+        Duration(minutes: int.parse(iqamaMinutes)),
+      );
+
+      // Check for the current prayerTime if the now is between prayerTime and prayerIqama ending time.
+      // If this is the case, then give the difference between now and the end of prayerIqama
+      if (now.isAfter(prayerTime) && now.isBefore(prayerIqamaEndTime)) {
+        isIqamaRunning = true;
+        return prayerIqamaEndTime.difference(now);
+      }
+
+      // else just display the difference time between now and next prayer
+      if (prayerTime.isAfter(now)) {
+        isIqamaRunning = false;
+        return prayerTime.difference(now);
       }
     }
     return (fajrPrayTime.difference(now));
@@ -396,6 +415,20 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
+  String getCountDownText(Duration timeUntilNextPrayer, bool isIqamaRunning) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    final hours = twoDigits(timeUntilNextPrayer.inHours.remainder(60));
+    final minutes = twoDigits(timeUntilNextPrayer.inMinutes.remainder(60));
+    final seconds = twoDigits(timeUntilNextPrayer.inSeconds.remainder(60));
+
+    if (!isIqamaRunning) {
+      return '$hours:$minutes:$seconds';
+    } else {
+      return '$minutes:$seconds';
+    }
+  }
+
   /* Beginning of Main Page UI containing prayertimes page, calender page and info page */
   @override
   Widget build(BuildContext context) {
@@ -405,9 +438,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    String countdownText =
-        "${timeUntilNextPrayer.inHours.remainder(60).toString().padLeft(2, '0')}:${timeUntilNextPrayer.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(timeUntilNextPrayer.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
-
+    String countdownText = getCountDownText(
+      timeUntilNextPrayer,
+      isIqamaRunning,
+    );
     return Scaffold(
       body: csvData.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -428,7 +462,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                     const SizedBox(height: 20),
                     _mosqueName(context, isDark),
                     const SizedBox(height: 14),
-                    _showNextPrayerText(context, isDark),
+                    _showNextPrayerText(context, isDark, isIqamaRunning),
                     _countdownToNextPrayer(countdownText, isDark),
                     const SizedBox(height: 3),
                     _currentDate(hijridate, now, isDark),
@@ -785,9 +819,22 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
-  Text _showNextPrayerText(BuildContext context, bool isDark) {
+  Text _showNextPrayerText(
+    BuildContext context,
+    bool isDark,
+    bool isIqamaRunning,
+  ) {
+    if (!isIqamaRunning) {
+      return Text(
+        '${_showNextPrayer()} in',
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : BColors.primary,
+        ),
+      );
+    }
     return Text(
-      '${_showNextPrayer()} in',
+      'Iqama in',
       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
         fontWeight: FontWeight.bold,
         color: isDark ? Colors.white : BColors.primary,

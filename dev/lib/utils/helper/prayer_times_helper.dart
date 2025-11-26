@@ -85,33 +85,32 @@ class PrayerTimesHelper {
   }
 
   Map<String, String> getPrayerTimesForDay(
-  List<Map<String, String>> csvData,
-  DateTime givenDay,
-) {
-  final day = givenDay;
-  final todayStr = DateFormat('dd.MM.yyyy').format(day);
+    List<Map<String, String>> csvData,
+    DateTime givenDay,
+  ) {
+    final day = givenDay;
+    final todayStr = DateFormat('dd.MM.yyyy').format(day);
 
-  final todayRow = csvData.firstWhere(
-    (row) => row['Date'] == todayStr,
-    orElse: () => {},
-  );
+    final todayRow = csvData.firstWhere(
+      (row) => row['Date'] == todayStr,
+      orElse: () => {},
+    );
 
-  final oldMap = Map<String, String>.from(todayRow);
-  oldMap.remove('Date');
+    final oldMap = Map<String, String>.from(todayRow);
+    oldMap.remove('Date');
 
-  final LinkedHashMap<String, String> newMap = LinkedHashMap();
+    final LinkedHashMap<String, String> newMap = LinkedHashMap();
 
-  oldMap.forEach((key, value) {
-    if (key == 'Sunrise') {
-      newMap['Shuruq'] = value;
-    } else {
-      newMap[key] = value;
-    }
-  });
+    oldMap.forEach((key, value) {
+      if (key == 'Sunrise') {
+        newMap['Shuruq'] = value;
+      } else {
+        newMap[key] = value;
+      }
+    });
 
-  return newMap;
-}
-
+    return newMap;
+  }
 
   Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes(
     List<Map<String, String>> csvData,
@@ -206,31 +205,6 @@ class PrayerTimesHelper {
     }
     return prayerTime;
   }
-
-  // this is used for the Notification settings UI. When opening the UI, the current setted preTime should be displayed
-  // int getCurrentPreTimeAsIndex(String prayerName) {
-  //   String prePrayerName = convertPrayerNameIntoPrePrayerName(prayerName);
-  //   int? currentPreTime = (prefsWithCache.get(prePrayerName) as int?) ?? 0;
-  //   int currentIndex = 0;
-  //   switch (currentPreTime) {
-  //     case 0:
-  //       currentIndex = 0;
-  //     case 5:
-  //       currentIndex = 1;
-  //     case 10:
-  //       currentIndex = 2;
-  //     case 15:
-  //       currentIndex = 3;
-  //     case 20:
-  //       currentIndex = 4;
-  //     case 30:
-  //       currentIndex = 5;
-  //     case 45:
-  //       currentIndex = 6;
-  //     default:
-  //   }
-  //   return currentIndex;
-  // }
 
   int getCurrentPreTimeAsIndex(String prayerName) {
     // String currentPreTime = (prefsWithCache.get(prayerName) as String);
@@ -412,28 +386,34 @@ class PrayerTimesHelper {
   }
 
   String getFajrIqamaPreference() {
-    String fajrIqama = (prefsWithCache.get('FajrIqama') as String?) ?? '';
+    String fajrIqama = (prefsWithCache.get('FajrIqama') as String?) ?? '10';
     return fajrIqama;
   }
 
   String getDhurIqamaPreference() {
-    String dhurIqama = (prefsWithCache.get('DhurIqama') as String?) ?? '';
+    String dhurIqama = (prefsWithCache.get('DhurIqama') as String?) ?? '10';
     return dhurIqama;
   }
 
   String getAsrIqamaPreference() {
-    String asrIqama = (prefsWithCache.get('AsrIqama') as String?) ?? '';
+    String asrIqama = (prefsWithCache.get('AsrIqama') as String?) ?? '10';
     return asrIqama;
   }
 
   String getMaghribIqamaPreference() {
-    String maghribIqama = (prefsWithCache.get('MaghribIqama') as String?) ?? '';
+    String maghribIqama =
+        (prefsWithCache.get('MaghribIqama') as String?) ?? '10';
     return maghribIqama;
   }
 
   String getIshaIqamaPreference() {
-    String ishaIqama = (prefsWithCache.get('IshaIqama') as String?) ?? '';
+    String ishaIqama = (prefsWithCache.get('IshaIqama') as String?) ?? '10';
     return ishaIqama;
+  }
+
+  String getCertainIqamaPreference(String prayer) {
+    String iqama = (prefsWithCache.get('${prayer}Iqama') as String?) ?? '10';
+    return iqama;
   }
 
   Future<void> setIqamaPreference(String prayer, String iqamaTime) async {
