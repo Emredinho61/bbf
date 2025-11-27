@@ -13,15 +13,12 @@ import 'package:bbf_app/screens/validation/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SharedPreferencesService.instance.initPrefs();
-
-  await AndroidAlarmManager.initialize();
 
   // initialize App
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

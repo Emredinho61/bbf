@@ -2,7 +2,9 @@ import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
+import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -63,6 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
+
   // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() async {
     final String currentFridayPrayer1 = await prayertimesService
@@ -387,6 +390,18 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListView(
             children: [
               // /*--Admin Section-------------------------------------------------------*/
+
+              // Switch to Monitor mode
+              if (isUserAdmin && authService.currentUser != null)
+                BTextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => MonitorPage()),
+                    );
+                  },
+                  text: 'Zum Monitor-Modus wechseln',
+                ),
               if (isUserAdmin && authService.currentUser != null)
                 _buildSectionHeader("Admin"),
               // display settings for admins

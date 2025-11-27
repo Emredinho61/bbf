@@ -269,40 +269,32 @@ class NotificationServices {
   }
 
   // get suitable notification title for prayers
-  String getNotificationTitleForPrayer(String prayerName)
-  {
-    if(prayerName == 'Sunrise')
-    {
+  String getNotificationTitleForPrayer(String prayerName) {
+    if (prayerName == 'Sunrise') {
       return 'Die Sonne ist aufgegangen 🌞';
     }
     return 'Es ist Zeit für das $prayerName Gebet 🕌';
   }
 
   // get suitable notification body for prayers
-  String getNotificationBodyForPrayer(String prayerName)
-  {
-    if(prayerName == 'Sunrise')
-    {
+  String getNotificationBodyForPrayer(String prayerName) {
+    if (prayerName == 'Sunrise') {
       return 'Hast du das Fajr Gebet verrichtet ?';
     }
     return 'Versuche, dein Gebet pünktlich zu verrichten.';
   }
 
   // get suitable notification Title for pre prayers
-  String getNotificationTitleForPrePrayer(String prayerName, String preTime)
-  {
-    if(prayerName == 'Sunrise')
-    {
+  String getNotificationTitleForPrePrayer(String prayerName, String preTime) {
+    if (prayerName == 'Sunrise') {
       return '⏳ Noch $preTime bis zum Sonnenaufgang';
     }
     return '⏳ Noch $preTime bis $prayerName';
   }
 
   // get suitable notification body for pre prayers
-  String getNotificationBodyForPrePrayer(String prayerName, String preTime)
-  {
-    if(prayerName == 'Fajr')
-    {
+  String getNotificationBodyForPrePrayer(String prayerName, String preTime) {
+    if (prayerName == 'Fajr') {
       return 'Bereite dich auf das Fajr Gebet vor.';
     }
     return 'Nicht zu lange verzögern — das Gebet wartet auf dich.';
