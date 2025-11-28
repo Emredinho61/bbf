@@ -23,6 +23,7 @@ class _AddEventPageState extends State<AddEventPage> {
   final TextEditingController minuteTextController = TextEditingController();
   final TextEditingController repeatTextController = TextEditingController();
   final TextEditingController frequencyTextController = TextEditingController();
+  final TextEditingController signUpTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +260,24 @@ class _AddEventPageState extends State<AddEventPage> {
                       ),
                     ),
                     SizedBox(height: 5),
-
+                    TextField(
+                      controller: signUpTextController,
+                      cursorColor: BColors.primary,
+                      minLines: 1,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        labelText: 'Anmeldelink',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: BColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -284,6 +302,7 @@ class _AddEventPageState extends State<AddEventPage> {
                               minuteTextController.text,
                               repeatTextController.text,
                               frequencyTextController.text,
+                              signUpTextController.text
                             );
                             Navigator.pop(context, true);
                           },
