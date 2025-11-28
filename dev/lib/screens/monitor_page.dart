@@ -164,12 +164,17 @@ class _MonitorPageState extends State<MonitorPage> {
     });
   }
 
-  Text _currentDate(HijriCalendarConfig hijridate, DateTime now, bool isDark) {
+  Text _currentDate(
+    HijriCalendarConfig hijridate,
+    DateTime now,
+    bool isDark,
+    double scale,
+  ) {
     return Text(
       '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
       style: TextStyle(
         color: isDark ? Colors.white : BColors.primary,
-        fontSize: 13,
+        fontSize: 20 * scale,
       ),
     );
   }
@@ -192,16 +197,12 @@ class _MonitorPageState extends State<MonitorPage> {
     return months[month - 1];
   }
 
-  Text _countdownToNextPrayer(
-    String countdownText,
-    bool isDark,
-    double countdownFontSize,
-  ) {
+  Text _countdownToNextPrayer(String countdownText, bool isDark, double scale) {
     return Text(
       countdownText,
       style: TextStyle(
         color: BColors.primary,
-        fontSize: countdownFontSize,
+        fontSize: scale * 100,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -229,13 +230,13 @@ class _MonitorPageState extends State<MonitorPage> {
     BuildContext context,
     bool isDark,
     bool isIqamaRunning,
-    double prayerNameFontSize,
+    double size,
   ) {
     if (!isIqamaRunning) {
       return Text(
         '${_showNextPrayer()} in',
         style: TextStyle(
-          fontSize: prayerNameFontSize,
+          fontSize: 60 * size,
           color: BColors.primary,
           fontWeight: FontWeight.bold,
         ),
@@ -244,37 +245,40 @@ class _MonitorPageState extends State<MonitorPage> {
     return Text(
       'Iqama in',
       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+        fontSize: 60 * size,
         fontWeight: FontWeight.bold,
         color: isDark ? Colors.white : BColors.primary,
       ),
     );
   }
 
-  Text _mosqueName(BuildContext context, bool isDark) {
-    return Text('BBF Verein - Freiburg');
-  }
-
-  Text _adhanTime(String? time, bool isActive) {
+  Text _adhanTime(String? time, bool isActive, double scale) {
     return Text(
       time ?? "--:--",
-      style: TextStyle(color: Colors.white, fontSize: isActive ? 22 : 18),
-    );
-  }
-
-  Transform _iqamaTime(String iqamaTime, bool isActive) {
-    return Transform.translate(
-      offset: Offset(0, 2),
-      child: Text(
-        '+$iqamaTime',
-        style: TextStyle(color: Colors.white, fontSize: isActive ? 16 : 12),
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: isActive ? 48 * scale : 44 * scale,
       ),
     );
   }
 
-  Text _prayerName(String name, bool isActive) {
+  Text _iqamaTime(String iqamaTime, bool isActive, double scale) {
+    return Text(
+      '+$iqamaTime',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: isActive ? 28 * scale : 24 * scale,
+      ),
+    );
+  }
+
+  Text _prayerName(String name, bool isActive, double scale) {
     return Text(
       name,
-      style: TextStyle(color: Colors.white, fontSize: isActive ? 22 : 18),
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: isActive ? 38 * scale : 34 * scale,
+      ),
     );
   }
 
@@ -372,15 +376,100 @@ class _MonitorPageState extends State<MonitorPage> {
     return false;
   }
 
+  Widget _buildPrayerBlock(
+    String name,
+    String? time,
+    bool isActive,
+    String iqamaTime,
+    double scale,
+  ) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 40 * scale,
+        horizontal: 100 * scale,
+      ),
+      decoration: BoxDecoration(
+        border: isActive
+            ? Border.all(color: Colors.white)
+            : Border.all(color: BColors.primary),
+        color: isActive
+            ? BColors.primary
+            : Theme.of(context).brightness == Brightness.dark
+            ? BColors.prayerRowDark
+            : BColors.prayerRowLight,
+        borderRadius: BorderRadius.circular(12 * scale),
+      ),
+      child: Column(
+        children: [
+          _prayerName(name, isActive, scale),
+          Column(
+            children: [
+              _adhanTime(time, isActive, scale),
+              _iqamaTime(iqamaTime, isActive, scale),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Row _prayerTimesPage(
+    Map<String, String> todayRow,
+    BuildContext context,
+    bool isDark,
+    double scale,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildPrayerBlock(
+          'Fajr',
+          todayRow['Fajr'],
+          _checkForCurrentPrayer("Fajr"),
+          fajrIqama,
+          scale,
+        ),
+        SizedBox(width: 20 * scale),
+        _buildPrayerBlock(
+          'Dhur',
+          todayRow['Dhur'],
+          _checkForCurrentPrayer("Dhur"),
+          dhurIqama,
+          scale,
+        ),
+        SizedBox(width: 20 * scale),
+        _buildPrayerBlock(
+          'Asr',
+          todayRow['Asr'],
+          _checkForCurrentPrayer("Asr"),
+          asrIqama,
+          scale,
+        ),
+        SizedBox(width: 20 * scale),
+        _buildPrayerBlock(
+          'Maghrib',
+          todayRow['Maghrib'],
+          _checkForCurrentPrayer("Maghrib"),
+          maghribIqama,
+          scale,
+        ),
+        SizedBox(width: 20 * scale),
+        _buildPrayerBlock(
+          'Isha',
+          todayRow['Isha'],
+          _checkForCurrentPrayer("Isha"),
+          ishaIqama,
+          scale,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final width = size.width;
-    final height = size.height;
-    final spacing = height * 0.03;
-    final countdownFontSize = height * 0.12;
-    final prayerNameFontSize = height * 0.05;
-    final titleFontSize = height * 0.04;
+    final scale = (size.width / 1920).clamp(0.5, 2.0);
+
     final now = DateTime.now();
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     final hijridate = HijriCalendarConfig.now();
@@ -410,28 +499,28 @@ class _MonitorPageState extends State<MonitorPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: spacing),
+                      SizedBox(height: 20 * scale),
                       Text(
                         'BBF Verein - Freiburg',
                         style: TextStyle(
-                          fontSize: titleFontSize,
+                          fontSize: 80 * scale,
                           color: BColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: spacing),
+                      SizedBox(height: 20 * scale),
                       _showNextPrayerText(
                         context,
                         isDark,
                         isIqamaRunning,
-                        prayerNameFontSize,
+                        scale,
                       ),
-                      SizedBox(height: spacing),
-                      _countdownToNextPrayer(
-                        countdownText,
-                        isDark,
-                        countdownFontSize,
-                      ),
+                      SizedBox(height: 10 * scale),
+                      _countdownToNextPrayer(countdownText, isDark, scale),
+                      SizedBox(height: 5 * scale),
+                      _currentDate(hijridate, now, isDark, scale),
+                      SizedBox(height: 120 * scale),
+                      _prayerTimesPage(todayRow, context, isDark, scale),
                     ],
                   ),
                 ),
