@@ -78,7 +78,7 @@ class CalendarService {
         data['content'],
         data['time'],
         data['location'],
-        data['link'] ?? ''
+        data['link'] ?? '',
       );
 
       // if repetitive weekly
@@ -123,7 +123,7 @@ class CalendarService {
     String minute,
     String repeat,
     String frequency,
-    String signUpTextController
+    String signUpTextController,
   ) async {
     // since these are saved as ints in backend, parse it
     int yearInInt = int.parse(year);
@@ -147,7 +147,7 @@ class CalendarService {
       'minute': minuteInInt,
       'repeat': repeat,
       'frequency': frequencyInInt,
-      'link' : signUpTextController
+      'link': signUpTextController,
     });
   }
 

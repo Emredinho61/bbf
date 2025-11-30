@@ -302,7 +302,7 @@ class _AddEventPageState extends State<AddEventPage> {
                               minuteTextController.text,
                               repeatTextController.text,
                               frequencyTextController.text,
-                              signUpTextController.text
+                              signUpTextController.text,
                             );
                             Navigator.pop(context, true);
                           },

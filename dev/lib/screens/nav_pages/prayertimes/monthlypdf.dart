@@ -44,12 +44,7 @@ Future<void> generateMonthlyPrayerPdf(
   pdf.addPage(
     pw.MultiPage(
       maxPages: 1, // forces everything on a single page
-      margin: const pw.EdgeInsets.only(
-        left: 50,
-        right: 0,
-        top: 30,
-        bottom: 30,
-      ),
+      margin: const pw.EdgeInsets.only(left: 50, right: 0, top: 30, bottom: 30),
       footer: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.center,

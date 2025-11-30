@@ -69,7 +69,6 @@ class _CalenderViewState extends State<CalenderView> {
 
   Future<void> _loadCSV() async {
     csvData = await prayerTimesHelper.loadCSV();
-    print('${csvData[0]} ');
     setState(() {});
   }
 
