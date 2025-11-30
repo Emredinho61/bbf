@@ -44,6 +44,12 @@ Future<void> generateMonthlyPrayerPdf(
   pdf.addPage(
     pw.MultiPage(
       maxPages: 1, // forces everything on a single page
+      margin: const pw.EdgeInsets.only(
+        left: 50,
+        right: 0,
+        top: 30,
+        bottom: 30,
+      ),
       footer: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -52,24 +58,24 @@ Future<void> generateMonthlyPrayerPdf(
             pw.SizedBox(height: 4),
             pw.Text(
               'Erstes Freitagsgebet: $firstPrayer Uhr   |   Zweites Freitagsgebet: $secondPrayer Uhr',
-              style: const pw.TextStyle(fontSize: 9),
+              style: const pw.TextStyle(fontSize: 10),
               textAlign: pw.TextAlign.center,
             ),
             pw.SizedBox(height: 2),
             pw.Text(
               'Bildungs- und Begegnung Freiburg e.V. | Rufacherstr. 5, 79110 Freiburg',
-              style: const pw.TextStyle(fontSize: 9),
+              style: const pw.TextStyle(fontSize: 10),
               textAlign: pw.TextAlign.center,
             ),
             pw.Text(
               'Sparkasse Freiburg | IBAN: DE11 6805 0101 0014 3501 24 | BIC: FRSPDE66XXX',
-              style: const pw.TextStyle(fontSize: 9),
+              style: const pw.TextStyle(fontSize: 10),
               textAlign: pw.TextAlign.center,
             ),
             pw.SizedBox(height: 2),
             pw.Text(
               'Seite ${context.pageNumber} / ${context.pagesCount}',
-              style: const pw.TextStyle(fontSize: 8),
+              style: const pw.TextStyle(fontSize: 9),
               textAlign: pw.TextAlign.center,
             ),
           ],
@@ -79,22 +85,22 @@ Future<void> generateMonthlyPrayerPdf(
         pw.Center(
           child: pw.Text(
             "Gebetszeiten - ${_monthName(currentMonth)} $currentYear",
-            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+            style: pw.TextStyle(fontSize: 25, fontWeight: pw.FontWeight.bold),
             textAlign: pw.TextAlign.center,
           ),
         ),
-        pw.SizedBox(height: 12),
+        pw.SizedBox(height: 35),
 
         pw.Table(
-          border: pw.TableBorder.all(width: 0.8),
+          border: pw.TableBorder.all(width: 0),
           columnWidths: {
-            0: const pw.FixedColumnWidth(50),
-            1: const pw.FixedColumnWidth(45),
-            2: const pw.FixedColumnWidth(65),
-            3: const pw.FixedColumnWidth(45),
-            4: const pw.FixedColumnWidth(45),
-            5: const pw.FixedColumnWidth(55),
-            6: const pw.FixedColumnWidth(45),
+            0: const pw.FixedColumnWidth(55),
+            1: const pw.FixedColumnWidth(50),
+            2: const pw.FixedColumnWidth(80),
+            3: const pw.FixedColumnWidth(50),
+            4: const pw.FixedColumnWidth(50),
+            5: const pw.FixedColumnWidth(60),
+            6: const pw.FixedColumnWidth(50),
           },
           children: [
             pw.TableRow(
@@ -102,7 +108,7 @@ Future<void> generateMonthlyPrayerPdf(
               children: [
                 _headerCell("Datum"),
                 _headerCell("Fajr"),
-                _headerCell("Sonnen­aufgang"),
+                _headerCell("Sonnenaufgang"),
                 _headerCell("Dhur"),
                 _headerCell("Asr"),
                 _headerCell("Maghrib"),
@@ -152,7 +158,7 @@ pw.Widget _headerCell(String text) {
       textAlign: pw.TextAlign.center,
       style: pw.TextStyle(
         color: PdfColors.white,
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: pw.FontWeight.bold,
       ),
     ),
