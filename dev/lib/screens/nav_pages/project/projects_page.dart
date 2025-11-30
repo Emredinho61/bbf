@@ -46,7 +46,7 @@ class _AllProjectsState extends State<AllProjects> {
                 Expanded(
                   child: DefaultTabController(
                     length: 2,
-                    initialIndex: 1,
+                    initialIndex: 0,
                     child: Column(
                       children: [
                         TabBar(
@@ -58,11 +58,11 @@ class _AllProjectsState extends State<AllProjects> {
                           labelColor: isDark ? Colors.white : Colors.black,
                           tabs: [
                             Text(
-                              'Vergangen',
+                              'Kommend',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             Text(
-                              'Kommend',
+                              'Vergangen',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -71,8 +71,8 @@ class _AllProjectsState extends State<AllProjects> {
                         Expanded(
                           child: TabBarView(
                             children: [
-                              ProjectsByTense(tense: 'past'),
                               ProjectsByTense(tense: 'future'),
+                              ProjectsByTense(tense: 'past'),
                             ],
                           ),
                         ),
