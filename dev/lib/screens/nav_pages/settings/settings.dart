@@ -1,7 +1,7 @@
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
-import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
+// import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
@@ -409,7 +409,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 _modifyFridayPrayerTimes(),
               if (isUserAdmin && authService.currentUser != null)
                 _modifyIqamaTimes(),
-              if (isUserAdmin) _uploadKhutba(context),
+              // if (isUserAdmin) _uploadKhutba(context),
               if (isUserAdmin) _uploadEvent(context),
               if (isUserAdmin) _broadcastMessage(),
 
@@ -506,19 +506,19 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  ListTile _uploadKhutba(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.upload_file),
-      title: const Text("Khutba hochladen"),
-      subtitle: const Text("PDF auswählen und speichern"),
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => const UploadKhutbaDialog(),
-        );
-      },
-    );
-  }
+  // ListTile _uploadKhutba(BuildContext context) {
+  //   return ListTile(
+  //     leading: const Icon(Icons.upload_file),
+  //     title: const Text("Khutba hochladen"),
+  //     subtitle: const Text("PDF auswählen und speichern"),
+  //     onTap: () {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) => const UploadKhutbaDialog(),
+  //       );
+  //     },
+  //   );
+  // }
 
   ListTile _uploadEvent(BuildContext context) {
     return ListTile(

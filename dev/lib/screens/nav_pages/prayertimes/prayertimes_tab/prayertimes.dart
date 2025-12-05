@@ -614,81 +614,81 @@ class _PrayerTimesState extends State<PrayerTimes> {
         const SizedBox(width: 12),
 
         // button to upload latest Khutba
-        _uploadKhutbaButton(context),
+        // _uploadKhutbaButton(context),
       ],
     );
   }
 
-  TextButton _uploadKhutbaButton(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () async {
-        final snapshot = await FirebaseFirestore.instance
-            .collection('khutbas')
-            .orderBy('date', descending: true)
-            .limit(1) // show only one file
-            .get();
+  // TextButton _uploadKhutbaButton(BuildContext context) {
+  //   return TextButton.icon(
+  //     onPressed: () async {
+  //       final snapshot = await FirebaseFirestore.instance
+  //           .collection('khutbas')
+  //           .orderBy('date', descending: true)
+  //           .limit(1) // show only one file
+  //           .get();
 
-        if (snapshot.docs.isEmpty) {
-          _noKhutbaShowDialog(context);
-          return;
-        }
+  //       if (snapshot.docs.isEmpty) {
+  //         _noKhutbaShowDialog(context);
+  //         return;
+  //       }
 
-        final khutba = snapshot.docs.first.data();
-        final pdfUrl = khutba['pdfUrl'] as String;
+  //       final khutba = snapshot.docs.first.data();
+  //       final pdfUrl = khutba['pdfUrl'] as String;
 
-        _khutbaShowDialog(context, pdfUrl);
-      },
-      icon: Icon(
-        Icons.menu_book,
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.white
-            : Colors.black,
-        size: 24,
-      ),
-      label: UnderlinedText(
-        content: Text('Khutba', style: Theme.of(context).textTheme.bodyMedium),
-      ),
-    );
-  }
+  //       // _khutbaShowDialog(context, pdfUrl);
+  //     },
+  //     icon: Icon(
+  //       Icons.menu_book,
+  //       color: Theme.of(context).brightness == Brightness.dark
+  //           ? Colors.white
+  //           : Colors.black,
+  //       size: 24,
+  //     ),
+  //     label: UnderlinedText(
+  //       content: Text('Khutba', style: Theme.of(context).textTheme.bodyMedium),
+  //     ),
+  //   );
+  // }
 
-  Future<dynamic> _khutbaShowDialog(BuildContext context, String pdfUrl) {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Wöchentliche Khutba"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: const Text("Schließen"),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              Navigator.pop(context);
-              await launchUrl(
-                Uri.parse(pdfUrl),
-                mode: LaunchMode.externalApplication,
-              );
-            },
-            icon: const Icon(Icons.picture_as_pdf),
-            label: const Text("Ansehen"),
-          ),
-        ],
-      ),
-    );
-  }
+  // Future<dynamic> _khutbaShowDialog(BuildContext context, String pdfUrl) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text("Wöchentliche Khutba"),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           style: TextButton.styleFrom(
+  //             padding: const EdgeInsets.symmetric(horizontal: 16),
+  //           ),
+  //           child: const Text("Schließen"),
+  //         ),
+  //         ElevatedButton.icon(
+  //           onPressed: () async {
+  //             Navigator.pop(context);
+  //             await launchUrl(
+  //               Uri.parse(pdfUrl),
+  //               mode: LaunchMode.externalApplication,
+  //             );
+  //           },
+  //           icon: const Icon(Icons.picture_as_pdf),
+  //           label: const Text("Ansehen"),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Future<dynamic> _noKhutbaShowDialog(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (_) => const AlertDialog(
-        title: Text("Keine Khutba verfügbar"),
-        content: Text("Es wurde noch keine Khutba hochgeladen."),
-      ),
-    );
-  }
+  // Future<dynamic> _noKhutbaShowDialog(BuildContext context) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (_) => const AlertDialog(
+  //       title: Text("Keine Khutba verfügbar"),
+  //       content: Text("Es wurde noch keine Khutba hochgeladen."),
+  //     ),
+  //   );
+  // }
 
   TextButton _monthlyPrayerPdfs(BuildContext context) {
     return TextButton.icon(
