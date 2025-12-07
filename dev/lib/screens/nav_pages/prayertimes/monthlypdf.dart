@@ -6,12 +6,13 @@ Future<void> generateMonthlyPrayerPdf(
   List<Map<String, String>> csvData,
   String firstPrayer,
   String secondPrayer,
+  int month,
+  int year,
 ) async {
   final pdf = pw.Document();
 
-  final now = DateTime.now();
-  final currentMonth = now.month;
-  final currentYear = now.year;
+  final selectedMonth = month;
+  final selectedYear = year;
 
   final monthRows = csvData.where((row) {
     if (row['Date'] == null) return false;
@@ -21,7 +22,7 @@ Future<void> generateMonthlyPrayerPdf(
       final month = int.parse(parts[1]);
       final year = int.parse(parts[2]);
       final date = DateTime(year, month, day);
-      return date.month == currentMonth && date.year == currentYear;
+      return date.month == selectedMonth && date.year == selectedYear;
     } catch (_) {
       return false;
     }
@@ -79,7 +80,7 @@ Future<void> generateMonthlyPrayerPdf(
       build: (context) => [
         pw.Center(
           child: pw.Text(
-            "Gebetszeiten - ${_monthName(currentMonth)} $currentYear",
+            "Gebetszeiten - ${_monthName(selectedMonth)} $selectedYear",
             style: pw.TextStyle(fontSize: 25, fontWeight: pw.FontWeight.bold),
             textAlign: pw.TextAlign.center,
           ),
@@ -132,7 +133,7 @@ Future<void> generateMonthlyPrayerPdf(
                   _cell(row['Isha']),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ],
@@ -141,7 +142,7 @@ Future<void> generateMonthlyPrayerPdf(
 
   await Printing.sharePdf(
     bytes: await pdf.save(),
-    filename: 'Gebetszeiten_${now.month}_${now.year}.pdf',
+    filename: "Gebetszeiten - ${_monthName(month)} $year",
   );
 }
 

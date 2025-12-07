@@ -738,9 +738,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   TextButton _monthlyPrayerPdfs(BuildContext context) {
     return TextButton.icon(
-      onPressed: () {
-        generateMonthlyPrayerPdf(csvData, fridayPrayer1, fridayPrayer2);
-      },
+      onPressed: () => _showMonthPickerDialog(context),
       icon: Icon(
         Icons.picture_as_pdf,
         color: Theme.of(context).brightness == Brightness.dark
@@ -754,6 +752,112 @@ class _PrayerTimesState extends State<PrayerTimes> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
+    );
+  }
+
+  List<Map<String, int>> _extractAvailableMonths(
+    List<Map<String, String>> csvData,
+  ) {
+    final Set<String> seen = {};
+    final List<Map<String, int>> result = [];
+
+    for (final row in csvData) {
+      if (row['Date'] == null) continue;
+
+      final parts = row['Date']!.split('.');
+      if (parts.length != 3) continue;
+
+      final day = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final year = int.tryParse(parts[2]);
+
+      if (day == null || month == null || year == null) continue;
+
+      final key = "$month-$year";
+      if (!seen.contains(key)) {
+        seen.add(key);
+        result.add({"month": month, "year": year});
+      }
+    }
+
+    // Sort by year -> month
+    result.sort((a, b) {
+      if (a['year'] == b['year']) return a['month']!.compareTo(b['month']!);
+      return a['year']!.compareTo(b['year']!);
+    });
+
+    return result;
+  }
+
+  String _monthName(int month) {
+    const months = [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember",
+    ];
+    return months[month - 1];
+  }
+
+  void _showMonthPickerDialog(BuildContext context) {
+    final availableMonths = _extractAvailableMonths(csvData);
+
+    int? selectedMonth = availableMonths.isNotEmpty
+        ? availableMonths.first['month']
+        : null;
+    int? selectedYear = availableMonths.isNotEmpty
+        ? availableMonths.first['year']
+        : null;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Monat auswählen"),
+          content: DropdownButtonFormField<Map<String, int>>(
+            value: availableMonths.first,
+            items: availableMonths.map((entry) {
+              return DropdownMenuItem(
+                value: entry,
+                child: Text("${_monthName(entry['month']!)} ${entry['year']}"),
+              );
+            }).toList(),
+            onChanged: (value) {
+              selectedMonth = value?['month'];
+              selectedYear = value?['year'];
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Abbrechen"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedMonth != null && selectedYear != null) {
+                  generateMonthlyPrayerPdf(
+                    csvData,
+                    fridayPrayer1,
+                    fridayPrayer2,
+                    selectedMonth!,
+                    selectedYear!,
+                  );
+                }
+                Navigator.pop(context);
+              },
+              child: const Text("PDF erzeugen"),
+            ),
+          ],
+        );
+      },
     );
   }
 
