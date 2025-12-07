@@ -719,5 +719,3 @@ class LightDarkModeSwitch extends StatelessWidget {
     );
   }
 }
-
-

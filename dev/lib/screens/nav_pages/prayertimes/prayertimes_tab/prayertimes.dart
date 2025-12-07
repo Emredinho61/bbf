@@ -9,7 +9,6 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -20,8 +19,6 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/monthlypdf.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 import "package:bbf_app/components/donations/donation_tile.dart";
-import 'package:url_launcher/url_launcher.dart';
-
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -600,7 +597,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
             SizedBox(height: 4),
             _monthlyPrayerAndKhutbaPDFs(context),
             SizedBox(height: 4),
-            popUpDonationButton(context)
+            popUpDonationButton(context),
           ],
         ),
       ],
@@ -621,27 +618,26 @@ class _PrayerTimesState extends State<PrayerTimes> {
       ],
     );
   }
-Widget popUpDonationButton(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return TextButton(
-    style: TextButton.styleFrom(
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-    backgroundColor: Colors.green,
-    foregroundColor: Colors.white,   // text color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  ),
-    child: const Text("Deine Spende zählt!", style: TextStyle(fontSize: 18)),
-    onPressed: () {
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Spenden'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+
+  Widget popUpDonationButton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white, // text color
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: const Text("Deine Spende zählt!", style: TextStyle(fontSize: 18)),
+      onPressed: () {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Spenden'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButtonForPayPal(isDark: isDark),
 
@@ -654,22 +650,20 @@ Widget popUpDonationButton(BuildContext context) {
                   BankInfoCard(isDark: isDark),
                 ],
               ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Approve'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Approve'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   // TextButton _uploadKhutbaButton(BuildContext context) {
   //   return TextButton.icon(
