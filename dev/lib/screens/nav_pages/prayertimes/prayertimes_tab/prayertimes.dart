@@ -31,6 +31,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   /* Initializing variables and objects */
   final PrayertimesService prayertimesService = PrayertimesService();
   final InformationService informationService = InformationService();
+
   final SchedulerHelper schedulerHelper = SchedulerHelper();
   List<Map<String, String>> csvData = [];
   List<Map<String, dynamic>> _allInformation = [];
@@ -51,6 +52,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   String asrIqama = prayerTimesHelper.getAsrIqamaPreference();
   String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
   String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
+
 
   // when page is opened, the following is initialized
   @override
@@ -143,14 +145,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
     // "1,05:12,12:45,15:50,19:10,20:30",]
 
     final headers = lines.first.split(
-      ';',
+      ',',
     ); // first row is being splitted at every comma
     //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
     final List<Map<String, String>> rows = [];
 
     for (var i = 1; i < lines.length; i++) {
       final values = lines[i].split(
-        ';',
+        ',',
       ); // ["1","05:12","12:45","15:50","19:10","20:30"]
       final Map<String, String> row = {};
       for (var j = 0; j < headers.length; j++) {

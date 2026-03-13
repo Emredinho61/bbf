@@ -255,8 +255,8 @@ class _CalenderViewState extends State<CalenderView> {
               ),
             ),
             focusedDay: _focusedDay,
-            firstDay: DateTime.utc(2025, 1, 1),
-            lastDay: DateTime.utc(2025, 12, 31),
+            firstDay: DateTime.utc(2026, 1, 1),
+            lastDay: DateTime.utc(2026, 12, 31),
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
