@@ -8,6 +8,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_single
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -176,6 +177,7 @@ class _CalenderViewState extends State<CalenderView> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final prayerTimes = _getPrayerTimesForDay(_selectedDay ?? DateTime.now());
+    final CalendarPageHelper calendarPageHelper = CalendarPageHelper();
     if (prayerTimes.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -255,8 +257,8 @@ class _CalenderViewState extends State<CalenderView> {
               ),
             ),
             focusedDay: _focusedDay,
-            firstDay: DateTime.utc(2026, 1, 1),
-            lastDay: DateTime.utc(2026, 12, 31),
+            firstDay: DateTime.utc(calendarPageHelper.getLastYear(), 1, 1),
+            lastDay: DateTime.utc(calendarPageHelper.getNextYear(), 12, 31),
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
