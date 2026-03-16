@@ -172,6 +172,7 @@ class _ProjectState extends State<Project> {
                         ),
                       ),
                     ),
+                    if(isUserAdmin)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Center(
