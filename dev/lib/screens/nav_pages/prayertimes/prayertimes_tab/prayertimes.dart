@@ -53,7 +53,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
   String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
   String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
 
-
   // when page is opened, the following is initialized
   @override
   void initState() {
@@ -135,37 +134,25 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString(
-      'assets/files/csv_files/prayer_times.csv',
-    ); // the data is being loaded as a string
-    final lines = LineSplitter.split(
-      rawData,
-    ).toList(); // Seperates the data at every linebreak to strings
-    // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
-    // "1,05:12,12:45,15:50,19:10,20:30",]
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File("${dir.path}/prayer_times.csv");
 
-    final headers = lines.first.split(
-      ',',
-    ); // first row is being splitted at every comma
-    //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
+    final rawData = await file.readAsString();
+
+    final lines = LineSplitter.split(rawData).toList();
+    final headers = lines.first.split(',');
+
     final List<Map<String, String>> rows = [];
 
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(
-        ',',
-      ); // ["1","05:12","12:45","15:50","19:10","20:30"]
+      final values = lines[i].split(',');
+
       final Map<String, String> row = {};
+
       for (var j = 0; j < headers.length; j++) {
         row[headers[j]] = values[j];
-        // {
-        // "Tag": "1",
-        // "Fajr": "05:12",
-        // "Dhur": "12:45",
-        // "Asr": "15:50",
-        // "Maghrib": "19:10",
-        // "Isha": "20:30"
-        //}
       }
+
       rows.add(row);
     }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PrayerTimesHelper {
   final prefsWithCache = SharedPreferencesService.instance.prefsWithCache;
@@ -20,45 +23,32 @@ class PrayerTimesHelper {
     return _prayertimesService!;
   }
 
-  Future<List<Map<String, String>>> loadCSV() async {
-    List<Map<String, String>> csvData = [];
+ Future<List<Map<String, String>>> loadCSV() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final file = File("${dir.path}/prayer_times.csv");
 
-    final rawData = await rootBundle.loadString(
-      'assets/files/csv_files/prayer_times.csv',
-    ); // the data is being loaded as a string
-    final lines = LineSplitter.split(
-      rawData,
-    ).toList(); // Seperates the data at every linebreak to strings
-    // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
-    // "1,05:12,12:45,15:50,19:10,20:30",]
+  final rawData = await file.readAsString();
 
-    final headers = lines.first.split(
-      ',',
-    ); // first row is being splitted at every comma
-    //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
-    final List<Map<String, String>> rows = [];
+  final lines = LineSplitter.split(rawData).toList();
+  final headers = lines.first.split(',');
 
-    for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(
-        ',',
-      ); // ["1","05:12","12:45","15:50","19:10","20:30"]
-      final Map<String, String> row = {};
-      for (var j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j];
-        // {
-        // "Tag": "1",
-        // "Fajr": "05:12",
-        // "Dhur": "12:45",
-        // "Asr": "15:50",
-        // "Maghrib": "19:10",
-        // "Isha": "20:30"
-        //}
-      }
-      rows.add(row);
+  final List<Map<String, String>> rows = [];
+
+  for (var i = 1; i < lines.length; i++) {
+    final values = lines[i].split(',');
+
+    final Map<String, String> row = {};
+
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j]] = values[j];
     }
-    csvData = rows;
-    return csvData;
+
+    rows.add(row);
   }
+
+  return rows;
+}
+
 
   Map<String, String> getTodaysPrayerTimesAsStringMap(
     List<Map<String, String>> csvData,
@@ -447,4 +437,47 @@ class PrayerTimesHelper {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
+
+  Future<void> saveCachedYear(int year) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt("cached_prayer_times_year", year);
+  }
+
+  Future<int?> getCachedYear() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt("cached_prayer_times_year");
+  }
+
+  // This function downloads the correct CSV file based on the year which is stored in firebase storage
+  Future<String> downloadCSV(int year) async {
+    final ref = FirebaseStorage.instance.ref().child(
+      "prayer_times/prayer_times_$year.csv",
+    );
+
+    final data = await ref.getData(); // raw data
+    return String.fromCharCodes(data!); // raw data converted into a readable string
+  }
+
+  // saves csv file into cache, so we dont need to download it everytime from storage, when we need to access it
+  Future<void> saveCSVToCache(String csv) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File("${dir.path}/prayer_times.csv");
+
+    await file.writeAsString(csv);
+  }
+
+  Future<void> ensureCSVIsCached() async {
+    final cachedYear = await getCachedYear();
+
+    // we check, if the file which is cached is the correct file based on the current year
+    if (cachedYear == DateTime.now().year) return;
+
+    // if its not the current year (e.g its already next year), then we need do download the new one from firebase and saved it to Cache
+    final csv = await downloadCSV(DateTime.now().year);
+    await saveCSVToCache(csv);
+
+    // save that year for future checkings in the cache 
+    await saveCachedYear(DateTime.now().year);
+  }
+
 }

@@ -23,6 +23,9 @@ main() async {
   // initialize App
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // get prayertimes CSV file either from storage or cache
+  await ensureCSVIsCached();
+  
   // ask for notification permission
   await permissionNotification();
 
@@ -44,24 +47,6 @@ main() async {
   );
 }
 
-// Future<void> permissionNotification() async {
-//   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-//   // Android 13+ Request-Permission
-//   await flutterLocalNotificationsPlugin
-//       .resolvePlatformSpecificImplementation<
-//         AndroidFlutterLocalNotificationsPlugin
-//       >()
-//       ?.requestNotificationsPermission();
-
-//   // iOS Request-Permission
-//   await FirebaseMessaging.instance.requestPermission(
-//     alert: true,
-//     badge: true,
-//     sound: true,
-//   );
-// }
-
 Future<void> permissionNotification() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -79,6 +64,11 @@ Future<void> permissionNotification() async {
         IOSFlutterLocalNotificationsPlugin
       >()
       ?.requestPermissions(alert: true, badge: true, sound: true);
+}
+
+Future<void> ensureCSVIsCached() async {
+  PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
+  await prayerTimesHelper.ensureCSVIsCached();
 }
 
 Future<void> setupNotifications() async {
