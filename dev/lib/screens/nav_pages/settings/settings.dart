@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
+import 'package:bbf_app/components/prayertimes_upload.dart';
 // import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
@@ -410,6 +411,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 _modifyIqamaTimes(),
               // if (isUserAdmin) _uploadKhutba(context),
               if (isUserAdmin) _uploadEvent(context),
+              if (isUserAdmin) _uploadPrayertimesCSV(context),
               if (isUserAdmin) _broadcastMessage(),
 
               /*--Donation Section-------------------------------------------------------*/
@@ -532,6 +534,22 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     );
   }
+
+  ListTile _uploadPrayertimesCSV(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.upload_file),
+      title: const Text("Gebetszeiten hochladen"),
+      subtitle: const Text("Als CSV Datei. Name der Datei im folgenden Format: prayer_times_year"),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => const UploadPrayerTimesDialog(),
+        );
+      },
+    );
+  }
+
+
 
   ListTile _modifyIqamaTimes() {
     return ListTile(
