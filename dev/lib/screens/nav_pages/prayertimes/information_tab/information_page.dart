@@ -7,7 +7,33 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expanded_i
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+class Item {
+  Item({
+    required this.expandedValue,
+    required this.headerValue,
+    this.image,
+    this.isExpanded = false,
+  });
+
+  String expandedValue;
+  String headerValue;
+  String? image;
+  bool isExpanded;
+}
+
+List<Item> generateItems(List<Map<String, dynamic>> data) {
+  return data.map((element) {
+    return Item(
+      headerValue: element["Titel"],
+      expandedValue: element["Text"],
+      image: element['Image'],
+    );
+  }).toList();
+}
 
 class InformationPage extends StatefulWidget {
   const InformationPage({super.key});
@@ -24,6 +50,7 @@ class _InformationPageState extends State<InformationPage> {
   final CheckUserHelper checkUserHelper = CheckUserHelper();
 
   List<Map<String, dynamic>> _allInformation = [];
+  List<Item> _data = [];
 
   late bool isUserAdmin;
   bool editMode = false;
@@ -51,8 +78,10 @@ class _InformationPageState extends State<InformationPage> {
   // loads all Information from backend
   Future<void> _loadInformation() async {
     final data = await informationService.getAllInformation();
+    if (!mounted) return;
     setState(() {
       _allInformation = data;
+      _data = generateItems(_allInformation);
     });
   }
 
@@ -75,25 +104,81 @@ class _InformationPageState extends State<InformationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          // if user is Admin, user can either edit Information card or add a new one
-          if (isUserAdmin) _buildAdminActionRow(context),
-
-          // building all the Information Cards
-          Expanded(
-            child: ListView.builder(
-              itemCount: _allInformation.length,
-              itemBuilder: (context, index) {
-                final information = _allInformation[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: _buildInformationCard(information, context),
-                );
-              },
-            ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(12),
+          child: Column(
+            children: [
+              if (isUserAdmin) _buildAdminActionRow(context),
+              ExpansionPanelList(
+                expansionCallback: (int index, bool isExpanded) {
+                  setState(() {
+                    _data[index].isExpanded = isExpanded;
+                  });
+                },
+                children: _data.map<ExpansionPanel>((Item item) {
+                  return ExpansionPanel(
+                    headerBuilder: (BuildContext context, bool isExpanded) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(item.headerValue),
+                          trailing: isUserAdmin
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _data.removeWhere(
+                                        (currentItem) => currentItem == item,
+                                      );
+                                    });
+                                  },
+                                )
+                              : null,
+                        ),
+                      );
+                    },
+                    body: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          item.expandedValue.isEmpty
+                              ? SizedBox.shrink()
+                              : Text(item.expandedValue),
+                          const SizedBox(height: 12),
+                          (item.image ?? '').isNotEmpty
+                              ? AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: CachedNetworkImage(
+                                    imageUrl: item.image ?? '',
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Skeletonizer(
+                                      enabled: true,
+                                      child: SizedBox(height: 100, width: 100),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                  ),
+                                )
+                              : SizedBox.shrink(),
+                        ],
+                      ),
+                    ),
+                    isExpanded: item.isExpanded,
+                  );
+                }).toList(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -137,7 +222,7 @@ class _InformationPageState extends State<InformationPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _deleteInformation(information),
-          _routeToEditInformationPage(context, information),
+          // _routeToEditInformationPage(context, information),
         ],
       ),
     );

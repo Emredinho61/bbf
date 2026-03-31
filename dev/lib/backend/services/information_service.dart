@@ -19,13 +19,13 @@ class InformationService {
     String id,
     String title,
     String text,
-    String expanded,
+    String imageUrl
   ) async {
     information.doc(id).set({
       'id': id,
       'Titel': title,
       'Text': text,
-      'Expanded': expanded,
+      'Image' : imageUrl,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }

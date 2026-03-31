@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 /*
 If admin chooses to add a new Information, then he will be redirected to this page.
@@ -9,16 +14,35 @@ This page allows the admin to a new Information card containing title, the actua
 and if needed, an extended Text for more details 
 */
 
-class AddInformationPage extends StatelessWidget {
+class AddInformationPage extends StatefulWidget {
   const AddInformationPage({super.key});
 
   @override
+  State<AddInformationPage> createState() => _AddInformationPageState();
+}
+
+class _AddInformationPageState extends State<AddInformationPage> {
+  InformationService informationService = InformationService();
+  final TextEditingController idController = TextEditingController();
+  final TextEditingController titelController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final TextEditingController expandedController = TextEditingController();
+  String? _selectedImageName;
+
+  File? _imageFile;
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _imageFile = File(result.files.single.path!);
+        _selectedImageName = result.files.single.name;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    InformationService informationService = InformationService();
-    final TextEditingController idController = TextEditingController();
-    final TextEditingController titelController = TextEditingController();
-    final TextEditingController textController = TextEditingController();
-    final TextEditingController expandedController = TextEditingController();
     return SafeArea(
       child: Scaffold(
         body: Padding(
@@ -40,13 +64,24 @@ class AddInformationPage extends StatelessWidget {
                   ),
                   TitleTextField(titelController: titelController),
                   MainTextField(textController: textController),
-                  ExpandedTextField(expandedController: expandedController),
+                  ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.image),
+                    label: const Text("Bild auswählen (optional)"),
+                  ),
+                  if (_selectedImageName != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text("Bild: $_selectedImageName"),
+                    ),
+                  const SizedBox(height: 12),
                   ActionsRow(
                     idController: idController,
                     informationService: informationService,
                     titelController: titelController,
                     textController: textController,
-                    expandedController: expandedController,
+                    imageFile: _imageFile,
+                    selectedImageName: _selectedImageName,
                   ),
                 ],
               ),
@@ -80,14 +115,16 @@ class ActionsRow extends StatelessWidget {
     required this.idController,
     required this.titelController,
     required this.textController,
-    required this.expandedController,
+    this.imageFile,
+    this.selectedImageName,
   });
 
   final InformationService informationService;
   final TextEditingController idController;
   final TextEditingController titelController;
   final TextEditingController textController;
-  final TextEditingController expandedController;
+  final File? imageFile;
+  final String? selectedImageName;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +137,8 @@ class ActionsRow extends StatelessWidget {
           idController: idController,
           titelController: titelController,
           textController: textController,
-          expandedController: expandedController,
+          imageFile: imageFile,
+          selectedImageName: selectedImageName,
         ),
       ],
     );
@@ -114,24 +152,48 @@ class AddInformationButton extends StatelessWidget {
     required this.idController,
     required this.titelController,
     required this.textController,
-    required this.expandedController,
+    this.imageFile,
+    this.selectedImageName,
   });
 
   final InformationService informationService;
   final TextEditingController idController;
   final TextEditingController titelController;
   final TextEditingController textController;
-  final TextEditingController expandedController;
+  final File? imageFile;
+  final String? selectedImageName;
 
   @override
   Widget build(BuildContext context) {
+    final storage = FirebaseStorage.instance;
     return ElevatedButton(
       onPressed: () async {
+        String imageUrl = '';
+        if (imageFile != null) {
+          final originalImage = imageFile!;
+          final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+            originalImage.path,
+            '${originalImage.path}_compressed.jpg',
+            quality: 70,
+          );
+
+          final compressedImage = compressedXFile != null
+              ? File(compressedXFile.path)
+              : null;
+
+          final fileToUpload = compressedImage ?? originalImage;
+
+          final imageRef = storage.ref().child(
+            'information_images/$selectedImageName',
+          );
+          await imageRef.putFile(fileToUpload);
+          imageUrl = await imageRef.getDownloadURL();
+        }
         await informationService.addInformation(
           idController.text,
           titelController.text,
           textController.text,
-          expandedController.text,
+          imageUrl
         );
         Navigator.pop(context, true);
       },
