@@ -43,4 +43,8 @@ class CalendarPageHelper {
   int getNextYear(){
     return DateTime.now().year + 1;
   }
+
+  int getCurrentYear(){
+    return DateTime.now().year;
+  }
 }

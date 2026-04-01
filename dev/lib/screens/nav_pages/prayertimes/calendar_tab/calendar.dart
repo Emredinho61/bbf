@@ -257,8 +257,8 @@ class _CalenderViewState extends State<CalenderView> {
               ),
             ),
             focusedDay: _focusedDay,
-            firstDay: DateTime.utc(calendarPageHelper.getLastYear(), 1, 1),
-            lastDay: DateTime.utc(calendarPageHelper.getNextYear(), 12, 31),
+            firstDay: DateTime.utc(calendarPageHelper.getCurrentYear(), 1, 1),
+            lastDay: DateTime.utc(calendarPageHelper.getCurrentYear(), 12, 31),
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
