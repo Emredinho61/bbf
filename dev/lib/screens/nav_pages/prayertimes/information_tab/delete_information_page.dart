@@ -14,77 +14,41 @@ This page allows the admin to a new Information card containing title, the actua
 and if needed, an extended Text for more details 
 */
 
-class AddInformationPage extends StatefulWidget {
-  const AddInformationPage({super.key});
+class DeleteInformationPage extends StatefulWidget {
+  const DeleteInformationPage({super.key});
 
   @override
-  State<AddInformationPage> createState() => _AddInformationPageState();
+  State<DeleteInformationPage> createState() => _DeleteInformationPageState();
 }
 
-class _AddInformationPageState extends State<AddInformationPage> {
+class _DeleteInformationPageState extends State<DeleteInformationPage> {
   InformationService informationService = InformationService();
   final TextEditingController idController = TextEditingController();
-  final TextEditingController titelController = TextEditingController();
-  final TextEditingController textController = TextEditingController();
-  final TextEditingController expandedController = TextEditingController();
-  String? _selectedImageName;
-  File? _imageFile;
   bool _isUploading = false;
 
-  Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-
-    if (result != null && result.files.single.path != null) {
-      setState(() {
-        _imageFile = File(result.files.single.path!);
-        _selectedImageName = result.files.single.name;
-      });
-    }
-  }
-
-  Future<void> _uploadInformation() async {
-    final storage = FirebaseStorage.instance;
-    setState(() => _isUploading = true);
+  Future<void> _deleteInformation() async {
     try {
-      String imageUrl = '';
-      if (_imageFile != null) {
-        final originalImage = _imageFile!;
-        final compressedXFile = await FlutterImageCompress.compressAndGetFile(
-          originalImage.path,
-          '${originalImage.path}_compressed.jpg',
-          quality: 70,
-        );
-
-        final compressedImage = compressedXFile != null
-            ? File(compressedXFile.path)
-            : null;
-
-        final fileToUpload = compressedImage ?? originalImage;
-
-        final imageRef = storage.ref().child(
-          'information_images/$_selectedImageName',
-        );
-        await imageRef.putFile(fileToUpload);
-        imageUrl = await imageRef.getDownloadURL();
-      }
-      await informationService.addInformation(
+      await informationService.deleteInformation(idController.text);
+      final idExists = await informationService.checkIfIdIsCorrect(
         idController.text,
-        titelController.text,
-        textController.text,
-        imageUrl,
       );
-      if (mounted) {
+      if (mounted && idExists) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Projekt erfolgreich hochgeladen!')),
+          const SnackBar(content: Text('Information erfolgreich gelöscht!')),
+        );
+      } else {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Id nicht gefunden!')),
         );
       }
     } catch (e) {
-      debugPrint('Upload failed: $e');
+      debugPrint('Löschvorgang fehlgeschlagen: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Löschen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -121,19 +85,6 @@ class _AddInformationPageState extends State<AddInformationPage> {
                       ),
                     ),
                   ),
-                  TitleTextField(titelController: titelController),
-                  MainTextField(textController: textController),
-                  ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.image),
-                    label: const Text("Bild auswählen (optional)"),
-                  ),
-                  if (_selectedImageName != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text("Bild: $_selectedImageName"),
-                    ),
-                  const SizedBox(height: 12),
                 ],
               ),
             ),
@@ -153,8 +104,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
               setState(() {
                 _isUploading = true;
               });
-
-              _uploadInformation();
+              _deleteInformation();
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -165,7 +115,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text("Hochladen"),
+                : const Text("Löschen"),
           ),
         ],
       ),
@@ -181,7 +131,7 @@ class Title extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
-        'Information hinzufügen',
+        'Information löschen',
         style: Theme.of(context).textTheme.headlineMedium,
       ),
     );

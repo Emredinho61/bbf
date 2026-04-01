@@ -19,13 +19,13 @@ class InformationService {
     String id,
     String title,
     String text,
-    String imageUrl
+    String imageUrl,
   ) async {
     information.doc(id).set({
       'id': id,
       'Titel': title,
       'Text': text,
-      'Image' : imageUrl,
+      'Image': imageUrl,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -33,6 +33,16 @@ class InformationService {
   // delete a certain Information
   Future<void> deleteInformation(String id) async {
     await information.doc(id).delete();
+  }
+
+  Future<bool> checkIfIdIsCorrect(String id) async {
+    final docRef = information.doc(id);
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      return false;
+    }
+    return true;
   }
 
   // update a certain Information
