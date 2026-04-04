@@ -18,7 +18,6 @@ class ProjectsService {
       'title': title,
       'markdownUrl': markdownUrl,
       'imageUrl': imageUrl,
-      'date': date,
       'year': year,
       'month': month,
       'day': day,
