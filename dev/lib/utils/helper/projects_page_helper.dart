@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectsPageHelper {
-  final prefs = SharedPreferencesService.instance.prefsWithCache;
+  SharedPreferencesWithCache get prefs =>
+    SharedPreferencesService.instance.prefsWithCache;
 
   List<Map<String, dynamic>> getPastProjects() {
     final jsonString = prefs.getString('pastProjects');
