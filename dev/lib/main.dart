@@ -4,6 +4,7 @@ import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
@@ -33,6 +34,7 @@ main() async {
   await setupNotifications();
 
   FirebaseMessaging.instance.subscribeToTopic("test");
+  FlutterForegroundTask.initCommunicationPort();
 
   initializeDateFormatting().then(
     (_) => runApp(

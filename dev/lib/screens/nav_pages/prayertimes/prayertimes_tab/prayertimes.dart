@@ -12,6 +12,7 @@ import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:intl/intl.dart';
 import 'package:hijri_calendar/hijri_calendar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +20,48 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/monthlypdf.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 import "package:bbf_app/components/donations/donation_tile.dart";
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+@pragma('vm:entry-point')
+void startCallback() {
+  FlutterForegroundTask.setTaskHandler(PrayerNotificationHandler());
+}
+
+@pragma('vm:entry-point')
+class PrayerNotificationHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'Gebetszeiten Freiburg',
+      notificationText: 'Service gestartet!',
+    );
+  }
+
+  @override
+  Future<void> onRepeatEvent(DateTime timestamp) async {
+    print("onRepeatEvent running");
+    final notificationBody =
+        "Fajr: 05:12 | "
+        "Dhuhr: 13:37 | "
+        "Asr: 17:12 | "
+        "Maghrib: 20:09 | "
+        "Isha: 21:38";
+
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'Gebetszeiten für den heutigen Tag',
+      notificationText: notificationBody,
+    );
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {}
+
+  @override
+  void onNotificationPressed() {
+    FlutterForegroundTask.launchApp();
+  }
+}
 
 class PrayerTimes extends StatefulWidget {
   const PrayerTimes({super.key});
@@ -57,13 +100,21 @@ class _PrayerTimesState extends State<PrayerTimes> {
   @override
   void initState() {
     super.initState();
-    loadCSV().then((_) {
-      setState(() {
-        timeUntilNextPrayer = _calculateNextPrayerDuration();
-      });
-    });
-    loadIqamaAndFridayTimes();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
     _startTimer();
+    await loadCSV();
+    await saveCsvData();
+
+    await startPrayerNotificationService();
+
+    setState(() {
+      timeUntilNextPrayer = _calculateNextPrayerDuration();
+    });
+
+    loadIqamaAndFridayTimes();
     _initPage();
   }
 
@@ -133,6 +184,43 @@ class _PrayerTimesState extends State<PrayerTimes> {
     });
   }
 
+  Future<void> startPrayerNotificationService() async {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'prayer_times_channel',
+        channelName: 'Prayer Times',
+        channelDescription: 'Shows daily prayer times',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+        autoRunOnBoot: true,
+        allowWakeLock: true,
+      ),
+    );
+
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+    final notificationBody =
+        "Fajr: ${todayRow['Fajr']} | "
+        "Dhuhr: ${todayRow['Dhur']} | "
+        "Asr: ${todayRow['Asr']} | "
+        "Maghrib: ${todayRow['Maghrib']} | "
+        "Isha: ${todayRow['Isha']}";
+
+    await FlutterForegroundTask.startService(
+      notificationTitle: 'Gebetszeiten Freiburg',
+      notificationText: notificationBody,
+      callback: startCallback,
+    );
+  }
+
+  Future<void> saveCsvData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('csv_data', jsonEncode(csvData));
+  }
+
   Future<void> loadCSV() async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File("${dir.path}/prayer_times.csv");
@@ -156,9 +244,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
       rows.add(row);
     }
 
+    csvData = rows;
+    await saveCsvData();
     setState(() {
       csvData = rows;
     });
+    startPrayerNotificationService();
   }
 
   String _showNextPrayer() {
@@ -653,77 +744,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
       },
     );
   }
-
-  // TextButton _uploadKhutbaButton(BuildContext context) {
-  //   return TextButton.icon(
-  //     onPressed: () async {
-  //       final snapshot = await FirebaseFirestore.instance
-  //           .collection('khutbas')
-  //           .orderBy('date', descending: true)
-  //           .limit(1) // show only one file
-  //           .get();
-
-  //       if (snapshot.docs.isEmpty) {
-  //         _noKhutbaShowDialog(context);
-  //         return;
-  //       }
-
-  //       final khutba = snapshot.docs.first.data();
-  //       final pdfUrl = khutba['pdfUrl'] as String;
-
-  //       // _khutbaShowDialog(context, pdfUrl);
-  //     },
-  //     icon: Icon(
-  //       Icons.menu_book,
-  //       color: Theme.of(context).brightness == Brightness.dark
-  //           ? Colors.white
-  //           : Colors.black,
-  //       size: 24,
-  //     ),
-  //     label: UnderlinedText(
-  //       content: Text('Khutba', style: Theme.of(context).textTheme.bodyMedium),
-  //     ),
-  //   );
-  // }
-
-  // Future<dynamic> _khutbaShowDialog(BuildContext context, String pdfUrl) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Wöchentliche Khutba"),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           style: TextButton.styleFrom(
-  //             padding: const EdgeInsets.symmetric(horizontal: 16),
-  //           ),
-  //           child: const Text("Schließen"),
-  //         ),
-  //         ElevatedButton.icon(
-  //           onPressed: () async {
-  //             Navigator.pop(context);
-  //             await launchUrl(
-  //               Uri.parse(pdfUrl),
-  //               mode: LaunchMode.externalApplication,
-  //             );
-  //           },
-  //           icon: const Icon(Icons.picture_as_pdf),
-  //           label: const Text("Ansehen"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Future<dynamic> _noKhutbaShowDialog(BuildContext context) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (_) => const AlertDialog(
-  //       title: Text("Keine Khutba verfügbar"),
-  //       content: Text("Es wurde noch keine Khutba hochgeladen."),
-  //     ),
-  //   );
-  // }
 
   TextButton _monthlyPrayerPdfs(BuildContext context) {
     return TextButton.icon(
