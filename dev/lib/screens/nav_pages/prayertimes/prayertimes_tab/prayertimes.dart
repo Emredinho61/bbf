@@ -76,13 +76,30 @@ class PrayerNotificationHandler extends TaskHandler {
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    await _ensureInitialized();
+
+    final csvData = await _loadCsvData();
+
+    if (csvData.isEmpty) {
+      FlutterForegroundTask.updateService(
+        notificationTitle: 'ERROR',
+        notificationText: 'CSV EMPTY',
+      );
+      return;
+    }
+
+    if (_prayerTimesHelper == null) {
+      await _ensureInitialized();
+    }
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
+      csvData,
+    );
+
     final notificationBody =
-        "Fajr: 05:00 | "
-        "Dhuhr: 13:36 | "
-        "Asr: 17:13 | "
-        "Maghrib: 20:10 | "
-        "Isha: 21:40";
+        "Fajr: ${todayRow['Fajr']} | "
+        "Dhuhr: ${todayRow['Dhur']} | "
+        "Asr: ${todayRow['Asr']} | "
+        "Maghrib: ${todayRow['Maghrib']} | "
+        "Isha: ${todayRow['Isha']}";
     FlutterForegroundTask.updateService(
       notificationTitle: 'Gebetszeiten Freiburg',
       notificationText: notificationBody,
