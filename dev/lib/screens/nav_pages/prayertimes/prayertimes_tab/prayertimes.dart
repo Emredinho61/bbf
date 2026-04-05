@@ -76,7 +76,6 @@ class PrayerNotificationHandler extends TaskHandler {
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-
     final csvData = await _loadCsvData();
 
     if (csvData.isEmpty) {
@@ -108,8 +107,6 @@ class PrayerNotificationHandler extends TaskHandler {
 
   @override
   Future<void> onRepeatEvent(DateTime timestamp) async {
-    print("onRepeatEvent running");
-
     final csvData = await _loadCsvData();
 
     if (csvData.isEmpty) {
