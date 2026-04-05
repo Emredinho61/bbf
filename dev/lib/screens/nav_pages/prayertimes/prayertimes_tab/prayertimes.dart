@@ -4,7 +4,7 @@ import 'package:bbf_app/backend/services/calendar_service.dart';
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
@@ -35,43 +35,54 @@ void startCallback() {
 
 @pragma('vm:entry-point')
 class PrayerNotificationHandler extends TaskHandler {
-  Future<List<Map<String, String>>> _loadCsvData() async {
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File("${dir.path}/prayer_times.csv");
+  PrayerTimesHelper? _prayerTimesHelper;
 
-  if (!await file.exists()) {
-    print("CSV file not found");
-    return [];
+  Future<void> _ensureInitialized() async {
+    if (_prayerTimesHelper == null) {
+      await SharedPreferencesService.instance.initPrefs();
+      _prayerTimesHelper = PrayerTimesHelper();
+    }
   }
 
-  final rawData = await file.readAsString();
+  Future<List<Map<String, String>>> _loadCsvData() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File("${dir.path}/prayer_times.csv");
 
-  final lines = LineSplitter.split(rawData).toList();
-  final headers = lines.first.split(',');
-
-  final List<Map<String, String>> rows = [];
-
-  for (var i = 1; i < lines.length; i++) {
-    final values = lines[i].split(',');
-
-    final Map<String, String> row = {};
-    for (var j = 0; j < headers.length; j++) {
-      row[headers[j]] = values[j];
+    if (!await file.exists()) {
+      print("CSV file not found");
+      return [];
     }
 
-    rows.add(row);
+    final rawData = await file.readAsString();
+
+    final lines = LineSplitter.split(rawData).toList();
+    final headers = lines.first.split(',');
+
+    final List<Map<String, String>> rows = [];
+
+    for (var i = 1; i < lines.length; i++) {
+      final values = lines[i].split(',');
+
+      final Map<String, String> row = {};
+      for (var j = 0; j < headers.length; j++) {
+        row[headers[j]] = values[j];
+      }
+
+      rows.add(row);
+    }
+
+    return rows;
   }
 
-  return rows;
-}
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    await _ensureInitialized();
     final notificationBody =
-      "Fajr: 05:09 | "
-      "Dhuhr: 13:36 | "
-      "Asr: 17:13 | "
-      "Maghrib: 20:10 | "
-      "Isha: 21:40";
+        "Fajr: 05:00 | "
+        "Dhuhr: 13:36 | "
+        "Asr: 17:13 | "
+        "Maghrib: 20:10 | "
+        "Isha: 21:40";
     FlutterForegroundTask.updateService(
       notificationTitle: 'Gebetszeiten Freiburg',
       notificationText: notificationBody,
@@ -79,33 +90,38 @@ class PrayerNotificationHandler extends TaskHandler {
   }
 
   @override
-Future<void> onRepeatEvent(DateTime timestamp) async {
-  print("onRepeatEvent running");
+  Future<void> onRepeatEvent(DateTime timestamp) async {
+    print("onRepeatEvent running");
 
-  final csvData = await _loadCsvData();
+    final csvData = await _loadCsvData();
 
-  if (csvData.isEmpty) {
-    FlutterForegroundTask.updateService(
-      notificationTitle: 'ERROR',
-      notificationText: 'CSV EMPTY',
+    if (csvData.isEmpty) {
+      FlutterForegroundTask.updateService(
+        notificationTitle: 'ERROR',
+        notificationText: 'CSV EMPTY',
+      );
+      return;
+    }
+
+    if (_prayerTimesHelper == null) {
+      await _ensureInitialized();
+    }
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
+      csvData,
     );
-    return;
+
+    final notificationBody =
+        "Fajr: ${todayRow['Fajr']} | "
+        "Dhuhr: ${todayRow['Dhur']} | "
+        "Asr: ${todayRow['Asr']} | "
+        "Maghrib: ${todayRow['Maghrib']} | "
+        "Isha: ${todayRow['Isha']}";
+
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'Gebetszeiten Freiburg',
+      notificationText: notificationBody,
+    );
   }
-
-  final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-
-  final notificationBody =
-      "Fajr: ${todayRow['Fajr']} | "
-      "Dhuhr: ${todayRow['Dhur']} | "
-      "Asr: ${todayRow['Asr']} | "
-      "Maghrib: ${todayRow['Maghrib']} | "
-      "Isha: ${todayRow['Isha']}";
-
-  FlutterForegroundTask.updateService(
-    notificationTitle: 'Gebetszeiten Freiburg',
-    notificationText: notificationBody,
-  );
-}
 
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {}
@@ -288,7 +304,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
       callback: startCallback,
     );
   }
-
 
   Future<void> loadCSV() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -1172,7 +1187,9 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _ishaNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
+  FutureBuilder<DateTime?> _ishaNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Isha",
@@ -1187,7 +1204,9 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _maghribNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
+  FutureBuilder<DateTime?> _maghribNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Maghrib",
@@ -1202,7 +1221,9 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _asrNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
+  FutureBuilder<DateTime?> _asrNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Asr", csvData),
       builder: (context, asyncSnapshot) {
@@ -1214,7 +1235,9 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _dhurNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
+  FutureBuilder<DateTime?> _dhurNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Dhur",
@@ -1229,7 +1252,9 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _fajrNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
+  FutureBuilder<DateTime?> _fajrNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Fajr",
