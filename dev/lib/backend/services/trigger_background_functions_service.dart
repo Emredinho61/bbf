@@ -4,8 +4,8 @@ import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'notification_services.dart';
 
-PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
-InformationPageHelper informationPageHelper = InformationPageHelper();
-NotificationServices notificationServices = NotificationServices();
-CalendarService calendarService = CalendarService();
-CalendarPageHelper calendarPageHelper = CalendarPageHelper();
+PrayerTimesHelper get prayerTimesHelper => PrayerTimesHelper();
+InformationPageHelper get informationPageHelper => InformationPageHelper();
+NotificationServices get notificationServices => NotificationServices();
+CalendarService get calendarService => CalendarService();
+CalendarPageHelper get calendarPageHelper => CalendarPageHelper();

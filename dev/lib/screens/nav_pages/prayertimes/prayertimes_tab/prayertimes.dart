@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bbf_app/backend/services/calendar_service.dart';
 import 'package:bbf_app/backend/services/information_service.dart';
+import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
+import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
+import 'package:bbf_app/utils/helper/information_page_helper.dart';
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -76,6 +80,22 @@ class _PrayerTimesState extends State<PrayerTimes> {
   final InformationService informationService = InformationService();
 
   final SchedulerHelper schedulerHelper = SchedulerHelper();
+
+  final PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
+  final InformationPageHelper informationPageHelper = InformationPageHelper();
+  final NotificationServices notificationServices = NotificationServices();
+  final CalendarService calendarService = CalendarService();
+  final CalendarPageHelper calendarPageHelper = CalendarPageHelper();
+
+  int informationSum = 0;
+  late String fridayPrayer1;
+  late String fridayPrayer2;
+  late String fajrIqama;
+  late String dhurIqama;
+  late String asrIqama;
+  late String maghribIqama;
+  late String ishaIqama;
+
   List<Map<String, String>> csvData = [];
   List<Map<String, dynamic>> _allInformation = [];
 
@@ -85,17 +105,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
   bool isIqamaRunning = false;
 
   final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
-
-  int informationSum = informationPageHelper
-      .getTotalInformationNumberFromBackend();
-  String fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
-  String fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
-  String fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
-  String dhurIqama = prayerTimesHelper.getDhurIqamaPreference();
-  String asrIqama = prayerTimesHelper.getAsrIqamaPreference();
-  String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
-  String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
-
   // when page is opened, the following is initialized
   @override
   void initState() {
@@ -105,6 +114,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   Future<void> _initialize() async {
     _startTimer();
+    await _initIqamaAndFridaysTimes();
     await loadCSV();
     await saveCsvData();
 
@@ -113,7 +123,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     setState(() {
       timeUntilNextPrayer = _calculateNextPrayerDuration();
     });
-
     loadIqamaAndFridayTimes();
     _initPage();
   }
@@ -122,6 +131,21 @@ class _PrayerTimesState extends State<PrayerTimes> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+
+  Future<void> _initIqamaAndFridaysTimes() async {
+    setState(() {
+      informationSum = informationPageHelper
+          .getTotalInformationNumberFromBackend();
+
+      fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
+      fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
+      fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
+      dhurIqama = prayerTimesHelper.getDhurIqamaPreference();
+      asrIqama = prayerTimesHelper.getAsrIqamaPreference();
+      maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
+      ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
+    });
   }
 
   Future<void> _initPage() async {
@@ -1034,6 +1058,7 @@ class NotificationSettings extends StatelessWidget {
   late final String name;
   List<Map<String, String>> csvData;
   SchedulerHelper schedulerHelper = SchedulerHelper();
+  PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
   NotificationSettings({
     super.key,
     required this.context,
@@ -1083,11 +1108,11 @@ class NotificationSettings extends StatelessWidget {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          _fajrNotificationSettings(),
-                          _dhurNotificationSettings(),
-                          _asrNotificationSettings(),
-                          _maghribNotificationSettings(),
-                          _ishaNotificationSettings(),
+                          _fajrNotificationSettings(prayerTimesHelper),
+                          _dhurNotificationSettings(prayerTimesHelper),
+                          _asrNotificationSettings(prayerTimesHelper),
+                          _maghribNotificationSettings(prayerTimesHelper),
+                          _ishaNotificationSettings(prayerTimesHelper),
                         ],
                       ),
                     ),
@@ -1105,7 +1130,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _ishaNotificationSettings() {
+  FutureBuilder<DateTime?> _ishaNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Isha",
@@ -1120,7 +1145,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _maghribNotificationSettings() {
+  FutureBuilder<DateTime?> _maghribNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Maghrib",
@@ -1135,7 +1160,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _asrNotificationSettings() {
+  FutureBuilder<DateTime?> _asrNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes("Asr", csvData),
       builder: (context, asyncSnapshot) {
@@ -1147,7 +1172,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _dhurNotificationSettings() {
+  FutureBuilder<DateTime?> _dhurNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Dhur",
@@ -1162,7 +1187,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _fajrNotificationSettings() {
+  FutureBuilder<DateTime?> _fajrNotificationSettings(PrayerTimesHelper prayerTimesHelper) {
     return FutureBuilder(
       future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
         "Fajr",
