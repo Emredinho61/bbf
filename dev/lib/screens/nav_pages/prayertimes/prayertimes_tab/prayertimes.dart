@@ -34,29 +34,75 @@ void startCallback() {
 
 @pragma('vm:entry-point')
 class PrayerNotificationHandler extends TaskHandler {
-  @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    FlutterForegroundTask.updateService(
-      notificationTitle: 'Gebetszeiten Freiburg',
-      notificationText: 'Service gestartet!',
-    );
+  Future<List<Map<String, String>>> _loadCsvData() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final file = File("${dir.path}/prayer_times.csv");
+
+  if (!await file.exists()) {
+    print("CSV file not found");
+    return [];
   }
 
-  @override
-  Future<void> onRepeatEvent(DateTime timestamp) async {
-    print("onRepeatEvent running");
-    final notificationBody =
-        "Fajr: 05:12 | "
-        "Dhuhr: 13:37 | "
-        "Asr: 17:12 | "
-        "Maghrib: 20:09 | "
-        "Isha: 21:38";
+  final rawData = await file.readAsString();
 
+  final lines = LineSplitter.split(rawData).toList();
+  final headers = lines.first.split(',');
+
+  final List<Map<String, String>> rows = [];
+
+  for (var i = 1; i < lines.length; i++) {
+    final values = lines[i].split(',');
+
+    final Map<String, String> row = {};
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j]] = values[j];
+    }
+
+    rows.add(row);
+  }
+
+  return rows;
+}
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    final notificationBody =
+      "Fajr: 05:09 | "
+      "Dhuhr: 13:36 | "
+      "Asr: 17:13 | "
+      "Maghrib: 20:10 | "
+      "Isha: 21:40";
     FlutterForegroundTask.updateService(
-      notificationTitle: 'Gebetszeiten für den heutigen Tag',
+      notificationTitle: 'Gebetszeiten Freiburg',
       notificationText: notificationBody,
     );
   }
+
+  @override
+Future<void> onRepeatEvent(DateTime timestamp) async {
+  print("onRepeatEvent running");
+
+  final csvData = await _loadCsvData();
+
+  if (csvData.isEmpty) {
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'ERROR',
+      notificationText: 'CSV EMPTY',
+    );
+    return;
+  }
+
+  final notificationBody =
+      "Fajr: 05:09 | "
+      "Dhuhr: 13:36 | "
+      "Asr: 17:14 | "
+      "Maghrib: 20:10 | "
+      "Isha: 21:40";
+
+  FlutterForegroundTask.updateService(
+    notificationTitle: 'Gebetszeiten Freiburg',
+    notificationText: notificationBody,
+  );
+}
 
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {}
@@ -116,7 +162,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     _startTimer();
     await _initIqamaAndFridaysTimes();
     await loadCSV();
-    await saveCsvData();
 
     await startPrayerNotificationService();
 
@@ -231,7 +276,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
         "Dhuhr: ${todayRow['Dhur']} | "
         "Asr: ${todayRow['Asr']} | "
         "Maghrib: ${todayRow['Maghrib']} | "
-        "Isha: ${todayRow['Isha']}";
+        "Isha: ${todayRow['Maghrib']}";
+    print(notificationBody);
 
     await FlutterForegroundTask.startService(
       notificationTitle: 'Gebetszeiten Freiburg',
@@ -240,10 +286,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
-  Future<void> saveCsvData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('csv_data', jsonEncode(csvData));
-  }
 
   Future<void> loadCSV() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -268,12 +310,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
       rows.add(row);
     }
 
-    csvData = rows;
-    await saveCsvData();
     setState(() {
       csvData = rows;
     });
-    startPrayerNotificationService();
   }
 
   String _showNextPrayer() {
