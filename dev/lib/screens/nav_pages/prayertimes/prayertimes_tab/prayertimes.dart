@@ -4,6 +4,7 @@ import 'package:bbf_app/backend/services/calendar_service.dart';
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
+import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
@@ -91,12 +92,14 @@ Future<void> onRepeatEvent(DateTime timestamp) async {
     return;
   }
 
+  final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+
   final notificationBody =
-      "Fajr: 05:09 | "
-      "Dhuhr: 13:36 | "
-      "Asr: 17:14 | "
-      "Maghrib: 20:10 | "
-      "Isha: 21:40";
+      "Fajr: ${todayRow['Fajr']} | "
+      "Dhuhr: ${todayRow['Dhur']} | "
+      "Asr: ${todayRow['Asr']} | "
+      "Maghrib: ${todayRow['Maghrib']} | "
+      "Isha: ${todayRow['Isha']}";
 
   FlutterForegroundTask.updateService(
     notificationTitle: 'Gebetszeiten Freiburg',
