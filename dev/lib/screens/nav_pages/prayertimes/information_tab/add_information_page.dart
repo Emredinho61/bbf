@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -149,11 +150,15 @@ class _AddInformationPageState extends State<AddInformationPage> {
           ),
 
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 _isUploading = true;
               });
-
+              await FirebaseFirestore.instance.collection("broadcasts").add({
+              "title": 'Eine neue Nachricht ist verfügbar!',
+              "summary": 'Test',
+              "timestamp": FieldValue.serverTimestamp(),
+            });
               _uploadInformation();
             },
             style: ElevatedButton.styleFrom(

@@ -416,7 +416,7 @@ export const addmessage = onDocumentCreated(
 //   return uri;
 // }
 
-// // will be triggered every day at night 
+// // will be triggered every day at night
 // // and appends for all prayers a task to the queue
 // // The queue will execute all the tasks when their time arrives
 // export const scheduleDailyPrayers = onSchedule(

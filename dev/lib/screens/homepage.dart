@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/prayertimes.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NavBarShell extends StatefulWidget {
   const NavBarShell({super.key});
