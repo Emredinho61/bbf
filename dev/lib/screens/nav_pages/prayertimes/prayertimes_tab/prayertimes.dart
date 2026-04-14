@@ -26,7 +26,7 @@ import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 import "package:bbf_app/components/donations/donation_tile.dart";
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:home_widget/home_widget.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -197,6 +197,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
     await loadCSV();
 
     await startPrayerNotificationService();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+
+    await updateNativeWidget(todayRow);
 
     setState(() {
       timeUntilNextPrayer = _calculateNextPrayerDuration();
@@ -209,6 +212,27 @@ class _PrayerTimesState extends State<PrayerTimes> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+
+  Future<void> updateNativeWidget(Map<String, String> todayRow) async {
+    print("Updating widget with Fajr: ${todayRow['Fajr']}");
+    try {
+      print("Updating widget with Fajr: ${todayRow['Fajr']}");
+      await HomeWidget.saveWidgetData('fajr', todayRow['Fajr']);
+      await HomeWidget.saveWidgetData('dhur', todayRow['Dhur']);
+      await HomeWidget.saveWidgetData('asr', todayRow['Asr']);
+      await HomeWidget.saveWidgetData('maghrib', todayRow['Maghrib']);
+      await HomeWidget.saveWidgetData('isha', todayRow['Isha']);
+      await HomeWidget.saveWidgetData('next_prayer', _showNextPrayer());
+
+      await HomeWidget.updateWidget(
+        name: 'PrayerWidgetProvider',
+        androidName: 'com.example.bbf_app.PrayerWidgetProvider',
+        iOSName: 'PrayerWidget',
+      );
+    } catch (e) {
+      print("Error updating widget: $e");
+    }
   }
 
   Future<void> _initIqamaAndFridaysTimes() async {

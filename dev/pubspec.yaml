@@ -45,6 +45,7 @@ dependencies:
   flutter_image_compress: ^2.1.0
   skeletonizer: ^2.1.0+1
   flutter_foreground_task: ^9.2.2
+  home_widget: ^0.9.1
   
 
 dev_dependencies:
