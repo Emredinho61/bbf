@@ -13,10 +13,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class Project extends StatefulWidget {
-  final String docId; // Firestore document ID
+  final String docId;
   final int year;
   final int month;
   final int day;
+  final double height;
+  final Color color;
 
   const Project({
     super.key,
@@ -24,6 +26,8 @@ class Project extends StatefulWidget {
     required this.year,
     required this.month,
     required this.day,
+    required this.height,
+    required this.color,
   });
 
   @override
@@ -71,16 +75,19 @@ class _ProjectState extends State<Project> {
         'title': decoded['title'] ?? '',
         'body': decoded['body'] ?? '',
         'imageUrl': decoded['imageUrl'] ?? '',
+        'orientation': decoded['orientation'] ?? '',
       };
     }
 
     final doc = await projectsService.getCertainProject(widget.docId);
+
     if (!doc.exists) throw Exception("Projekt nicht gefunden.");
 
     final data = doc.data()!;
     final title = data['title'] ?? '';
     final markdownUrl = data['markdownUrl'] ?? '';
     final imageUrl = data['imageUrl'] ?? '';
+    final orientation = data['orientation'] ?? 'Nicht vorhanden';
 
     final response = await http.get(Uri.parse(markdownUrl));
     if (response.statusCode != 200) {
@@ -93,6 +100,7 @@ class _ProjectState extends State<Project> {
       'title': title,
       'body': markdown,
       'imageUrl': imageUrl,
+      'orientation': orientation,
     };
 
     await projectsPageHelper.setCertainProject(
@@ -116,98 +124,93 @@ class _ProjectState extends State<Project> {
       future: loadMarkdownParts(),
       builder: (context, snapshot) {
         final data = snapshot.data;
+        final isHorizontal =
+            (data?['orientation'] ?? 'horizontal') == 'horizontal';
         return Skeletonizer(
           enabled:
               _loading || snapshot.connectionState == ConnectionState.waiting,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('${widget.day}.${widget.month}.${widget.year}'),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      data != null ? data['title'] ?? '' : 'Titel',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 10),
-                    (data != null && (data['imageUrl'] ?? '').isNotEmpty)
-                        ? CachedNetworkImage(
-                            imageUrl: data['imageUrl'],
-                            height: 200,
-                            width: 200,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Skeletonizer(
-                              enabled: true,
-                              child: SizedBox(height: 100, width: 100),
-                            ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          )
-                        : Image.asset(
-                            'assets/images/bbf-logo.png',
-                            height: 100,
-                            width: 50,
-                          ),
-                    const SizedBox(height: 15),
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 120,
-                        child: ElevatedButton(
-                          onPressed: data != null
-                              ? () => showMoreBottomSheet(context, data)
-                              : null,
-                          child: Text(
-                            'Mehr anzeigen',
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if(isUserAdmin)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            await projectsService.deleteProjectFromBackend(
-                              widget.docId,
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => (AllProjects()),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: BColors.secondary,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.red),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.delete,
-                                size: 20,
-                                color: Colors.red,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  (data != null && (data['imageUrl'] ?? '').isNotEmpty)
+                      ? Container(
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AspectRatio(
+                              aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
+                              child: CachedNetworkImage(
+                                imageUrl: data['imageUrl'],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Skeletonizer(
+                                  enabled: true,
+                                  child: SizedBox(height: 100, width: 100),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
                               ),
                             ),
                           ),
+                      )
+                      : Image.asset(
+                          'assets/images/bbf-logo.png',
+                          height: 100,
+                          width: 50,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: 15),
+                  // Align(
+                  //   alignment: Alignment.center,
+                  //   child: SizedBox(
+                  //     width: 120,
+                  //     child: ElevatedButton(
+                  //       onPressed: data != null
+                  //           ? () => showMoreBottomSheet(context, data)
+                  //           : null,
+                  //       child: Text(
+                  //         'Mehr anzeigen',
+                  //         style: Theme.of(context).textTheme.labelLarge,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  // if(isUserAdmin)
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: Center(
+                  //     child: GestureDetector(
+                  //       onTap: () async {
+                  //         await projectsService.deleteProjectFromBackend(
+                  //           widget.docId,
+                  //         );
+                  //         Navigator.pushReplacement(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             builder: (context) => (AllProjects()),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: Container(
+                  //         decoration: BoxDecoration(
+                  //           color: BColors.secondary,
+                  //           borderRadius: BorderRadius.circular(30),
+                  //           border: Border.all(color: Colors.red),
+                  //         ),
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: Icon(
+                  //             Icons.delete,
+                  //             size: 20,
+                  //             color: Colors.red,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                ],
               ),
             ),
           ),

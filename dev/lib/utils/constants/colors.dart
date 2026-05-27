@@ -11,4 +11,5 @@ class BColors {
 
   static Color prayerRowLight = const Color.fromARGB(255, 59, 117, 90);
   static Color prayerRowDark = const Color.fromARGB(255, 59, 117, 90);
+  static Color backgroundColor = const Color.fromARGB(255, 237, 242, 249);
 }

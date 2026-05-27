@@ -19,9 +19,6 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
   final ProjectsPageHelper projectsPageHelper = ProjectsPageHelper();
   final ProjectsService projectsService = ProjectsService();
   bool _isLoading = true;
-
-  final PageController _controller = PageController(viewportFraction: 0.8);
-
   @override
   void initState() {
     super.initState();
@@ -62,114 +59,181 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? [Colors.green.shade900, Colors.grey.shade700]
-                : [Colors.grey.shade300, Colors.green.shade200],
-          ),
-        ),
-        child: SafeArea(
-          child: _isLoading
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Skeletonizer(
-                    enabled: true,
+      backgroundColor: BColors.backgroundColor,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          const crossAxisCount = 2;
+          const spacing = 8.0;
+          final itemWidth =
+              (constraints.maxWidth - spacing * (crossAxisCount + 1)) /
+              crossAxisCount;
+          final columns = List.generate(crossAxisCount, (_) => <double>[]);
+
+          for (var i = 0; i < allProjects.length; i++) {
+            final h = (200.0) + 48;
+            final col = i % crossAxisCount;
+            final top = columns[col].isEmpty
+                ? 0.0
+                : columns[col].last + spacing;
+            columns[col].add(top + h);
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(spacing),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(crossAxisCount, (col) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: col != crossAxisCount - 1 ? spacing : 0,
+                  ),
+                  child: SizedBox(
+                    width: itemWidth,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Container(height: 40, width: 200, color: Colors.white),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: PageView.builder(
-                            controller: _controller,
-                            itemCount: 3,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        height: 24,
-                                        width: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Container(
-                                        height: 100,
-                                        width: 100,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 15),
-                                      Container(
-                                        height: 60,
-                                        width: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        height: 40,
-                                        width: 120,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
+                        for (
+                          var i = col;
+                          i < allProjects.length;
+                          i += crossAxisCount
+                        )
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: spacing),
+                            child: _MasonryCard(
+                              title: allProjects[i]['title'],
+                              id: allProjects[i]['id'],
+                              height: 100.0,
+                              color: Colors.blue,
+                              year: allProjects[i]['year'],
+                              month: allProjects[i]['month'],
+                              day: allProjects[i]['day'],
+                            ),
                           ),
-                        ),
-                        SmoothPageIndicator(
-                          controller: _controller,
-                          count: 3,
-                          effect: ScrollingDotsEffect(
-                            activeDotColor: BColors.primary,
-                            dotColor: Colors.green.shade300,
-                            spacing: 10,
-                          ),
-                        ),
                       ],
                     ),
                   ),
-                )
-              : allProjects.isEmpty
-              ? const Center(child: Text("Keine Projekte verfügbar"))
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: PageView.builder(
-                        controller: _controller,
-                        itemCount: allProjects.length,
-                        itemBuilder: (context, index) {
-                          final project = allProjects[index];
-                          return Project(
-                            docId: project['id'],
-                            year: project['year'],
-                            month: project['month'],
-                            day: project['day'],
-                          );
-                        },
+                );
+              }),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MasonryCard extends StatelessWidget {
+  final String title;
+  final String id;
+  final double height;
+  final Color color;
+  final int year;
+  final int month;
+  final int day;
+
+  const _MasonryCard({
+    required this.title,
+    required this.id,
+    required this.height,
+    required this.color,
+    required this.year,
+    required this.month,
+    required this.day,
+  });
+
+  String _monthName(int month) {
+    const months = [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember",
+    ];
+    return months[month - 1];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.3 : 0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Project(
+              docId: id,
+              year: year,
+              month: month,
+              day: day,
+              height: height,
+              color: color,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Dies ist eine kleine Beschreibung für das Projekt',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).hintColor,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_month_outlined,
+                        size: 14,
+                        color: const Color.fromARGB(255, 0, 0, 0),
                       ),
-                    ),
-                    SmoothPageIndicator(
-                      controller: _controller,
-                      count: allProjects.length,
-                      effect: ScrollingDotsEffect(
-                        activeDotColor: BColors.primary,
-                        dotColor: Colors.green.shade300,
-                        spacing: 10,
+                      const SizedBox(width: 4),
+                      Text(
+                        '$day. ${_monthName(month)} $year',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                Icon(
+                  Icons.arrow_forward,
+                  size: 14,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
