@@ -23,65 +23,110 @@ class _AllProjectsState extends State<AllProjects> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? [Colors.green.shade900, Colors.grey.shade700]
-                : [Colors.grey.shade300, Colors.green.shade200],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Column(
-              children: [
-                Text(
-                  'Projekte',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                SizedBox(height: 15),
-                Expanded(
-                  child: DefaultTabController(
-                    length: 2,
-                    initialIndex: 0,
-                    child: Column(
-                      children: [
-                        TabBar(
-                          dividerColor: isDark
-                              ? Colors.white54
-                              : BColors.secondary,
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          indicatorColor: BColors.primary,
-                          labelColor: isDark ? Colors.white : Colors.black,
+      backgroundColor: BColors.backgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              Expanded(
+                child: DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 220, 228, 240),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 200, 210, 225),
+                            width: 1,
+                          ),
+                        ),
+                        child: TabBar(
+                          dividerColor: Colors.transparent,
+                          indicator: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+
+                          labelColor: BColors.primary,
+
+                          unselectedLabelColor: const Color(0xFF5F6368),
+
+                          labelStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+
+                          unselectedLabelStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+
+                          indicatorSize: TabBarIndicatorSize.tab,
+
                           tabs: [
-                            Text(
-                              'Kommend',
-                              style: Theme.of(context).textTheme.bodySmall,
+                            Tab(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Icon(
+                                        Icons.calendar_today_outlined,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text("Kommend"),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            Text(
-                              'Vergangen',
-                              style: Theme.of(context).textTheme.bodySmall,
+
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.access_time_outlined, size: 18),
+                                  SizedBox(width: 8),
+                                  Text("Vergangen"),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
-                        Expanded(
-                          child: TabBarView(
-                            children: [
-                              ProjectsByTense(tense: 'future'),
-                              ProjectsByTense(tense: 'past'),
-                            ],
-                          ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            ProjectsByTense(tense: 'future'),
+                            ProjectsByTense(tense: 'past'),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -68,7 +68,9 @@ class _ProjectState extends State<Project> {
   }
 
   Future<Map<String, dynamic>> loadMarkdownParts() async {
-    final cachedData = projectsPageHelper.getCertainProjectFromCache(widget.docId);
+    final cachedData = projectsPageHelper.getCertainProjectFromCache(
+      widget.docId,
+    );
 
     if (cachedData != null) {
       final decoded = jsonDecode(cachedData) as Map<String, dynamic>;
@@ -81,7 +83,9 @@ class _ProjectState extends State<Project> {
       };
     }
 
-    final doc = await projectsService.getCertainProjectFromBackend(widget.docId);
+    final doc = await projectsService.getCertainProjectFromBackend(
+      widget.docId,
+    );
 
     if (!doc.exists) throw Exception("Projekt nicht gefunden.");
 
