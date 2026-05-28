@@ -13,6 +13,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class Project extends StatefulWidget {
+  final String title;
   final String docId;
   final int year;
   final int month;
@@ -22,6 +23,7 @@ class Project extends StatefulWidget {
 
   const Project({
     super.key,
+    required this.title,
     required this.docId,
     required this.year,
     required this.month,
@@ -66,7 +68,7 @@ class _ProjectState extends State<Project> {
   }
 
   Future<Map<String, dynamic>> loadMarkdownParts() async {
-    final cachedData = projectsPageHelper.getCertainProject(widget.docId);
+    final cachedData = projectsPageHelper.getCertainProjectFromCache(widget.docId);
 
     if (cachedData != null) {
       final decoded = jsonDecode(cachedData) as Map<String, dynamic>;
@@ -79,7 +81,7 @@ class _ProjectState extends State<Project> {
       };
     }
 
-    final doc = await projectsService.getCertainProject(widget.docId);
+    final doc = await projectsService.getCertainProjectFromBackend(widget.docId);
 
     if (!doc.exists) throw Exception("Projekt nicht gefunden.");
 
@@ -103,7 +105,7 @@ class _ProjectState extends State<Project> {
       'orientation': orientation,
     };
 
-    await projectsPageHelper.setCertainProject(
+    await projectsPageHelper.setCertainProjectInCache(
       'project_${widget.docId}',
       jsonEncode(projectData),
     );
@@ -118,6 +120,24 @@ class _ProjectState extends State<Project> {
     return '${lines.take(maxLines).join('\n')}\n...';
   }
 
+  String _monthName(int month) {
+    const months = [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember",
+    ];
+    return months[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -126,90 +146,148 @@ class _ProjectState extends State<Project> {
         final data = snapshot.data;
         final isHorizontal =
             (data?['orientation'] ?? 'horizontal') == 'horizontal';
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Skeletonizer(
           enabled:
               _loading || snapshot.connectionState == ConnectionState.waiting,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.color.withValues(alpha: isDark ? 0.3 : 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
+                  // picture
                   (data != null && (data['imageUrl'] ?? '').isNotEmpty)
                       ? Container(
-                        child: ClipRRect(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: AspectRatio(
                               aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
                               child: CachedNetworkImage(
                                 imageUrl: data['imageUrl'],
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => Skeletonizer(
-                                  enabled: true,
-                                  child: SizedBox(height: 100, width: 100),
+                                placeholder: (context, url) => Center(
+                                  child: Skeletonizer(
+                                    enabled: true,
+                                    child: SizedBox(height: 200, width: 200),
+                                  ),
                                 ),
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
                               ),
                             ),
                           ),
-                      )
+                        )
                       : Image.asset(
                           'assets/images/bbf-logo.png',
                           height: 100,
                           width: 50,
                         ),
-                  const SizedBox(height: 15),
-                  // Align(
-                  //   alignment: Alignment.center,
-                  //   child: SizedBox(
-                  //     width: 120,
-                  //     child: ElevatedButton(
-                  //       onPressed: data != null
-                  //           ? () => showMoreBottomSheet(context, data)
-                  //           : null,
-                  //       child: Text(
-                  //         'Mehr anzeigen',
-                  //         style: Theme.of(context).textTheme.labelLarge,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // if(isUserAdmin)
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: Center(
-                  //     child: GestureDetector(
-                  //       onTap: () async {
-                  //         await projectsService.deleteProjectFromBackend(
-                  //           widget.docId,
-                  //         );
-                  //         Navigator.pushReplacement(
-                  //           context,
-                  //           MaterialPageRoute(
-                  //             builder: (context) => (AllProjects()),
-                  //           ),
-                  //         );
-                  //       },
-                  //       child: Container(
-                  //         decoration: BoxDecoration(
-                  //           color: BColors.secondary,
-                  //           borderRadius: BorderRadius.circular(30),
-                  //           border: Border.all(color: Colors.red),
-                  //         ),
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: Icon(
-                  //             Icons.delete,
-                  //             size: 20,
-                  //             color: Colors.red,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
+                  const SizedBox(height: 4),
+                  // Title
+                  Text(
+                    widget.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Small text introduction
+                  Text(
+                    'Dies ist eine kleine Beschreibung für das Projekt',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  // Date Container
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              size: 14,
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${widget.day}. ${_monthName(widget.month)} ${widget.year}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Right Arrow for complete Version of Project Card
+                      GestureDetector(
+                        onTap: data != null
+                            ? () => showMoreBottomSheet(context, data)
+                            : null,
+                        child: Icon(
+                          Icons.arrow_forward,
+                          size: 14,
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Delete Icon for Admin
+                  if (isUserAdmin)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () async {
+                            await projectsService.deleteProjectFromBackend(
+                              widget.docId,
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => (AllProjects()),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: BColors.secondary,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.red),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.delete,
+                                size: 20,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

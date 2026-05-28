@@ -28,7 +28,7 @@ class ProjectsService {
     await projects.doc(id).delete();
   }
 
-  Future<List<Map<String, dynamic>>> getPastProjects() async {
+  Future<List<Map<String, dynamic>>> getPastProjectsFromBackend() async {
     // todays date
     final now = DateTime.now();
     final todaysDate = DateTime(now.year, now.month, now.day);
@@ -61,7 +61,7 @@ class ProjectsService {
     return oldProjects;
   }
 
-  Future<List<Map<String, dynamic>>> getFutureProjects() async {
+  Future<List<Map<String, dynamic>>> getFutureProjectsFromBackend() async {
     // todays date
     final now = DateTime.now();
     final todaysDate = DateTime(now.year, now.month, now.day);
@@ -96,7 +96,7 @@ class ProjectsService {
     return futureProjects;
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getCertainProject(
+  Future<DocumentSnapshot<Map<String, dynamic>>> getCertainProjectFromBackend(
     String id,
   ) async {
     final doc = await projects.doc(id).get();

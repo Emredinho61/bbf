@@ -7,7 +7,7 @@ class ProjectsPageHelper {
   SharedPreferencesWithCache get prefs =>
     SharedPreferencesService.instance.prefsWithCache;
 
-  List<Map<String, dynamic>> getPastProjects() {
+  List<Map<String, dynamic>> getPastProjectsFromCache() {
     final jsonString = prefs.getString('pastProjects');
 
     if (jsonString == null) return [];
@@ -17,7 +17,7 @@ class ProjectsPageHelper {
     return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  List<Map<String, dynamic>> getFutureProjects() {
+  List<Map<String, dynamic>> getFutureProjectsFromCache() {
     final jsonString = prefs.getString('futureProjects');
 
     if (jsonString == null) return [];
@@ -27,21 +27,21 @@ class ProjectsPageHelper {
     return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<void> setPastProjects(List<Map<String, dynamic>> products) async {
+  Future<void> setPastProjectsInCache(List<Map<String, dynamic>> products) async {
     final jsonString = jsonEncode(products);
     await prefs.setString('pastProjects', jsonString);
   }
 
-  Future<void> setFutureProjects(List<Map<String, dynamic>> products) async {
+  Future<void> setFutureProjectsInCache(List<Map<String, dynamic>> products) async {
     final jsonString = jsonEncode(products);
     await prefs.setString('futureProjects', jsonString);
   }
 
-  String? getCertainProject(String id) {
+  String? getCertainProjectFromCache(String id) {
     return prefs.getString('project_$id');
   }
 
-  Future<void> setCertainProject(String id, String jsonData) async {
+  Future<void> setCertainProjectInCache(String id, String jsonData) async {
     await prefs.setString(id, jsonData);
   }
 }
