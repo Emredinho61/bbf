@@ -63,10 +63,11 @@ class _NavBarShellState extends State<NavBarShell> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      extendBody: true,
       body: _pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedIndex,
-        backgroundColor: isDark ? Colors.grey.shade700 : Colors.green.shade200,
+        backgroundColor: Colors.transparent,
         color: isDark ? BColors.navbarDark : Colors.green.shade300,
         animationDuration: Duration(milliseconds: 400),
         onTap: (index) {
