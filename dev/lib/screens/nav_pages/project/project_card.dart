@@ -156,7 +156,8 @@ class _ProjectState extends State<Project> {
               _loading || snapshot.connectionState == ConnectionState.waiting,
           child: Container(
             decoration: BoxDecoration(
-              color: widget.color.withValues(alpha: isDark ? 0.3 : 0.2),
+              border: Border.all(color: BColors.primary, width: 1),
+              color: BColors.backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -192,7 +193,7 @@ class _ProjectState extends State<Project> {
                           height: 100,
                           width: 50,
                         ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   // Title
                   Text(
                     widget.title,
@@ -221,7 +222,7 @@ class _ProjectState extends State<Project> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.15),
+                          color: BColors.primary.withAlpha(50),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
@@ -249,10 +250,17 @@ class _ProjectState extends State<Project> {
                         onTap: data != null
                             ? () => showMoreBottomSheet(context, data)
                             : null,
-                        child: Icon(
-                          Icons.arrow_forward,
-                          size: 14,
-                          color: const Color.fromARGB(255, 0, 0, 0),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: BColors.primary.withAlpha(50),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward,
+                            size: 14,
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                          ),
                         ),
                       ),
                     ],
