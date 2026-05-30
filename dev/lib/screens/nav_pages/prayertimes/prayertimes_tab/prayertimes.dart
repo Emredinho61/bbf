@@ -6,7 +6,6 @@ import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
-import 'package:bbf_app/components/underlined_text.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/calendar.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/notification_settings.dart';
@@ -542,34 +541,90 @@ class _PrayerTimesState extends State<PrayerTimes> {
     String? time,
     bool isActive,
     String iqamaTime,
+    IconData icon,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
       decoration: BoxDecoration(
-        border: isActive
-            ? Border.all(color: Colors.white)
-            : Border.all(color: BColors.primary),
-        color: isActive
-            ? BColors.primary
-            : Theme.of(context).brightness == Brightness.dark
-            ? BColors.prayerRowDark
-            : BColors.prayerRowLight,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? const Color(0xFF1F2937) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isActive ? Colors.green : Colors.transparent,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _prayerName(name, isActive),
-          Row(
+          Container(
+            width: 52,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [Color(0xFF6BCB77), Color(0xFF3FA34D)],
+                    )
+                  : null,
+              color: isActive ? null : Colors.grey.shade100,
+            ),
+            child: Icon(icon, color: isActive ? Colors.white : Colors.black54),
+          ),
+
+          const SizedBox(width: 18),
+
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _adhanTime(time, isActive),
-              const SizedBox(width: 4),
-              _iqamaTime(iqamaTime, isActive),
-              const SizedBox(width: 8),
-              _notificationSettingsIcon(name, csvData),
+              Row(
+                children: [
+                  Text(
+                    time ?? '--:--',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  Text(
+                    '+$iqamaTime',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
+
+          const SizedBox(width: 10),
+
+          _notificationSettingsIcon(name, csvData),
         ],
       ),
     );
@@ -585,30 +640,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
       prayerKeys: prayerKeys,
       name: name,
       csvData: csvData,
-    );
-  }
-
-  Text _adhanTime(String? time, bool isActive) {
-    return Text(
-      time ?? "--:--",
-      style: TextStyle(color: Colors.white, fontSize: isActive ? 22 : 18),
-    );
-  }
-
-  Transform _iqamaTime(String iqamaTime, bool isActive) {
-    return Transform.translate(
-      offset: Offset(0, 2),
-      child: Text(
-        '+$iqamaTime',
-        style: TextStyle(color: Colors.white, fontSize: isActive ? 16 : 12),
-      ),
-    );
-  }
-
-  Text _prayerName(String name, bool isActive) {
-    return Text(
-      name,
-      style: TextStyle(color: Colors.white, fontSize: isActive ? 22 : 18),
     );
   }
 
@@ -648,8 +679,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: isDark
-                      ? [Colors.green.shade900, Colors.grey.shade700]
-                      : [Colors.grey.shade300, Colors.green.shade200],
+                      ? [const Color(0xFF111827), const Color(0xFF111827)]
+                      : [const Color.fromARGB(0, 187, 187, 187), const Color.fromARGB(0, 187, 187, 187)],
                 ),
               ),
               child: SafeArea(
@@ -657,10 +688,51 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     const SizedBox(height: 20),
-                    _mosqueName(context, isDark),
+                    Column(
+                      children: [
+                        Text(
+                          'BBF Verein - Freiburg',
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        Text(
+                          '${_showNextPrayer()} in',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        Text(
+                          countdownText,
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Container(
+                          width: 90,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 14),
-                    _showNextPrayerText(context, isDark, isIqamaRunning),
-                    _countdownToNextPrayer(countdownText, isDark),
                     const SizedBox(height: 3),
                     _currentDate(hijridate, now, isDark),
 
@@ -671,55 +743,65 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         initialIndex: 0,
                         child: Column(
                           children: [
-                            TabBar(
-                              dividerColor: isDark
-                                  ? Colors.white54
-                                  : BColors.secondary,
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              indicatorColor: BColors.primary,
-                              labelColor: isDark ? Colors.white : Colors.black,
-                              tabs: [
-                                Text(
-                                  'Gebetszeiten',
-                                  style: Theme.of(context).textTheme.bodySmall,
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: TabBar(
+                                labelColor: BColors.primary,
+                                unselectedLabelColor: const Color(0xFF5F6368),
+                                labelStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                Text(
-                                  'Kalender',
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                unselectedLabelStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                informationPageHelper
-                                            .getTotalInformationNumber() ==
-                                        informationSum
-                                    ? Text(
-                                        'Information',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall,
-                                      )
-                                    : Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          Text(
-                                            'Information',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
-                                          ),
-                                          Positioned(
-                                            right: -8,
-                                            top: -6,
-                                            child: Container(
-                                              width: 12,
-                                              height: 12,
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                              ],
+                                dividerColor: Colors.transparent,
+                                tabs: const [
+                                  Tab(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(width: 6),
+                                        Text("Gebetszeiten"),
+                                      ],
+                                    ),
+                                  ),
+                                  Tab(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(width: 6),
+                                        Text("Kalender"),
+                                      ],
+                                    ),
+                                  ),
+                                  Tab(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(width: 6),
+                                        Text("Information"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             SizedBox(height: 10),
                             Expanded(
@@ -739,6 +821,61 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _bottomInfoCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 98,
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: Colors.green, size: 26),
+
+              const Spacer(),
+
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+
+              const SizedBox(height: 2),
+
+              Text(
+                subtitle,
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
   /* Here is the end of Main Page UI containing prayertimes page, calender page and info page */
@@ -764,124 +901,130 @@ class _PrayerTimesState extends State<PrayerTimes> {
               todayRow['Fajr'],
               _checkForCurrentPrayer("Fajr"),
               fajrIqama,
+              Icons.wb_twilight,
             ),
+
             _buildPrayerRow(
               'Dhur',
               todayRow['Dhur'],
               _checkForCurrentPrayer("Dhur"),
               dhurIqama,
+              Icons.light_mode,
             ),
+
             _buildPrayerRow(
               'Asr',
               todayRow['Asr'],
               _checkForCurrentPrayer("Asr"),
               asrIqama,
+              Icons.sunny,
             ),
+
             _buildPrayerRow(
               'Maghrib',
               todayRow['Maghrib'],
               _checkForCurrentPrayer("Maghrib"),
               maghribIqama,
+              Icons.wb_twilight_outlined,
             ),
+
             _buildPrayerRow(
               'Isha',
               todayRow['Isha'],
               _checkForCurrentPrayer("Isha"),
               ishaIqama,
+              Icons.nightlight_round,
             ),
             SizedBox(height: 6),
             _divider(context),
             SizedBox(height: 6),
-            _shuruqAndJumuaRow(context, isDark),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      _bottomInfoCard(
+                        icon: Icons.wb_sunny_outlined,
+                        title: "Shuruq",
+                        subtitle: getShuruqTimes(),
+                        onTap: () {},
+                      ),
+
+                      _bottomInfoCard(
+                        icon: Icons.calendar_month,
+                        title: "Jumu'a",
+                        subtitle: "$fridayPrayer1 | $fridayPrayer2",
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      _bottomInfoCard(
+                        icon: Icons.picture_as_pdf,
+                        title: "Monat PDF",
+                        subtitle: "Herunterladen",
+                        onTap: () => _showMonthPickerDialog(context),
+                      ),
+
+                      _bottomInfoCard(
+                        icon: Icons.mobile_friendly_rounded,
+                        title: "Deine Spende zählt!",
+                        subtitle: "Spenden",
+                        onTap: () => _showDonationDialog(context),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 4),
-            _monthlyPrayerAndKhutbaPDFs(context),
-            SizedBox(height: 4),
-            popUpDonationButton(context),
+            // popUpDonationButton(context),
           ],
         ),
       ],
     );
   }
 
-  Row _monthlyPrayerAndKhutbaPDFs(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // generates a pdf from current months prayertimes
-        _monthlyPrayerPdfs(context),
+void _showDonationDialog(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
-        const SizedBox(width: 12),
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Spenden'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButtonForPayPal(isDark: isDark),
 
-        // button to upload latest Khutba
-        // _uploadKhutbaButton(context),
-      ],
-    );
-  }
+            const SizedBox(height: 10),
 
-  Widget popUpDonationButton(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return TextButton(
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white, // text color
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      child: const Text("Deine Spende zählt!", style: TextStyle(fontSize: 18)),
-      onPressed: () {
-        showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Spenden'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButtonForPayPal(isDark: isDark),
+            DividerWithText(isDark: isDark),
 
-                  SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-                  DividerWithText(isDark: isDark),
-
-                  SizedBox(height: 10),
-
-                  BankInfoCard(isDark: isDark),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Approve'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  TextButton _monthlyPrayerPdfs(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () => _showMonthPickerDialog(context),
-      icon: Icon(
-        Icons.picture_as_pdf,
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.white
-            : Colors.black,
-        size: 24,
-      ),
-      label: UnderlinedText(
-        content: Text(
-          'Monat PDF',
-          style: Theme.of(context).textTheme.bodyMedium,
+            BankInfoCard(isDark: isDark),
+          ],
         ),
-      ),
-    );
-  }
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   List<Map<String, int>> _extractAvailableMonths(
     List<Map<String, String>> csvData,
@@ -951,7 +1094,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         return AlertDialog(
           title: const Text("Monat auswählen"),
           content: DropdownButtonFormField<Map<String, int>>(
-            value: availableMonths.first,
+            initialValue: availableMonths.first,
             items: availableMonths.map((entry) {
               return DropdownMenuItem(
                 value: entry,
@@ -989,81 +1132,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
-  Row _shuruqAndJumuaRow(BuildContext context, bool isDark) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? BColors.prayerRowDark
-                : BColors.prayerRowLight,
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: BColors.primary),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              children: [
-                Text(
-                  'Shuruq ${getShuruqTimes()}',
-                  style: TextStyle(color: Colors.white),
-                ),
-                SizedBox(width: 5),
-                _openShuruqNotificationSettings(context),
-              ],
-            ),
-          ),
-        ),
-
-        Container(
-          decoration: BoxDecoration(
-            color: isDark ? BColors.prayerRowDark : BColors.prayerRowLight,
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: BColors.primary),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Text(
-              'Jumua\'a $fridayPrayer1 | $fridayPrayer2',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  GestureDetector _openShuruqNotificationSettings(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) =>
-              AlertDialog(actions: [_shuruqNotificationSettings()]),
-        );
-      },
-      child: schedulerHelper.getCurrentPrayerSettings('notify_Sunrise')
-          ? Icon(Icons.notifications_none, color: Colors.white)
-          : Icon(Icons.notifications_off, color: Colors.white),
-    );
-  }
-
-  FutureBuilder<DateTime?> _shuruqNotificationSettings() {
-    return FutureBuilder(
-      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
-        "Sunrise",
-        csvData,
-      ),
-      builder: (context, asyncSnapshot) {
-        return NotificationSettingsPage(
-          name: "Sunrise",
-          prayerTime: asyncSnapshot.data,
-        );
-      },
-    );
-  }
-
   SizedBox _divider(BuildContext context) {
     return SizedBox(
       width: 250,
@@ -1080,51 +1148,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return Text(
       '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
       style: TextStyle(
-        color: isDark ? Colors.white : BColors.primary,
-        fontSize: 13,
-      ),
-    );
-  }
-
-  Text _countdownToNextPrayer(String countdownText, bool isDark) {
-    return Text(
-      countdownText,
-      style: TextStyle(
-        color: isDark ? Colors.white : BColors.primary,
-        fontSize: 48,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Text _showNextPrayerText(
-    BuildContext context,
-    bool isDark,
-    bool isIqamaRunning,
-  ) {
-    if (!isIqamaRunning) {
-      return Text(
-        '${_showNextPrayer()} in',
-        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : BColors.primary,
-        ),
-      );
-    }
-    return Text(
-      'Iqama in',
-      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-        fontWeight: FontWeight.bold,
-        color: isDark ? Colors.white : BColors.primary,
-      ),
-    );
-  }
-
-  Text _mosqueName(BuildContext context, bool isDark) {
-    return Text(
-      'BBF Verein - Freiburg',
-      style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-        color: isDark ? Colors.white : BColors.primary,
+        color: BColors.primary,
+        fontSize: 14,
       ),
     );
   }
@@ -1220,8 +1245,8 @@ class NotificationSettings extends StatelessWidget {
       },
       // bell icon either on or off, depending on settings
       child: schedulerHelper.getCurrentPrayerSettings('notify_$name')
-          ? Icon(Icons.notifications_none, color: Colors.white)
-          : Icon(Icons.notifications_off, color: Colors.white),
+          ? Icon(Icons.notifications_none, color: Colors.blueGrey)
+          : Icon(Icons.notifications_off, color: Colors.blueGrey),
     );
   }
 
