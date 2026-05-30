@@ -1,7 +1,6 @@
 // lib/main.dart
 import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,7 +13,6 @@ import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/validation/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
