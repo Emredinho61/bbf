@@ -7,10 +7,8 @@ import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:bbf_app/screens/nav_pages/arabicschool/arabicschool.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/prayertimes.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NavBarShell extends StatefulWidget {
   const NavBarShell({super.key});
@@ -43,7 +41,7 @@ class _NavBarShellState extends State<NavBarShell> {
 
   static final List<Widget> _pages = <Widget>[
     AllProjects(),
-    ArabicSchool(),
+    Placeholder(),
     PrayerTimes(),
     CompassWithQiblah(),
     SettingsPage(),
@@ -81,7 +79,7 @@ class _NavBarShellState extends State<NavBarShell> {
                 : const Color.fromARGB(255, 174, 239, 174),
           ),
           Icon(
-            Icons.school_outlined,
+            Icons.construction,
             color: _isActive(1)
                 ? Colors.white
                 : const Color.fromARGB(255, 174, 239, 174),
