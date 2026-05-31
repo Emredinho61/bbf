@@ -549,7 +549,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1F2937) : Colors.white,
+        color: isDark ? BColors.prayerRowDark : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isActive ? Colors.green : Colors.transparent,
@@ -572,7 +572,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
               shape: BoxShape.circle,
               gradient: isActive
                   ? const LinearGradient(
-                      colors: [Color(0xFF6BCB77), Color(0xFF3FA34D)],
+                      colors: [Color.fromARGB(255, 44, 126, 55), Color.fromARGB(255, 47, 160, 62)],
                     )
                   : null,
               color: isActive ? null : Colors.grey.shade100,
@@ -679,10 +679,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: isDark
-                      ? [const Color(0xFF111827), const Color(0xFF111827)]
+                      ? [BColors.backgroundColorDark, BColors.backgroundColorDark]
                       : [
-                          const Color.fromARGB(0, 187, 187, 187),
-                          const Color.fromARGB(0, 187, 187, 187),
+                          BColors.backgroundColor,
+                          BColors.backgroundColor,
                         ],
                 ),
               ),
@@ -696,7 +696,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         Text(
                           'BBF Verein - Freiburg',
                           style: TextStyle(
-                            fontSize: 34,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white : Colors.black87,
                           ),
@@ -753,7 +753,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                               ),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 220, 228, 240),
+                                color: isDark ? Colors.white : const Color.fromARGB(255, 220, 228, 240),
                                 borderRadius: BorderRadius.circular(28),
                                 border: Border.all(
                                   color: const Color.fromARGB(
@@ -771,7 +771,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 ),
                                 dividerColor: Colors.transparent,
                                 indicator: BoxDecoration(
-                                  color: Colors.white,
+                                  color: isDark ? BColors.prayerRowDark : Colors.white,
                                   borderRadius: BorderRadius.circular(24),
                                   boxShadow: [
                                     BoxShadow(
@@ -886,7 +886,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
               Text(
                 subtitle,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: 13, color: isDark ? Colors.white : Colors.black87),
               ),
             ],
           ),
@@ -983,14 +983,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
                       _bottomInfoCard(
                         icon: Icons.picture_as_pdf,
                         title: "Monat PDF",
-                        subtitle: "Herunterladen",
+                        subtitle: "Clicke für Gebetszeiten",
                         onTap: () => _showMonthPickerDialog(context),
                       ),
 
                       _bottomInfoCard(
                         icon: Icons.mobile_friendly_rounded,
                         title: "Deine Spende zählt!",
-                        subtitle: "Spenden",
+                        subtitle: "Clicke um zu spenden",
                         onTap: () => _showDonationDialog(context),
                       ),
                     ],
@@ -1258,7 +1258,7 @@ class NotificationSettings extends StatelessWidget {
       },
       // bell icon either on or off, depending on settings
       child: schedulerHelper.getCurrentPrayerSettings('notify_$name')
-          ? Icon(Icons.notifications_none, color: Colors.blueGrey)
+          ? Icon(Icons.notifications_none, color: Colors.blueGrey, )
           : Icon(Icons.notifications_off, color: Colors.blueGrey),
     );
   }

@@ -10,6 +10,7 @@ class BColors {
   static Color navbarDark = const Color.fromARGB(255, 59, 117, 90);
 
   static Color prayerRowLight = const Color.fromARGB(255, 59, 117, 90);
-  static Color prayerRowDark = const Color.fromARGB(255, 59, 117, 90);
+  static Color prayerRowDark = const Color(0xFF1F2937);
   static Color backgroundColor = const Color.fromARGB(255, 237, 242, 249);
+  static Color backgroundColorDark = const Color(0xFF111827);
 }
