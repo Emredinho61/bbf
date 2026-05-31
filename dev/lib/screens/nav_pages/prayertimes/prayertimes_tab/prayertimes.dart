@@ -680,7 +680,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   end: Alignment.bottomCenter,
                   colors: isDark
                       ? [const Color(0xFF111827), const Color(0xFF111827)]
-                      : [const Color.fromARGB(0, 187, 187, 187), const Color.fromARGB(0, 187, 187, 187)],
+                      : [
+                          const Color.fromARGB(0, 187, 187, 187),
+                          const Color.fromARGB(0, 187, 187, 187),
+                        ],
                 ),
               ),
               child: SafeArea(
@@ -745,59 +748,72 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           children: [
                             Container(
                               margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
+                                horizontal: 12,
+                                vertical: 10,
                               ),
-                              padding: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: isDark
-                                    ? const Color(0xFF1E293B)
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(22),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 10,
+                                color: const Color.fromARGB(255, 220, 228, 240),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: const Color.fromARGB(
+                                    255,
+                                    200,
+                                    210,
+                                    225,
                                   ),
-                                ],
+                                  width: 1,
+                                ),
                               ),
                               child: TabBar(
-                                labelColor: BColors.primary,
-                                unselectedLabelColor: const Color(0xFF5F6368),
-                                labelStyle: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                unselectedLabelStyle: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                                labelPadding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
                                 ),
                                 dividerColor: Colors.transparent,
+                                indicator: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+
+                                labelColor: BColors.primary,
+
+                                unselectedLabelColor: const Color(0xFF5F6368),
+
+                                labelStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+
+                                unselectedLabelStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+
+                                indicatorSize: TabBarIndicatorSize.tab,
                                 tabs: const [
                                   Tab(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(width: 6),
-                                        Text("Gebetszeiten"),
-                                      ],
+                                      children: [Text("Gebetszeiten")],
                                     ),
                                   ),
                                   Tab(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(width: 6),
-                                        Text("Kalender"),
-                                      ],
+                                      children: [Text("Kalender")],
                                     ),
                                   ),
                                   Tab(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(width: 6),
-                                        Text("Information"),
-                                      ],
+                                      children: [Text("Information")],
                                     ),
                                   ),
                                 ],
@@ -990,41 +1006,41 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
-void _showDonationDialog(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  void _showDonationDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Spenden'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButtonForPayPal(isDark: isDark),
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Spenden'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButtonForPayPal(isDark: isDark),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            DividerWithText(isDark: isDark),
+              DividerWithText(isDark: isDark),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            BankInfoCard(isDark: isDark),
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Close'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+              BankInfoCard(isDark: isDark),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   List<Map<String, int>> _extractAvailableMonths(
     List<Map<String, String>> csvData,
@@ -1147,10 +1163,7 @@ void _showDonationDialog(BuildContext context) {
   Text _currentDate(HijriCalendarConfig hijridate, DateTime now, bool isDark) {
     return Text(
       '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-      style: TextStyle(
-        color: BColors.primary,
-        fontSize: 14,
-      ),
+      style: TextStyle(color: BColors.primary, fontSize: 14),
     );
   }
 
