@@ -155,10 +155,10 @@ class _AddInformationPageState extends State<AddInformationPage> {
                 _isUploading = true;
               });
               await FirebaseFirestore.instance.collection("broadcasts").add({
-              "title": 'Eine neue Nachricht ist verfügbar!',
-              "summary": 'Test',
-              "timestamp": FieldValue.serverTimestamp(),
-            });
+                "title": 'Eine neue Nachricht ist verfügbar!',
+                "summary": 'Test',
+                "timestamp": FieldValue.serverTimestamp(),
+              });
               _uploadInformation();
             },
             style: ElevatedButton.styleFrom(

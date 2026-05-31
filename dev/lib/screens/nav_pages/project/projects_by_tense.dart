@@ -23,13 +23,16 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
   void initState() {
     super.initState();
     // First initialize projects saved in cache
-    allProjectsOfACertainTenseFromCache = getEitherPastOrFutureProjectsFromCache(widget.tense);
-    // Then check, if the projects in cache are up to date with the projects in backend. 
-    // If not up to date, then update the cache content  
+    allProjectsOfACertainTenseFromCache =
+        getEitherPastOrFutureProjectsFromCache(widget.tense);
+    // Then check, if the projects in cache are up to date with the projects in backend.
+    // If not up to date, then update the cache content
     _initPage(widget.tense);
   }
 
-  List<Map<String, dynamic>> getEitherPastOrFutureProjectsFromCache(String tense) {
+  List<Map<String, dynamic>> getEitherPastOrFutureProjectsFromCache(
+    String tense,
+  ) {
     if (tense == 'past') {
       return projectsPageHelper.getPastProjectsFromCache();
     } else {
@@ -39,16 +42,21 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
 
   Future<void> _initPage(String tense) async {
     if (tense == 'past') {
-      final loadedPastProjectsFromBackend = await projectsService.getPastProjectsFromBackend();
-      if (loadedPastProjectsFromBackend != allProjectsOfACertainTenseFromCache) {
-        projectsPageHelper.setPastProjectsInCache(loadedPastProjectsFromBackend);
+      final loadedPastProjectsFromBackend = await projectsService
+          .getPastProjectsFromBackend();
+      if (loadedPastProjectsFromBackend !=
+          allProjectsOfACertainTenseFromCache) {
+        projectsPageHelper.setPastProjectsInCache(
+          loadedPastProjectsFromBackend,
+        );
         setState(() {
           allProjectsOfACertainTenseFromCache = loadedPastProjectsFromBackend;
         });
         setState(() => _isLoading = false);
       }
     } else {
-      final loadedFutureProjects = await projectsService.getFutureProjectsFromBackend();
+      final loadedFutureProjects = await projectsService
+          .getFutureProjectsFromBackend();
       if (loadedFutureProjects != allProjectsOfACertainTenseFromCache) {
         projectsPageHelper.setFutureProjectsInCache(loadedFutureProjects);
         setState(() {
@@ -104,11 +112,16 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: spacing),
                             child: Project(
-                              title: allProjectsOfACertainTenseFromCache[i]['title'],
-                              docId: allProjectsOfACertainTenseFromCache[i]['id'],
-                              year: allProjectsOfACertainTenseFromCache[i]['year'],
-                              month: allProjectsOfACertainTenseFromCache[i]['month'],
-                              day: allProjectsOfACertainTenseFromCache[i]['day'],
+                              title:
+                                  allProjectsOfACertainTenseFromCache[i]['title'],
+                              docId:
+                                  allProjectsOfACertainTenseFromCache[i]['id'],
+                              year:
+                                  allProjectsOfACertainTenseFromCache[i]['year'],
+                              month:
+                                  allProjectsOfACertainTenseFromCache[i]['month'],
+                              day:
+                                  allProjectsOfACertainTenseFromCache[i]['day'],
                               height: 100,
                               color: Colors.blue,
                             ),

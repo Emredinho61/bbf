@@ -36,15 +36,15 @@ class CalendarPageHelper {
     }
   }
 
-  int getLastYear(){
+  int getLastYear() {
     return DateTime.now().year - 1;
   }
 
-  int getNextYear(){
+  int getNextYear() {
     return DateTime.now().year + 1;
   }
 
-  int getCurrentYear(){
+  int getCurrentYear() {
     return DateTime.now().year;
   }
 }

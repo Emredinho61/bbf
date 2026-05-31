@@ -39,9 +39,9 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
         );
       } else {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Id nicht gefunden!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Id nicht gefunden!')));
       }
     } catch (e) {
       debugPrint('Löschvorgang fehlgeschlagen: $e');

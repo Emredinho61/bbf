@@ -7,7 +7,8 @@ class UploadPrayerTimesDialog extends StatefulWidget {
   const UploadPrayerTimesDialog({super.key});
 
   @override
-  State<UploadPrayerTimesDialog> createState() => _UploadPrayerTimesDialogState();
+  State<UploadPrayerTimesDialog> createState() =>
+      _UploadPrayerTimesDialogState();
 }
 
 class _UploadPrayerTimesDialogState extends State<UploadPrayerTimesDialog> {

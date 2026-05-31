@@ -23,32 +23,31 @@ class PrayerTimesHelper {
     return _prayertimesService!;
   }
 
- Future<List<Map<String, String>>> loadCSV() async {
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File("${dir.path}/prayer_times.csv");
+  Future<List<Map<String, String>>> loadCSV() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File("${dir.path}/prayer_times.csv");
 
-  final rawData = await file.readAsString();
+    final rawData = await file.readAsString();
 
-  final lines = LineSplitter.split(rawData).toList();
-  final headers = lines.first.split(',');
+    final lines = LineSplitter.split(rawData).toList();
+    final headers = lines.first.split(',');
 
-  final List<Map<String, String>> rows = [];
+    final List<Map<String, String>> rows = [];
 
-  for (var i = 1; i < lines.length; i++) {
-    final values = lines[i].split(',');
+    for (var i = 1; i < lines.length; i++) {
+      final values = lines[i].split(',');
 
-    final Map<String, String> row = {};
+      final Map<String, String> row = {};
 
-    for (var j = 0; j < headers.length; j++) {
-      row[headers[j]] = values[j];
+      for (var j = 0; j < headers.length; j++) {
+        row[headers[j]] = values[j];
+      }
+
+      rows.add(row);
     }
 
-    rows.add(row);
+    return rows;
   }
-
-  return rows;
-}
-
 
   Map<String, String> getTodaysPrayerTimesAsStringMap(
     List<Map<String, String>> csvData,
@@ -455,7 +454,9 @@ class PrayerTimesHelper {
     );
 
     final data = await ref.getData(); // raw data
-    return String.fromCharCodes(data!); // raw data converted into a readable string
+    return String.fromCharCodes(
+      data!,
+    ); // raw data converted into a readable string
   }
 
   // saves csv file into cache, so we dont need to download it everytime from storage, when we need to access it
@@ -476,8 +477,7 @@ class PrayerTimesHelper {
     final csv = await downloadCSV(DateTime.now().year);
     await saveCSVToCache(csv);
 
-    // save that year for future checkings in the cache 
+    // save that year for future checkings in the cache
     await saveCachedYear(DateTime.now().year);
   }
-
 }

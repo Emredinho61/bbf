@@ -129,7 +129,9 @@ class _InformationPageState extends State<InformationPage> {
                         ),
                         child: ListTile(
                           title: Text(item.headerValue),
-                          subtitle: isUserAdmin ? Text('id: ${item.id}') : Text(''),
+                          subtitle: isUserAdmin
+                              ? Text('id: ${item.id}')
+                              : Text(''),
                         ),
                       );
                     },
@@ -296,7 +298,10 @@ class _InformationPageState extends State<InformationPage> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [_deleteInformationIcon(context),_addInformationIcon(context)],
+        children: [
+          _deleteInformationIcon(context),
+          _addInformationIcon(context),
+        ],
       ),
     );
   }

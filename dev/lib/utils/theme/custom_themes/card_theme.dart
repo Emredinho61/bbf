@@ -7,7 +7,7 @@ class BCardTheme {
       borderRadius: BorderRadius.circular(12.0),
       side: BorderSide(color: BColors.primary),
     ),
-    elevation: 4, 
+    elevation: 4,
     color: BColors.cardLight,
   );
 

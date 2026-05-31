@@ -572,7 +572,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
               shape: BoxShape.circle,
               gradient: isActive
                   ? const LinearGradient(
-                      colors: [Color.fromARGB(255, 44, 126, 55), Color.fromARGB(255, 47, 160, 62)],
+                      colors: [
+                        Color.fromARGB(255, 44, 126, 55),
+                        Color.fromARGB(255, 47, 160, 62),
+                      ],
                     )
                   : null,
               color: isActive ? null : Colors.grey.shade100,
@@ -679,11 +682,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: isDark
-                      ? [BColors.backgroundColorDark, BColors.backgroundColorDark]
-                      : [
-                          BColors.backgroundColor,
-                          BColors.backgroundColor,
-                        ],
+                      ? [
+                          BColors.backgroundColorDark,
+                          BColors.backgroundColorDark,
+                        ]
+                      : [BColors.backgroundColor, BColors.backgroundColor],
                 ),
               ),
               child: SafeArea(
@@ -753,7 +756,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                               ),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.white : const Color.fromARGB(255, 220, 228, 240),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color.fromARGB(255, 220, 228, 240),
                                 borderRadius: BorderRadius.circular(28),
                                 border: Border.all(
                                   color: const Color.fromARGB(
@@ -771,7 +776,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 ),
                                 dividerColor: Colors.transparent,
                                 indicator: BoxDecoration(
-                                  color: isDark ? BColors.prayerRowDark : Colors.white,
+                                  color: isDark
+                                      ? BColors.prayerRowDark
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(24),
                                   boxShadow: [
                                     BoxShadow(
@@ -886,7 +893,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
               Text(
                 subtitle,
-                style: TextStyle(fontSize: 13, color: isDark ? Colors.white : Colors.black87),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
               ),
             ],
           ),
@@ -1258,7 +1268,7 @@ class NotificationSettings extends StatelessWidget {
       },
       // bell icon either on or off, depending on settings
       child: schedulerHelper.getCurrentPrayerSettings('notify_$name')
-          ? Icon(Icons.notifications_none, color: Colors.blueGrey, )
+          ? Icon(Icons.notifications_none, color: Colors.blueGrey)
           : Icon(Icons.notifications_off, color: Colors.blueGrey),
     );
   }

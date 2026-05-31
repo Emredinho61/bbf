@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectsPageHelper {
   SharedPreferencesWithCache get prefs =>
-    SharedPreferencesService.instance.prefsWithCache;
+      SharedPreferencesService.instance.prefsWithCache;
 
   List<Map<String, dynamic>> getPastProjectsFromCache() {
     final jsonString = prefs.getString('pastProjects');
@@ -27,12 +27,16 @@ class ProjectsPageHelper {
     return decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<void> setPastProjectsInCache(List<Map<String, dynamic>> products) async {
+  Future<void> setPastProjectsInCache(
+    List<Map<String, dynamic>> products,
+  ) async {
     final jsonString = jsonEncode(products);
     await prefs.setString('pastProjects', jsonString);
   }
 
-  Future<void> setFutureProjectsInCache(List<Map<String, dynamic>> products) async {
+  Future<void> setFutureProjectsInCache(
+    List<Map<String, dynamic>> products,
+  ) async {
     final jsonString = jsonEncode(products);
     await prefs.setString('futureProjects', jsonString);
   }

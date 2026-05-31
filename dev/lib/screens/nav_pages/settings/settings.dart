@@ -539,7 +539,9 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListTile(
       leading: const Icon(Icons.upload_file),
       title: const Text("Gebetszeiten hochladen"),
-      subtitle: const Text("Als CSV Datei. Name der Datei im folgenden Format: prayer_times_year"),
+      subtitle: const Text(
+        "Als CSV Datei. Name der Datei im folgenden Format: prayer_times_year",
+      ),
       onTap: () {
         showDialog(
           context: context,
@@ -548,8 +550,6 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     );
   }
-
-
 
   ListTile _modifyIqamaTimes() {
     return ListTile(

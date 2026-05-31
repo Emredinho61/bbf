@@ -169,23 +169,23 @@ class _ProjectState extends State<Project> {
                   // picture
                   (data != null && (data['imageUrl'] ?? '').isNotEmpty)
                       ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: AspectRatio(
-                          aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
-                          child: CachedNetworkImage(
-                            imageUrl: data['imageUrl'],
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Center(
-                              child: Skeletonizer(
-                                enabled: true,
-                                child: SizedBox(height: 200, width: 200),
+                          borderRadius: BorderRadius.circular(12),
+                          child: AspectRatio(
+                            aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
+                            child: CachedNetworkImage(
+                              imageUrl: data['imageUrl'],
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Center(
+                                child: Skeletonizer(
+                                  enabled: true,
+                                  child: SizedBox(height: 200, width: 200),
+                                ),
                               ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
                             ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
                           ),
-                        ),
-                      )
+                        )
                       : Image.asset(
                           'assets/images/bbf-logo.png',
                           height: 100,
