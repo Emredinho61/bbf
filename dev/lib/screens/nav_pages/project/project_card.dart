@@ -311,12 +311,11 @@ class _ProjectState extends State<Project> {
     BuildContext context,
     Map<String, dynamic> data,
   ) {
+    final isHorizontal = (data['orientation'] ?? 'horizontal') == 'horizontal';
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.grey.shade600
-          : BColors.secondary,
+      backgroundColor: BColors.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -330,39 +329,302 @@ class _ProjectState extends State<Project> {
                 horizontal: 8.0,
                 vertical: 16.0,
               ),
-              child: Column(
-                children: [
-                  Text(
-                    data['title'] ?? '',
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  const SizedBox(height: 10),
-                  (data['imageUrl'] ?? '').isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: data['imageUrl'],
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Skeletonizer(
-                            enabled: true,
-                            child: SizedBox(height: 100, width: 100),
-                          ),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                        )
-                      : Image.asset(
-                          'assets/images/bbf-logo.png',
-                          height: 100,
-                          width: 50,
-                        ),
-                  const SizedBox(height: 10),
-                  MarkdownBody(data: data['body'] ?? ''),
-                ],
+              child: ShowMoreContent(
+                isHorizontal: isHorizontal,
+                data: data,
+                year: widget.year,
+                month: widget.month,
+                day: widget.day,
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class ShowMoreContent extends StatelessWidget {
+  final bool isHorizontal;
+  final Map<String, dynamic> data;
+  final int year;
+  final int month;
+  final int day;
+
+  const ShowMoreContent({
+    super.key,
+    required this.isHorizontal,
+    required this.data,
+    required this.year,
+    required this.month,
+    required this.day,
+  });
+
+  String _monthName(int month) {
+    const months = [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember",
+    ];
+    return months[month - 1];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isHorizontal) {
+      // Horizontal Version
+      return Container(
+        margin: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Picture
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: CachedNetworkImage(
+                imageUrl: data['imageUrl'],
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 220,
+                placeholder: (context, url) => Skeletonizer(
+                  enabled: true,
+                  child: Container(
+                    width: double.infinity,
+                    height: 220,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Date Container
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: BColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.calendar_month_outlined,
+                    size: 14,
+                    color: BColors.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$day. ${_monthName(month)} $year',
+                    style: TextStyle(
+                      color: BColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Title
+            Text(
+              data['title'] ?? '',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                height: 1.1,
+              ),
+            ),
+
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              height: 3,
+              width: 40,
+              decoration: BoxDecoration(
+                color: BColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Description Container
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F4),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.description_outlined, color: BColors.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Beschreibung',
+                        style: TextStyle(
+                          color: BColors.primary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  MarkdownBody(data: data['body'] ?? ''),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Vertikales Bild
+    return Container(
+      margin: EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: CachedNetworkImage(
+                  imageUrl: data['imageUrl'],
+                  fit: BoxFit.cover,
+                  width: 140,
+                  height: 220,
+                  placeholder: (context, url) => Center(
+                    child: Skeletonizer(
+                      enabled: true,
+                      child: SizedBox(height: 220, width: 140),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+              ),
+
+              const SizedBox(width: 20),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: BColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              size: 14,
+                              color: BColors.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '$day. ${_monthName(month)} $year',
+                              style: TextStyle(
+                                color: BColors.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        data['title'] ?? '',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 32),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Color(0xFFF5F5F4),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.description_outlined, color: BColors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Beschreibung',
+                      style: TextStyle(
+                        color: BColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                MarkdownBody(data: data['body'] ?? ''),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
