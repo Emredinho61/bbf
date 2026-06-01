@@ -58,42 +58,52 @@ class _NavBarShellState extends State<NavBarShell> {
   }
 
   @override
-@override
-Widget build(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  final backgroundColor = isDark ? BColors.navbarDark : BColors.navbarLight;
-  final inactiveColor = isDark ? Colors.grey.shade200 : Colors.grey.shade800;
-  final activeColor = isDark ? BColors.primary : BColors.primary;
+    final backgroundColor = isDark ? BColors.navbarDark : BColors.navbarLight;
+    final inactiveColor = isDark ? Colors.grey.shade200 : Colors.grey.shade800;
+    final activeColor = isDark ? BColors.primary : BColors.primary;
 
-  return Scaffold(
-    extendBody: true,
-    body: _pages[_selectedIndex],
-    bottomNavigationBar: CurvedNavigationBar(
-      index: _selectedIndex,
-      backgroundColor: Colors.transparent,
-      color: backgroundColor,
-      buttonBackgroundColor: activeColor,
-      animationDuration: const Duration(milliseconds: 350),
-      onTap: _onItemTapped,
-      items: [
-        Icon(Icons.work_outline,
-            color: _isActive(0) ? Colors.white : inactiveColor),
+    return Scaffold(
+      extendBody: true,
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedIndex,
+        backgroundColor: Colors.transparent,
+        color: backgroundColor,
+        buttonBackgroundColor: activeColor,
+        animationDuration: const Duration(milliseconds: 350),
+        onTap: _onItemTapped,
+        items: [
+          Icon(
+            Icons.work_outline,
+            color: _isActive(0) ? Colors.white : inactiveColor,
+          ),
 
-        Icon(Icons.construction,
-            color: _isActive(1) ? Colors.white : inactiveColor),
+          Icon(
+            Icons.construction,
+            color: _isActive(1) ? Colors.white : inactiveColor,
+          ),
 
-        Icon(Icons.access_time_outlined,
+          Icon(
+            Icons.access_time_outlined,
             size: 30,
-            color: _isActive(2) ? Colors.white : inactiveColor),
+            color: _isActive(2) ? Colors.white : inactiveColor,
+          ),
 
-        Icon(Icons.explore_outlined,
-            color: _isActive(3) ? Colors.white : inactiveColor),
+          Icon(
+            Icons.explore_outlined,
+            color: _isActive(3) ? Colors.white : inactiveColor,
+          ),
 
-        Icon(Icons.menu_outlined,
-            color: _isActive(4) ? Colors.white : inactiveColor),
-      ],
-    ),
-  );
-}
+          Icon(
+            Icons.menu_outlined,
+            color: _isActive(4) ? Colors.white : inactiveColor,
+          ),
+        ],
+      ),
+    );
+  }
 }
