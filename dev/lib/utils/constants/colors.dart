@@ -6,8 +6,8 @@ class BColors {
 
   static Color cardLight = Colors.grey.shade200;
   static Color cardDark = const Color.fromARGB(255, 59, 117, 90);
-  static Color navbarLight = Colors.grey.shade200;
-  static Color navbarDark = const Color.fromARGB(255, 59, 117, 90);
+  static Color navbarLight = Colors.white;
+  static Color navbarDark = const Color(0xFF1C1C1E);
 
   static Color prayerRowLight = const Color.fromARGB(255, 59, 117, 90);
   static Color prayerRowDark = const Color(0xFF1F2937);
