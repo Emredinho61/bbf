@@ -362,234 +362,165 @@ class ShowMoreContent extends StatelessWidget {
 
   String _monthName(int month) {
     const months = [
-      "Januar",
-      "Februar",
-      "März",
-      "April",
-      "Mai",
-      "Juni",
-      "Juli",
-      "August",
-      "September",
-      "Oktober",
-      "November",
-      "Dezember",
+      'Januar',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
     ];
     return months[month - 1];
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isHorizontal) {
-      // Horizontal Version
-      return Container(
-        margin: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final double aspectRatio = isHorizontal ? 16 / 9 : 4/3;
+    const double cardOverlap = 52.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
           children: [
-            // Picture
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: CachedNetworkImage(
-                imageUrl: data['imageUrl'],
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 220,
-                placeholder: (context, url) => Skeletonizer(
-                  enabled: true,
-                  child: Container(
-                    width: double.infinity,
-                    height: 220,
-                    color: Colors.grey[300],
-                  ),
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Date Container
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: BColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.calendar_month_outlined,
-                    size: 14,
-                    color: BColors.primary,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '$day. ${_monthName(month)} $year',
-                    style: TextStyle(
-                      color: BColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Title
-            Text(
-              data['title'] ?? '',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                height: 1.1,
-              ),
-            ),
-
-            Container(
-              margin: const EdgeInsets.only(top: 6),
-              height: 3,
-              width: 40,
-              decoration: BoxDecoration(
-                color: BColors.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Description Container
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F4),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.description_outlined, color: BColors.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Beschreibung',
-                        style: TextStyle(
-                          color: BColors.primary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  MarkdownBody(data: data['body'] ?? ''),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Vertikales Bild
-    return Container(
-      margin: EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+              borderRadius: const BorderRadius.all(Radius.circular(36)),
+              child: AspectRatio(
+                aspectRatio: aspectRatio,
                 child: CachedNetworkImage(
                   imageUrl: data['imageUrl'],
                   fit: BoxFit.cover,
-                  width: 140,
-                  height: 220,
-                  placeholder: (context, url) => Center(
-                    child: Skeletonizer(
-                      enabled: true,
-                      child: SizedBox(height: 220, width: 140),
-                    ),
+                  width: double.infinity,
+                  placeholder: (context, url) => Skeletonizer(
+                    enabled: true,
+                    child: Container(color: Colors.grey[300]),
                   ),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
+            ),
 
-              const SizedBox(width: 20),
-
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: BColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_month_outlined,
-                              size: 14,
-                              color: BColors.primary,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '$day. ${_monthName(month)} $year',
-                              style: TextStyle(
-                                color: BColors.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      Text(
-                        data['title'] ?? '',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              height: 1.1,
-                            ),
-                      ),
-                    ],
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(36),
+                  bottomRight: Radius.circular(36),
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.45, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.55),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
 
-          const SizedBox(height: 32),
+            Positioned(
+              bottom: -cardOverlap,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.09),
+                      blurRadius: 28,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data['title'] ?? '',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 3,
+                            width: 38,
+                            decoration: BoxDecoration(
+                              color: BColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.calendar_month_outlined,
+                            size: 13,
+                            color: BColors.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '$day. ${_monthName(month)} $year',
+                            style: TextStyle(
+                              color: BColors.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
 
-          Container(
+        const SizedBox(height: cardOverlap + 20),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Color(0xFFF5F5F4),
+              color: const Color(0xFFF5F5F4),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -604,8 +535,19 @@ class ShowMoreContent extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.description_outlined, color: BColors.primary),
-                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.description_outlined,
+                        color: BColors.primary,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     Text(
                       'Beschreibung',
                       style: TextStyle(
@@ -616,15 +558,17 @@ class ShowMoreContent extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 20),
-
+                const SizedBox(height: 14),
+                Divider(color: Colors.grey.withOpacity(0.18), height: 1),
+                const SizedBox(height: 16),
                 MarkdownBody(data: data['body'] ?? ''),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 24),
+      ],
     );
   }
 }
