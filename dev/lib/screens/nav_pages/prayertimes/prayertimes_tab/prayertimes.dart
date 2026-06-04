@@ -26,6 +26,7 @@ import 'dart:io';
 import "package:bbf_app/components/donations/donation_tile.dart";
 
 import 'package:home_widget/home_widget.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -412,6 +413,70 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return false;
   }
 
+  Map<String, DateTime> getCurrentPrayerInterval() {
+    final now = DateTime.now();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+
+    final List<MapEntry<String, DateTime>> prayers = [];
+
+    for (final key in prayerKeys) {
+      final timeStr = todayRow[key];
+      if (timeStr == null) continue;
+
+      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+        timeStr,
+      );
+
+      prayers.add(MapEntry(key, prayerTime));
+    }
+
+    prayers.sort((a, b) => a.value.compareTo(b.value));
+
+    MapEntry<String, DateTime>? previous;
+    MapEntry<String, DateTime>? next;
+
+    for (int i = 0; i < prayers.length; i++) {
+      final current = prayers[i];
+
+      if (current.value.isAfter(now)) {
+        next = current;
+        if (i > 0) {
+          previous = prayers[i - 1];
+        }
+        break;
+      }
+    }
+
+    if (next == null) {
+      final tomorrow = DateTime.now().add(const Duration(days: 1));
+
+      final tomorrowStr = DateFormat('dd.MM.yyyy').format(tomorrow);
+
+      final tomorrowRow = csvData.firstWhere(
+        (row) => row['Date'] == tomorrowStr,
+        orElse: () => {},
+      );
+
+      final fajrTimeStr = tomorrowRow['Fajr']!;
+      final fajrParts = fajrTimeStr.split(':');
+
+      next = MapEntry(
+        "Fajr",
+        DateTime(
+          tomorrow.year,
+          tomorrow.month,
+          tomorrow.day,
+          int.parse(fajrParts[0]),
+          int.parse(fajrParts[1]),
+        ),
+      );
+
+      previous = prayers.last;
+    }
+
+    return {"previous": previous!.value, "next": next.value};
+  }
+
   Duration _calculateNextPrayerDuration() {
     final now = DateTime.now();
 
@@ -673,6 +738,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
       timeUntilNextPrayer,
       isIqamaRunning,
     );
+
+    final next = getCurrentPrayerInterval()["next"]!;
+    final previous = getCurrentPrayerInterval()["previous"]!;
+
+    final remainingTime = next.difference(now);
+    final totalInterval = next.difference(previous);
+
     return Scaffold(
       body: csvData.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -707,39 +779,68 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                         const SizedBox(height: 22),
 
-                        Text(
-                          '${_showNextPrayer()} in',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade600,
+                        ClipRect(
+                          child: SizedBox(
+                            height:
+                                150, 
+                            child: OverflowBox(
+                              maxHeight:
+                                  300, 
+                              alignment: Alignment.topCenter,
+                              child: CircularPercentIndicator(
+                                radius: 120,
+                                lineWidth: 5,
+                                percent:
+                                    1 -
+                                    (remainingTime.inSeconds /
+                                        totalInterval.inSeconds),
+                                arcType: ArcType.HALF,
+                                arcBackgroundColor: Colors.grey.shade300,
+                                progressColor: Colors.green,
+                                circularStrokeCap: CircularStrokeCap.round,
+                                center: Transform.translate(
+                                  offset: const Offset(0, -40),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        countdownText,
+                                        style: const TextStyle(
+                                          fontSize: 35,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      Text(
+                                        'bis ${_showNextPrayer()}',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: BColors.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        // const SizedBox(height: 12),
 
-                        Text(
-                          countdownText,
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Container(
-                          width: 90,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                        // Container(
+                        //   width: 90,
+                        //   height: 5,
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.green,
+                        //     borderRadius: BorderRadius.circular(20),
+                        //   ),
+                        // ),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    const SizedBox(height: 3),
+
+                    const SizedBox(height: 16),
+
                     _currentDate(hijridate, now, isDark),
 
                     const SizedBox(height: 16),
@@ -1338,7 +1439,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?>  _fajrNotificationSettings(
+  FutureBuilder<DateTime?> _fajrNotificationSettings(
     PrayerTimesHelper prayerTimesHelper,
   ) {
     return FutureBuilder(
