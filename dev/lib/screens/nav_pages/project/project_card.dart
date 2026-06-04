@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects_page.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
@@ -276,7 +277,7 @@ class _ProjectState extends State<Project> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => (AllProjects()),
+                                builder: (context) => (NavBarShell()),
                               ),
                             );
                           },
@@ -311,7 +312,7 @@ class _ProjectState extends State<Project> {
     BuildContext context,
     Map<String, dynamic> data,
   ) {
-    final isHorizontal = (data['orientation'] ?? 'horizontal') == 'horizontal';
+    final isHorizontal = data['orientation'] == 'horizontal';
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -323,12 +324,12 @@ class _ProjectState extends State<Project> {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.9,
           width: double.infinity,
-          child: SingleChildScrollView( // eventually move it to ShowMoreContent if only the content should be scrollable
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 16.0,
-              ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 16.0,
+            ),
+            child: SingleChildScrollView(
               child: ShowMoreContent(
                 isHorizontal: isHorizontal,
                 data: data,
@@ -380,7 +381,8 @@ class ShowMoreContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double aspectRatio = isHorizontal ? 16 / 9 : 4/3;
+    print('Orientation: ${data['orientation']}');
+    final double aspectRatio = isHorizontal ? 16 / 9 : 3 / 4;
     const double cardOverlap = 52.0;
 
     return Column(

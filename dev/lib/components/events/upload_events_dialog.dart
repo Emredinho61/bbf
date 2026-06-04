@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +16,7 @@ class UploadProjectDialog extends StatefulWidget {
 }
 
 class _UploadProjectDialogState extends State<UploadProjectDialog> {
+  late String _pictureOrientation;
   String? _selectedMarkdownName;
   String? _selectedImageName;
   File? _markdownFile;
@@ -43,14 +45,30 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     final result = await FilePicker.platform.pickFiles(type: FileType.image);
 
     if (result != null && result.files.single.path != null) {
-      setState(() {
-        _imageFile = File(result.files.single.path!);
-        _selectedImageName = result.files.single.name;
-      });
+      final file = File(result.files.single.path!);
+
+      final bytes = await file.readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _imageFile = File(result.files.single.path!);
+          _selectedImageName = result.files.single.name;
+          _pictureOrientation = frame.image.width > frame.image.height
+              ? 'horizontal'
+              : 'vertical';
+        });
+      }
     }
   }
 
-  Future<void> _uploadProject(String id, int year, int month, int day) async {
+  Future<void> _uploadProject(
+    String pictureOrientation,
+    int year,
+    int month,
+    int day,
+  ) async {
     if (_markdownFile == null) return;
     setState(() => _isUploading = true);
 
@@ -89,7 +107,8 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
       // Save Firestore entry
       await projectsService.addProjectToBackend(
-        id,
+        pictureOrientation,
+        _titleController.text,
         _titleController.text.isNotEmpty
             ? _titleController.text
             : (_selectedMarkdownName ?? 'Unbenannt'),
@@ -121,22 +140,21 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController idTextEditingController = TextEditingController();
     TextEditingController yearTextEditingController = TextEditingController();
     TextEditingController monthTextEditingController = TextEditingController();
     TextEditingController dayTextEditingController = TextEditingController();
+
     return AlertDialog(
       title: const Text("Projekt hochladen"),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            BTextField(
+              label: 'Titel',
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: "Titel (optional)",
-                border: OutlineInputBorder(),
-              ),
+              obscureText: false,
+              obligatory: true,
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
@@ -161,13 +179,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 child: Text("Bild: $_selectedImageName"),
               ),
             const SizedBox(height: 12),
-            BTextField(
-              label: 'id',
-              controller: idTextEditingController,
-              obscureText: false,
-              obligatory: true,
-            ),
-            const SizedBox(height: 12),
+
             BTextField(
               label: 'Jahr',
               controller: yearTextEditingController,
@@ -209,8 +221,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              if (idTextEditingController.text.isEmpty ||
-                  yearTextEditingController.text.isEmpty ||
+              if (yearTextEditingController.text.isEmpty ||
                   monthTextEditingController.text.isEmpty ||
                   dayTextEditingController.text.isEmpty) {
                 _displayErrorText = true;
@@ -223,7 +234,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
             if (_isUploading || _markdownFile == null) return;
 
             _uploadProject(
-              idTextEditingController.text,
+              _pictureOrientation,
               int.parse(yearTextEditingController.text),
               int.parse(monthTextEditingController.text),
               int.parse(dayTextEditingController.text),

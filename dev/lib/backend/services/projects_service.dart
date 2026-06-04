@@ -4,6 +4,7 @@ class ProjectsService {
   final projects = FirebaseFirestore.instance.collection('projects');
 
   Future<void> addProjectToBackend(
+    String pictureOrientation,
     String id,
     String title,
     String markdownUrl,
@@ -14,6 +15,7 @@ class ProjectsService {
     int day,
   ) async {
     projects.doc(id).set({
+      'orientation': pictureOrientation,
       'id': id,
       'title': title,
       'markdownUrl': markdownUrl,
