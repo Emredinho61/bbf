@@ -1008,7 +1008,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 ],
               ),
             ),
-            SizedBox(height: 4),
+            SizedBox(height: 35),
             // popUpDonationButton(context),
           ],
         ),
@@ -1164,7 +1164,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       child: Divider(
         color: Theme.of(context).brightness == Brightness.dark
             ? Colors.white
-            : Colors.black,
+            : BColors.primary,
       ),
     );
   }
@@ -1338,7 +1338,7 @@ class NotificationSettings extends StatelessWidget {
     );
   }
 
-  FutureBuilder<DateTime?> _fajrNotificationSettings(
+  FutureBuilder<DateTime?>  _fajrNotificationSettings(
     PrayerTimesHelper prayerTimesHelper,
   ) {
     return FutureBuilder(

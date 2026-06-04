@@ -323,7 +323,7 @@ class _ProjectState extends State<Project> {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.9,
           width: double.infinity,
-          child: SingleChildScrollView(
+          child: SingleChildScrollView( // eventually move it to ShowMoreContent if only the content should be scrollable
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 8.0,
