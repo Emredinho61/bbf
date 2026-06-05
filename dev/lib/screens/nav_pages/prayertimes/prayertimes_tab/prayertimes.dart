@@ -13,6 +13,7 @@ import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
+import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -729,6 +730,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   /* Beginning of Main Page UI containing prayertimes page, calender page and info page */
   @override
   Widget build(BuildContext context) {
+    SettingsHelper settingsHelper = SettingsHelper();
     final now = DateTime.now();
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     final hijridate = HijriCalendarConfig.now();
@@ -936,7 +938,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
                             Expanded(
                               child: TabBarView(
                                 children: [
-                                  _prayerTimesPage(todayRow, context, isDark),
+                                  _prayerTimesPage(
+                                    prayerTimesHelper,
+                                    settingsHelper,
+                                    todayRow,
+                                    context,
+                                    isDark,
+                                  ),
                                   _calenderPage(),
                                   _informationPage(),
                                 ],
@@ -1020,6 +1028,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   /* prayertimes tab begins here */
   ListView _prayerTimesPage(
+    PrayerTimesHelper prayerTimesHelper,
+    SettingsHelper settingsHelper,
     Map<String, String> todayRow,
     BuildContext context,
     bool isDark,
@@ -1062,7 +1072,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
             _buildPrayerRow(
               'Isha',
-              todayRow['Isha'],
+              settingsHelper.getIshaSettings()
+                  ? prayerTimesHelper.getIshaTimeWith90MinutesAdded(
+                      todayRow['Maghrib']!,
+                    )
+                  : todayRow['Isha'],
               _checkForCurrentPrayer("Isha"),
               ishaIqama,
               Icons.nightlight_round,

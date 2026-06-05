@@ -10,6 +10,7 @@ import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
+import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final PrayertimesService prayertimesService = PrayertimesService();
 
   final CheckUserHelper checkUserHelper = CheckUserHelper();
+
+  final SettingsHelper settingsHelper = SettingsHelper();
 
   /*--Initialize Variables-------------------------------------------------------*/
   late bool isUserAdmin; // used for displaying widgets only for admin
@@ -451,6 +454,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 firestoreService: firestoreService,
               ),
 
+              IshaSettings(settingsHelper: settingsHelper),
               // App version
               _appVersionText(context),
               const Divider(),
@@ -734,6 +738,30 @@ class LightDarkModeSwitch extends StatelessWidget {
         firestoreService.updateTheme(value ? "dark" : "light");
       },
       secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+    );
+  }
+}
+
+class IshaSettings extends StatefulWidget {
+  const IshaSettings({super.key, required this.settingsHelper});
+
+  final SettingsHelper settingsHelper;
+
+  @override
+  State<IshaSettings> createState() => _IshaSettingsState();
+}
+
+class _IshaSettingsState extends State<IshaSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      title: const Text(" + 90 Minuten zu Isha"),
+      value: widget.settingsHelper.getIshaSettings(),
+      // activeThumbColor: BColors.primary,
+      onChanged: (value) async {
+        await widget.settingsHelper.setIshaSetting(value);
+        setState(() {});
+      },
     );
   }
 }
