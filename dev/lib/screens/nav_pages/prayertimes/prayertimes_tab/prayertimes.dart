@@ -430,8 +430,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
       prayers.add(MapEntry(key, prayerTime));
     }
 
-    prayers.sort((a, b) => a.value.compareTo(b.value));
-
     MapEntry<String, DateTime>? previous;
     MapEntry<String, DateTime>? next;
 
@@ -457,7 +455,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
         orElse: () => {},
       );
 
-      final fajrTimeStr = tomorrowRow['Fajr']!;
+      final fajrTimeStr = tomorrowRow['Fajr'];
+      if (fajrTimeStr == null) {
+        return {};
+      }
       final fajrParts = fajrTimeStr.split(':');
 
       next = MapEntry(
@@ -739,8 +740,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
       isIqamaRunning,
     );
 
-    final next = getCurrentPrayerInterval()["next"]!;
-    final previous = getCurrentPrayerInterval()["previous"]!;
+    final interval = getCurrentPrayerInterval();
+
+    final next = interval["next"];
+    final previous = interval["previous"];
+
+    if (next == null || previous == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     final remainingTime = next.difference(now);
     final totalInterval = next.difference(previous);
@@ -781,11 +788,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                         ClipRect(
                           child: SizedBox(
-                            height:
-                                150, 
+                            height: 150,
                             child: OverflowBox(
-                              maxHeight:
-                                  300, 
+                              maxHeight: 300,
                               alignment: Alignment.topCenter,
                               child: CircularPercentIndicator(
                                 radius: 120,
