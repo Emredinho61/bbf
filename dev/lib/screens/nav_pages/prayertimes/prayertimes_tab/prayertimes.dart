@@ -617,7 +617,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive ? Colors.green : Colors.transparent,
           width: 1.5,
@@ -774,28 +774,26 @@ class _PrayerTimesState extends State<PrayerTimes> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    const SizedBox(height: 20),
                     Column(
                       children: [
                         Text(
                           'BBF Verein - Freiburg',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
 
-                        const SizedBox(height: 22),
 
                         ClipRect(
                           child: SizedBox(
-                            height: 150,
+                            height: 130,
                             child: OverflowBox(
                               maxHeight: 300,
                               alignment: Alignment.topCenter,
                               child: CircularPercentIndicator(
-                                radius: 120,
+                                radius: 100,
                                 lineWidth: 5,
                                 percent:
                                     1 -
@@ -806,14 +804,14 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 progressColor: Colors.green,
                                 circularStrokeCap: CircularStrokeCap.round,
                                 center: Transform.translate(
-                                  offset: const Offset(0, -40),
+                                  offset: const Offset(0, -30),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         countdownText,
                                         style: const TextStyle(
-                                          fontSize: 35,
+                                          fontSize: 25,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -821,7 +819,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                       Text(
                                         'bis ${_showNextPrayer()}',
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 16,
                                           color: BColors.primary,
                                         ),
                                       ),
@@ -832,17 +830,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
                             ),
                           ),
                         ),
-
-                        // const SizedBox(height: 12),
-
-                        // Container(
-                        //   width: 90,
-                        //   height: 5,
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.green,
-                        //     borderRadius: BorderRadius.circular(20),
-                        //   ),
-                        // ),
                       ],
                     ),
 
@@ -850,7 +837,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                     _currentDate(hijridate, now, isDark),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     Expanded(
                       child: DefaultTabController(
                         length: 3,
@@ -860,7 +847,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                             Container(
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 10,
+                                vertical: 4,
                               ),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -907,7 +894,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 ),
 
                                 unselectedLabelStyle: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
 
