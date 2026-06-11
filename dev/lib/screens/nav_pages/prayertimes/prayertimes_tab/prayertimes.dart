@@ -633,8 +633,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
       child: Row(
         children: [
           Container(
-            width: 52,
-            height: 42,
+            width: 42,
+            height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: isActive
@@ -650,13 +650,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
             child: Icon(icon, color: isActive ? Colors.white : Colors.black54),
           ),
 
-          const SizedBox(width: 18),
+          const SizedBox(width: 14),
 
           Expanded(
             child: Text(
               name,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : Colors.black87,
               ),
@@ -671,7 +671,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   Text(
                     time ?? '--:--',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
@@ -683,7 +683,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                     '+$iqamaTime',
                     style: TextStyle(
                       color: Colors.green,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -776,6 +776,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   children: <Widget>[
                     Column(
                       children: [
+                        SizedBox(height: 20),
                         Text(
                           'BBF Verein - Freiburg',
                           style: TextStyle(
@@ -785,6 +786,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           ),
                         ),
 
+                        SizedBox(height: 20),
 
                         ClipRect(
                           child: SizedBox(
@@ -846,78 +848,58 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           children: [
                             Container(
                               margin: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
+                                horizontal: 16,
+                                vertical: 2,
                               ),
-                              padding: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: isDark
-                                    ? Colors.white
-                                    : const Color.fromARGB(255, 220, 228, 240),
-                                borderRadius: BorderRadius.circular(28),
+                                    ? const Color(0xFF2A2D35)
+                                    : const Color(0xFFF1F4F8),
+                                borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color.fromARGB(
-                                    255,
-                                    200,
-                                    210,
-                                    225,
-                                  ),
-                                  width: 1,
+                                  color: const Color(0xFFE3E7EE),
+                                  width: 0.8,
                                 ),
                               ),
                               child: TabBar(
-                                labelPadding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
                                 dividerColor: Colors.transparent,
+
+                                labelPadding: EdgeInsets.zero,
+
                                 indicator: BoxDecoration(
                                   color: isDark
                                       ? BColors.prayerRowDark
                                       : Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                      color: Colors.black.withOpacity(0.04),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
 
-                                labelColor: BColors.primary,
+                                indicatorSize: TabBarIndicatorSize.tab,
 
-                                unselectedLabelColor: const Color(0xFF5F6368),
+                                labelColor: BColors.primary,
+                                unselectedLabelColor: const Color(0xFF6B7280),
 
                                 labelStyle: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
 
                                 unselectedLabelStyle: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
 
-                                indicatorSize: TabBarIndicatorSize.tab,
                                 tabs: const [
-                                  Tab(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [Text("Gebetszeiten")],
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [Text("Kalender")],
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [Text("Information")],
-                                    ),
-                                  ),
+                                  Tab(height: 36, text: "Gebetszeiten"),
+                                  Tab(height: 36, text: "Kalender"),
+                                  Tab(height: 36, text: "Information"),
                                 ],
                               ),
                             ),
@@ -1030,7 +1012,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
               todayRow['Fajr'],
               _checkForCurrentPrayer("Fajr"),
               fajrIqama,
-              Icons.wb_twilight,
+              Icons.wb_twilight_outlined,
             ),
 
             _buildPrayerRow(
@@ -1046,7 +1028,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
               todayRow['Asr'],
               _checkForCurrentPrayer("Asr"),
               asrIqama,
-              Icons.sunny,
+              Icons.wb_sunny,
             ),
 
             _buildPrayerRow(
@@ -1066,7 +1048,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   : todayRow['Isha'],
               _checkForCurrentPrayer("Isha"),
               ishaIqama,
-              Icons.nightlight_round,
+              Icons.nightlight_round_outlined,
             ),
             SizedBox(height: 6),
             _divider(context),

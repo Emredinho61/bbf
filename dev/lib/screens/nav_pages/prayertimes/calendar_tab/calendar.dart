@@ -28,7 +28,7 @@ class _CalenderViewState extends State<CalenderView> {
   List<Map<String, String>> csvData = [];
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  CalendarFormat _calendarFormat = CalendarFormat.week;
   String placeHolder = '';
   Map<DateTime, List<Event>> eventSource = {};
   LinkedHashMap<DateTime, List<Event>> events = LinkedHashMap(
@@ -196,9 +196,28 @@ class _CalenderViewState extends State<CalenderView> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           decoration: BoxDecoration(
-            color: isDark ? BColors.prayerRowDark : BColors.secondary,
+            color: isDark
+                ? BColors.prayerRowDark
+                : const Color.fromARGB(255, 255, 255, 255),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BColors.primary),
+
+            border: Border.all(
+              color: BColors.primary.withOpacity(0.3),
+              width: 1,
+            ),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.25 : 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.12 : 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           width: 380,
           child: TableCalendar(
@@ -220,7 +239,8 @@ class _CalenderViewState extends State<CalenderView> {
               ),
             ),
             headerStyle: HeaderStyle(
-              formatButtonVisible: false,
+              formatButtonVisible: true,
+              formatButtonShowsNext: false,
               titleCentered: true,
               titleTextStyle: TextStyle(
                 fontSize: 16,
@@ -284,16 +304,27 @@ class _CalenderViewState extends State<CalenderView> {
           ),
         ),
         SizedBox(height: 20),
-        PrayerTimesTable(prayerTimes: prayerTimes),
+        PrayerTimesTable(
+          prayerTimes: prayerTimes,
+          selectedDate: _selectedDay ?? DateTime.now(),
+        ),
         SizedBox(height: 5),
         Container(
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: BColors.primary),
+            color: isDark ? BColors.prayerRowDark : BColors.primary.withOpacity(0.12),
             borderRadius: BorderRadius.circular(16),
-            color: isDark ? BColors.prayerRowDark : BColors.secondary,
+            border: Border.all(color: BColors.primary.withOpacity(0.15)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: GestureDetector(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
             onTap: () {
               Navigator.push(
                 context,
@@ -307,19 +338,46 @@ class _CalenderViewState extends State<CalenderView> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Icon(
-                    Icons.event,
-                    color: isDark ? Colors.white : BColors.primary,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 235, 235, 235).withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.calendar_month_rounded,
+                      size: 18,
+                      color: BColors.primary,
+                    ),
                   ),
-                  SizedBox(width: 5),
-                  Text(
-                    'Alle Projekte des Tages ansehen',
-                    style: Theme.of(context).textTheme.bodySmall,
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Alle Projekte des Tages ansehen',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF374151),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: BColors.primary,
+                    size: 24,
                   ),
                 ],
               ),
@@ -332,58 +390,135 @@ class _CalenderViewState extends State<CalenderView> {
 }
 
 class PrayerTimesTable extends StatelessWidget {
-  const PrayerTimesTable({super.key, required this.prayerTimes});
+  const PrayerTimesTable({
+    super.key,
+    required this.prayerTimes,
+    required this.selectedDate,
+  });
 
   final Map<String, String> prayerTimes;
+  final DateTime selectedDate;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      width: 380,
-      padding: EdgeInsets.symmetric(vertical: 5),
+      margin: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? BColors.prayerRowDark : BColors.secondary,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BColors.primary),
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: BColors.primary.withOpacity(0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Table(
-          children: [
-            TableRow(
-              children: prayerTimes.keys
-                  .map(
-                    (name) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Center(
-                        child: Text(name, style: TextStyle(fontSize: 10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.access_time_outlined,
+                color: BColors.primary,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${selectedDate.day.toString().padLeft(2, '0')}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.year}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF374151),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          Row(
+            children: prayerTimes.entries.map((entry) {
+              final isLast = entry.key == prayerTimes.keys.last;
+
+              return Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _PrayerTimeItem(
+                        name: entry.key,
+                        time: entry.value,
                       ),
                     ),
-                  )
-                  .toList(),
-            ),
-            TableRow(
-              children: prayerTimes.values
-                  .map(
-                    (time) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Center(
-                        child: Text(
-                          time,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+
+                    if (!isLast)
+                      Container(
+                        width: 1,
+                        height: 55,
+                        color: Colors.grey.withOpacity(0.15),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrayerTimeItem extends StatelessWidget {
+  const _PrayerTimeItem({required this.name, required this.time});
+
+  final String name;
+  final String time;
+
+  IconData _getIcon() {
+    switch (name.toLowerCase()) {
+      case "fajr":
+        return Icons.wb_twilight;
+      case "shuruq":
+        return Icons.wb_sunny_outlined;
+      case "dhur":
+        return Icons.light_mode;
+      case "asr":
+        return Icons.sunny;
+      case "maghrib":
+        return Icons.wb_twilight_outlined;
+      case "isha":
+        return Icons.nightlight_round;
+      default:
+        return Icons.access_time;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(_getIcon(), color: BColors.primary, size: 24),
+
+        const SizedBox(height: 8),
+
+        Text(
+          name,
+          style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
         ),
-      ),
+
+        const SizedBox(height: 6),
+
+        Text(
+          time,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+      ],
     );
   }
 }
