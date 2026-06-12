@@ -1,45 +1,39 @@
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const DonationOverview());
-}
 
 class DonationOverview extends StatelessWidget {
   const DonationOverview({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Donations',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xffF6F5F2),
-        useMaterial3: true,
-      ),
-      home: const DonationPage(),
-    );
-  }
-}
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-class DonationPage extends StatelessWidget {
-  const DonationPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: isDark
+                      ? [
+                          BColors.backgroundColorDark,
+                          BColors.backgroundColorDark,
+                        ]
+                      : [BColors.backgroundColor, BColors.backgroundColor],
+                ),
+              ),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              const _Header(),
               const SizedBox(height: 24),
 
               const _HeroCard(),
 
               const SizedBox(height: 28),
 
-              _sectionTitle("Featured Campaign"),
+              _sectionTitle("Hauptprojekt"),
 
               const SizedBox(height: 14),
 
@@ -47,14 +41,14 @@ class DonationPage extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              _sectionTitle("Community Projects"),
+              _sectionTitle("Kleinere Projekte"),
 
               const SizedBox(height: 14),
 
               const _ProjectCard(
-                title: "Prayer Hall Cooling",
+                title: "Klimanlagen modernisieren",
                 description:
-                    "Install energy efficient cooling systems before summer.",
+                    "In diesem Projekt soll eine Klimaanlage modernisiert werden.",
                 amount: "€12,400",
                 target: "€20,000",
                 progress: .62,
@@ -63,23 +57,23 @@ class DonationPage extends StatelessWidget {
               const SizedBox(height: 14),
 
               const _ProjectCard(
-                title: "Community Kitchen",
+                title: "Küche",
                 description:
-                    "Renovate and modernize the kitchen for events.",
-                amount: "€18,900",
+                    "Der Verein hat derzeit keine Küche in der Ahmet und ich kochen können.",
+                amount: "€12,000",
                 target: "€35,000",
-                progress: .54,
+                progress: .45,
               ),
 
               const SizedBox(height: 14),
 
               const _ProjectCard(
-                title: "Learning Center",
+                title: "Islamische Schule",
                 description:
-                    "Create study spaces and educational resources.",
-                amount: "€31,500",
-                target: "€50,000",
-                progress: .63,
+                    "Islamische Schule um die nöchste Generation Mujaheds auszubilden.",
+                amount: "€5",
+                target: "€1000",
+                progress: .005,
               ),
 
               const SizedBox(height: 24),
@@ -99,12 +93,12 @@ class DonationPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
-                        "Every contribution helps us build a stronger community.",
+                        "Let's make bbf great again..",
                       ),
                     ),
                     FilledButton(
                       onPressed: () {},
-                      child: const Text("Donate"),
+                      child: const Text("Spende hier"),
                     )
                   ],
                 ),
@@ -112,7 +106,7 @@ class DonationPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ),)
     );
   }
 
@@ -125,35 +119,6 @@ class DonationPage extends StatelessWidget {
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.menu),
-        ),
-        const Spacer(),
-        const Text(
-          "Donations",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Spacer(),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_none),
         ),
       ],
     );
@@ -182,7 +147,7 @@ class _HeroCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Build For The Future",
+              "Die Gemeinde für die Zukunft stärken.",
               style: TextStyle(
                 color: Colors.white70,
                 fontWeight: FontWeight.w600,
@@ -190,7 +155,7 @@ class _HeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              "Help expand our community center and prayer facilities.",
+              "Helfe mit unsere Gemeinde zu stärken.",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 26,
@@ -208,7 +173,7 @@ class _HeroCard extends StatelessWidget {
                 color: Color(0xff2E7D32),
               ),
               label: const Text(
-                "Donate Now",
+                "Hier Spenden",
                 style: TextStyle(
                   color: Color(0xff2E7D32),
                 ),
@@ -257,7 +222,7 @@ class _FeaturedProjectCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        "New Mosque Expansion",
+                        "Moscheebau",
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -290,7 +255,7 @@ class _FeaturedProjectCard extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    Text("Goal €2,000,000")
+                    Text("Ziel €2,000,000")
                   ],
                 )
               ],
