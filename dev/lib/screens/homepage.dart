@@ -3,6 +3,7 @@ import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/nav_pages/project/projects_page.dart';
 import 'package:bbf_app/screens/nav_pages/qiblah/qiblah.dart';
 import 'package:bbf_app/screens/nav_pages/settings/settings.dart';
+import 'package:bbf_app/screens/nav_pages/donations/donation_main.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -41,7 +42,7 @@ class _NavBarShellState extends State<NavBarShell> {
 
   static final List<Widget> _pages = <Widget>[
     AllProjects(),
-    Placeholder(),
+    DonationOverview(),
     PrayerTimes(),
     CompassWithQiblah(),
     SettingsPage(),
