@@ -80,6 +80,7 @@ class _CalenderViewState extends State<CalenderView> {
       events
         ..clear()
         ..addAll(eventSource);
+
       _selectedEvents = _getEventsForDay(DateTime.now());
     });
     print(
@@ -287,6 +288,8 @@ class _CalenderViewState extends State<CalenderView> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
                 _selectedEvents = _getEventsForDay(selectedDay);
+                print("Ausgewählter Tag: $selectedDay");
+                print("Events: $_selectedEvents");
               });
             },
             calendarFormat: _calendarFormat,
@@ -312,7 +315,9 @@ class _CalenderViewState extends State<CalenderView> {
         Container(
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? BColors.prayerRowDark : BColors.primary.withOpacity(0.12),
+            color: isDark
+                ? BColors.prayerRowDark
+                : BColors.primary.withOpacity(0.12),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: BColors.primary.withOpacity(0.15)),
             boxShadow: [
@@ -344,7 +349,12 @@ class _CalenderViewState extends State<CalenderView> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 235, 235, 235).withOpacity(0.8),
+                      color: const Color.fromARGB(
+                        255,
+                        235,
+                        235,
+                        235,
+                      ).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(

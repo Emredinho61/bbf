@@ -1,9 +1,10 @@
-import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
+import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CalendarService {
   final projects = FirebaseFirestore.instance.collection('calendarEntries');
+  final CalendarPageHelper calendarPageHelper = CalendarPageHelper();
 
   bool isException(DateTime newDatetime, List<DateTime> exceptions) {
     return exceptions.any(
@@ -22,6 +23,8 @@ class CalendarService {
         .orderBy('hour', descending: false)
         .orderBy('minute', descending: false)
         .get();
+
+    print("Dokumente gefunden: ${querySnapshots.docs.length}");
 
     // iterating through all docs, restructuring the type first and then adding them in all Events
     for (var doc in querySnapshots.docs) {
@@ -87,6 +90,7 @@ class CalendarService {
           final newDatetime = dateTime.add(Duration(days: i * 7));
 
           if (!isException(newDatetime, exceptionList)) {
+            print("Event hinzugefügt: ${event.title} am $newDatetime");
             calendarPageHelper.addEvent(newDatetime, event);
           }
         }
@@ -97,16 +101,18 @@ class CalendarService {
           final newDatetime = dateTime.add(Duration(days: i));
 
           if (!isException(newDatetime, exceptionList)) {
+            print("Event hinzugefügt: ${event.title} am $newDatetime");
             calendarPageHelper.addEvent(newDatetime, event);
           }
         }
       }
       // else (not repetitive)
       else {
+        print("Event hinzugefügt: ${event.title} am $dateTime");
         calendarPageHelper.addEvent(dateTime, event);
       }
     }
-
+    print("VOR RETURN: ${calendarPageHelper.eventSource.length}");
     return calendarPageHelper.eventSource;
   }
 

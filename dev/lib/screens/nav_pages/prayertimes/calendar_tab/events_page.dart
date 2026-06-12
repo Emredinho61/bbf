@@ -7,7 +7,8 @@ class Eventspage extends StatefulWidget {
   final List<Event> events;
   final DateTime focusedDay;
   final bool isUserAdmin;
-  Eventspage({
+
+  const Eventspage({
     super.key,
     required this.events,
     required this.focusedDay,
@@ -19,143 +20,225 @@ class Eventspage extends StatefulWidget {
 }
 
 class _EventspageState extends State<Eventspage> {
-  String year = '';
-  String month = '';
-  String day = '';
-  @override
-  void initState() {
-    super.initState();
-    year = widget.focusedDay.year.toString();
-    month = widget.focusedDay.month.toString();
-    day = widget.focusedDay.day.toString();
+  String get formattedDate {
+    return "${widget.focusedDay.day}."
+        "${widget.focusedDay.month}."
+        "${widget.focusedDay.year}";
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xff121212)
+          : const Color(0xffFAFAFA),
+
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SingleChildScrollView(
-            child: Center(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Column(
+          children: [
+            // HEADER
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Pop tab
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      color: Colors.green,
+                    ),
+                  ),
+                  
+                  // Title of Tab
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Center(
-                        child: Text(
-                          'Alle Ereignisse am $day.$month.$year',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                      Text(
+                        "Projekte am $formattedDate",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xff263238),
                         ),
                       ),
-                      SizedBox(height: 10),
-                      ...widget.events.map(
-                        (event) => Card(
+                      const SizedBox(height: 5),
+                      Text(
+                        "Übersicht aller Projekte und Aktivitäten",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // All Events 
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+
+                itemCount: widget.events.length,
+
+                itemBuilder: (context, index) {
+                  final event = widget.events[index];
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+
+                    padding: const EdgeInsets.all(14),
+
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+
+                      borderRadius: BorderRadius.circular(18),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+
+                      border: Border.all(color: Colors.green.withOpacity(0.08)),
+                    ),
+
+                    child: Row(
+                      children: [
+                        // Icon on left side TODO: Make this configurable from Admin
+                        Container(
+                          width: 60,
+                          height: 60,
+
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+
+                          child: Icon(
+                            Icons.event,
+                            color: Colors.green,
+                            size: 30,
+                          ),
+                        ),
+
+                        const SizedBox(width: 14),
+
+                        Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Text(
-                                    event.title,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge,
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+
+                                child: const Text(
+                                  "Veranstaltung",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green,
                                   ),
                                 ),
                               ),
-                              if (widget.isUserAdmin)
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text('id: ${event.id}'),
+
+                              const SizedBox(height: 6),
+
+                              Text(
+                                event.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                  color: isDark ? Colors.white : Colors.black87,
                                 ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Beschreibung: ${event.content}'),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Uhrzeit: ${event.time} Uhr'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Ort: ${event.location}'),
-                              ),
-                              if (event.link.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: RichText(
-                                    text: TextSpan(
-                                      text: 'Anmeldelink: ',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: 'Hier klicken',
-                                          style: const TextStyle(
-                                            color: Colors.blue,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () async {
-                                              final Uri url = Uri.parse(
-                                                event.link,
-                                              );
-                                              if (!await launchUrl(
-                                                url,
-                                                mode: LaunchMode
-                                                    .externalApplication,
-                                              )) {
-                                                debugPrint(
-                                                  'Konnte $url nicht öffnen',
-                                                );
-                                              }
-                                            },
-                                        ),
-                                      ],
+
+                              const SizedBox(height: 6),
+
+
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 14,
+                                    color: Colors.grey.shade500,
+                                  ),
+
+                                  const SizedBox(width: 5),
+
+                                  Text(
+                                    "${event.time} Uhr",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
                                     ),
                                   ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 14,
+                                    color: Colors.grey.shade500,
+                                  ),
+
+                                  const SizedBox(width: 5),
+
+                                  Text(
+                                    event.location,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              if (widget.isUserAdmin)
+                                Text(
+                                  "id: ${event.id}",
+                                  style: const TextStyle(fontSize: 10),
                                 ),
                             ],
                           ),
                         ),
-                      ),
-                      ActionsRow(),
-                    ],
-                  ),
-                ),
+
+                        const Icon(Icons.chevron_right, color: Colors.green),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-          ),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-// this class also exists in information page -> double code
-class ActionsRow extends StatelessWidget {
-  const ActionsRow({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(Icons.arrow_back_ios),
-          ),
-        ],
       ),
     );
   }
