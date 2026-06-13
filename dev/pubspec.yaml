@@ -47,6 +47,8 @@ dependencies:
   skeletonizer: ^2.1.0+1
   flutter_foreground_task: ^9.2.2
   home_widget: ^0.8.0
+  flutter_datetime_picker_plus: ^2.4.0
+  numberpicker: ^2.1.2
   
 
 dev_dependencies:

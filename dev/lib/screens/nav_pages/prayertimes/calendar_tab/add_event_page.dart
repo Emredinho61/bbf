@@ -1,6 +1,9 @@
 import 'package:bbf_app/backend/services/calendar_service.dart';
+import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 class AddEventPage extends StatefulWidget {
   const AddEventPage({super.key});
@@ -25,6 +28,46 @@ class _AddEventPageState extends State<AddEventPage> {
   final TextEditingController frequencyTextController = TextEditingController();
   final TextEditingController signUpTextController = TextEditingController();
 
+  TimeOfDay? selectedBeginTime;
+  TimeOfDay? selectedEndTime;
+
+  DateTime? selectedDate;
+  int selectedNumber = 1;
+
+  void pickTime(String type) {
+    DatePicker.showTimePicker(
+      context,
+      showSecondsColumn: false,
+      onConfirm: (time) {
+        setState(() {
+          final selected = TimeOfDay(hour: time.hour, minute: time.minute);
+
+          if (type == 'begin') {
+            selectedBeginTime = selected;
+          } else if (type == 'end') {
+            selectedEndTime = selected;
+          }
+        });
+      },
+    );
+  }
+
+  void pickDate() {
+    DatePicker.showDatePicker(
+      context,
+      showTitleActions: true,
+      minTime: DateTime(2020, 1, 1),
+      maxTime: DateTime(2030, 12, 31),
+      onConfirm: (date) {
+        setState(() {
+          selectedDate = date;
+        });
+      },
+      currentTime: DateTime.now(),
+      locale: LocaleType.de,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,22 +85,23 @@ class _AddEventPageState extends State<AddEventPage> {
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     SizedBox(height: 10),
-                    TextField(
-                      controller: idTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'id - zB. 09',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
+                    BTextButton(
+                      onPressed: () => pickTime('begin'),
+                      text: selectedBeginTime == null
+                          ? 'Uhrzeit Beginn auswählen'
+                          : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
+                    ),
+                    BTextButton(
+                      onPressed: () => pickTime('end'),
+                      text: selectedEndTime == null
+                          ? 'Uhrzeit Ende auswählen'
+                          : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
+                    ),
+                    BTextButton(
+                      onPressed: () => pickDate(),
+                      text: selectedDate == null
+                          ? 'Datum auswählen'
+                          : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
                     ),
                     SizedBox(height: 5),
                     TextField(
@@ -78,6 +122,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       ),
                     ),
                     SizedBox(height: 5),
+
                     TextField(
                       controller: contentTextController,
                       cursorColor: BColors.primary,
@@ -97,24 +142,6 @@ class _AddEventPageState extends State<AddEventPage> {
                     ),
                     SizedBox(height: 5),
                     TextField(
-                      controller: timeTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Uhrzeit - zB. 15:05',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
                       controller: locationTextController,
                       cursorColor: BColors.primary,
                       minLines: 1,
@@ -122,96 +149,6 @@ class _AddEventPageState extends State<AddEventPage> {
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         labelText: 'Ort - zB. Großer Gebetsraum',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: yearTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Jahr - zB. 2025',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: monthTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Monat - zB. 10',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: dayTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Tag - zB. 05',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: hourTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Stunde - zB. 15',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: minuteTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Minute - zB. 05',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -289,17 +226,23 @@ class _AddEventPageState extends State<AddEventPage> {
                         ),
                         ElevatedButton(
                           onPressed: () async {
+                            int beginTimeInMinutes = selectedBeginTime != null
+                                ? selectedBeginTime!.hour * 60 +
+                                      selectedBeginTime!.minute
+                                : 0;
+                            int endTimeInMinutes = selectedEndTime != null
+                                ? selectedEndTime!.hour * 60 +
+                                      selectedEndTime!.minute
+                                : 0;
                             await calendarService.addEventToBackEnd(
-                              idTextController.text,
                               titleTextController.text,
                               contentTextController.text,
                               locationTextController.text,
-                              timeTextController.text,
-                              yearTextController.text,
-                              monthTextController.text,
-                              dayTextController.text,
-                              hourTextController.text,
-                              minuteTextController.text,
+                              selectedDate!.year,
+                              selectedDate!.month,
+                              selectedDate!.day,
+                              beginTimeInMinutes,
+                              endTimeInMinutes,
                               repeatTextController.text,
                               frequencyTextController.text,
                               signUpTextController.text,

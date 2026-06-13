@@ -20,9 +20,9 @@ class CalendarService {
     calendarPageHelper.eventSource.clear();
     // contains all docs in following format: Map<String, dynamic>; ex. {'title' : 'Quran Schule'}
     final querySnapshots = await projects
-        .orderBy('hour', descending: false)
-        .orderBy('minute', descending: false)
-        .get();
+        .orderBy('beginninghour', descending: false)
+        .orderBy('beginningminute', descending: false)
+        .get(); // sorting by time, so that they are added in the right order in calendarPageHelper.eventSource
 
     print("Dokumente gefunden: ${querySnapshots.docs.length}");
 
@@ -55,8 +55,8 @@ class CalendarService {
             int.parse(dateParts[0]),
             int.parse(dateParts[1]),
             int.parse(dateParts[2]),
-            (data['hour'] as num).toInt(),
-            (data['minute'] as num).toInt(),
+            // (data['hour'] as num).toInt(),
+            // (data['minute'] as num).toInt(),
           );
           print(
             '$exceptionDate---------------------------------------------------------------------------------------------',
@@ -71,15 +71,15 @@ class CalendarService {
         (data['year'] as num).toInt(),
         (data['month'] as num).toInt(),
         (data['day'] as num).toInt(),
-        (data['hour'] as num).toInt(),
-        (data['minute'] as num).toInt(),
+        // (data['hour'] as num).toInt(),
+        // (data['minute'] as num).toInt(),
       );
       // creating an Event object out of data
       final Event event = Event(
         data['id'],
         data['title'],
         data['content'],
-        data['time'],
+        '${data['beginninghour'].toString().padLeft(2, '0')}:${data['beginningminute'].toString().padLeft(2, '0')} - ${data['endhour'].toString().padLeft(2, '0')}:${data['endminute'].toString().padLeft(2, '0')}',
         data['location'],
         data['link'] ?? '',
       );
@@ -117,40 +117,33 @@ class CalendarService {
   }
 
   Future<void> addEventToBackEnd(
-    String id,
     String title,
     String content,
     String location,
-    String time,
-    String year,
-    String month,
-    String day,
-    String hour,
-    String minute,
+    int year,
+    int month,
+    int day,
+    int beginTimeInMinutes,
+    int endTimeInMinutes,
     String repeat,
     String frequency,
     String signUpTextController,
   ) async {
-    // since these are saved as ints in backend, parse it
-    int yearInInt = int.parse(year);
-    int monthInInt = int.parse(month);
-    int dayInInt = int.parse(day);
-    int hourInInt = int.parse(hour);
-    int minuteInInt = int.parse(minute);
     int frequencyInInt = int.parse(frequency);
 
     // add to backend
-    projects.doc(id).set({
-      'id': id,
+    projects.doc(title).set({
+      'id': title,
       'title': title,
       'content': content,
-      'time': time,
       'location': location,
-      'year': yearInInt,
-      'month': monthInInt,
-      'day': dayInInt,
-      'hour': hourInInt,
-      'minute': minuteInInt,
+      'year': year,
+      'month': month,
+      'day': day,
+      'beginninghour': beginTimeInMinutes ~/ 60,
+      'beginningminute': beginTimeInMinutes % 60,
+      'endhour': endTimeInMinutes ~/ 60,
+      'endminute': endTimeInMinutes % 60,
       'repeat': repeat,
       'frequency': frequencyInInt,
       'link': signUpTextController,

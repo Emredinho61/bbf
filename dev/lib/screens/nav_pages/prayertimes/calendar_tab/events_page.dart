@@ -55,7 +55,7 @@ class _EventspageState extends State<Eventspage> {
                       color: Colors.green,
                     ),
                   ),
-                  
+
                   // Title of Tab
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -88,7 +88,7 @@ class _EventspageState extends State<Eventspage> {
 
             const SizedBox(height: 10),
 
-            // All Events 
+            // All Events
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -177,7 +177,6 @@ class _EventspageState extends State<Eventspage> {
                               ),
 
                               const SizedBox(height: 6),
-
 
                               Row(
                                 children: [
