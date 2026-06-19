@@ -1,4 +1,5 @@
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -60,26 +61,39 @@ class _EventspageState extends State<Eventspage> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "Projekte am $formattedDate",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xff263238),
-                        ),
-                      ),
+                      widget.events.isEmpty
+                          ? Text(
+                              "Keine Projekte am $formattedDate",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xff263238),
+                              ),
+                            )
+                          : Text(
+                              "Projekte am $formattedDate",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xff263238),
+                              ),
+                            ),
                       const SizedBox(height: 5),
-                      Text(
-                        "Übersicht aller Projekte und Aktivitäten",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
+                      if (widget.events.isNotEmpty)
+                        Text(
+                          "Übersicht aller Projekte und Aktivitäten",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ],
@@ -144,6 +158,7 @@ class _EventspageState extends State<Eventspage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
 
+                            // event type badget
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
@@ -178,6 +193,7 @@ class _EventspageState extends State<Eventspage> {
 
                               const SizedBox(height: 6),
 
+                              // Time of Event
                               Row(
                                 children: [
                                   Icon(
@@ -200,6 +216,7 @@ class _EventspageState extends State<Eventspage> {
 
                               const SizedBox(height: 4),
 
+                              // event location
                               Row(
                                 children: [
                                   Icon(
@@ -219,17 +236,26 @@ class _EventspageState extends State<Eventspage> {
                                   ),
                                 ],
                               ),
-
-                              if (widget.isUserAdmin)
-                                Text(
-                                  "id: ${event.id}",
-                                  style: const TextStyle(fontSize: 10),
-                                ),
                             ],
                           ),
                         ),
 
-                        const Icon(Icons.chevron_right, color: Colors.green),
+                        // show description of event
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EventDetailPage(event: event),
+                              ),
+                            );
+                          },
+
+                          child: const Icon(
+                            Icons.chevron_right,
+                            color: Colors.green,
+                          ),
+                        ),
                       ],
                     ),
                   );
