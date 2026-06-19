@@ -126,11 +126,9 @@ class CalendarService {
     int beginTimeInMinutes,
     int endTimeInMinutes,
     String repeat,
-    String frequency,
+    int frequency,
     String signUpTextController,
   ) async {
-    int frequencyInInt = int.parse(frequency);
-
     // add to backend
     projects.doc(title).set({
       'id': title,
@@ -145,7 +143,7 @@ class CalendarService {
       'endhour': endTimeInMinutes ~/ 60,
       'endminute': endTimeInMinutes % 60,
       'repeat': repeat,
-      'frequency': frequencyInInt,
+      'frequency': frequency,
       'link': signUpTextController,
     });
   }

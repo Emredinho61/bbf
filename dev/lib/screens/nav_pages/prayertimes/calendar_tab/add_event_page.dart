@@ -30,6 +30,9 @@ class _AddEventPageState extends State<AddEventPage> {
 
   TimeOfDay? selectedBeginTime;
   TimeOfDay? selectedEndTime;
+  int? frequency;
+  String? repeat; // for backend
+  String? repeatLabel; // for UI
 
   DateTime? selectedDate;
   int selectedNumber = 1;
@@ -38,6 +41,7 @@ class _AddEventPageState extends State<AddEventPage> {
     DatePicker.showTimePicker(
       context,
       showSecondsColumn: false,
+      locale: LocaleType.de,
       onConfirm: (time) {
         setState(() {
           final selected = TimeOfDay(hour: time.hour, minute: time.minute);
@@ -65,6 +69,100 @@ class _AddEventPageState extends State<AddEventPage> {
       },
       currentTime: DateTime.now(),
       locale: LocaleType.de,
+    );
+  }
+
+  Future<Map<String, String>?> showRepeatPicker(BuildContext context) async {
+    return await showModalBottomSheet<Map<String, String>>(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.block),
+              title: Text("Nicht wiederholen"),
+              onTap: () {
+                Navigator.pop(context, {
+                  "value": "none",
+                  "label": "Nicht wiederholen",
+                });
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.today),
+              title: Text("Täglich"),
+              onTap: () {
+                Navigator.pop(context, {"value": "daily", "label": "Täglich"});
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.calendar_view_week),
+              title: Text("Wöchentlich"),
+              onTap: () {
+                Navigator.pop(context, {
+                  "value": "weekly",
+                  "label": "Wöchentlich",
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<int?> showFrequencyPicker(
+    BuildContext context,
+    int currentValue,
+  ) async {
+    int selectedValue = currentValue;
+
+    return await showModalBottomSheet<int>(
+      context: context,
+
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Frequenz auswählen",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  NumberPicker(
+                    value: selectedValue,
+                    minValue: 1,
+                    maxValue: 52,
+                    onChanged: (value) {
+                      setModalState(() {
+                        selectedValue = value;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, selectedValue);
+                    },
+                    child: const Text("Bestätigen"),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -103,7 +201,38 @@ class _AddEventPageState extends State<AddEventPage> {
                           ? 'Datum auswählen'
                           : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
                     ),
-                    SizedBox(height: 5),
+                    BTextButton(
+                      onPressed: () async {
+                        final result = await showRepeatPicker(context);
+
+                        if (result != null) {
+                          setState(() {
+                            repeat = result['value'];
+                            repeatLabel = result['label'];
+                          });
+                        }
+                      },
+                      text: repeatLabel == null
+                          ? "Wiederholen"
+                          : "Wiederholen: $repeatLabel",
+                    ),
+                    BTextButton(
+                      onPressed: () async {
+                        final result = await showFrequencyPicker(
+                          context,
+                          frequency ?? 1,
+                        );
+
+                        if (result != null) {
+                          setState(() {
+                            frequency = result;
+                          });
+                        }
+                      },
+                      text: frequency == null
+                          ? "Frequenz auswählen"
+                          : "Frequenz: $frequency",
+                    ),
                     TextField(
                       controller: titleTextController,
                       cursorColor: BColors.primary,
@@ -130,7 +259,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       maxLines: 5,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                        labelText: 'Inhalt',
+                        labelText: 'Beschreibung',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -149,44 +278,6 @@ class _AddEventPageState extends State<AddEventPage> {
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         labelText: 'Ort - zB. Großer Gebetsraum',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-
-                    TextField(
-                      controller: repeatTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Wiederholen - daily oder weekly oder none',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-
-                    TextField(
-                      controller: frequencyTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Häufigkeit - zB. 5',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -243,8 +334,8 @@ class _AddEventPageState extends State<AddEventPage> {
                               selectedDate!.day,
                               beginTimeInMinutes,
                               endTimeInMinutes,
-                              repeatTextController.text,
-                              frequencyTextController.text,
+                              repeat!,
+                              frequency!,
                               signUpTextController.text,
                             );
                             Navigator.pop(context, true);
