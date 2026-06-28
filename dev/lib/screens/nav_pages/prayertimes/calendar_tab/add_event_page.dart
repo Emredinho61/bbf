@@ -28,15 +28,16 @@ class _AddEventPageState extends State<AddEventPage> {
   final TextEditingController frequencyTextController = TextEditingController();
   final TextEditingController signUpTextController = TextEditingController();
 
-  TimeOfDay? selectedBeginTime;
-  TimeOfDay? selectedEndTime;
-  int? frequency;
-  String? repeat; // for backend
-  String? repeatLabel; // for UI
+  TimeOfDay? selectedBeginTime; // beginning of the event
+  TimeOfDay? selectedEndTime; // end of the event
+  int? frequency; // how often the event repeats (e.g., every 2 weeks)
+  String? repeat; // how the event repeats (e.g., daily, weekly, monthly) used for backend
+  String? repeatLabel; // how the event repeats (e.g., daily, weekly, monthly) used for frontend
 
-  DateTime? selectedDate;
-  int selectedNumber = 1;
+  DateTime? selectedDate; // date of the event
+  int selectedNumber = 1; // number of times the event repeats
 
+  // Function to pick beginning and end time for the event
   void pickTime(String type) {
     DatePicker.showTimePicker(
       context,
@@ -56,6 +57,7 @@ class _AddEventPageState extends State<AddEventPage> {
     );
   }
 
+  // Function to pick date for the event
   void pickDate() {
     DatePicker.showDatePicker(
       context,
@@ -72,6 +74,7 @@ class _AddEventPageState extends State<AddEventPage> {
     );
   }
 
+  // Function to show a modal bottom sheet for selecting the repeat option
   Future<Map<String, String>?> showRepeatPicker(BuildContext context) async {
     return await showModalBottomSheet<Map<String, String>>(
       context: context,
@@ -114,6 +117,7 @@ class _AddEventPageState extends State<AddEventPage> {
     );
   }
 
+  // Function to show a modal bottom sheet for selecting the frequency of the event
   Future<int?> showFrequencyPicker(
     BuildContext context,
     int currentValue,
@@ -171,186 +175,187 @@ class _AddEventPageState extends State<AddEventPage> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Center(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Event hinzufügen',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    SizedBox(height: 10),
-                    BTextButton(
-                      onPressed: () => pickTime('begin'),
-                      text: selectedBeginTime == null
-                          ? 'Uhrzeit Beginn auswählen'
-                          : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
-                    ),
-                    BTextButton(
-                      onPressed: () => pickTime('end'),
-                      text: selectedEndTime == null
-                          ? 'Uhrzeit Ende auswählen'
-                          : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
-                    ),
-                    BTextButton(
-                      onPressed: () => pickDate(),
-                      text: selectedDate == null
-                          ? 'Datum auswählen'
-                          : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
-                    ),
-                    BTextButton(
-                      onPressed: () async {
-                        final result = await showRepeatPicker(context);
-
-                        if (result != null) {
-                          setState(() {
-                            repeat = result['value'];
-                            repeatLabel = result['label'];
-                          });
-                        }
-                      },
-                      text: repeatLabel == null
-                          ? "Wiederholen"
-                          : "Wiederholen: $repeatLabel",
-                    ),
-                    BTextButton(
-                      onPressed: () async {
-                        final result = await showFrequencyPicker(
-                          context,
-                          frequency ?? 1,
-                        );
-
-                        if (result != null) {
-                          setState(() {
-                            frequency = result;
-                          });
-                        }
-                      },
-                      text: frequency == null
-                          ? "Frequenz auswählen"
-                          : "Frequenz: $frequency",
-                    ),
-                    TextField(
-                      controller: titleTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Titel',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 5),
+                  Text(
+                    'Event hinzufügen',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  SizedBox(height: 10),
+                  // Buttons to pick (beginning and end) time and date
+                  BTextButton(
+                    onPressed: () => pickTime('begin'),
+                    text: selectedBeginTime == null
+                        ? 'Uhrzeit Beginn auswählen'
+                        : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
+                  ),
+                  BTextButton(
+                    onPressed: () => pickTime('end'),
+                    text: selectedEndTime == null
+                        ? 'Uhrzeit Ende auswählen'
+                        : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
+                  ),
+                  BTextButton(
+                    onPressed: () => pickDate(),
+                    text: selectedDate == null
+                        ? 'Datum auswählen'
+                        : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
+                  ),
+                  // Buttons to pick repeat option and frequency
+                  BTextButton(
+                    onPressed: () async {
+                      final result = await showRepeatPicker(context);
+          
+                      if (result != null) {
+                        setState(() {
+                          repeat = result['value'];
+                          repeatLabel = result['label'];
+                        });
+                      }
+                    },
+                    text: repeatLabel == null
+                        ? "Wiederholen"
+                        : "Wiederholen: $repeatLabel",
+                  ),
+                  BTextButton(
+                    onPressed: () async {
+                      final result = await showFrequencyPicker(
+                        context,
+                        frequency ?? 1,
+                      );
+          
+                      if (result != null) {
+                        setState(() {
+                          frequency = result;
+                        });
+                      }
+                    },
+                    text: frequency == null
+                        ? "Frequenz auswählen"
+                        : "Frequenz: $frequency",
+                  ),
+                  // TextFields to input title, content, location, and sign-up link
+                  TextField(
+                    controller: titleTextController,
+                    cursorColor: BColors.primary,
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Titel',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: BColors.primary,
+                          width: 2,
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
-
-                    TextField(
-                      controller: contentTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Beschreibung',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
+                  ),
+                  SizedBox(height: 5),
+                  TextField(
+                    controller: contentTextController,
+                    cursorColor: BColors.primary,
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Beschreibung',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: BColors.primary,
+                          width: 2,
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: locationTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Ort - zB. Großer Gebetsraum',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
+                  ),
+                  SizedBox(height: 5),
+                  TextField(
+                    controller: locationTextController,
+                    cursorColor: BColors.primary,
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Ort - zB. Großer Gebetsraum',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: BColors.primary,
+                          width: 2,
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: signUpTextController,
-                      cursorColor: BColors.primary,
-                      minLines: 1,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: 'Anmeldelink',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: BColors.primary,
-                            width: 2,
-                          ),
+                  ),
+                  SizedBox(height: 5),
+                  TextField(
+                    controller: signUpTextController,
+                    cursorColor: BColors.primary,
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Anmeldelink',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: BColors.primary,
+                          width: 2,
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.arrow_back_ios),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            int beginTimeInMinutes = selectedBeginTime != null
-                                ? selectedBeginTime!.hour * 60 +
-                                      selectedBeginTime!.minute
-                                : 0;
-                            int endTimeInMinutes = selectedEndTime != null
-                                ? selectedEndTime!.hour * 60 +
-                                      selectedEndTime!.minute
-                                : 0;
-                            await calendarService.addEventToBackEnd(
-                              titleTextController.text,
-                              contentTextController.text,
-                              locationTextController.text,
-                              selectedDate!.year,
-                              selectedDate!.month,
-                              selectedDate!.day,
-                              beginTimeInMinutes,
-                              endTimeInMinutes,
-                              repeat!,
-                              frequency!,
-                              signUpTextController.text,
-                            );
-                            Navigator.pop(context, true);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
-                            child: Text('Hinzufügen'),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(Icons.arrow_back_ios),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          int beginTimeInMinutes = selectedBeginTime != null
+                              ? selectedBeginTime!.hour * 60 +
+                                    selectedBeginTime!.minute
+                              : 0;
+                          int endTimeInMinutes = selectedEndTime != null
+                              ? selectedEndTime!.hour * 60 +
+                                    selectedEndTime!.minute
+                              : 0;
+                          await calendarService.addEventToBackEnd(
+                            titleTextController.text,
+                            contentTextController.text,
+                            locationTextController.text,
+                            selectedDate!.year,
+                            selectedDate!.month,
+                            selectedDate!.day,
+                            beginTimeInMinutes,
+                            endTimeInMinutes,
+                            repeat!,
+                            frequency!,
+                            signUpTextController.text,
+                          );
+                          Navigator.pop(context, true);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
                           ),
+                          child: Text('Hinzufügen'),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

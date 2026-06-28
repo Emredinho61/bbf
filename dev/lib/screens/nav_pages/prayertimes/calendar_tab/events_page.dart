@@ -1,8 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Eventspage extends StatefulWidget {
   final List<Event> events;

@@ -1,11 +1,8 @@
 import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'project_card.dart';
-import 'package:skeletonizer/skeletonizer.dart';
-
 class ProjectsByTense extends StatefulWidget {
   final String tense;
   ProjectsByTense({super.key, required this.tense});
@@ -69,7 +66,6 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Setting up the layout for the projects
     return Scaffold(
       backgroundColor: BColors.backgroundColor,

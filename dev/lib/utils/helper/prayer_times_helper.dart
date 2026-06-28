@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/shared_preferences_service.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

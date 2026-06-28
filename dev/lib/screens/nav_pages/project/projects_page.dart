@@ -21,7 +21,6 @@ class _AllProjectsState extends State<AllProjects> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: BColors.backgroundColor,
       body: SafeArea(

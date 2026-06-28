@@ -51,7 +51,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
 
-      if (result != null && result.files.single.path != null) {
+      if (result.files.single.path != null) {
         setState(() {
           _imageFile = File(result.files.single.path!);
           _selectedImageName = result.files.single.name;

@@ -1,12 +1,7 @@
 import 'dart:io';
-
 import 'package:bbf_app/backend/services/information_service.dart';
-import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 /*
 If admin chooses to add a new Information, then he will be redirected to this page.

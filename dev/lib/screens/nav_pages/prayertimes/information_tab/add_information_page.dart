@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bbf_app/backend/services/information_service.dart';
-import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
