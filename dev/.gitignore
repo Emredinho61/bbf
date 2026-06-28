@@ -214,3 +214,6 @@ app.*.symbols
 
 # pubspec.lock
 pubspec.lock
+
+# Claude Code project memory (local only)
+CLAUDE.md

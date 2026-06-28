@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:bbf_app/backend/services/projects_service.dart';
+import 'package:bbf_app/components/events/event_pickers.dart';
+import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,6 +25,8 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   File? _imageFile;
   final TextEditingController _titleController = TextEditingController();
   ProjectsService projectsService = ProjectsService();
+
+  DateTime? _selectedDate;
 
   bool _isUploading = false;
   bool _displayErrorText = false;
@@ -140,10 +144,6 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController yearTextEditingController = TextEditingController();
-    TextEditingController monthTextEditingController = TextEditingController();
-    TextEditingController dayTextEditingController = TextEditingController();
-
     return AlertDialog(
       title: const Text("Projekt hochladen"),
       content: SingleChildScrollView(
@@ -180,25 +180,16 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
               ),
             const SizedBox(height: 12),
 
-            BTextField(
-              label: 'Jahr',
-              controller: yearTextEditingController,
-              obscureText: false,
-              obligatory: true,
-            ),
-            const SizedBox(height: 8),
-            BTextField(
-              label: 'Monat',
-              controller: monthTextEditingController,
-              obscureText: false,
-              obligatory: true,
-            ),
-            const SizedBox(height: 8),
-            BTextField(
-              label: 'Tag',
-              controller: dayTextEditingController,
-              obscureText: false,
-              obligatory: true,
+            BTextButton(
+              onPressed: () => EventPickers.pickDate(
+                context,
+                onConfirm: (date) {
+                  setState(() => _selectedDate = date);
+                },
+              ),
+              text: _selectedDate == null
+                  ? 'Datum auswählen'
+                  : 'Datum: ${_selectedDate!.day.toString().padLeft(2, '0')}.${_selectedDate!.month.toString().padLeft(2, '0')}.${_selectedDate!.year}',
             ),
             const SizedBox(height: 8),
             if (_displayErrorText)
@@ -221,23 +212,18 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              if (yearTextEditingController.text.isEmpty ||
-                  monthTextEditingController.text.isEmpty ||
-                  dayTextEditingController.text.isEmpty) {
-                _displayErrorText = true;
-                return;
-              } else {
-                _displayErrorText = false;
-              }
+              _displayErrorText = _selectedDate == null;
             });
 
-            if (_isUploading || _markdownFile == null) return;
+            if (_displayErrorText || _isUploading || _markdownFile == null) {
+              return;
+            }
 
             _uploadProject(
               _pictureOrientation,
-              int.parse(yearTextEditingController.text),
-              int.parse(monthTextEditingController.text),
-              int.parse(dayTextEditingController.text),
+              _selectedDate!.year,
+              _selectedDate!.month,
+              _selectedDate!.day,
             );
           },
           style: ElevatedButton.styleFrom(

@@ -1,10 +1,10 @@
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
+import 'package:bbf_app/components/events/event_pickers.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/prayertimes_upload.dart';
 // import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_button.dart';
-import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
@@ -13,6 +13,7 @@ import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -69,98 +70,100 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
 
+  // Converts a "HH:mm" string from the backend into a TimeOfDay.
+  // Returns null if the value is empty or not in the expected format.
+  TimeOfDay? _parseTimeOfDay(String value) {
+    final parts = value.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  // Converts a TimeOfDay back into the "HH:mm" string format used in the backend.
+  String _formatTimeOfDay(TimeOfDay? time) {
+    if (time == null) return '';
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
   // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() async {
     final String currentFridayPrayer1 = await prayertimesService
         .getFridayPrayer1();
     final String currentFridayPrayer2 = await prayertimesService
         .getFridayPrayer2();
-    TextEditingController fridayPrayer1Controller = TextEditingController(
-      text: currentFridayPrayer1,
-    );
-    TextEditingController fridayPrayer2Controller = TextEditingController(
-      text: currentFridayPrayer2,
-    );
+
+    TimeOfDay? fridayPrayer1Time = _parseTimeOfDay(currentFridayPrayer1);
+    TimeOfDay? fridayPrayer2Time = _parseTimeOfDay(currentFridayPrayer2);
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
-      builder: (context) {
-        return SingleChildScrollView(
-          child: AlertDialog(
-            title: Text('Iqama & Jumua\'a Zeiten ändern'),
-            content: _fridaysPrayerTextFields(
-              fridayPrayer1Controller,
-              fridayPrayer2Controller,
-            ),
-            actions: [
-              _actionsRowForFridaysPrayer(
-                context,
-                fridayPrayer1Controller,
-                fridayPrayer2Controller,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: Text('Freitagsgebetszeiten ändern'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BTextButton(
+                    onPressed: () => EventPickers.pickTime(
+                      dialogContext,
+                      initialTime: fridayPrayer1Time,
+                      onConfirm: (time) =>
+                          setDialogState(() => fridayPrayer1Time = time),
+                    ),
+                    text: fridayPrayer1Time == null
+                        ? '1. Freitagsgebet auswählen'
+                        : '1. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer1Time)} Uhr',
+                  ),
+                  SizedBox(height: 5),
+                  BTextButton(
+                    onPressed: () => EventPickers.pickTime(
+                      dialogContext,
+                      initialTime: fridayPrayer2Time,
+                      onConfirm: (time) =>
+                          setDialogState(() => fridayPrayer2Time = time),
+                    ),
+                    text: fridayPrayer2Time == null
+                        ? '2. Freitagsgebet auswählen'
+                        : '2. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer2Time)} Uhr',
+                  ),
+                ],
               ),
-            ],
-          ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: Text('Zurück'),
+                    ),
+                    MaterialButton(
+                      onPressed: () async {
+                        await prayertimesService.updateFridayPrayerTimes(
+                          _formatTimeOfDay(fridayPrayer1Time),
+                          _formatTimeOfDay(fridayPrayer2Time),
+                        );
+                        Navigator.pop(dialogContext);
+                      },
+                      child: Text('Ändern'),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
-  Row _actionsRowForFridaysPrayer(
-    BuildContext context,
-    TextEditingController fridayPrayer1Controller,
-    TextEditingController fridayPrayer2Controller,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        MaterialButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Zurück'),
-        ),
-        MaterialButton(
-          onPressed: () async {
-            final fridayPrayer1 = fridayPrayer1Controller.text.trim();
-            final fridayPrayer2 = fridayPrayer2Controller.text.trim();
-            await prayertimesService.updateFridayPrayerTimes(
-              fridayPrayer1,
-              fridayPrayer2,
-            );
-            Navigator.pop(context);
-          },
-          child: Text('Ändern'),
-        ),
-      ],
-    );
-  }
-
-  Column _fridaysPrayerTextFields(
-    TextEditingController fridayPrayer1Controller,
-    TextEditingController fridayPrayer2Controller,
-  ) {
-    return Column(
-      children: [
-        BTextField(
-          label: '1. Freitagsgebet',
-          icon: Icons.access_time,
-          controller: fridayPrayer1Controller,
-          obscureText: false,
-          obligatory: false,
-        ),
-        SizedBox(height: 5),
-        BTextField(
-          label: '2. Freitagsgebet',
-          icon: Icons.access_time,
-          controller: fridayPrayer2Controller,
-          obscureText: false,
-          obligatory: false,
-        ),
-      ],
-    );
-  }
-
-  // Admin can change Iqama times here
+  // Admin can change Iqama times here. Iqama values are stored as the
+  // number of minutes after the prayer time, e.g. "10".
   void _showDialogForIqamaTimes() async {
     final String fajr = await prayertimesService.getFajrIqama();
     final String dhur = await prayertimesService.getDhurIqama();
@@ -168,138 +171,105 @@ class _SettingsPageState extends State<SettingsPage> {
     final String maghrib = await prayertimesService.getMaghribIqama();
     final String isha = await prayertimesService.getIshaIqama();
 
-    TextEditingController fajrIqamaController = TextEditingController(
-      text: fajr,
-    );
-    TextEditingController dhurIqamaController = TextEditingController(
-      text: dhur,
-    );
-    TextEditingController asrIqamaController = TextEditingController(text: asr);
-    TextEditingController maghribIqamaController = TextEditingController(
-      text: maghrib,
-    );
-    TextEditingController ishaIqamaController = TextEditingController(
-      text: isha,
-    );
+    int fajrIqama = int.tryParse(fajr) ?? 10;
+    int dhurIqama = int.tryParse(dhur) ?? 10;
+    int asrIqama = int.tryParse(asr) ?? 10;
+    int maghribIqama = int.tryParse(maghrib) ?? 10;
+    int ishaIqama = int.tryParse(isha) ?? 10;
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
-      builder: (context) {
-        return SingleChildScrollView(
-          child: AlertDialog(
-            title: Text('Iqama & Jumua\'a Zeiten ändern'),
-            content: _iqamaTimesTextFields(
-              fajrIqamaController,
-              dhurIqamaController,
-              asrIqamaController,
-              maghribIqamaController,
-              ishaIqamaController,
-            ),
-            actions: [
-              _actionsRowForIqama(
-                context,
-                fajrIqamaController,
-                dhurIqamaController,
-                asrIqamaController,
-                maghribIqamaController,
-                ishaIqamaController,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: Text('Iqama Zeiten ändern'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _iqamaNumberPickerRow(
+                      'Fajr',
+                      fajrIqama,
+                      (value) => setDialogState(() => fajrIqama = value),
+                    ),
+                    _iqamaNumberPickerRow(
+                      'Dhur',
+                      dhurIqama,
+                      (value) => setDialogState(() => dhurIqama = value),
+                    ),
+                    _iqamaNumberPickerRow(
+                      'Asr',
+                      asrIqama,
+                      (value) => setDialogState(() => asrIqama = value),
+                    ),
+                    _iqamaNumberPickerRow(
+                      'Maghrib',
+                      maghribIqama,
+                      (value) => setDialogState(() => maghribIqama = value),
+                    ),
+                    _iqamaNumberPickerRow(
+                      'Isha',
+                      ishaIqama,
+                      (value) => setDialogState(() => ishaIqama = value),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: Text('Zurück'),
+                    ),
+                    MaterialButton(
+                      onPressed: () async {
+                        await prayertimesService.updateIqamaTimes(
+                          fajrIqama.toString(),
+                          dhurIqama.toString(),
+                          asrIqama.toString(),
+                          maghribIqama.toString(),
+                          ishaIqama.toString(),
+                        );
+                        Navigator.pop(dialogContext);
+                      },
+                      child: Text('Ändern'),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
-  Row _actionsRowForIqama(
-    BuildContext context,
-    TextEditingController fajrIqamaController,
-    TextEditingController dhurIqamaController,
-    TextEditingController asrIqamaController,
-    TextEditingController maghribIqamaController,
-    TextEditingController ishaIqamaController,
+  Widget _iqamaNumberPickerRow(
+    String prayerName,
+    int value,
+    ValueChanged<int> onChanged,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        MaterialButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Zurück'),
-        ),
-        MaterialButton(
-          onPressed: () async {
-            final fajrIqama = fajrIqamaController.text.trim();
-            final dhurIqama = dhurIqamaController.text.trim();
-            final asrIqama = asrIqamaController.text.trim();
-            final maghribIqama = maghribIqamaController.text.trim();
-            final ishaIqama = ishaIqamaController.text.trim();
-
-            await prayertimesService.updateIqamaTimes(
-              fajrIqama,
-              dhurIqama,
-              asrIqama,
-              maghribIqama,
-              ishaIqama,
-            );
-            Navigator.pop(context);
-          },
-          child: Text('Ändern'),
-        ),
-      ],
-    );
-  }
-
-  Column _iqamaTimesTextFields(
-    TextEditingController fajrIqamaController,
-    TextEditingController dhurIqamaController,
-    TextEditingController asrIqamaController,
-    TextEditingController maghribIqamaController,
-    TextEditingController ishaIqamaController,
-  ) {
-    return Column(
-      children: [
-        BTextField(
-          label: 'Fajr Iqama',
-          icon: Icons.access_time,
-          controller: fajrIqamaController,
-          obscureText: false,
-          obligatory: false,
-        ),
-        SizedBox(height: 5),
-        BTextField(
-          label: 'Dhur Iqama',
-          icon: Icons.access_time,
-          controller: dhurIqamaController,
-          obscureText: false,
-          obligatory: false,
-        ),
-        SizedBox(height: 5),
-        BTextField(
-          label: 'Asr Iqama',
-          icon: Icons.access_time,
-          controller: asrIqamaController,
-          obscureText: false,
-          obligatory: false,
-        ),
-        SizedBox(height: 5),
-        BTextField(
-          label: 'Maghrib Iqama',
-          icon: Icons.access_time,
-          controller: maghribIqamaController,
-          obscureText: false,
-          obligatory: false,
-        ),
-        SizedBox(height: 5),
-        BTextField(
-          label: 'Isha Iqama',
-          icon: Icons.access_time,
-          controller: ishaIqamaController,
-          obscureText: false,
-          obligatory: false,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('$prayerName Iqama (Minuten)'),
+          NumberPicker(
+            value: value,
+            minValue: 0,
+            maxValue: 60,
+            itemWidth: 60,
+            itemHeight: 32,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 
