@@ -1,3 +1,5 @@
+import 'package:bbf_app/backend/services/calendar_service.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -74,6 +76,9 @@ class NotificationServices {
     );
   }
 
+  // ------------------------------- Notifications for Prayers -----------------------------
+
+  // schedule a single prayer notification
   Future<void> scheduledNotification(
     int id,
     String title,
@@ -117,6 +122,7 @@ class NotificationServices {
     print('Prayer scheduled for id $id at Time $notificationTime');
   }
 
+  // schedule a single pre notification
   Future<void> scheduledPreNotification(
     int id,
     String title,
@@ -193,6 +199,7 @@ class NotificationServices {
     await scheduleAllPreNotifications(csvData);
   }
 
+  // schedule Notifications for a certain given day
   Future<void> scheduleDailyPrayers(
     List<Map<String, String>> csvData,
     DateTime date,
@@ -298,5 +305,135 @@ class NotificationServices {
       return 'Bereite dich auf das Fajr Gebet vor.';
     }
     return 'Nicht zu lange verzögern — das Gebet wartet auf dich.';
+  }
+
+  //------------------------------ Notifications for Events -----------------------------
+
+  // Derives a stable notification id from an event's id and the date of the
+  // specific occurrence it belongs to. Since a repeating event has the same
+  // id for every occurrence, the date is part of the hash so each occurrence
+  // gets its own id and can be scheduled/cancelled independently. The id is
+  // offset away from the small int ranges used by the prayer notifications
+  // above so the two don't collide.
+  int getEventNotificationId(String eventId, DateTime eventDate) {
+    final dateKey = '${eventDate.year}-${eventDate.month}-${eventDate.day}';
+    final hash = Object.hash(eventId, dateKey);
+    return 1000000 + (hash.abs() % 100000000);
+  }
+
+  // Schedules a reminder notification for a single occurrence of a calendar
+  // event, firing 24 hours before it starts.
+  Future<void> scheduleEventNotification(
+    String eventId,
+    String eventTitle,
+    DateTime eventDate,
+    int beginHour,
+    int beginMinute,
+  ) async {
+    final eventDateTime = DateTime(
+      eventDate.year,
+      eventDate.month,
+      eventDate.day,
+      beginHour,
+      beginMinute,
+    );
+    final notificationTime = eventDateTime.subtract(const Duration(hours: 24));
+
+    // Only schedule if the reminder would fire in the future
+    if (notificationTime.isBefore(DateTime.now())) {
+      print(
+        'Notification für Event "$eventTitle" am $eventDate liegt in der '
+        'Vergangenheit, wird nicht geplant.',
+      );
+      return;
+    }
+
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
+    final tzNotificationTime = tz.TZDateTime.from(notificationTime, tz.local);
+
+    final notificationId = getEventNotificationId(eventId, eventDate);
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      notificationId,
+      'Morgen: $eventTitle',
+      'Das Event "$eventTitle" findet morgen statt.',
+      tzNotificationTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'event_channel',
+          'Event Notifications',
+          channelDescription: 'Erinnerungen an Kalender-Events',
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+    print(
+      'Event-Notification geplant: "$eventTitle" am $eventDate '
+      '(id=$notificationId) für $tzNotificationTime',
+    );
+  }
+
+  // Schedules reminder notifications for every future occurrence of the
+  // event identified by [eventId] (its title). Reuses CalendarService's
+  // getAllEvents(), which already resolves repeat/frequency/exceptions into
+  // one DateTime per occurrence, so the repetition rules don't get
+  // duplicated here.
+  Future<void> scheduleAllFutureEventNotifications(String eventId) async {
+    final CalendarService calendarService = CalendarService();
+    final Map<DateTime, List<Event>> allEvents = await calendarService
+        .getAllEvents();
+
+    final today = DateTime.now();
+    final startOfToday = DateTime(today.year, today.month, today.day);
+
+    for (final entry in allEvents.entries) {
+      final eventDate = entry.key;
+
+      // skip occurrences that already happened
+      if (eventDate.isBefore(startOfToday)) continue;
+
+      for (final event in entry.value) {
+        if (event.id != eventId) continue;
+
+        // event.time has the format "HH:mm - HH:mm"
+        final beginTimeStr = event.time.split(' - ').first;
+        final beginTimeParts = beginTimeStr.split(':');
+        final beginHour = int.parse(beginTimeParts[0]);
+        final beginMinute = int.parse(beginTimeParts[1]);
+
+        await scheduleEventNotification(
+          event.id,
+          event.title,
+          eventDate,
+          beginHour,
+          beginMinute,
+        );
+      }
+    }
+  }
+
+  // Cancels every currently scheduled reminder notification for the event
+  // identified by [eventId], across all of its occurrences (past and
+  // future). Used both for the "Benachrichtigungen aus" choice and as a
+  // clean slate before applying a newly chosen notification mode, so
+  // switching modes never leaves stray notifications from the old mode.
+  Future<void> cancelEventNotifications(String eventId) async {
+    final CalendarService calendarService = CalendarService();
+    final Map<DateTime, List<Event>> allEvents = await calendarService
+        .getAllEvents();
+
+    for (final entry in allEvents.entries) {
+      final eventDate = entry.key;
+
+      for (final event in entry.value) {
+        if (event.id != eventId) continue;
+
+        final notificationId = getEventNotificationId(eventId, eventDate);
+        await flutterLocalNotificationsPlugin.cancel(notificationId);
+      }
+    }
+    print('Alle Event-Notifications für "$eventId" wurden gelöscht.');
   }
 }

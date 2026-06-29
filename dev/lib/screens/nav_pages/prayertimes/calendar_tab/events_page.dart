@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:bbf_app/components/events/event_notification_sheet.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
+import 'package:bbf_app/utils/helper/event_notification_helper.dart';
 import 'package:flutter/material.dart';
 
 class Eventspage extends StatefulWidget {
@@ -21,10 +23,61 @@ class Eventspage extends StatefulWidget {
 }
 
 class _EventspageState extends State<Eventspage> {
+  final EventNotificationHelper _eventNotificationHelper =
+      EventNotificationHelper();
+
   String get formattedDate {
     return "${widget.focusedDay.day}."
         "${widget.focusedDay.month}."
         "${widget.focusedDay.year}";
+  }
+
+  Future<void> _openNotificationSheet(Event event) async {
+    // event.time has the format "HH:mm - HH:mm"
+    final beginTimeParts = event.time.split(' - ').first.split(':');
+
+    await showEventNotificationSheet(
+      context: context,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventDate: widget.focusedDay,
+      beginHour: int.parse(beginTimeParts[0]),
+      beginMinute: int.parse(beginTimeParts[1]),
+    );
+
+    // refresh so the bell icon reflects the (possibly changed) mode
+    if (mounted) setState(() {});
+  }
+
+  // Renders a distinct icon for each of the three notification modes, so the
+  // difference between "this event only" and "all future events" is visible
+  // on the card without opening the sheet.
+  Widget _notificationIcon(EventNotificationMode mode) {
+    switch (mode) {
+      case EventNotificationMode.off:
+        return const Icon(Icons.notifications_off_outlined, color: Colors.grey);
+      case EventNotificationMode.thisEventOnly:
+        return const Icon(Icons.notifications_active, color: Colors.green);
+      case EventNotificationMode.allFutureEvents:
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(Icons.notifications_active, color: Colors.green),
+            Positioned(
+              right: -2,
+              bottom: -2,
+              child: Container(
+                padding: const EdgeInsets.all(1),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.repeat, size: 10, color: Colors.green),
+              ),
+            ),
+          ],
+        );
+    }
   }
 
   @override
@@ -240,21 +293,42 @@ class _EventspageState extends State<Eventspage> {
                           ),
                         ),
 
-                        // show description of event
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => EventDetailPage(event: event),
-                              ),
-                            );
-                          },
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // notification settings for this event
+                            Builder(
+                              builder: (context) {
+                                final mode = _eventNotificationHelper
+                                    .getEventNotificationMode(event.id);
 
-                          child: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.green,
-                          ),
+                                return GestureDetector(
+                                  onTap: () => _openNotificationSheet(event),
+                                  child: _notificationIcon(mode),
+                                );
+                              },
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            // show description of event
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        EventDetailPage(event: event),
+                                  ),
+                                );
+                              },
+
+                              child: const Icon(
+                                Icons.chevron_right,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

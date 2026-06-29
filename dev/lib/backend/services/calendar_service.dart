@@ -90,7 +90,7 @@ class CalendarService {
           final newDatetime = dateTime.add(Duration(days: i * 7));
 
           if (!isException(newDatetime, exceptionList)) {
-            print("Event hinzugefügt: ${event.title} am $newDatetime");
+            // print("Event hinzugefügt: ${event.title} am $newDatetime");
             calendarPageHelper.addEvent(newDatetime, event);
           }
         }
@@ -101,18 +101,18 @@ class CalendarService {
           final newDatetime = dateTime.add(Duration(days: i));
 
           if (!isException(newDatetime, exceptionList)) {
-            print("Event hinzugefügt: ${event.title} am $newDatetime");
+            // print("Event hinzugefügt: ${event.title} am $newDatetime");
             calendarPageHelper.addEvent(newDatetime, event);
           }
         }
       }
       // else (not repetitive)
       else {
-        print("Event hinzugefügt: ${event.title} am $dateTime");
+        // print("Event hinzugefügt: ${event.title} am $dateTime");
         calendarPageHelper.addEvent(dateTime, event);
       }
     }
-    print("VOR RETURN: ${calendarPageHelper.eventSource.length}");
+    // print("VOR RETURN: ${calendarPageHelper.eventSource.length}");
     return calendarPageHelper.eventSource;
   }
 
