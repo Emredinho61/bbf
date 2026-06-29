@@ -183,6 +183,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   Duration timeUntilNextPrayer = Duration.zero;
   bool isIqamaRunning = false;
+  String countdownPrayerKey = 'Fajr';
+  Duration iqamaTotalDuration = Duration.zero;
 
   final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
   // when page is opened, the following is initialized
@@ -523,15 +525,20 @@ class _PrayerTimesState extends State<PrayerTimes> {
       // If this is the case, then give the difference between now and the end of prayerIqama
       if (now.isAfter(prayerTime) && now.isBefore(prayerIqamaEndTime)) {
         isIqamaRunning = true;
+        countdownPrayerKey = key;
+        iqamaTotalDuration = Duration(minutes: int.parse(iqamaMinutes));
         return prayerIqamaEndTime.difference(now);
       }
 
       // else just display the difference time between now and next prayer
       if (prayerTime.isAfter(now)) {
         isIqamaRunning = false;
+        countdownPrayerKey = key;
         return prayerTime.difference(now);
       }
     }
+    isIqamaRunning = false;
+    countdownPrayerKey = 'Fajr';
     return (fajrPrayTime.difference(now));
   }
 
@@ -713,6 +720,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
+  String _getCountdownLabel() {
+    if (isIqamaRunning) {
+      return '$countdownPrayerKey - Iqama';
+    }
+    return countdownPrayerKey;
+  }
+
   String getCountDownText(Duration timeUntilNextPrayer, bool isIqamaRunning) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -753,6 +767,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     final remainingTime = next.difference(now);
     final totalInterval = next.difference(previous);
+
+    // While Iqama is running, the circle should show progress through the
+    // Iqama wait time instead of progress between two Adhan prayer times.
+    final circlePercent = isIqamaRunning
+        ? 1 - (timeUntilNextPrayer.inSeconds / iqamaTotalDuration.inSeconds)
+        : 1 - (remainingTime.inSeconds / totalInterval.inSeconds);
 
     return Scaffold(
       body: csvData.isEmpty
@@ -797,10 +817,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                               child: CircularPercentIndicator(
                                 radius: 100,
                                 lineWidth: 5,
-                                percent:
-                                    1 -
-                                    (remainingTime.inSeconds /
-                                        totalInterval.inSeconds),
+                                percent: circlePercent.clamp(0.0, 1.0),
                                 arcType: ArcType.HALF,
                                 arcBackgroundColor: Colors.grey.shade300,
                                 progressColor: Colors.green,
@@ -819,7 +836,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                       ),
 
                                       Text(
-                                        'bis ${_showNextPrayer()}',
+                                        'bis ${_getCountdownLabel()}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: BColors.primary,
