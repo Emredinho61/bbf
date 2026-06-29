@@ -36,6 +36,24 @@ class _AddEventPageState extends State<AddEventPage> {
   DateTime? selectedDate; // date of the event
   int selectedNumber = 1; // number of times the event repeats
 
+  bool _displayErrorText = false; // shows the "Pflichtfelder" hint on submit
+
+  // Every field is required except the sign-up link. Frequency is only
+  // required when a repeat option other than "none" was chosen.
+  bool get _isFormValid {
+    final repeatSelected = repeat != null;
+    final frequencyValid = repeat == 'none' || frequency != null;
+
+    return selectedBeginTime != null &&
+        selectedEndTime != null &&
+        selectedDate != null &&
+        repeatSelected &&
+        frequencyValid &&
+        titleTextController.text.trim().isNotEmpty &&
+        contentTextController.text.trim().isNotEmpty &&
+        locationTextController.text.trim().isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +80,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       },
                     ),
                     text: selectedBeginTime == null
-                        ? 'Uhrzeit Beginn auswählen'
+                        ? 'Uhrzeit Beginn auswählen *'
                         : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
                   ),
                   BTextButton(
@@ -73,7 +91,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       },
                     ),
                     text: selectedEndTime == null
-                        ? 'Uhrzeit Ende auswählen'
+                        ? 'Uhrzeit Ende auswählen *'
                         : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
                   ),
                   BTextButton(
@@ -84,7 +102,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       },
                     ),
                     text: selectedDate == null
-                        ? 'Datum auswählen'
+                        ? 'Datum auswählen *'
                         : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
                   ),
                   // Buttons to pick repeat option and frequency
@@ -98,30 +116,33 @@ class _AddEventPageState extends State<AddEventPage> {
                         setState(() {
                           repeat = result['value'];
                           repeatLabel = result['label'];
+                          // frequency only applies to repeating events
+                          if (repeat == 'none') frequency = null;
                         });
                       }
                     },
                     text: repeatLabel == null
-                        ? "Wiederholen"
+                        ? "Wiederholen *"
                         : "Wiederholen: $repeatLabel",
                   ),
-                  BTextButton(
-                    onPressed: () async {
-                      final result = await EventPickers.showFrequencyPicker(
-                        context,
-                        frequency ?? 1,
-                      );
+                  if (repeat != null && repeat != 'none')
+                    BTextButton(
+                      onPressed: () async {
+                        final result = await EventPickers.showFrequencyPicker(
+                          context,
+                          frequency ?? 1,
+                        );
 
-                      if (result != null) {
-                        setState(() {
-                          frequency = result;
-                        });
-                      }
-                    },
-                    text: frequency == null
-                        ? "Frequenz auswählen"
-                        : "Frequenz: $frequency",
-                  ),
+                        if (result != null) {
+                          setState(() {
+                            frequency = result;
+                          });
+                        }
+                      },
+                      text: frequency == null
+                          ? "Frequenz auswählen *"
+                          : "Frequenz: $frequency",
+                    ),
                   // TextFields to input title, content, location, and sign-up link
                   TextField(
                     controller: titleTextController,
@@ -130,7 +151,12 @@ class _AddEventPageState extends State<AddEventPage> {
                     maxLines: 5,
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
-                      labelText: 'Titel',
+                      labelText: 'Titel *',
+                      errorText:
+                          _displayErrorText &&
+                              titleTextController.text.trim().isEmpty
+                          ? 'Pflichtfeld'
+                          : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
@@ -148,7 +174,12 @@ class _AddEventPageState extends State<AddEventPage> {
                     maxLines: 5,
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
-                      labelText: 'Beschreibung',
+                      labelText: 'Beschreibung *',
+                      errorText:
+                          _displayErrorText &&
+                              contentTextController.text.trim().isEmpty
+                          ? 'Pflichtfeld'
+                          : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
@@ -166,7 +197,12 @@ class _AddEventPageState extends State<AddEventPage> {
                     maxLines: 5,
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
-                      labelText: 'Ort - zB. Großer Gebetsraum',
+                      labelText: 'Ort - zB. Großer Gebetsraum *',
+                      errorText:
+                          _displayErrorText &&
+                              locationTextController.text.trim().isEmpty
+                          ? 'Pflichtfeld'
+                          : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
@@ -195,6 +231,14 @@ class _AddEventPageState extends State<AddEventPage> {
                     ),
                   ),
                   SizedBox(height: 5),
+                  if (_displayErrorText)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Text(
+                        'Bitte alle Pflichtfelder ausfüllen!',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -206,6 +250,11 @@ class _AddEventPageState extends State<AddEventPage> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
+                          if (!_isFormValid) {
+                            setState(() => _displayErrorText = true);
+                            return;
+                          }
+
                           int beginTimeInMinutes = selectedBeginTime != null
                               ? selectedBeginTime!.hour * 60 +
                                     selectedBeginTime!.minute
@@ -214,6 +263,11 @@ class _AddEventPageState extends State<AddEventPage> {
                               ? selectedEndTime!.hour * 60 +
                                     selectedEndTime!.minute
                               : 0;
+                          // frequency only applies to repeating events, none -> 0
+                          final eventFrequency =
+                              (repeat == null || repeat == 'none')
+                              ? 0
+                              : (frequency ?? 1);
                           await calendarService.addEventToBackEnd(
                             titleTextController.text,
                             contentTextController.text,
@@ -224,7 +278,7 @@ class _AddEventPageState extends State<AddEventPage> {
                             beginTimeInMinutes,
                             endTimeInMinutes,
                             repeat!,
-                            frequency!,
+                            eventFrequency,
                             signUpTextController.text,
                           );
                           Navigator.pop(context, true);
