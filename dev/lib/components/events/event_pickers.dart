@@ -92,6 +92,55 @@ class EventPickers {
     );
   }
 
+  // Maps CSV prayer keys to human-readable display names.
+  static String prayerDisplayName(String csvKey) {
+    const names = {
+      'Fajr': 'Fajr',
+      'Sunrise': 'Shuruq',
+      'Dhur': 'Dhur',
+      'Asr': 'Asr',
+      'Maghrib': 'Maghrib',
+      'Isha': 'Isha',
+    };
+    return names[csvKey] ?? csvKey;
+  }
+
+  // Shows a modal bottom sheet for selecting a prayer as a time reference.
+  // Returns a map with "value" (CSV key, e.g. "Sunrise") and "label" (display name, e.g. "Shuruq").
+  static Future<Map<String, String>?> showPrayerPicker(
+    BuildContext context,
+  ) async {
+    const prayers = [
+      {'value': 'Fajr', 'label': 'Fajr'},
+      {'value': 'Sunrise', 'label': 'Shuruq'},
+      {'value': 'Dhur', 'label': 'Dhuhr'},
+      {'value': 'Asr', 'label': 'Asr'},
+      {'value': 'Maghrib', 'label': 'Maghrib'},
+      {'value': 'Isha', 'label': 'Isha'},
+    ];
+
+    return await showModalBottomSheet<Map<String, String>>(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: prayers
+              .map(
+                (p) => ListTile(
+                  leading: const Icon(Icons.access_time),
+                  title: Text(p['label']!),
+                  onTap: () => Navigator.pop(
+                    context,
+                    Map<String, String>.from(p),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+
   // Shows a modal bottom sheet for selecting the frequency of the event.
   static Future<int?> showFrequencyPicker(
     BuildContext context,

@@ -258,7 +258,9 @@ class _EventspageState extends State<Eventspage> {
                                   const SizedBox(width: 5),
 
                                   Text(
-                                    "${event.time} Uhr",
+                                    event.startPrayer != null
+                                        ? event.displayTime
+                                        : "${event.displayTime} Uhr",
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey.shade600,

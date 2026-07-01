@@ -1,10 +1,12 @@
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
+import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CalendarService {
   final projects = FirebaseFirestore.instance.collection('calendarEntries');
   final CalendarPageHelper calendarPageHelper = CalendarPageHelper();
+  final PrayerTimesHelper _prayerTimesHelper = PrayerTimesHelper();
 
   bool isException(DateTime newDatetime, List<DateTime> exceptions) {
     return exceptions.any(
@@ -16,103 +18,119 @@ class CalendarService {
   }
 
   // get all Events from backend
-  Future<Map<DateTime, List<Event>>> getAllEvents() async {
+  Future<Map<DateTime, List<Event>>> getAllEvents([
+    List<Map<String, String>> csvData = const [],
+  ]) async {
     calendarPageHelper.eventSource.clear();
-    // contains all docs in following format: Map<String, dynamic>; ex. {'title' : 'Quran Schule'}
-    final querySnapshots = await projects
-        .orderBy('beginninghour', descending: false)
-        .orderBy('beginningminute', descending: false)
-        .get(); // sorting by time, so that they are added in the right order in calendarPageHelper.eventSource
+    final querySnapshots = await projects.get();
 
-    print("Dokumente gefunden: ${querySnapshots.docs.length}");
+    // CSV is loaded lazily the first time a prayer-based event is encountered.
+    List<Map<String, String>>? resolvedCsvData =
+        csvData.isEmpty ? null : csvData;
 
-    // iterating through all docs, restructuring the type first and then adding them in all Events
     for (var doc in querySnapshots.docs) {
-      // data from backend
       final data = doc.data();
       final repeat = data['repeat'] ?? 'none';
       final frequency = data['frequency'] ?? 1;
       final Map<String, dynamic> allExceptions = Map<String, dynamic>.from(
         data['exceptions'] ?? {},
-      ); // Format: {1:['2025', '10', '17']}
+      );
 
-      // creating a List of DateTimes containing all exceptions
       List<DateTime> exceptionList = [];
-
-      // iterating through map
       if (allExceptions.isNotEmpty) {
-        print('Found exceptions: ${allExceptions.values}');
         for (var exception in allExceptions.entries) {
-          final List<dynamic> datePartsDynamic = exception.value;
-          final List<String> dateParts = datePartsDynamic
+          final List<String> dateParts = (exception.value as List<dynamic>)
               .map((e) => e.toString())
               .toList();
-
-          if (dateParts.length != 3) {
-            continue;
-          }
-          DateTime exceptionDate = DateTime(
+          if (dateParts.length != 3) continue;
+          exceptionList.add(DateTime(
             int.parse(dateParts[0]),
             int.parse(dateParts[1]),
             int.parse(dateParts[2]),
-            // (data['hour'] as num).toInt(),
-            // (data['minute'] as num).toInt(),
-          );
-          print(
-            '$exceptionDate---------------------------------------------------------------------------------------------',
-          );
-
-          exceptionList.add(exceptionDate);
+          ));
         }
       }
 
-      // creating a DateTime object out of year, month, day, hour, minute fields of data
-      final DateTime dateTime = DateTime(
+      final DateTime baseDate = DateTime(
         (data['year'] as num).toInt(),
         (data['month'] as num).toInt(),
         (data['day'] as num).toInt(),
-        // (data['hour'] as num).toInt(),
-        // (data['minute'] as num).toInt(),
-      );
-      // creating an Event object out of data
-      final Event event = Event(
-        data['id'],
-        data['title'],
-        data['content'],
-        '${data['beginninghour'].toString().padLeft(2, '0')}:${data['beginningminute'].toString().padLeft(2, '0')} - ${data['endhour'].toString().padLeft(2, '0')}:${data['endminute'].toString().padLeft(2, '0')}',
-        data['location'],
-        data['link'] ?? '',
       );
 
-      // if repetitive weekly
+      final String? startPrayer = data['startPrayer'] as String?;
+      final String? endPrayer = data['endPrayer'] as String?;
+      final bool isPrayerBased = startPrayer != null && endPrayer != null;
+
+      if (isPrayerBased) {
+        resolvedCsvData ??= await _prayerTimesHelper.loadCSV();
+      }
+
+      // Builds an Event for a specific occurrence date.
+      // For prayer-based events the time string is resolved per date so that
+      // recurring events show the correct prayer time on each individual day.
+      Event buildEvent(DateTime occurrenceDate) {
+        final String timeString;
+        if (isPrayerBased) {
+          final dayRow = _prayerTimesHelper.getAnyDayPrayerTimesAsStringMap(
+            resolvedCsvData!,
+            occurrenceDate,
+          );
+          final startStr = dayRow[startPrayer] ?? '??:??';
+          final endStr = dayRow[endPrayer] ?? '??:??';
+          timeString = '$startStr - $endStr';
+        } else {
+          timeString =
+              '${data['beginninghour'].toString().padLeft(2, '0')}:${data['beginningminute'].toString().padLeft(2, '0')} - ${data['endhour'].toString().padLeft(2, '0')}:${data['endminute'].toString().padLeft(2, '0')}';
+        }
+        return Event(
+          data['id'],
+          data['title'],
+          data['content'],
+          timeString,
+          data['location'],
+          data['link'] ?? '',
+          startPrayer: isPrayerBased ? startPrayer : null,
+          endPrayer: isPrayerBased ? endPrayer : null,
+        );
+      }
+
       if (repeat == 'weekly') {
         for (int i = 0; i <= frequency; i++) {
-          final newDatetime = dateTime.add(Duration(days: i * 7));
-
+          final newDatetime = baseDate.add(Duration(days: i * 7));
           if (!isException(newDatetime, exceptionList)) {
-            // print("Event hinzugefügt: ${event.title} am $newDatetime");
-            calendarPageHelper.addEvent(newDatetime, event);
+            calendarPageHelper.addEvent(newDatetime, buildEvent(newDatetime));
           }
         }
       }
-      // else if repetitive daily
       if (repeat == 'daily') {
         for (int i = 0; i <= frequency; i++) {
-          final newDatetime = dateTime.add(Duration(days: i));
-
+          final newDatetime = baseDate.add(Duration(days: i));
           if (!isException(newDatetime, exceptionList)) {
-            // print("Event hinzugefügt: ${event.title} am $newDatetime");
-            calendarPageHelper.addEvent(newDatetime, event);
+            calendarPageHelper.addEvent(newDatetime, buildEvent(newDatetime));
           }
         }
-      }
-      // else (not repetitive)
-      else {
-        // print("Event hinzugefügt: ${event.title} am $dateTime");
-        calendarPageHelper.addEvent(dateTime, event);
+      } else {
+        calendarPageHelper.addEvent(baseDate, buildEvent(baseDate));
       }
     }
-    // print("VOR RETURN: ${calendarPageHelper.eventSource.length}");
+
+    // Sort each day's events by their resolved start time so that
+    // prayer-based and fixed-time events appear in the correct order.
+    // event.time has the format "HH:mm - HH:mm", so we parse the first part.
+    for (final events in calendarPageHelper.eventSource.values) {
+      events.sort((a, b) {
+        int parseMinutes(String timeString) {
+          final start = timeString.split(' - ').first;
+          final parts = start.split(':');
+          if (parts.length != 2) return 0;
+          final h = int.tryParse(parts[0]) ?? 0;
+          final m = int.tryParse(parts[1]) ?? 0;
+          return h * 60 + m;
+        }
+        return parseMinutes(a.time).compareTo(parseMinutes(b.time));
+      });
+    }
+
     return calendarPageHelper.eventSource;
   }
 
@@ -127,10 +145,11 @@ class CalendarService {
     int endTimeInMinutes,
     String repeat,
     int frequency,
-    String signUpTextController,
-  ) async {
-    // add to backend
-    projects.doc(title).set({
+    String signUpTextController, {
+    String? startPrayer,
+    String? endPrayer,
+  }) async {
+    final Map<String, dynamic> eventData = {
       'id': title,
       'title': title,
       'content': content,
@@ -138,6 +157,8 @@ class CalendarService {
       'year': year,
       'month': month,
       'day': day,
+      // always stored so the Firestore orderBy('beginninghour') query includes
+      // this document; prayer-based events use 0 as a placeholder.
       'beginninghour': beginTimeInMinutes ~/ 60,
       'beginningminute': beginTimeInMinutes % 60,
       'endhour': endTimeInMinutes ~/ 60,
@@ -145,7 +166,12 @@ class CalendarService {
       'repeat': repeat,
       'frequency': frequency,
       'link': signUpTextController,
-    });
+    };
+    if (startPrayer != null) {
+      eventData['startPrayer'] = startPrayer;
+      eventData['endPrayer'] = endPrayer;
+    }
+    await projects.doc(title).set(eventData);
   }
 
   Future<void> deleteEventsWithId(String id) async {

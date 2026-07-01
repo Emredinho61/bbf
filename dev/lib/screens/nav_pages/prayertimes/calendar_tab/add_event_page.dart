@@ -33,6 +33,12 @@ class _AddEventPageState extends State<AddEventPage> {
   String? repeat; // how the event repeats (e.g., daily, weekly, monthly) used for backend
   String? repeatLabel; // how the event repeats (e.g., daily, weekly, monthly) used for frontend
 
+  bool _usePrayerTimes = false; // whether prayer names are used instead of fixed times
+  String? _startPrayer; // CSV key of the selected start prayer (e.g. "Maghrib")
+  String? _startPrayerLabel; // display name of the selected start prayer
+  String? _endPrayer;
+  String? _endPrayerLabel;
+
   DateTime? selectedDate; // date of the event
   int selectedNumber = 1; // number of times the event repeats
 
@@ -43,9 +49,11 @@ class _AddEventPageState extends State<AddEventPage> {
   bool get _isFormValid {
     final repeatSelected = repeat != null;
     final frequencyValid = repeat == 'none' || frequency != null;
+    final timesValid = _usePrayerTimes
+        ? (_startPrayer != null && _endPrayer != null)
+        : (selectedBeginTime != null && selectedEndTime != null);
 
-    return selectedBeginTime != null &&
-        selectedEndTime != null &&
+    return timesValid &&
         selectedDate != null &&
         repeatSelected &&
         frequencyValid &&
@@ -71,29 +79,88 @@ class _AddEventPageState extends State<AddEventPage> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   SizedBox(height: 10),
-                  // Buttons to pick (beginning and end) time and date
-                  BTextButton(
-                    onPressed: () => EventPickers.pickTime(
-                      context,
-                      onConfirm: (selected) {
-                        setState(() => selectedBeginTime = selected);
-                      },
-                    ),
-                    text: selectedBeginTime == null
-                        ? 'Uhrzeit Beginn auswählen *'
-                        : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
+                  // Toggle: fixed time vs. prayer-based time
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Gebetszeiten verwenden'),
+                      Switch(
+                        value: _usePrayerTimes,
+                        onChanged: (value) {
+                          setState(() {
+                            _usePrayerTimes = value;
+                            if (value) {
+                              selectedBeginTime = null;
+                              selectedEndTime = null;
+                            } else {
+                              _startPrayer = null;
+                              _startPrayerLabel = null;
+                              _endPrayer = null;
+                              _endPrayerLabel = null;
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  BTextButton(
-                    onPressed: () => EventPickers.pickTime(
-                      context,
-                      onConfirm: (selected) {
-                        setState(() => selectedEndTime = selected);
+                  // Time pickers: prayer-based or fixed
+                  if (_usePrayerTimes) ...[
+                    BTextButton(
+                      onPressed: () async {
+                        final result = await EventPickers.showPrayerPicker(
+                          context,
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _startPrayer = result['value'];
+                            _startPrayerLabel = result['label'];
+                          });
+                        }
                       },
+                      text: _startPrayerLabel == null
+                          ? 'Startgebet auswählen *'
+                          : 'Beginn: $_startPrayerLabel',
                     ),
-                    text: selectedEndTime == null
-                        ? 'Uhrzeit Ende auswählen *'
-                        : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
-                  ),
+                    BTextButton(
+                      onPressed: () async {
+                        final result = await EventPickers.showPrayerPicker(
+                          context,
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _endPrayer = result['value'];
+                            _endPrayerLabel = result['label'];
+                          });
+                        }
+                      },
+                      text: _endPrayerLabel == null
+                          ? 'Endgebet auswählen *'
+                          : 'Ende: $_endPrayerLabel',
+                    ),
+                  ] else ...[
+                    BTextButton(
+                      onPressed: () => EventPickers.pickTime(
+                        context,
+                        onConfirm: (selected) {
+                          setState(() => selectedBeginTime = selected);
+                        },
+                      ),
+                      text: selectedBeginTime == null
+                          ? 'Uhrzeit Beginn auswählen *'
+                          : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
+                    ),
+                    BTextButton(
+                      onPressed: () => EventPickers.pickTime(
+                        context,
+                        onConfirm: (selected) {
+                          setState(() => selectedEndTime = selected);
+                        },
+                      ),
+                      text: selectedEndTime == null
+                          ? 'Uhrzeit Ende auswählen *'
+                          : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
+                    ),
+                  ],
                   BTextButton(
                     onPressed: () => EventPickers.pickDate(
                       context,
@@ -254,15 +321,20 @@ class _AddEventPageState extends State<AddEventPage> {
                             setState(() => _displayErrorText = true);
                             return;
                           }
+                          final navigator = Navigator.of(context);
 
-                          int beginTimeInMinutes = selectedBeginTime != null
-                              ? selectedBeginTime!.hour * 60 +
-                                    selectedBeginTime!.minute
-                              : 0;
-                          int endTimeInMinutes = selectedEndTime != null
-                              ? selectedEndTime!.hour * 60 +
-                                    selectedEndTime!.minute
-                              : 0;
+                          final beginTimeInMinutes = _usePrayerTimes
+                              ? 0
+                              : (selectedBeginTime != null
+                                    ? selectedBeginTime!.hour * 60 +
+                                          selectedBeginTime!.minute
+                                    : 0);
+                          final endTimeInMinutes = _usePrayerTimes
+                              ? 0
+                              : (selectedEndTime != null
+                                    ? selectedEndTime!.hour * 60 +
+                                          selectedEndTime!.minute
+                                    : 0);
                           // frequency only applies to repeating events, none -> 0
                           final eventFrequency =
                               (repeat == null || repeat == 'none')
@@ -280,8 +352,10 @@ class _AddEventPageState extends State<AddEventPage> {
                             repeat!,
                             eventFrequency,
                             signUpTextController.text,
+                            startPrayer: _usePrayerTimes ? _startPrayer : null,
+                            endPrayer: _usePrayerTimes ? _endPrayer : null,
                           );
-                          Navigator.pop(context, true);
+                          navigator.pop(true);
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

@@ -159,7 +159,9 @@ class EventDetailPage extends StatelessWidget {
                     _detailRow(
                       Icons.access_time,
                       "Uhrzeit",
-                      "${event.time} Uhr",
+                      event.startPrayer != null
+                          ? event.displayTime
+                          : "${event.displayTime} Uhr",
                       isDark,
                     ),
 
