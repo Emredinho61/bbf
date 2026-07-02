@@ -8,41 +8,39 @@ class InformationService {
     final querySnapshots = await information
         .orderBy('createdAt', descending: true)
         .get();
-    final allInformation = querySnapshots.docs
-        .map((doc) => doc.data())
-        .toList();
-    return allInformation;
+    return querySnapshots.docs.map((doc) => doc.data()).toList();
   }
 
-  // add a new Information to backend
-  Future<void> addInformation(
-    String id,
-    String title,
-    String text,
-    String imageUrl,
-  ) async {
-    information.doc(id).set({
+  // add a new Information.
+  // type 'text': title is used as document ID.
+  // type 'image': a timestamp-based ID is generated automatically.
+  Future<void> addInformation({
+    required String type,
+    String title = '',
+    String text = '',
+    String imageUrl = '',
+    String orientation = '',
+  }) async {
+    final id = type == 'text'
+        ? title
+        : 'image_${DateTime.now().millisecondsSinceEpoch}';
+    final Map<String, dynamic> data = {
       'id': id,
       'Titel': title,
       'Text': text,
       'Image': imageUrl,
+      'type': type,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+    if (orientation.isNotEmpty) {
+      data['orientation'] = orientation;
+    }
+    await information.doc(id).set(data);
   }
 
-  // delete a certain Information
+  // delete a certain Information by its ID (= title)
   Future<void> deleteInformation(String id) async {
     await information.doc(id).delete();
-  }
-
-  Future<bool> checkIfIdIsCorrect(String id) async {
-    final docRef = information.doc(id);
-    final docSnapshot = await docRef.get();
-
-    if (!docSnapshot.exists) {
-      return false;
-    }
-    return true;
   }
 
   // update a certain Information
@@ -52,7 +50,7 @@ class InformationService {
     String text,
     String expanded,
   ) async {
-    information.doc(id).update({
+    await information.doc(id).update({
       'id': id,
       'Titel': title,
       'Text': text,

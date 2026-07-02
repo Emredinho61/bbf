@@ -1,42 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/add_information_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/delete_information_page.dart';
-import 'package:bbf_app/screens/nav_pages/prayertimes/information_tab/expanded_information_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
-class Item {
-  Item({
-    required this.id,
-    required this.expandedValue,
-    required this.headerValue,
-    this.image,
-    this.isExpanded = false,
-  });
-
-  String expandedValue;
-  String headerValue;
-  String id;
-  String? image;
-  bool isExpanded;
-}
-
-List<Item> generateItems(List<Map<String, dynamic>> data) {
-  return data.map((element) {
-    return Item(
-      id: element['id'],
-      headerValue: element["Titel"],
-      expandedValue: element["Text"],
-      image: element['Image'],
-    );
-  }).toList();
-}
 
 class InformationPage extends StatefulWidget {
   const InformationPage({super.key});
@@ -46,314 +20,261 @@ class InformationPage extends StatefulWidget {
 }
 
 class _InformationPageState extends State<InformationPage> {
-  final InformationService informationService = InformationService();
-  final InformationPageHelper informationPageHelper = InformationPageHelper();
-  final AuthService authService = AuthService();
-  final UserService userService = UserService();
-  final CheckUserHelper checkUserHelper = CheckUserHelper();
+  final InformationService _informationService = InformationService();
+  final InformationPageHelper _informationPageHelper = InformationPageHelper();
+  final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
+  final CheckUserHelper _checkUserHelper = CheckUserHelper();
 
   List<Map<String, dynamic>> _allInformation = [];
-  List<Item> _data = [];
+
+  // IDs of text cards currently showing their content
+  final Set<String> _expandedIds = {};
 
   late bool isUserAdmin;
-  bool editMode = false;
 
   @override
   void initState() {
     super.initState();
-    isUserAdmin = checkUserHelper.getUsersPrefs();
+    isUserAdmin = _checkUserHelper.getUsersPrefs();
     _initPage();
   }
 
   Future<void> _initPage() async {
     await _loadInformation();
-    await userOpenedInformationPage();
-    checkUser();
+    await _informationPageHelper.setTotalInformationNumber(
+      _allInformation.length,
+    );
+    _checkUser();
   }
 
-  // if user opens information page, this means that there are currently no new information unseen
-  Future<void> userOpenedInformationPage() async {
-    await informationPageHelper.setTotalInformationNumber(
-      _allInformation.length,
+  Future<void> _loadInformation() async {
+    final data = await _informationService.getAllInformation();
+    if (!mounted) return;
+    setState(() => _allInformation = data);
+  }
+
+  Future<void> _checkUser() async {
+    if (_authService.currentUser == null) return;
+    final value = await _userService.checkIfUserIsAdmin();
+    if (mounted) {
+      setState(() {
+        if (value != isUserAdmin) {
+          _checkUserHelper.setCheckUsersPrefs(value);
+          isUserAdmin = value;
+        }
+      });
+    }
+  }
+
+  bool _isImageType(Map<String, dynamic> info) =>
+      (info['type'] as String?) == 'image';
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        itemCount: _allInformation.length + (isUserAdmin ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (isUserAdmin && index == 0) {
+            return _buildAdminRow(context);
+          }
+          final info = _allInformation[isUserAdmin ? index - 1 : index];
+          return _isImageType(info)
+              ? _buildImageCard(info, isDark)
+              : _buildTextCard(info, isDark);
+        },
+      ),
     );
   }
 
-  // loads all Information from backend
-  Future<void> _loadInformation() async {
-    final data = await informationService.getAllInformation();
-    if (!mounted) return;
-    setState(() {
-      _allInformation = data;
-      _data = generateItems(_allInformation);
-    });
-  }
+  // ── Image card ────────────────────────────────────────────────────────────
 
-  // check if user is admin
-  void checkUser() async {
-    if (authService.currentUser == null) {
-      return;
-    }
-    final value = await userService.checkIfUserIsAdmin();
-    setState(() {
-      if (value != isUserAdmin) {
-        checkUserHelper.setCheckUsersPrefs(value);
-        isUserAdmin = value;
-      }
-    });
-  }
+  Widget _buildImageCard(Map<String, dynamic> info, bool isDark) {
+    final imageUrl = info['Image'] as String? ?? '';
+    if (imageUrl.isEmpty) return const SizedBox.shrink();
 
-  // Displays all Information as Cards below each other
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(12),
-          child: Column(
-            children: [
-              if (isUserAdmin) _buildAdminActionRow(context),
-              ExpansionPanelList(
-                expansionCallback: (int index, bool isExpanded) {
-                  setState(() {
-                    _data[index].isExpanded = isExpanded;
-                  });
-                },
-                children: _data.map<ExpansionPanel>((Item item) {
-                  return ExpansionPanel(
-                    headerBuilder: (BuildContext context, bool isExpanded) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          title: Text(item.headerValue),
-                          subtitle: isUserAdmin
-                              ? Text('id: ${item.id}')
-                              : Text(''),
-                        ),
-                      );
-                    },
-                    body: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          item.expandedValue.isEmpty
-                              ? SizedBox.shrink()
-                              : Text(item.expandedValue),
-                          const SizedBox(height: 12),
-                          (item.image ?? '').isNotEmpty
-                              ? AspectRatio(
-                                  aspectRatio: 16 / 9,
-                                  child: CachedNetworkImage(
-                                    imageUrl: item.image ?? '',
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => Skeletonizer(
-                                      enabled: true,
-                                      child: SizedBox(height: 100, width: 100),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
-                                  ),
-                                )
-                              : SizedBox.shrink(),
-                        ],
-                      ),
-                    ),
-                    isExpanded: item.isExpanded,
-                  );
-                }).toList(),
+    // Use the orientation stored at upload time to pick an aspect ratio that
+    // shows the image without letter-boxing or cropping important content.
+    final orientation = info['orientation'] as String? ?? 'vertical';
+    final aspectRatio = orientation == 'horizontal' ? 16 / 9.0 : 3 / 4.0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: AspectRatio(
+              aspectRatio: aspectRatio,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Skeletonizer(
+                  enabled: true,
+                  child: Container(color: Colors.grey.shade200),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // // Information Card
-  // Card _buildInformationCard(
-  //   Map<String, dynamic> information,
-  //   BuildContext context,
-  // ) {
-  //   return Card(
-  //     child: Column(
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             // Text which is displayed on the Information Card
-  //             _informationTextContent(information),
+  // ── Text card ─────────────────────────────────────────────────────────────
 
-  //             // Displays an Icon for showing more detailed information, if it exists
-  //             information['Expanded'].isEmpty
-  //                 ? Text('')
-  //                 : _routeToExpandedInformationPage(context, information),
-  //           ],
-  //         ),
+  Widget _buildTextCard(Map<String, dynamic> info, bool isDark) {
+    final id = info['id'] as String? ?? '';
+    final title = info['Titel'] as String? ?? '';
+    final text = info['Text'] as String? ?? '';
+    final isExpanded = _expandedIds.contains(id);
+    final hasText = text.isNotEmpty;
 
-  //         // if edit mode is active, delete and edit Icons are displayed
-  //         if (editMode) _editInformationRow(information, context),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // remove and edit information card
-  // Padding _editInformationRow(
-  //   Map<String, dynamic> information,
-  //   BuildContext context,
-  // ) {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(8.0),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //       children: [
-  //         _deleteInformation(information),
-  //         // _routeToEditInformationPage(context, information),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // if admin wants to edit Card, a new Page is opended for editing
-  // GestureDetector _routeToEditInformationPage(
-  //   BuildContext context,
-  //   Map<String, dynamic> information,
-  // ) {
-  //   return GestureDetector(
-  //     onTap: () async {
-  //       final result = await Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (_) => UpdateInformationPage(
-  //             id: information['id'],
-  //             title: information['Titel'],
-  //             text: information['Text'],
-  //             expanded: information['Expanded'],
-  //           ),
-  //         ),
-  //       );
-
-  //       if (result == true) {
-  //         _loadInformation();
-  //       }
-  //     },
-  //     child: Icon(Icons.edit, color: Colors.blue, size: 30),
-  //   );
-  // }
-
-  // deleting Information Card..
-  // GestureDetector _deleteInformation(Map<String, dynamic> information) {
-  //   return GestureDetector(
-  //     onTap: () async {
-  //       setState(() {
-  //         informationService.deleteInformation(information['id']);
-  //         _loadInformation();
-  //       });
-  //     },
-  //     child: Icon(Icons.delete, color: Colors.red, size: 30),
-  //   );
-  // }
-
-  // if information contains details, this will lead the user to a new page with all the information details
-  Padding _routeToExpandedInformationPage(
-    BuildContext context,
-    Map<String, dynamic> information,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ExpanedInformationPage(information: information),
+    return GestureDetector(
+      onTap: hasText
+          ? () => setState(() {
+                if (isExpanded) {
+                  _expandedIds.remove(id);
+                } else {
+                  _expandedIds.add(id);
+                }
+              })
+          : null,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
-          );
-        },
-        child: Icon(Icons.arrow_forward_ios),
-      ),
-    );
-  }
-
-  // information (excluding the details) will be displayed on information card
-  Expanded _informationTextContent(Map<String, dynamic> information) {
-    return Expanded(
-      child: ListTile(
-        title: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(information['Titel'] ?? ''),
+          ],
         ),
-        subtitle: Text(information['Text'] ?? ''),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xff1a1a1a),
+                    ),
+                  ),
+                ),
+                if (hasText)
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.green,
+                    size: 24,
+                  ),
+              ],
+            ),
+            if (isExpanded && hasText) ...[
+              const SizedBox(height: 10),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.65,
+                  color: isDark
+                      ? Colors.grey.shade300
+                      : const Color(0xff374151),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  Padding _buildAdminActionRow(BuildContext context) {
+  // ── Admin row ─────────────────────────────────────────────────────────────
+
+  Widget _buildAdminRow(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _deleteInformationIcon(context),
-          _addInformationIcon(context),
+          _iconButton(
+            context,
+            icon: Icons.delete,
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DeleteInformationPage(),
+                ),
+              );
+              if (result == true) _loadInformation();
+            },
+          ),
+          const SizedBox(width: 12),
+          _iconButton(
+            context,
+            icon: Icons.add,
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddInformationPage(),
+                ),
+              );
+              if (result == true) _loadInformation();
+            },
+          ),
         ],
       ),
     );
   }
 
-  GestureDetector _addInformationIcon(BuildContext context) {
+  Widget _iconButton(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddInformationPage()),
-        );
-
-        if (result == true) {
-          _loadInformation();
-        }
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: BColors.secondary,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: BColors.primary),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.add, size: 35, color: BColors.primary),
-        ),
-      ),
-    );
-  }
-
-  GestureDetector _deleteInformationIcon(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const DeleteInformationPage()),
-        );
-
-        if (result == true) {
-          _loadInformation();
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: BColors.secondary,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: BColors.primary),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.delete, size: 35, color: BColors.primary),
-        ),
+        padding: const EdgeInsets.all(8),
+        child: Icon(icon, size: 35, color: BColors.primary),
       ),
     );
   }
