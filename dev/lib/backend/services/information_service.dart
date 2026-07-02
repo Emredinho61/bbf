@@ -21,7 +21,7 @@ class InformationService {
     String imageUrl = '',
     String orientation = '',
   }) async {
-    final id = type == 'text'
+    final id = title.isNotEmpty
         ? title
         : 'image_${DateTime.now().millisecondsSinceEpoch}';
     final Map<String, dynamic> data = {

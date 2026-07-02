@@ -31,7 +31,9 @@ class _AddInformationPageState extends State<AddInformationPage> {
 
   bool get _canUpload {
     if (_type == 'text') return _titelController.text.trim().isNotEmpty;
-    if (_type == 'image') return _imageFile != null;
+    if (_type == 'image') {
+      return _titelController.text.trim().isNotEmpty && _imageFile != null;
+    }
     return false;
   }
 
@@ -191,6 +193,25 @@ class _AddInformationPageState extends State<AddInformationPage> {
 
                     // ── Image form ─────────────────────────────────────────
                     if (_type == 'image') ...[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: _titelController,
+                          cursorColor: BColors.primary,
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: 'Titel *',
+                            helperText:
+                                'Nur für die Verwaltung – wird Nutzern nicht angezeigt',
+                            helperMaxLines: 2,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: BColors.primary, width: 2),
+                            ),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton.icon(
