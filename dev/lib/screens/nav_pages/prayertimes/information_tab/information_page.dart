@@ -103,37 +103,48 @@ class _InformationPageState extends State<InformationPage> {
     final orientation = info['orientation'] as String? ?? 'vertical';
     final aspectRatio = orientation == 'horizontal' ? 16 / 9.0 : 3 / 4.0;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xff1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => _FullscreenImagePage(imageUrl: imageUrl),
+        ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: AspectRatio(
-              aspectRatio: aspectRatio,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Skeletonizer(
-                  enabled: true,
-                  child: Container(color: Colors.grey.shade200),
-                ),
-                errorWidget: (context, url, error) => const Center(
-                  child: Icon(Icons.broken_image_outlined, size: 48),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Hero(
+                tag: imageUrl,
+                child: AspectRatio(
+                  aspectRatio: aspectRatio,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Skeletonizer(
+                      enabled: true,
+                      child: Container(color: Colors.grey.shade200),
+                    ),
+                    errorWidget: (context, url, error) => const Center(
+                      child: Icon(Icons.broken_image_outlined, size: 48),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -275,6 +286,53 @@ class _InformationPageState extends State<InformationPage> {
         ),
         padding: const EdgeInsets.all(8),
         child: Icon(icon, size: 35, color: BColors.primary),
+      ),
+    );
+  }
+}
+
+class _FullscreenImagePage extends StatelessWidget {
+  final String imageUrl;
+
+  const _FullscreenImagePage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Pinch-to-zoom image
+          Center(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Hero(
+                tag: imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.contain,
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.white,
+                    size: 64,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Close button
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
