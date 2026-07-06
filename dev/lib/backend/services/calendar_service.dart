@@ -91,6 +91,7 @@ class CalendarService {
           data['link'] ?? '',
           startPrayer: isPrayerBased ? startPrayer : null,
           endPrayer: isPrayerBased ? endPrayer : null,
+          iconKey: data['iconKey'] as String? ?? 'event',
         );
       }
 
@@ -148,6 +149,7 @@ class CalendarService {
     String signUpTextController, {
     String? startPrayer,
     String? endPrayer,
+    String iconKey = 'event',
   }) async {
     final Map<String, dynamic> eventData = {
       'id': title,
@@ -166,6 +168,7 @@ class CalendarService {
       'repeat': repeat,
       'frequency': frequency,
       'link': signUpTextController,
+      'iconKey': iconKey,
     };
     if (startPrayer != null) {
       eventData['startPrayer'] = startPrayer;

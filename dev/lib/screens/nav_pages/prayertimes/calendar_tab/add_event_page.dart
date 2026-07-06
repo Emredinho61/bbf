@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/calendar_service.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
 import 'package:bbf_app/components/text_button.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +33,8 @@ class _AddEventPageState extends State<AddEventPage> {
   int? frequency; // how often the event repeats (e.g., every 2 weeks)
   String? repeat; // how the event repeats (e.g., daily, weekly, monthly) used for backend
   String? repeatLabel; // how the event repeats (e.g., daily, weekly, monthly) used for frontend
+
+  String _iconKey = 'event'; // selected icon key from Event.availableIcons
 
   bool _usePrayerTimes = false; // whether prayer names are used instead of fixed times
   String? _startPrayer; // CSV key of the selected start prayer (e.g. "Maghrib")
@@ -79,6 +82,49 @@ class _AddEventPageState extends State<AddEventPage> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   SizedBox(height: 10),
+                  // ── Icon picker ────────────────────────────────────────────
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Icon auswählen',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: Event.availableIcons.entries.map((entry) {
+                      final selected = _iconKey == entry.key;
+                      return GestureDetector(
+                        onTap: () => setState(() => _iconKey = entry.key),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? BColors.primary.withOpacity(0.15)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: selected
+                                  ? BColors.primary
+                                  : Colors.grey.shade300,
+                              width: selected ? 2 : 1,
+                            ),
+                          ),
+                          child: Icon(
+                            entry.value,
+                            size: 26,
+                            color: selected
+                                ? BColors.primary
+                                : Colors.grey.shade500,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
                   // Toggle: fixed time vs. prayer-based time
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -354,6 +400,7 @@ class _AddEventPageState extends State<AddEventPage> {
                             signUpTextController.text,
                             startPrayer: _usePrayerTimes ? _startPrayer : null,
                             endPrayer: _usePrayerTimes ? _endPrayer : null,
+                            iconKey: _iconKey,
                           );
                           navigator.pop(true);
                         },

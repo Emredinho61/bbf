@@ -188,7 +188,6 @@ class _EventspageState extends State<Eventspage> {
 
                     child: Row(
                       children: [
-                        // Icon on left side TODO: Make this configurable from Admin
                         Container(
                           width: 60,
                           height: 60,
@@ -199,7 +198,7 @@ class _EventspageState extends State<Eventspage> {
                           ),
 
                           child: Icon(
-                            Icons.event,
+                            event.icon,
                             color: Colors.green,
                             size: 30,
                           ),

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Event {
   final String id;
   final String title;
@@ -7,6 +9,7 @@ class Event {
   final String link;
   final String? startPrayer; // CSV key, e.g. "Maghrib"
   final String? endPrayer;
+  final String iconKey; // one of the keys in availableIcons
 
   Event(
     this.id,
@@ -17,7 +20,19 @@ class Event {
     this.link, {
     this.startPrayer,
     this.endPrayer,
+    this.iconKey = 'event',
   });
+
+  static const Map<String, IconData> availableIcons = {
+    'event': Icons.event,
+    'book': Icons.menu_book,
+    'community': Icons.groups,
+    'children': Icons.child_care,
+    'charity': Icons.volunteer_activism,
+    'celebration': Icons.celebration,
+  };
+
+  IconData get icon => availableIcons[iconKey] ?? Icons.event;
 
   static const _prayerNames = {
     'Fajr': 'Fajr',
