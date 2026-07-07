@@ -1,13 +1,17 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
+import 'package:bbf_app/screens/homepage.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hijri_calendar/hijri_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MonitorPage extends StatefulWidget {
   const MonitorPage({super.key});
@@ -17,31 +21,36 @@ class MonitorPage extends StatefulWidget {
 }
 
 class _MonitorPageState extends State<MonitorPage> {
-  PrayertimesService prayertimesService = PrayertimesService();
+  final PrayertimesService prayertimesService = PrayertimesService();
+
+  List<Map<String, String>> csvData = [];
   Duration timeUntilNextPrayer = Duration.zero;
   bool isIqamaRunning = false;
-  List<Map<String, String>> csvData = [];
+
   String fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
   String fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
-  String fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
-  String dhurIqama = prayerTimesHelper.getDhurIqamaPreference();
-  String asrIqama = prayerTimesHelper.getAsrIqamaPreference();
+  String fajrIqama   = prayerTimesHelper.getFajrIqamaPreference();
+  String dhurIqama   = prayerTimesHelper.getDhurIqamaPreference();
+  String asrIqama    = prayerTimesHelper.getAsrIqamaPreference();
   String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
-  String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
-  final prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
+  String ishaIqama   = prayerTimesHelper.getIshaIqamaPreference();
+
+  static const _prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
   late Timer _timer;
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    loadCSV().then((_) {
-      setState(() {
-        timeUntilNextPrayer = _calculateNextPrayerDuration();
-      });
+    _loadCSV().then((_) => setState(() {
+      timeUntilNextPrayer = _calcCountdown();
+    }));
+    _loadRemoteTimes();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => timeUntilNextPrayer = _calcCountdown());
     });
-    loadIqamaAndFridayTimes();
-    _startTimer();
   }
 
   @override
@@ -50,47 +59,31 @@ class _MonitorPageState extends State<MonitorPage> {
     super.dispose();
   }
 
-  Future<void> loadCSV() async {
-    final rawData = await rootBundle.loadString(
-      'assets/files/csv_files/prayer_times.csv',
-    ); // the data is being loaded as a string
-    final lines = LineSplitter.split(
-      rawData,
-    ).toList(); // Seperates the data at every linebreak to strings
-    // ["Tag,Fajr,Dhur,Asr,Maghrib,Isha",
-    // "1,05:12,12:45,15:50,19:10,20:30",]
+  // ── Data loading ──────────────────────────────────────────────────────────
 
-    final headers = lines.first.split(
-      ';',
-    ); // first row is being splitted at every comma
-    //["Tag", "Fajr", "Dhur", "Asr", "Maghrib", "Isha"]
-    final List<Map<String, String>> rows = [];
-
+  Future<void> _loadCSV() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/prayer_times.csv');
+    if (!await file.exists()) {
+      debugPrint('MonitorPage: CSV nicht gefunden');
+      return;
+    }
+    final raw = await file.readAsString();
+    final lines = LineSplitter.split(raw).toList();
+    final headers = lines.first.split(',');
+    final rows = <Map<String, String>>[];
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(
-        ';',
-      ); // ["1","05:12","12:45","15:50","19:10","20:30"]
-      final Map<String, String> row = {};
+      final vals = lines[i].split(',');
+      final row = <String, String>{};
       for (var j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j];
-        // {
-        // "Tag": "1",
-        // "Fajr": "05:12",
-        // "Dhur": "12:45",
-        // "Asr": "15:50",
-        // "Maghrib": "19:10",
-        // "Isha": "20:30"
-        //}
+        row[headers[j]] = vals[j];
       }
       rows.add(row);
     }
-
-    setState(() {
-      csvData = rows;
-    });
+    setState(() => csvData = rows);
   }
 
-  void loadIqamaAndFridayTimes() async {
+  void _loadRemoteTimes() async {
     final results = await Future.wait([
       prayertimesService.getFridayPrayer1(),
       prayertimesService.getFridayPrayer2(),
@@ -100,432 +93,372 @@ class _MonitorPageState extends State<MonitorPage> {
       prayertimesService.getMaghribIqama(),
       prayertimesService.getIshaIqama(),
     ]);
-
     if (!mounted) return;
-    if (fridayPrayer1 != results[0]) {
-      await prayerTimesHelper.setFridaysPrayerPreference(
-        'FridaysPrayer1',
-        results[0],
-      );
-      setState(() {
-        fridayPrayer1 = results[0];
-      });
-    }
-    if (fridayPrayer2 != results[1]) {
-      await prayerTimesHelper.setFridaysPrayerPreference(
-        'FridaysPrayer2',
-        results[1],
-      );
-      setState(() {
-        fridayPrayer2 = results[1];
-      });
-    }
-    if (fajrIqama != results[2]) {
-      await prayerTimesHelper.setIqamaPreference('Fajr', results[2]);
-      setState(() {
-        fajrIqama = results[2];
-      });
-    }
-    if (dhurIqama != results[3]) {
-      await prayerTimesHelper.setIqamaPreference('Dhur', results[3]);
-      setState(() {
-        dhurIqama = results[3];
-      });
-    }
-    if (asrIqama != results[4]) {
-      await prayerTimesHelper.setIqamaPreference('Asr', results[4]);
-      setState(() {
-        asrIqama = results[4];
-      });
-    }
-    if (maghribIqama != results[5]) {
-      await prayerTimesHelper.setIqamaPreference('Maghrib', results[5]);
-      setState(() {
-        maghribIqama = results[5];
-      });
-    }
-    if (ishaIqama != results[6]) {
-      await prayerTimesHelper.setIqamaPreference('Isha', results[6]);
-      setState(() {
-        ishaIqama = results[6];
-      });
-    }
     setState(() {
-      fridayPrayer1 = results[0];
-      fridayPrayer2 = results[1];
+      fridayPrayer1  = results[0];
+      fridayPrayer2  = results[1];
+      fajrIqama      = results[2];
+      dhurIqama      = results[3];
+      asrIqama       = results[4];
+      maghribIqama   = results[5];
+      ishaIqama      = results[6];
     });
+    await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer1', results[0]);
+    await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer2', results[1]);
+    await prayerTimesHelper.setIqamaPreference('Fajr',    results[2]);
+    await prayerTimesHelper.setIqamaPreference('Dhur',    results[3]);
+    await prayerTimesHelper.setIqamaPreference('Asr',     results[4]);
+    await prayerTimesHelper.setIqamaPreference('Maghrib', results[5]);
+    await prayerTimesHelper.setIqamaPreference('Isha',    results[6]);
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        timeUntilNextPrayer = _calculateNextPrayerDuration();
-      });
-    });
-  }
+  // ── Timer logic ───────────────────────────────────────────────────────────
 
-  Text _currentDate(
-    HijriCalendarConfig hijridate,
-    DateTime now,
-    bool isDark,
-    double scale,
-  ) {
-    return Text(
-      '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-      style: TextStyle(
-        color: isDark ? Colors.white : BColors.primary,
-        fontSize: 20 * scale,
-      ),
-    );
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mär',
-      'Apr',
-      'Mai',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Dez',
-    ];
-    return months[month - 1];
-  }
-
-  Text _countdownToNextPrayer(String countdownText, bool isDark, double scale) {
-    return Text(
-      countdownText,
-      style: TextStyle(
-        color: BColors.primary,
-        fontSize: scale * 100,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  String _showNextPrayer() {
+  Duration _calcCountdown() {
+    if (csvData.isEmpty) return Duration.zero;
     final now = DateTime.now();
-
-    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-    for (final key in prayerKeys) {
-      final timeStr = todayRow[key];
-      if (timeStr != null) {
-        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
-          timeStr,
-        );
-        if (prayerTime.isAfter(now)) {
-          return key;
-        }
-      }
-    }
-    return 'Fajr';
-  }
-
-  Text _showNextPrayerText(
-    BuildContext context,
-    bool isDark,
-    bool isIqamaRunning,
-    double size,
-  ) {
-    if (!isIqamaRunning) {
-      return Text(
-        '${_showNextPrayer()} in',
-        style: TextStyle(
-          fontSize: 60 * size,
-          color: BColors.primary,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
-    return Text(
-      'Iqama in',
-      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-        fontSize: 60 * size,
-        fontWeight: FontWeight.bold,
-        color: isDark ? Colors.white : BColors.primary,
-      ),
-    );
-  }
-
-  Text _adhanTime(String? time, bool isActive, double scale) {
-    return Text(
-      time ?? "--:--",
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: isActive ? 48 * scale : 44 * scale,
-      ),
-    );
-  }
-
-  Text _iqamaTime(String iqamaTime, bool isActive, double scale) {
-    return Text(
-      '+$iqamaTime',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: isActive ? 28 * scale : 24 * scale,
-      ),
-    );
-  }
-
-  Text _prayerName(String name, bool isActive, double scale) {
-    return Text(
-      name,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: isActive ? 38 * scale : 34 * scale,
-      ),
-    );
-  }
-
-  String getCountDownText(Duration timeUntilNextPrayer, bool isIqamaRunning) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-
-    final hours = twoDigits(timeUntilNextPrayer.inHours.remainder(60));
-    final minutes = twoDigits(timeUntilNextPrayer.inMinutes.remainder(60));
-    final seconds = twoDigits(timeUntilNextPrayer.inSeconds.remainder(60));
-
-    if (!isIqamaRunning) {
-      return '$hours:$minutes:$seconds';
-    } else {
-      return '$minutes:$seconds';
-    }
-  }
-
-  Duration _calculateNextPrayerDuration() {
-    final now = DateTime.now();
-
-    // this is used to get the difference time between isha and next day fajr
-    final tomorrowStr = DateFormat(
-      'dd.MM.yyyy',
-    ).format(now.add(Duration(days: 1)));
-
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
 
-    final tomorrowRow = csvData.firstWhere(
-      (row) => row['Date'] == tomorrowStr,
-      orElse: () => {},
-    );
-
-    final tomorrowDate = now.add(Duration(days: 1));
-    final fajrTimeStr = tomorrowRow['Fajr'];
-    final fajrTimeParts = fajrTimeStr!.split(':');
-    final fajrPrayTime = DateTime(
-      tomorrowDate.year,
-      tomorrowDate.month,
-      tomorrowDate.day,
-      int.parse(fajrTimeParts[0]),
-      int.parse(fajrTimeParts[1]),
-    );
-
-    for (final key in prayerKeys) {
+    for (final key in _prayerKeys) {
       final timeStr = todayRow[key];
-      if (timeStr == null) {
-        continue;
-      }
+      if (timeStr == null) continue;
+      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
+      final iqamaMin = int.tryParse(prayerTimesHelper.getCertainIqamaPreference(key)) ?? 10;
+      final iqamaEnd = prayerTime.add(Duration(minutes: iqamaMin));
 
-      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
-        timeStr,
-      );
-      final iqamaMinutes = prayerTimesHelper.getCertainIqamaPreference(key);
-      final prayerIqamaEndTime = prayerTime.add(
-        Duration(minutes: int.parse(iqamaMinutes)),
-      );
-
-      // Check for the current prayerTime if the now is between prayerTime and prayerIqama ending time.
-      // If this is the case, then give the difference between now and the end of prayerIqama
-      if (now.isAfter(prayerTime) && now.isBefore(prayerIqamaEndTime)) {
+      if (now.isAfter(prayerTime) && now.isBefore(iqamaEnd)) {
         isIqamaRunning = true;
-        return prayerIqamaEndTime.difference(now);
+        return iqamaEnd.difference(now);
       }
-
-      // else just display the difference time between now and next prayer
       if (prayerTime.isAfter(now)) {
         isIqamaRunning = false;
         return prayerTime.difference(now);
       }
     }
-    return (fajrPrayTime.difference(now));
+
+    // After Isha → count to tomorrow's Fajr
+    isIqamaRunning = false;
+    final tomorrow = now.add(const Duration(days: 1));
+    final tomorrowStr = DateFormat('dd.MM.yyyy').format(tomorrow);
+    final tomorrowRow = csvData.firstWhere((r) => r['Date'] == tomorrowStr, orElse: () => {});
+    final fajrStr = tomorrowRow['Fajr'] ?? todayRow['Fajr'] ?? '03:00';
+    final parts = fajrStr.split(':');
+    final fajrTomorrow = DateTime(
+      tomorrow.year, tomorrow.month, tomorrow.day,
+      int.parse(parts[0]), int.parse(parts[1]),
+    );
+    return fajrTomorrow.difference(now);
   }
 
-  bool _checkForCurrentPrayer(String prayer) {
+  String _countdownText() {
+    String pad(int n) => n.toString().padLeft(2, '0');
+    final h = pad(timeUntilNextPrayer.inHours.remainder(24));
+    final m = pad(timeUntilNextPrayer.inMinutes.remainder(60));
+    final s = pad(timeUntilNextPrayer.inSeconds.remainder(60));
+    return isIqamaRunning ? '$m:$s' : '$h:$m:$s';
+  }
+
+  String _nextPrayerKey() {
+    if (csvData.isEmpty) return 'Fajr';
     final now = DateTime.now();
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-
-    String currentKey = "";
-    for (final key in prayerKeys) {
-      final timeStr = todayRow[key];
-      if (timeStr != null) {
-        final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
-          timeStr,
-        );
-        if (now.isAfter(prayerTime)) {
-          currentKey = key;
-        }
+    for (final key in _prayerKeys) {
+      final t = todayRow[key];
+      if (t != null && prayerTimesHelper.convertStringTimeIntoDateTime(t).isAfter(now)) {
+        return key;
       }
     }
-    if (currentKey == prayer) {
-      return true;
-    } else if (currentKey == "" && prayer == 'Isha') {
-      return true;
-    }
-    return false;
+    return 'Fajr';
   }
 
-  Widget _buildPrayerBlock(
-    String name,
-    String? time,
-    bool isActive,
-    String iqamaTime,
-    double scale,
-  ) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 40 * scale,
-        horizontal: 100 * scale,
-      ),
-      decoration: BoxDecoration(
-        border: isActive
-            ? Border.all(color: Colors.white)
-            : Border.all(color: BColors.primary),
-        color: isActive
-            ? BColors.primary
-            : Theme.of(context).brightness == Brightness.dark
-            ? BColors.prayerRowDark
-            : BColors.prayerRowLight,
-        borderRadius: BorderRadius.circular(12 * scale),
-      ),
-      child: Column(
-        children: [
-          _prayerName(name, isActive, scale),
-          Column(
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  static const _weekdays  = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  static const _months    = ['Januar','Februar','März','April','Mai','Juni',
+                              'Juli','August','September','Oktober','November','Dezember'];
+  static const _displayNames = <String, String>{
+    'Fajr': 'Fajr', 'Dhur': 'Dhuhr', 'Asr': 'Asr', 'Maghrib': 'Maghrib', 'Isha': 'Isha',
+  };
+
+  String _iqamaFor(String key) {
+    switch (key) {
+      case 'Fajr':    return fajrIqama;
+      case 'Dhur':    return dhurIqama;
+      case 'Asr':     return asrIqama;
+      case 'Maghrib': return maghribIqama;
+      default:        return ishaIqama;
+    }
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    if (csvData.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final size   = MediaQuery.of(context).size;
+    final scale  = (size.width / 1280).clamp(0.35, 2.0);
+    final now    = DateTime.now();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg     = isDark ? BColors.backgroundColorDark : BColors.backgroundColor;
+    final fg     = isDark ? Colors.white : const Color(0xFF1C1C1E);
+
+    final todayRow   = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+    final hijri      = HijriCalendarConfig.now();
+    final nextKey    = _nextPrayerKey();
+
+    final germanDate = '${_weekdays[now.weekday - 1]}, ${now.day}. ${_months[now.month - 1]} ${now.year}';
+    final hijriDate  = '${hijri.hDay} ${hijri.getLongMonthName()} ${hijri.hYear}';
+
+    return Scaffold(
+      backgroundColor: bg,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(32 * scale, 20 * scale, 32 * scale, 16 * scale),
+          child: Column(
             children: [
-              _adhanTime(time, isActive, scale),
-              _iqamaTime(iqamaTime, isActive, scale),
+              // ── Top: Shuruk | Clock | Friday ──────────────
+              Expanded(
+                flex: 55,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Left – Shuruk
+                    Expanded(flex: 2, child: _shurukBlock(todayRow, scale, fg)),
+
+                    // Center – title + countdown + dates
+                    Expanded(flex: 5, child: _centerBlock(scale, fg, germanDate, hijriDate, nextKey)),
+
+                    // Right – Friday prayer
+                    Expanded(flex: 2, child: _fridayBlock(scale, fg)),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20 * scale),
+
+              // ── Bottom: 5 prayer cards ─────────────────────
+              Expanded(
+                flex: 38,
+                child: Row(
+                  children: [
+                    for (int i = 0; i < _prayerKeys.length; i++) ...[
+                      Expanded(
+                        child: _prayerCard(
+                          key: _prayerKeys[i],
+                          time: todayRow[_prayerKeys[i]],
+                          iqama: _iqamaFor(_prayerKeys[i]),
+                          isActive: _prayerKeys[i] == nextKey,
+                          scale: scale,
+                          isDark: isDark,
+                        ),
+                      ),
+                      if (i < _prayerKeys.length - 1) SizedBox(width: 12 * scale),
+                    ],
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 10 * scale),
+
+              // ── Footer: back link ──────────────────────────
+              GestureDetector(
+                onTap: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NavBarShell()),
+                ),
+                child: Text(
+                  '← Zurück zur App',
+                  style: TextStyle(
+                    color: BColors.primary.withOpacity(0.55),
+                    fontSize: 13 * scale,
+                    decoration: TextDecoration.underline,
+                    decorationColor: BColors.primary.withOpacity(0.35),
+                  ),
+                ),
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Row _prayerTimesPage(
-    Map<String, String> todayRow,
-    BuildContext context,
-    bool isDark,
-    double scale,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  // ── Section widgets ───────────────────────────────────────────────────────
+
+  Widget _shurukBlock(Map<String, String> todayRow, double scale, Color fg) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildPrayerBlock(
-          'Fajr',
-          todayRow['Fajr'],
-          _checkForCurrentPrayer("Fajr"),
-          fajrIqama,
-          scale,
+        Icon(Icons.nightlight_round, color: fg, size: 40 * scale),
+        SizedBox(height: 10 * scale),
+        Text(
+          'Shuruk',
+          style: TextStyle(color: fg.withOpacity(0.8), fontSize: 22 * scale, fontWeight: FontWeight.w500),
         ),
-        SizedBox(width: 20 * scale),
-        _buildPrayerBlock(
-          'Dhur',
-          todayRow['Dhur'],
-          _checkForCurrentPrayer("Dhur"),
-          dhurIqama,
-          scale,
-        ),
-        SizedBox(width: 20 * scale),
-        _buildPrayerBlock(
-          'Asr',
-          todayRow['Asr'],
-          _checkForCurrentPrayer("Asr"),
-          asrIqama,
-          scale,
-        ),
-        SizedBox(width: 20 * scale),
-        _buildPrayerBlock(
-          'Maghrib',
-          todayRow['Maghrib'],
-          _checkForCurrentPrayer("Maghrib"),
-          maghribIqama,
-          scale,
-        ),
-        SizedBox(width: 20 * scale),
-        _buildPrayerBlock(
-          'Isha',
-          todayRow['Isha'],
-          _checkForCurrentPrayer("Isha"),
-          ishaIqama,
-          scale,
+        SizedBox(height: 6 * scale),
+        Text(
+          todayRow['Sunrise'] ?? '--:--',
+          style: TextStyle(color: fg, fontSize: 36 * scale, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final scale = (size.width / 1920).clamp(0.5, 2.0);
+  Widget _centerBlock(double scale, Color fg, String germanDate, String hijriDate, String nextKey) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'BBF Verein - Freiburg',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: fg,
+            fontSize: 26 * scale,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+        SizedBox(height: 14 * scale),
 
-    final now = DateTime.now();
-    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-    final hijridate = HijriCalendarConfig.now();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+        // Big countdown
+        Text(
+          _countdownText(),
+          style: TextStyle(
+            color: BColors.primary,
+            fontSize: 88 * scale,
+            fontWeight: FontWeight.bold,
+            height: 1.0,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        SizedBox(height: 8 * scale),
 
-    String countdownText = getCountDownText(
-      timeUntilNextPrayer,
-      isIqamaRunning,
+        // Label below clock
+        Text(
+          isIqamaRunning
+              ? 'Iqama läuft'
+              : 'Nächstes Gebet: ${_displayNames[nextKey] ?? nextKey}',
+          style: TextStyle(color: fg.withOpacity(0.5), fontSize: 15 * scale),
+        ),
+        SizedBox(height: 14 * scale),
+
+        // German date
+        Text(
+          germanDate,
+          style: TextStyle(color: fg.withOpacity(0.85), fontSize: 18 * scale),
+        ),
+        SizedBox(height: 4 * scale),
+
+        // Hijri date
+        Text(
+          hijriDate,
+          style: TextStyle(color: fg.withOpacity(0.55), fontSize: 16 * scale),
+        ),
+      ],
     );
+  }
 
-    return Scaffold(
-      body: csvData.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: isDark
-                      ? [Colors.green.shade900, Colors.grey.shade700]
-                      : [Colors.grey.shade300, Colors.green.shade200],
-                ),
-              ),
-              child: SafeArea(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 20 * scale),
-                      Text(
-                        'BBF Verein - Freiburg',
-                        style: TextStyle(
-                          fontSize: 80 * scale,
-                          color: BColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 20 * scale),
-                      _showNextPrayerText(
-                        context,
-                        isDark,
-                        isIqamaRunning,
-                        scale,
-                      ),
-                      SizedBox(height: 10 * scale),
-                      _countdownToNextPrayer(countdownText, isDark, scale),
-                      SizedBox(height: 5 * scale),
-                      _currentDate(hijridate, now, isDark, scale),
-                      SizedBox(height: 120 * scale),
-                      _prayerTimesPage(todayRow, context, isDark, scale),
-                    ],
-                  ),
-                ),
+  Widget _fridayBlock(double scale, Color fg) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Freitagsgebet',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: fg.withOpacity(0.8), fontSize: 20 * scale, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 10 * scale),
+        Text(
+          fridayPrayer1.isEmpty ? '--:--' : fridayPrayer1,
+          style: TextStyle(color: fg, fontSize: 34 * scale, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8 * scale),
+        SizedBox(
+          width: 70 * scale,
+          child: Divider(color: fg.withOpacity(0.25), thickness: 1.5),
+        ),
+        SizedBox(height: 8 * scale),
+        Text(
+          fridayPrayer2.isEmpty ? '--:--' : fridayPrayer2,
+          style: TextStyle(color: fg, fontSize: 34 * scale, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _prayerCard({
+    required String key,
+    required String? time,
+    required String iqama,
+    required bool isActive,
+    required double scale,
+    required bool isDark,
+  }) {
+    final cardBg   = isActive ? BColors.primary : (isDark ? BColors.prayerRowDark : Colors.white);
+    final textCol  = (isActive || isDark) ? Colors.white : const Color(0xFF1C1C1E);
+    final iqamaBg  = Colors.white.withOpacity(isActive ? 0.2 : (isDark ? 0.1 : 0.0));
+    final iqamaCol = isActive || isDark ? Colors.white : BColors.primary;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: isActive
+            ? null
+            : Border.all(color: BColors.primary.withOpacity(0.25), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: isActive
+                ? BColors.primary.withOpacity(0.35)
+                : Colors.black.withOpacity(isDark ? 0.18 : 0.07),
+            blurRadius: 18 * scale,
+            offset: Offset(0, 6 * scale),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            _displayNames[key] ?? key,
+            style: TextStyle(
+              color: textCol.withOpacity(0.85),
+              fontSize: 20 * scale,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8 * scale),
+          Text(
+            time ?? '--:--',
+            style: TextStyle(
+              color: textCol,
+              fontSize: 34 * scale,
+              fontWeight: FontWeight.bold,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          SizedBox(height: 8 * scale),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 4 * scale),
+            decoration: BoxDecoration(
+              color: iqamaBg,
+              border: Border.all(color: iqamaCol.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(20 * scale),
+            ),
+            child: Text(
+              '+$iqama',
+              style: TextStyle(
+                color: iqamaCol,
+                fontSize: 18 * scale,
+                fontWeight: FontWeight.w600,
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
