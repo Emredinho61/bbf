@@ -220,6 +220,11 @@ class _CalenderViewState extends State<CalenderView> {
             locale: 'de_DE',
             rowHeight: 36,
             startingDayOfWeek: StartingDayOfWeek.monday,
+            availableCalendarFormats: const {
+              CalendarFormat.month: 'Monat',
+              CalendarFormat.twoWeeks: '2 Wochen',
+              CalendarFormat.week: 'Woche',
+            },
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
               todayDecoration: BoxDecoration(
@@ -334,7 +339,7 @@ class _CalenderViewState extends State<CalenderView> {
           prayerTimes: prayerTimes,
           selectedDate: _selectedDay ?? DateTime.now(),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: 20),
         _navButton(
           context,
           isDark: isDark,

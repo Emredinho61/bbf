@@ -1,25 +1,25 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/prayertimes_upload.dart';
-// import 'package:bbf_app/components/preach/upload_khutba_dialog.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
-import 'package:bbf_app/screens/nav_pages/settings/location_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/utils/theme/theme_provider.dart';
-import 'package:bbf_app/components/auth_dialog.dart';
-import "package:bbf_app/components/donations/donation_tile.dart";
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({super.key});
@@ -32,19 +32,14 @@ class _SettingsPageState extends State<SettingsPage> {
   /*--Initialize Services-------------------------------------------------------*/
 
   final SettingsService firestoreService = SettingsService();
-
   final AuthService authService = AuthService();
-
   final UserService userService = UserService();
-
   final PrayertimesService prayertimesService = PrayertimesService();
-
   final CheckUserHelper checkUserHelper = CheckUserHelper();
-
   final SettingsHelper settingsHelper = SettingsHelper();
 
   /*--Initialize Variables-------------------------------------------------------*/
-  late bool isUserAdmin; // used for displaying widgets only for admin
+  late bool isUserAdmin;
 
   /*--Initialize State-------------------------------------------------------*/
   @override
@@ -54,11 +49,8 @@ class _SettingsPageState extends State<SettingsPage> {
     checkUser();
   }
 
-  // check if user is admin
   void checkUser() async {
-    if (authService.currentUser == null) {
-      return;
-    }
+    if (authService.currentUser == null) return;
     final value = await userService.checkIfUserIsAdmin();
     setState(() {
       if (value != isUserAdmin) {
@@ -68,10 +60,8 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  /*--Admins UI for modifing Iqama & Friday Prayertimes-------------------------------------------------------*/
+  /*--Dialog helpers-------------------------------------------------------*/
 
-  // Converts a "HH:mm" string from the backend into a TimeOfDay.
-  // Returns null if the value is empty or not in the expected format.
   TimeOfDay? _parseTimeOfDay(String value) {
     final parts = value.split(':');
     if (parts.length != 2) return null;
@@ -81,18 +71,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
-  // Converts a TimeOfDay back into the "HH:mm" string format used in the backend.
   String _formatTimeOfDay(TimeOfDay? time) {
     if (time == null) return '';
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  // Admin can change Friday prayertimes here
   void _showDialogForFridaysPrayer() async {
-    final String currentFridayPrayer1 = await prayertimesService
-        .getFridayPrayer1();
-    final String currentFridayPrayer2 = await prayertimesService
-        .getFridayPrayer2();
+    final String currentFridayPrayer1 = await prayertimesService.getFridayPrayer1();
+    final String currentFridayPrayer2 = await prayertimesService.getFridayPrayer2();
 
     TimeOfDay? fridayPrayer1Time = _parseTimeOfDay(currentFridayPrayer1);
     TimeOfDay? fridayPrayer2Time = _parseTimeOfDay(currentFridayPrayer2);
@@ -105,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return AlertDialog(
-              title: Text('Freitagsgebetszeiten ändern'),
+              title: const Text('Freitagsgebetszeiten ändern'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -113,20 +99,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () => EventPickers.pickTime(
                       dialogContext,
                       initialTime: fridayPrayer1Time,
-                      onConfirm: (time) =>
-                          setDialogState(() => fridayPrayer1Time = time),
+                      onConfirm: (time) => setDialogState(() => fridayPrayer1Time = time),
                     ),
                     text: fridayPrayer1Time == null
                         ? '1. Freitagsgebet auswählen'
                         : '1. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer1Time)} Uhr',
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   BTextButton(
                     onPressed: () => EventPickers.pickTime(
                       dialogContext,
                       initialTime: fridayPrayer2Time,
-                      onConfirm: (time) =>
-                          setDialogState(() => fridayPrayer2Time = time),
+                      onConfirm: (time) => setDialogState(() => fridayPrayer2Time = time),
                     ),
                     text: fridayPrayer2Time == null
                         ? '2. Freitagsgebet auswählen'
@@ -140,7 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     MaterialButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: Text('Zurück'),
+                      child: const Text('Zurück'),
                     ),
                     MaterialButton(
                       onPressed: () async {
@@ -148,9 +132,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           _formatTimeOfDay(fridayPrayer1Time),
                           _formatTimeOfDay(fridayPrayer2Time),
                         );
-                        Navigator.pop(dialogContext);
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
                       },
-                      child: Text('Ändern'),
+                      child: const Text('Ändern'),
                     ),
                   ],
                 ),
@@ -162,8 +146,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // Admin can change Iqama times here. Iqama values are stored as the
-  // number of minutes after the prayer time, e.g. "10".
   void _showDialogForIqamaTimes() async {
     final String fajr = await prayertimesService.getFajrIqama();
     final String dhur = await prayertimesService.getDhurIqama();
@@ -185,36 +167,16 @@ class _SettingsPageState extends State<SettingsPage> {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return AlertDialog(
-              title: Text('Iqama Zeiten ändern'),
+              title: const Text('Iqama Zeiten ändern'),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _iqamaNumberPickerRow(
-                      'Fajr',
-                      fajrIqama,
-                      (value) => setDialogState(() => fajrIqama = value),
-                    ),
-                    _iqamaNumberPickerRow(
-                      'Dhur',
-                      dhurIqama,
-                      (value) => setDialogState(() => dhurIqama = value),
-                    ),
-                    _iqamaNumberPickerRow(
-                      'Asr',
-                      asrIqama,
-                      (value) => setDialogState(() => asrIqama = value),
-                    ),
-                    _iqamaNumberPickerRow(
-                      'Maghrib',
-                      maghribIqama,
-                      (value) => setDialogState(() => maghribIqama = value),
-                    ),
-                    _iqamaNumberPickerRow(
-                      'Isha',
-                      ishaIqama,
-                      (value) => setDialogState(() => ishaIqama = value),
-                    ),
+                    _iqamaPickerRow('Fajr', fajrIqama, (v) => setDialogState(() => fajrIqama = v)),
+                    _iqamaPickerRow('Dhur', dhurIqama, (v) => setDialogState(() => dhurIqama = v)),
+                    _iqamaPickerRow('Asr', asrIqama, (v) => setDialogState(() => asrIqama = v)),
+                    _iqamaPickerRow('Maghrib', maghribIqama, (v) => setDialogState(() => maghribIqama = v)),
+                    _iqamaPickerRow('Isha', ishaIqama, (v) => setDialogState(() => ishaIqama = v)),
                   ],
                 ),
               ),
@@ -224,20 +186,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     MaterialButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: Text('Zurück'),
+                      child: const Text('Zurück'),
                     ),
                     MaterialButton(
                       onPressed: () async {
                         await prayertimesService.updateIqamaTimes(
-                          fajrIqama.toString(),
-                          dhurIqama.toString(),
-                          asrIqama.toString(),
-                          maghribIqama.toString(),
-                          ishaIqama.toString(),
+                          fajrIqama.toString(), dhurIqama.toString(),
+                          asrIqama.toString(), maghribIqama.toString(), ishaIqama.toString(),
                         );
-                        Navigator.pop(dialogContext);
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
                       },
-                      child: Text('Ändern'),
+                      child: const Text('Ändern'),
                     ),
                   ],
                 ),
@@ -249,25 +208,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _iqamaNumberPickerRow(
-    String prayerName,
-    int value,
-    ValueChanged<int> onChanged,
-  ) {
+  Widget _iqamaPickerRow(String prayerName, int value, ValueChanged<int> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('$prayerName Iqama (Minuten)'),
-          NumberPicker(
-            value: value,
-            minValue: 0,
-            maxValue: 60,
-            itemWidth: 60,
-            itemHeight: 32,
-            onChanged: onChanged,
-          ),
+          NumberPicker(value: value, minValue: 0, maxValue: 60, itemWidth: 60, itemHeight: 32, onChanged: onChanged),
         ],
       ),
     );
@@ -280,370 +228,489 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("Send Broadcast"),
-        content: _broadcastTextFields(titleController, summaryController),
+        title: const Text('Send Broadcast'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: summaryController, decoration: const InputDecoration(labelText: 'Summary')),
+          ],
+        ),
         actions: [
-          _actionsRowForSendingBroadcast(
-            ctx,
-            titleController,
-            summaryController,
+          Row(
+            children: [
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: () async {
+                  await FirebaseFirestore.instance.collection('broadcasts').add({
+                    'title': titleController.text,
+                    'summary': summaryController.text,
+                    'timestamp': FieldValue.serverTimestamp(),
+                  });
+                  if (ctx.mounted) Navigator.of(ctx).pop();
+                },
+                child: const Text('Send'),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Row _actionsRowForSendingBroadcast(
-    BuildContext ctx,
-    TextEditingController titleController,
-    TextEditingController summaryController,
-  ) {
-    return Row(
-      children: [
-        TextButton(
-          child: Text("Cancel"),
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
-        ElevatedButton(
-          child: Text("Send"),
-          onPressed: () async {
-            // Save message in Firestore
-            await FirebaseFirestore.instance.collection("broadcasts").add({
-              "title": titleController.text,
-              "summary": summaryController.text,
-              "timestamp": FieldValue.serverTimestamp(),
-            });
-            Navigator.of(ctx).pop();
-          },
-        ),
-      ],
-    );
-  }
+  /*--Build-------------------------------------------------------*/
 
-  Column _broadcastTextFields(
-    TextEditingController titleController,
-    TextEditingController summaryController,
-  ) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TextField(
-          controller: titleController,
-          decoration: InputDecoration(labelText: "Title"),
-        ),
-        TextField(
-          controller: summaryController,
-          decoration: InputDecoration(labelText: "Summary"),
-        ),
-      ],
-    );
-  }
-
-  /*--Settings UI-------------------------------------------------------*/
   @override
   Widget build(BuildContext context) {
-    // themeProvider is used to change theme of App, if user wants so
     final themeProvider = Provider.of<ThemeProvider>(context);
-
-    // bool to check if current theme is dark theme
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? [Colors.green.shade900, Colors.grey.shade700]
-                : [Colors.grey.shade300, Colors.green.shade200],
+      backgroundColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          children: [
+            // Monitor-Modus link (nur Admin)
+            if (isUserAdmin && authService.currentUser != null)
+              _monitorLink(context),
+
+            // Admin-Sektion
+            if (isUserAdmin && authService.currentUser != null) ...[
+              _sectionHeader('Admin', isDark),
+              _buildCard(isDark: isDark, children: [
+                _settingsTile(icon: Icons.access_time_outlined, title: 'Freitagsgebetszeiten', isDark: isDark, isLast: false, onTap: _showDialogForFridaysPrayer),
+                _settingsTile(icon: Icons.timer_outlined, title: 'Iqama Zeiten', isDark: isDark, isLast: false, onTap: _showDialogForIqamaTimes),
+                _settingsTile(icon: Icons.upload_file_outlined, title: 'Event hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadProjectDialog())),
+                _settingsTile(icon: Icons.cloud_upload_outlined, title: 'Gebetszeiten hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadPrayerTimesDialog())),
+                _settingsTile(icon: Icons.campaign_outlined, title: 'Nachricht broadcasten', isDark: isDark, isLast: true, onTap: _showBroadcastDialog),
+              ]),
+            ],
+
+            // Spenden
+            _sectionHeader('Spenden', isDark),
+            _buildCard(isDark: isDark, children: [
+              _paypalRow(context, isDark),
+              _bankCard(context, isDark),
+            ]),
+
+            // App
+            _sectionHeader('App', isDark),
+            _buildCard(isDark: isDark, children: [
+              _toggleTile(
+                icon: isDark ? Icons.dark_mode : Icons.light_mode_outlined,
+                title: 'Dunkelmodus',
+                subtitle: 'App im dunklen Design anzeigen',
+                isDark: isDark,
+                isLast: false,
+                value: isDark,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                  firestoreService.updateTheme(value ? 'dark' : 'light');
+                },
+              ),
+              IshaSettingsTile(settingsHelper: settingsHelper, isDark: isDark),
+              _settingsTile(
+                icon: Icons.info_outline,
+                title: 'App-Version',
+                isDark: isDark,
+                isLast: true,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                    const SizedBox(width: 4),
+                    Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+                  ],
+                ),
+              ),
+            ]),
+
+            // Rechtliches
+            _sectionHeader('Rechtliches', isDark),
+            _buildCard(isDark: isDark, children: [
+              _settingsTile(icon: Icons.description_outlined, title: 'Rechtliches', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'Rechtliches', 'Alle rechtlichen Hinweise...')),
+              _settingsTile(icon: Icons.description_outlined, title: 'AGB', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'AGB', 'Unsere allgemeinen Geschäftsbedingungen...')),
+              _settingsTile(icon: Icons.description_outlined, title: 'Datenschutz', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'Datenschutz', 'Informationen zum Datenschutz...')),
+              _settingsTile(icon: Icons.description_outlined, title: 'Über Uns', isDark: isDark, isLast: true, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()))),
+            ]),
+
+            // Benutzer
+            _sectionHeader('Benutzer', isDark),
+            _buildCard(isDark: isDark, children: [
+              if (!authService.currentUser!.isAnonymous)
+                _settingsTile(
+                  icon: Icons.logout,
+                  title: 'Ausloggen',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () async {
+                    await authService.signOut();
+                    if (context.mounted) Navigator.pushNamed(context, '/authpage');
+                  },
+                ),
+              if (authService.currentUser!.isAnonymous)
+                _settingsTile(
+                  icon: Icons.person_outline,
+                  title: 'Account erstellen / einloggen',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.pushNamed(context, '/authpage', arguments: {'showGuestLogin': true}),
+                ),
+            ]),
+
+            const SizedBox(height: 16),
+
+            if (!authService.currentUser!.isAnonymous)
+              DeleteAccountButton(authService: authService),
+
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /*--UI Helpers-------------------------------------------------------*/
+
+  Widget _monitorLink(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MonitorPage())),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Center(
+          child: Text(
+            'Zum Monitor-Modus wechseln',
+            style: TextStyle(
+              color: BColors.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              decoration: TextDecoration.underline,
+              decorationColor: BColors.primary,
+            ),
           ),
         ),
-        child: SafeArea(
-          child: ListView(
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String text, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+          color: Colors.grey.shade500,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required bool isDark, required List<Widget> children}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
+      ),
+    );
+  }
+
+  Widget _settingsTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    required bool isDark,
+    required bool isLast,
+    VoidCallback? onTap,
+  }) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: BColors.primary.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: BColors.primary, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                      ],
+                    ],
+                  ),
+                ),
+                trailing ?? Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+              ],
+            ),
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            indent: 66,
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+          ),
+      ],
+    );
+  }
+
+  Widget _toggleTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required bool isDark,
+    required bool isLast,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
             children: [
-              // /*--Admin Section-------------------------------------------------------*/
-
-              // Switch to Monitor mode
-              if (isUserAdmin && authService.currentUser != null)
-                BTextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => MonitorPage()),
-                    );
-                  },
-                  text: 'Zum Monitor-Modus wechseln',
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: BColors.primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
                 ),
-              if (isUserAdmin && authService.currentUser != null)
-                _buildSectionHeader("Admin"),
-              // display settings for admins
-              if (isUserAdmin && authService.currentUser != null)
-                _modifyFridayPrayerTimes(),
-              if (isUserAdmin && authService.currentUser != null)
-                _modifyIqamaTimes(),
-              // if (isUserAdmin) _uploadKhutba(context),
-              if (isUserAdmin) _uploadEvent(context),
-              if (isUserAdmin) _uploadPrayertimesCSV(context),
-              if (isUserAdmin) _broadcastMessage(),
-
-              /*--Donation Section-------------------------------------------------------*/
-              _buildSectionHeader("Spenden"),
-              SizedBox(height: 10),
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Über eine Spende würden wir uns freuen !',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                child: Icon(icon, color: BColors.primary, size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                    ],
+                  ],
                 ),
               ),
-              SizedBox(height: 10),
-              Column(
-                children: [
-                  IconButtonForPayPal(isDark: isDark),
-
-                  SizedBox(height: 10),
-
-                  DividerWithText(isDark: isDark),
-
-                  SizedBox(height: 10),
-
-                  BankInfoCard(isDark: isDark),
-                ],
-              ),
-
-              const Divider(),
-
-              /*--App Info Section-------------------------------------------------------*/
-              _buildSectionHeader("App"),
-
-              // Switch Light/Dark Mode
-              LightDarkModeSwitch(
-                isDark: isDark,
-                themeProvider: themeProvider,
-                firestoreService: firestoreService,
-              ),
-
-              IshaSettings(settingsHelper: settingsHelper),
-              // App version
-              _appVersionText(context),
-              const Divider(),
-
-              // General information
-              _buildSectionHeader("Rechtliches"),
-              _buildLinkTile(
-                context,
-                "Rechtliches",
-                "Alle rechtlichen Hinweise...",
-              ),
-              _buildLinkTile(
-                context,
-                "AGB",
-                "Unsere allgemeinen Geschäftsbedingungen...",
-              ),
-              _buildLinkTile(
-                context,
-                "Datenschutz",
-                "Informationen zum Datenschutz...",
-              ),
-              _buildLinkTile(
-                context,
-                "Über Uns",
-                "Mission, Vorstand, Kontakt, Spendenlinks...",
-                isAboutPage: true,
-              ),
-              // TODO: Comment out if its working
-              // _buildLinkTile(
-              //   context,
-              //   "Standort der Moschee",
-              //   "Adresse der BBF",
-              //   isLocationPage: true,
-              // ),
-              const Divider(),
-
-              // User Settings
-              _buildSectionHeader("Benutzer"),
-
-              // Log out if user is logged in
-              if (!authService.currentUser!.isAnonymous) _logOut(context),
-
-              // registration or login for guest user
-              if (authService.currentUser!.isAnonymous)
-                _registerOrLogin(context),
-
-              // Delete Button if User is logged in
-              if (!authService.currentUser!.isAnonymous)
-                DeleteAccountButton(authService: authService),
+              Switch(value: value, onChanged: onChanged, activeColor: BColors.primary),
             ],
           ),
         ),
-      ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            indent: 66,
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+          ),
+      ],
     );
   }
 
-  // ListTile _uploadKhutba(BuildContext context) {
-  //   return ListTile(
-  //     leading: const Icon(Icons.upload_file),
-  //     title: const Text("Khutba hochladen"),
-  //     subtitle: const Text("PDF auswählen und speichern"),
-  //     onTap: () {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => const UploadKhutbaDialog(),
-  //       );
-  //     },
-  //   );
-  // }
-
-  ListTile _uploadEvent(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.upload_file),
-      title: const Text("Event hochladen"),
-      subtitle: const Text("Markdown auswählen und speichern"),
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => const UploadProjectDialog(),
-        );
-      },
-    );
-  }
-
-  ListTile _uploadPrayertimesCSV(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.upload_file),
-      title: const Text("Gebetszeiten hochladen"),
-      subtitle: const Text(
-        "Als CSV Datei. Name der Datei im folgenden Format: prayer_times_year",
-      ),
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => const UploadPrayerTimesDialog(),
-        );
-      },
-    );
-  }
-
-  ListTile _modifyIqamaTimes() {
-    return ListTile(
-      leading: const Icon(Icons.access_time),
-      title: const Text("Iqama Zeiten einstellen"),
+  Widget _paypalRow(BuildContext context, bool isDark) {
+    return InkWell(
       onTap: () async {
-        _showDialogForIqamaTimes();
+        final Uri url = Uri.parse('https://www.paypal.com/donate/?hosted_button_id=ESTNXJLMMQQQS#');
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          debugPrint('Konnte PayPal URL nicht öffnen');
+        }
       },
-    );
-  }
-
-  ListTile _modifyFridayPrayerTimes() {
-    return ListTile(
-      leading: const Icon(Icons.access_time),
-      title: const Text("Freitagsgebetszeiten einstellen"),
-      onTap: () async {
-        _showDialogForFridaysPrayer();
-      },
-    );
-  }
-
-  ListTile _registerOrLogin(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.person),
-      title: const Text("Account erstellen / einloggen"),
-      onTap: () async {
-        Navigator.pushNamed(
-          context,
-          '/authpage',
-          arguments: {'showGuestLogin': true},
-        );
-      },
-    );
-  }
-
-  ListTile _logOut(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.logout),
-      title: const Text("Ausloggen"),
-      onTap: () async {
-        await authService.signOut();
-        Navigator.pushNamed(context, '/authpage');
-      },
-    );
-  }
-
-  ListTile _broadcastMessage() {
-    return ListTile(
-      leading: const Icon(Icons.message),
-      title: const Text("Nachricht broadcasten"),
-      onTap: () async {
-        _showBroadcastDialog();
-      },
-    );
-  }
-
-  ListTile _appVersionText(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.info_outline),
-      title: const Text("App-Version"),
-      trailing: Text("1.0.0", style: Theme.of(context).textTheme.bodyMedium),
-    );
-  }
-
-  Widget _buildSectionHeader(String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-          color: Colors.grey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF5FF),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Image.asset('assets/images/PayPalLogo.png', fit: BoxFit.contain),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Über eine Spende würden wir uns freuen!',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Jetzt mit PayPal spenden',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildLinkTile(
-    BuildContext context,
-    String title,
-    String content, {
-    bool isAboutPage = false,
-    bool isLocationPage = false,
-  }) {
-    return ListTile(
-      leading: const Icon(Icons.description_outlined),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        if (isAboutPage) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutPage()),
-          );
-        }
-        if (isLocationPage) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MosqueLocationPage()),
-          );
-        } else {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: Text(title),
-              content: Text(content),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Schließen"),
+  Widget _bankCard(BuildContext context, bool isDark) {
+    return Column(
+      children: [
+        Divider(
+          height: 1,
+          indent: 16,
+          endIndent: 16,
+          color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark ? BColors.backgroundColorDark : const Color(0xFFF8FFF8),
+              border: Border.all(color: BColors.primary.withOpacity(0.4)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.account_balance, color: BColors.primary, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Bildungs- und Begegnungsverein\nFreiburg e.V.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
+                _copyRow(context, Icons.receipt_outlined, 'IBAN', 'DE11 6805 0101 0014 3501 24', isDark),
+                const SizedBox(height: 8),
+                _copyRow(context, Icons.swap_horiz, 'BIC', 'FRSPDE66XXX', isDark),
+                const SizedBox(height: 8),
+                _copyRow(context, Icons.credit_card_outlined, 'Verwendungszweck', 'Spende', isDark),
               ],
             ),
-          );
-        }
-      },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _copyRow(BuildContext context, IconData icon, String label, String value, bool isDark) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade500),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$label kopiert!'), duration: const Duration(seconds: 2)),
+            );
+          },
+          child: Icon(Icons.copy_outlined, size: 18, color: Colors.grey.shade400),
+        ),
+      ],
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Schließen'),
+          ),
+        ],
+      ),
     );
   }
 }
+
+// ── Delete Account Button ─────────────────────────────────────────────────────
 
 class DeleteAccountButton extends StatelessWidget {
   const DeleteAccountButton({super.key, required this.authService});
@@ -652,86 +719,177 @@ class DeleteAccountButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserService userService = UserService();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: AuthDialogButton(
-        buttonText: "Konto löschen",
-        fieldLabels: ["E-Mail", "Passwort"],
-        passwordFieldIndex: 1,
-        confirmButtonColor: Colors.red,
-        confirmButtonText: "Löschen",
-        onSubmit: (values, context) async {
-          final email = values["E-Mail"] ?? "";
-          final password = values["Passwort"] ?? "";
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => _showDeleteDialog(context),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          decoration: BoxDecoration(
+            color: BColors.primary,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text(
+                  'Konto löschen',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.white, size: 22),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-          try {
-            await userService.deleteUserFromBackend();
-            await authService.deleteAccount(email: email, password: password);
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/authpage',
-              (_) => false,
-            );
-          } catch (e) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text("Fehler beim Löschen: $e")));
-          }
-        },
+  void _showDeleteDialog(BuildContext context) {
+    final UserService userService = UserService();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konto löschen'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'E-Mail', border: OutlineInputBorder()),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Passwort', border: OutlineInputBorder()),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Abbrechen'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              final email = emailController.text.trim();
+              final password = passwordController.text.trim();
+              Navigator.pop(ctx);
+              try {
+                await userService.deleteUserFromBackend();
+                await authService.deleteAccount(email: email, password: password);
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/authpage', (_) => false);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Fehler beim Löschen: $e')),
+                  );
+                }
+              }
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Text('Löschen'),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class LightDarkModeSwitch extends StatelessWidget {
-  const LightDarkModeSwitch({
-    super.key,
-    required this.isDark,
-    required this.themeProvider,
-    required this.firestoreService,
-  });
+// ── Isha Settings Tile ────────────────────────────────────────────────────────
 
-  final bool isDark;
-  final ThemeProvider themeProvider;
-  final SettingsService firestoreService;
-
-  @override
-  Widget build(BuildContext context) {
-    return SwitchListTile(
-      title: const Text("Dunkelmodus"),
-      value: isDark,
-      // TODO: check if this exists
-      activeThumbColor: BColors.primary,
-      onChanged: (value) {
-        themeProvider.toggleTheme();
-        firestoreService.updateTheme(value ? "dark" : "light");
-      },
-      secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
-    );
-  }
-}
-
-class IshaSettings extends StatefulWidget {
-  const IshaSettings({super.key, required this.settingsHelper});
+class IshaSettingsTile extends StatefulWidget {
+  const IshaSettingsTile({super.key, required this.settingsHelper, required this.isDark});
 
   final SettingsHelper settingsHelper;
+  final bool isDark;
 
   @override
-  State<IshaSettings> createState() => _IshaSettingsState();
+  State<IshaSettingsTile> createState() => _IshaSettingsTileState();
 }
 
-class _IshaSettingsState extends State<IshaSettings> {
+class _IshaSettingsTileState extends State<IshaSettingsTile> {
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      title: const Text(" + 90 Minuten zu Isha"),
-      value: widget.settingsHelper.getIshaSettings(),
-      // activeThumbColor: BColors.primary,
-      onChanged: (value) async {
-        await widget.settingsHelper.setIshaSetting(value);
-        setState(() {});
-      },
+    final value = widget.settingsHelper.getIshaSettings();
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: BColors.primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.access_time_filled, color: BColors.primary, size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '+ 90 Minuten zu Isha',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: widget.isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Gebetszeit um 90 Minuten verzögern',
+                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: value,
+                onChanged: (v) async {
+                  await widget.settingsHelper.setIshaSetting(v);
+                  setState(() {});
+                },
+                activeColor: BColors.primary,
+              ),
+            ],
+          ),
+        ),
+        Divider(
+          height: 1,
+          indent: 66,
+          color: widget.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+        ),
+      ],
     );
   }
 }
