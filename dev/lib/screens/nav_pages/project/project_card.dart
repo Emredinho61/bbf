@@ -158,7 +158,7 @@ class _ProjectState extends State<Project> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: BColors.primary, width: 1),
-              color: BColors.backgroundColor,
+              color: isDark ? BColors.prayerRowDark : BColors.backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -230,7 +230,7 @@ class _ProjectState extends State<Project> {
                             Icon(
                               Icons.calendar_month_outlined,
                               size: 14,
-                              color: const Color.fromARGB(255, 0, 0, 0),
+                              color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -238,7 +238,7 @@ class _ProjectState extends State<Project> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: const Color.fromARGB(255, 0, 0, 0),
+                                color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
                           ],
@@ -258,7 +258,7 @@ class _ProjectState extends State<Project> {
                           child: Icon(
                             Icons.arrow_forward,
                             size: 14,
-                            color: const Color.fromARGB(255, 0, 0, 0),
+                            color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                           ),
                         ),
                       ),
@@ -283,7 +283,7 @@ class _ProjectState extends State<Project> {
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              color: BColors.secondary,
+                              color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(color: Colors.red),
                             ),
@@ -313,10 +313,11 @@ class _ProjectState extends State<Project> {
     Map<String, dynamic> data,
   ) {
     final isHorizontal = data['orientation'] == 'horizontal';
+    final isDarkSheet = Theme.of(context).brightness == Brightness.dark;
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: BColors.backgroundColor,
+      backgroundColor: isDarkSheet ? BColors.backgroundColorDark : BColors.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -382,6 +383,7 @@ class ShowMoreContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('Orientation: ${data['orientation']}');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double aspectRatio = isHorizontal ? 16 / 9 : 3 / 4;
     const double cardOverlap = 52.0;
 
@@ -440,7 +442,7 @@ class ShowMoreContent extends StatelessWidget {
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? BColors.prayerRowDark : Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
@@ -522,7 +524,7 @@ class ShowMoreContent extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F4),
+              color: isDark ? BColors.prayerRowDark : const Color(0xFFF5F5F4),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(

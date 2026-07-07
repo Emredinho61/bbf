@@ -875,7 +875,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                     : const Color(0xFFF1F4F8),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color(0xFFE3E7EE),
+                                  color: isDark
+                                      ? Colors.white.withOpacity(0.06)
+                                      : const Color(0xFFE3E7EE),
                                   width: 0.8,
                                 ),
                               ),
@@ -886,7 +888,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                                 indicator: BoxDecoration(
                                   color: isDark
-                                      ? BColors.prayerRowDark
+                                      ? const Color(0xFF3D4A5C)
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: [

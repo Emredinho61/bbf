@@ -276,11 +276,12 @@ class _InformationPageState extends State<InformationPage> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: BColors.secondary,
+          color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: BColors.primary),
         ),

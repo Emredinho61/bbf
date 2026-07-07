@@ -21,8 +21,9 @@ class _AllProjectsState extends State<AllProjects> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: BColors.backgroundColor,
+      backgroundColor: isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 10),
@@ -40,17 +41,17 @@ class _AllProjectsState extends State<AllProjects> {
                         ),
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 220, 228, 240),
+                          color: isDark ? BColors.prayerRowDark : const Color.fromARGB(255, 220, 228, 240),
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: const Color.fromARGB(255, 200, 210, 225),
+                            color: isDark ? Colors.white.withOpacity(0.06) : const Color.fromARGB(255, 200, 210, 225),
                             width: 1,
                           ),
                         ),
                         child: TabBar(
                           dividerColor: Colors.transparent,
                           indicator: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? const Color(0xFF3D4A5C) : Colors.white,
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
@@ -63,7 +64,7 @@ class _AllProjectsState extends State<AllProjects> {
 
                           labelColor: BColors.primary,
 
-                          unselectedLabelColor: const Color(0xFF5F6368),
+                          unselectedLabelColor: isDark ? Colors.grey.shade400 : const Color(0xFF5F6368),
 
                           labelStyle: const TextStyle(
                             fontSize: 16,

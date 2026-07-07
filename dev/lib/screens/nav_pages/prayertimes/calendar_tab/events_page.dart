@@ -3,6 +3,7 @@
 import 'package:bbf_app/components/events/event_notification_sheet.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/event_notification_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -86,7 +87,7 @@ class _EventspageState extends State<Eventspage> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? const Color(0xff121212)
+          ? BColors.backgroundColorDark
           : const Color(0xffFAFAFA),
 
       body: SafeArea(
@@ -171,7 +172,7 @@ class _EventspageState extends State<Eventspage> {
                     padding: const EdgeInsets.all(14),
 
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xff1E1E1E) : Colors.white,
+                      color: isDark ? BColors.prayerRowDark : Colors.white,
 
                       borderRadius: BorderRadius.circular(18),
 

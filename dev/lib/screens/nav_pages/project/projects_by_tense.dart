@@ -67,8 +67,9 @@ class _ProjectsByTenseState extends State<ProjectsByTense> {
   @override
   Widget build(BuildContext context) {
     // Setting up the layout for the projects
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: BColors.backgroundColor,
+      backgroundColor: isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
           const crossAxisCount = 2;

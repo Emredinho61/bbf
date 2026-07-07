@@ -29,8 +29,6 @@ class _CalenderViewState extends State<CalenderView> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.week;
-  String placeHolder = '';
-  Map<DateTime, List<Event>> eventSource = {};
   LinkedHashMap<DateTime, List<Event>> events = LinkedHashMap(
     equals: isSameDay,
     hashCode: (date) => date.day * 10000 + date.month * 100 + date.year,
@@ -90,6 +88,15 @@ class _CalenderViewState extends State<CalenderView> {
 
   DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
+  BoxDecoration _adminIconDecoration(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return BoxDecoration(
+      color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
+      borderRadius: BorderRadius.circular(30),
+      border: Border.all(color: BColors.primary),
+    );
+  }
+
   GestureDetector _addEventIcon(BuildContext context) {
     return GestureDetector(
       onTap: () async {
@@ -104,11 +111,7 @@ class _CalenderViewState extends State<CalenderView> {
         }
       },
       child: Container(
-        decoration: BoxDecoration(
-          color: BColors.secondary,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: BColors.primary),
-        ),
+        decoration: _adminIconDecoration(context),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Icon(Icons.add, size: 35, color: BColors.primary),
@@ -131,11 +134,7 @@ class _CalenderViewState extends State<CalenderView> {
         }
       },
       child: Container(
-        decoration: BoxDecoration(
-          color: BColors.secondary,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: BColors.primary),
-        ),
+        decoration: _adminIconDecoration(context),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Icon(Icons.delete_forever, size: 35, color: BColors.primary),
@@ -161,11 +160,7 @@ class _CalenderViewState extends State<CalenderView> {
         }
       },
       child: Container(
-        decoration: BoxDecoration(
-          color: BColors.secondary,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: BColors.primary),
-        ),
+        decoration: _adminIconDecoration(context),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Icon(Icons.delete, size: 35, color: BColors.primary),
@@ -235,9 +230,25 @@ class _CalenderViewState extends State<CalenderView> {
                 color: const Color.fromARGB(255, 163, 206, 164),
                 shape: BoxShape.circle,
               ),
-              weekendTextStyle: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
+              defaultTextStyle: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
               ),
+              weekendTextStyle: TextStyle(
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+              todayTextStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              selectedTextStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              markerDecoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+              markersMaxCount: 3,
             ),
             headerStyle: HeaderStyle(
               formatButtonVisible: true,
@@ -247,6 +258,18 @@ class _CalenderViewState extends State<CalenderView> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87,
+              ),
+              formatButtonTextStyle: TextStyle(
+                color: BColors.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              formatButtonDecoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1F2937)
+                    : BColors.primary.withOpacity(0.08),
+                border: Border.all(color: BColors.primary.withOpacity(0.5)),
+                borderRadius: BorderRadius.circular(10),
               ),
               leftChevronIcon: Icon(
                 Icons.chevron_left,
@@ -312,89 +335,86 @@ class _CalenderViewState extends State<CalenderView> {
           selectedDate: _selectedDay ?? DateTime.now(),
         ),
         SizedBox(height: 5),
-        Container(
-          margin: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isDark
-                ? BColors.prayerRowDark
-                : BColors.primary.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BColors.primary.withOpacity(0.15)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Eventspage(
-                    events: _selectedEvents,
-                    focusedDay: _focusedDay,
-                    isUserAdmin: _isUserAdmin,
-                  ),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(
-                        255,
-                        235,
-                        235,
-                        235,
-                      ).withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.calendar_month_rounded,
-                      size: 18,
-                      color: BColors.primary,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Alle Projekte des Tages ansehen',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: isDark
-                                ? Colors.white
-                                : const Color(0xFF374151),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: BColors.primary,
-                    size: 24,
-                  ),
-                ],
+        _navButton(
+          context,
+          isDark: isDark,
+          icon: Icons.calendar_month_rounded,
+          label: 'Alle Projekte des Tages ansehen',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => Eventspage(
+                events: _selectedEvents,
+                focusedDay: _focusedDay,
+                isUserAdmin: _isUserAdmin,
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _navButton(
+    BuildContext context, {
+    required bool isDark,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      decoration: BoxDecoration(
+        color: isDark
+            ? BColors.prayerRowDark
+            : BColors.primary.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: BColors.primary.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.08)
+                      : const Color(0xFFEBEBEB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: BColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF374151),
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: BColors.primary,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
