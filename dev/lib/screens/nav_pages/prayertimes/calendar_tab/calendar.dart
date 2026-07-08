@@ -249,11 +249,42 @@ class _CalenderViewState extends State<CalenderView> {
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
-              markerDecoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
-              markersMaxCount: 3,
+            ),
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, day, events) {
+                if (events.isEmpty) return null;
+                final isDarkMarker = Theme.of(context).brightness == Brightness.dark;
+                final isSelected = isSameDay(_selectedDay, day);
+                final isToday = isSameDay(DateTime.now(), day);
+
+                final Color dotColor;
+                if (isToday) {
+                  // Heute: immer dunkler Kreis → weißer Punkt passt in beiden Modi
+                  dotColor = Colors.white;
+                } else if (isSelected) {
+                  // Ausgewählt: hellgrüner Kreis im Light Mode → grüner Punkt, Dark Mode → weißer Punkt
+                  dotColor = isDarkMarker ? Colors.white : BColors.primary;
+                } else {
+                  dotColor = BColors.primary;
+                }
+                return Positioned(
+                  bottom: 3,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: events.take(3).map((_) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: dotColor,
+                        shape: BoxShape.circle,
+                      ),
+                    )).toList(),
+                  ),
+                );
+              },
             ),
             headerStyle: HeaderStyle(
               formatButtonVisible: true,

@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:bbf_app/backend/services/prayertimes_service.dart';
+import 'package:bbf_app/components/app_dialog.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
@@ -222,39 +223,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showBroadcastDialog() {
-    final titleController = TextEditingController();
-    final summaryController = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Send Broadcast'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
-            TextField(controller: summaryController, decoration: const InputDecoration(labelText: 'Summary')),
-          ],
-        ),
-        actions: [
-          Row(
-            children: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-              ElevatedButton(
-                onPressed: () async {
-                  await FirebaseFirestore.instance.collection('broadcasts').add({
-                    'title': titleController.text,
-                    'summary': summaryController.text,
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-                  if (ctx.mounted) Navigator.of(ctx).pop();
-                },
-                child: const Text('Send'),
-              ),
-            ],
-          ),
-        ],
-      ),
+      builder: (ctx) => const _BroadcastDialog(),
     );
   }
 
@@ -281,7 +252,7 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildCard(isDark: isDark, children: [
                 _settingsTile(icon: Icons.access_time_outlined, title: 'Freitagsgebetszeiten', isDark: isDark, isLast: false, onTap: _showDialogForFridaysPrayer),
                 _settingsTile(icon: Icons.timer_outlined, title: 'Iqama Zeiten', isDark: isDark, isLast: false, onTap: _showDialogForIqamaTimes),
-                _settingsTile(icon: Icons.upload_file_outlined, title: 'Event hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadProjectDialog())),
+                _settingsTile(icon: Icons.upload_file_outlined, title: 'Projekt hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadProjectDialog())),
                 _settingsTile(icon: Icons.cloud_upload_outlined, title: 'Gebetszeiten hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadPrayerTimesDialog())),
                 _settingsTile(icon: Icons.campaign_outlined, title: 'Nachricht broadcasten', isDark: isDark, isLast: true, onTap: _showBroadcastDialog),
               ]),
@@ -832,6 +803,124 @@ class IshaSettingsTile extends StatefulWidget {
   @override
   State<IshaSettingsTile> createState() => _IshaSettingsTileState();
 }
+
+// ── Broadcast Dialog ──────────────────────────────────────────────────────────
+
+class _BroadcastDialog extends StatefulWidget {
+  const _BroadcastDialog();
+
+  @override
+  State<_BroadcastDialog> createState() => _BroadcastDialogState();
+}
+
+class _BroadcastDialogState extends State<_BroadcastDialog> {
+  final _titleController = TextEditingController();
+  final _summaryController = TextEditingController();
+  bool _isSending = false;
+  bool _showError = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _summaryController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (_titleController.text.trim().isEmpty || _summaryController.text.trim().isEmpty) {
+      setState(() => _showError = true);
+      return;
+    }
+    setState(() => _isSending = true);
+    try {
+      await FirebaseFirestore.instance.collection('broadcasts').add({
+        'title': _titleController.text.trim(),
+        'summary': _summaryController.text.trim(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler beim Senden: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
+  Widget _inputField(TextEditingController controller, String label, bool isDark, {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      onChanged: (_) { if (_showError) setState(() => _showError = false); },
+      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E), fontSize: 14),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+        filled: true,
+        fillColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppDialogHeader(
+              icon: Icons.campaign_outlined,
+              title: 'Nachricht broadcasten',
+              isDark: isDark,
+            ),
+            const SizedBox(height: 24),
+
+            _inputField(_titleController, 'Titel', isDark),
+            const SizedBox(height: 10),
+            _inputField(_summaryController, 'Nachricht', isDark, maxLines: 4),
+
+            AppErrorBanner(
+              message: 'Bitte Titel und Nachricht ausfüllen.',
+              visible: _showError,
+            ),
+
+            const SizedBox(height: 24),
+            AppDialogButtonRow(
+              isDark: isDark,
+              isLoading: _isSending,
+              onConfirm: _send,
+              confirmLabel: 'Senden',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Isha Settings Tile ────────────────────────────────────────────────────────
 
 class _IshaSettingsTileState extends State<IshaSettingsTile> {
   @override

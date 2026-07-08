@@ -3,7 +3,6 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/projects_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/homepage.dart';
-import 'package:bbf_app/screens/nav_pages/project/projects_page.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:flutter/material.dart';

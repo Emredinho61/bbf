@@ -1,9 +1,13 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:bbf_app/backend/services/projects_service.dart';
+import 'package:bbf_app/components/app_dialog.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
-import 'package:bbf_app/components/text_button.dart';
+import 'package:bbf_app/components/picker_tile.dart';
 import 'package:bbf_app/components/text_field.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -23,20 +27,24 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   String? _selectedImageName;
   File? _markdownFile;
   File? _imageFile;
-  final TextEditingController _titleController = TextEditingController();
-  ProjectsService projectsService = ProjectsService();
-
   DateTime? _selectedDate;
-
   bool _isUploading = false;
-  bool _displayErrorText = false;
+  bool _showError = false;
+
+  final TextEditingController _titleController = TextEditingController();
+  final ProjectsService _projectsService = ProjectsService();
+
+  String? get _formattedDate => _selectedDate == null
+      ? null
+      : '${_selectedDate!.day.toString().padLeft(2, '0')}.${_selectedDate!.month.toString().padLeft(2, '0')}.${_selectedDate!.year}';
+
+  // ── File pickers ──────────────────────────────────────────────────────────
 
   Future<void> _pickMarkdown() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['md', 'markdown', 'txt'],
     );
-
     if (result != null && result.files.single.path != null) {
       setState(() {
         _markdownFile = File(result.files.single.path!);
@@ -47,81 +55,62 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
   Future<void> _pickImage() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.image);
-
     if (result != null && result.files.single.path != null) {
       final file = File(result.files.single.path!);
-
       final bytes = await file.readAsBytes();
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
-
-      if (result.files.single.path != null) {
-        setState(() {
-          _imageFile = File(result.files.single.path!);
-          _selectedImageName = result.files.single.name;
-          _pictureOrientation = frame.image.width > frame.image.height
-              ? 'horizontal'
-              : 'vertical';
-        });
-      }
+      setState(() {
+        _imageFile = file;
+        _selectedImageName = result.files.single.name;
+        _pictureOrientation =
+            frame.image.width > frame.image.height ? 'horizontal' : 'vertical';
+      });
     }
   }
 
-  Future<void> _uploadProject(
-    String pictureOrientation,
-    int year,
-    int month,
-    int day,
-  ) async {
-    if (_markdownFile == null) return;
+  // ── Upload ────────────────────────────────────────────────────────────────
+
+  Future<void> _upload() async {
+    if (_markdownFile == null || _selectedDate == null) return;
     setState(() => _isUploading = true);
 
     try {
       final storage = FirebaseStorage.instance;
 
-      // Upload markdown
       final markdownRef = storage.ref().child(
         'projects/${_selectedMarkdownName ?? 'project.md'}',
       );
       await markdownRef.putFile(_markdownFile!);
       final markdownUrl = await markdownRef.getDownloadURL();
 
-      // Upload image (optional)
       String imageUrl = '';
       if (_imageFile != null) {
-        final originalImage = _imageFile!;
-        final compressedXFile = await FlutterImageCompress.compressAndGetFile(
-          originalImage.path,
-          '${originalImage.path}_compressed.jpg',
+        final compressed = await FlutterImageCompress.compressAndGetFile(
+          _imageFile!.path,
+          '${_imageFile!.path}_compressed.jpg',
           quality: 70,
         );
-
-        final compressedImage = compressedXFile != null
-            ? File(compressedXFile.path)
-            : null;
-
-        final fileToUpload = compressedImage ?? originalImage;
-
-        final imageRef = storage.ref().child(
-          'project_images/$_selectedImageName',
-        );
+        final fileToUpload =
+            compressed != null ? File(compressed.path) : _imageFile!;
+        final imageRef =
+            storage.ref().child('project_images/$_selectedImageName');
         await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
       }
 
-      // Save Firestore entry
-      await projectsService.addProjectToBackend(
-        pictureOrientation,
-        _titleController.text,
-        _titleController.text.isNotEmpty
-            ? _titleController.text
-            : (_selectedMarkdownName ?? 'Unbenannt'),
+      final title = _titleController.text.trim();
+
+      await _projectsService.addProjectToBackend(
+        _pictureOrientation,
+        title,
+        title,
         markdownUrl,
         imageUrl,
         FieldValue.serverTimestamp(),
-        year,
-        month,
-        day,
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
       );
 
       if (mounted) {
@@ -131,113 +120,116 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
         );
       }
     } catch (e) {
-      debugPrint('Upload failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler beim Hochladen: $e')),
+        );
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
   }
 
+  void _onUpload() {
+    final invalid = _markdownFile == null ||
+        _selectedDate == null ||
+        _titleController.text.trim().isEmpty;
+    setState(() => _showError = invalid);
+    if (invalid || _isUploading) return;
+    _upload();
+  }
+
+  String get _errorMessage {
+    final noFile = _markdownFile == null;
+    final noDate = _selectedDate == null;
+    final noTitle = _titleController.text.trim().isEmpty;
+
+    if (noFile && noDate && noTitle) return 'Bitte alle Pflichtfelder ausfüllen.';
+    if (noFile && noDate) return 'Bitte Markdown-Datei und Datum auswählen.';
+    if (noFile && noTitle) return 'Bitte Markdown-Datei und Titel ausfüllen.';
+    if (noDate && noTitle) return 'Bitte Datum und Titel ausfüllen.';
+    if (noFile) return 'Bitte eine Markdown-Datei auswählen.';
+    if (noDate) return 'Bitte ein Datum auswählen.';
+    return 'Bitte einen Titel eingeben.';
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Projekt hochladen"),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BTextField(
-              label: 'Titel',
-              controller: _titleController,
-              obscureText: false,
-              obligatory: true,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _pickMarkdown,
-              icon: const Icon(Icons.description),
-              label: const Text("Markdown-Datei auswählen"),
-            ),
-            if (_selectedMarkdownName != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text("Markdown: $_selectedMarkdownName"),
-              ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: _pickImage,
-              icon: const Icon(Icons.image),
-              label: const Text("Bild auswählen (optional)"),
-            ),
-            if (_selectedImageName != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text("Bild: $_selectedImageName"),
-              ),
-            const SizedBox(height: 12),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-            BTextButton(
-              onPressed: () => EventPickers.pickDate(
-                context,
-                onConfirm: (date) {
-                  setState(() => _selectedDate = date);
-                },
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppDialogHeader(
+                icon: Icons.upload_file_outlined,
+                title: 'Projekt hochladen',
+                isDark: isDark,
               ),
-              text: _selectedDate == null
-                  ? 'Datum auswählen'
-                  : 'Datum: ${_selectedDate!.day.toString().padLeft(2, '0')}.${_selectedDate!.month.toString().padLeft(2, '0')}.${_selectedDate!.year}',
-            ),
-            const SizedBox(height: 8),
-            if (_displayErrorText)
-              Text(
-                'Bitte alle Felder ausfüllen!',
-                style: TextStyle(color: Colors.red),
+              const SizedBox(height: 24),
+
+              // Mandatory
+              PickerTile(
+                label: 'Markdown-Datei',
+                hint: 'obligatorisch – .md / .txt',
+                icon: Icons.description_outlined,
+                selected: _selectedMarkdownName,
+                onTap: _pickMarkdown,
+                isDark: isDark,
               ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 10),
+              PickerTile(
+                label: 'Datum',
+                hint: 'obligatorisch – Datum auswählen',
+                icon: Icons.calendar_today_outlined,
+                selectedIcon: Icons.event_available_outlined,
+                selected: _formattedDate,
+                onTap: () => EventPickers.pickDate(
+                  context,
+                  onConfirm: (date) => setState(() => _selectedDate = date),
+                ),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 14),
+
+              // Optional
+              BTextField(
+                label: 'Titel',
+                controller: _titleController,
+                obscureText: false,
+                obligatory: true,
+              ),
+              const SizedBox(height: 10),
+              PickerTile(
+                label: 'Bild',
+                hint: 'optional',
+                icon: Icons.image_outlined,
+                selected: _selectedImageName,
+                onTap: _pickImage,
+                isDark: isDark,
+              ),
+
+              AppErrorBanner(message: _errorMessage, visible: _showError),
+
+              const SizedBox(height: 24),
+              AppDialogButtonRow(
+                isDark: isDark,
+                isLoading: _isUploading,
+                onConfirm: _onUpload,
+                confirmLabel: 'Hochladen',
+              ),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-          child: const Text("Abbrechen"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _displayErrorText = _selectedDate == null;
-            });
-
-            if (_displayErrorText || _isUploading || _markdownFile == null) {
-              return;
-            }
-
-            _uploadProject(
-              _pictureOrientation,
-              _selectedDate!.year,
-              _selectedDate!.month,
-              _selectedDate!.day,
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-          child: _isUploading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text("Hochladen"),
-        ),
-      ],
     );
   }
 }
