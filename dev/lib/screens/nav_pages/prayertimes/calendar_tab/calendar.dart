@@ -227,6 +227,7 @@ class _CalenderViewState extends State<CalenderView> {
             },
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
+              cellMargin: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
               todayDecoration: BoxDecoration(
                 color: BColors.primary,
                 shape: BoxShape.circle,
@@ -259,11 +260,9 @@ class _CalenderViewState extends State<CalenderView> {
 
                 final Color dotColor;
                 if (isToday) {
-                  // Heute: immer dunkler Kreis → weißer Punkt passt in beiden Modi
-                  dotColor = Colors.white;
+                  dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
                 } else if (isSelected) {
-                  // Ausgewählt: hellgrüner Kreis im Light Mode → grüner Punkt, Dark Mode → weißer Punkt
-                  dotColor = isDarkMarker ? Colors.white : BColors.primary;
+                  dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
                 } else {
                   dotColor = BColors.primary;
                 }

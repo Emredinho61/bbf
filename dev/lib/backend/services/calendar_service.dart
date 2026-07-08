@@ -177,6 +177,16 @@ class CalendarService {
     await projects.doc(title).set(eventData);
   }
 
+  Future<List<String>> getAllEventTitles() async {
+    final snapshot = await projects.get();
+    final titles = snapshot.docs
+        .map((doc) => doc.data()['title'] as String? ?? '')
+        .where((t) => t.isNotEmpty)
+        .toList()
+      ..sort();
+    return titles;
+  }
+
   Future<void> deleteEventsWithId(String id) async {
     await projects.doc(id).delete();
   }

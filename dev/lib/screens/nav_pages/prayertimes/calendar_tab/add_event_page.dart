@@ -1,6 +1,10 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:bbf_app/backend/services/calendar_service.dart';
+import 'package:bbf_app/components/app_dialog.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
-import 'package:bbf_app/components/text_button.dart';
+import 'package:bbf_app/components/icon_circle.dart';
+import 'package:bbf_app/components/picker_tile.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -14,83 +18,113 @@ class AddEventPage extends StatefulWidget {
 
 class _AddEventPageState extends State<AddEventPage> {
   CalendarService calendarService = CalendarService();
-  final TextEditingController idTextController = TextEditingController();
+
   final TextEditingController titleTextController = TextEditingController();
   final TextEditingController contentTextController = TextEditingController();
-  final TextEditingController timeTextController = TextEditingController();
   final TextEditingController locationTextController = TextEditingController();
-  final TextEditingController yearTextController = TextEditingController();
-  final TextEditingController monthTextController = TextEditingController();
-  final TextEditingController dayTextController = TextEditingController();
-  final TextEditingController hourTextController = TextEditingController();
-  final TextEditingController minuteTextController = TextEditingController();
-  final TextEditingController repeatTextController = TextEditingController();
-  final TextEditingController frequencyTextController = TextEditingController();
   final TextEditingController signUpTextController = TextEditingController();
 
-  TimeOfDay? selectedBeginTime; // beginning of the event
-  TimeOfDay? selectedEndTime; // end of the event
-  int? frequency; // how often the event repeats (e.g., every 2 weeks)
-  String? repeat; // how the event repeats (e.g., daily, weekly, monthly) used for backend
-  String? repeatLabel; // how the event repeats (e.g., daily, weekly, monthly) used for frontend
+  TimeOfDay? selectedBeginTime;
+  TimeOfDay? selectedEndTime;
+  DateTime? selectedDate;
+  int? frequency;
+  String? repeat;
+  String? repeatLabel;
 
-  String _iconKey = 'event'; // selected icon key from Event.availableIcons
+  String _iconKey = 'event';
 
-  bool _usePrayerTimes = false; // whether prayer names are used instead of fixed times
-  String? _startPrayer; // CSV key of the selected start prayer (e.g. "Maghrib")
-  String? _startPrayerLabel; // display name of the selected start prayer
+  bool _usePrayerTimes = false;
+  String? _startPrayer;
+  String? _startPrayerLabel;
   String? _endPrayer;
   String? _endPrayerLabel;
 
-  DateTime? selectedDate; // date of the event
-  int selectedNumber = 1; // number of times the event repeats
+  bool _isSubmitting = false;
+  bool _showError = false;
 
-  bool _displayErrorText = false; // shows the "Pflichtfelder" hint on submit
-
-  // Every field is required except the sign-up link. Frequency is only
-  // required when a repeat option other than "none" was chosen.
   bool get _isFormValid {
-    final repeatSelected = repeat != null;
-    final frequencyValid = repeat == 'none' || frequency != null;
     final timesValid = _usePrayerTimes
         ? (_startPrayer != null && _endPrayer != null)
         : (selectedBeginTime != null && selectedEndTime != null);
-
     return timesValid &&
         selectedDate != null &&
-        repeatSelected &&
-        frequencyValid &&
+        repeat != null &&
+        (repeat == 'none' || frequency != null) &&
         titleTextController.text.trim().isNotEmpty &&
         contentTextController.text.trim().isNotEmpty &&
         locationTextController.text.trim().isNotEmpty;
   }
 
+  String _formatTime(TimeOfDay t) =>
+      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} Uhr';
+
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+
+  Future<void> _submit() async {
+    if (!_isFormValid) {
+      setState(() => _showError = true);
+      return;
+    }
+    setState(() => _isSubmitting = true);
+    final navigator = Navigator.of(context);
+
+    final beginMin = _usePrayerTimes
+        ? 0
+        : (selectedBeginTime!.hour * 60 + selectedBeginTime!.minute);
+    final endMin = _usePrayerTimes
+        ? 0
+        : (selectedEndTime!.hour * 60 + selectedEndTime!.minute);
+    final eventFrequency =
+        (repeat == null || repeat == 'none') ? 0 : (frequency ?? 1);
+
+    await calendarService.addEventToBackEnd(
+      titleTextController.text,
+      contentTextController.text,
+      locationTextController.text,
+      selectedDate!.year,
+      selectedDate!.month,
+      selectedDate!.day,
+      beginMin,
+      endMin,
+      repeat!,
+      eventFrequency,
+      signUpTextController.text,
+      startPrayer: _usePrayerTimes ? _startPrayer : null,
+      endPrayer: _usePrayerTimes ? _endPrayer : null,
+      iconKey: _iconKey,
+    );
+    navigator.pop(true);
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      appBar: AppBar(
+        title: const Text('Event hinzufügen'),
+        backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // ── Icon picker ───────────────────────────────────────────────
+            _card(
+              isDark: isDark,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 5),
-                  Text(
-                    'Event hinzufügen',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  SizedBox(height: 10),
-                  // ── Icon picker ────────────────────────────────────────────
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Icon auswählen',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  _sectionHeader(Icons.emoji_emotions_outlined, 'Icon', isDark),
+                  const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: Event.availableIcons.entries.map((entry) {
@@ -103,320 +137,335 @@ class _AddEventPageState extends State<AddEventPage> {
                           height: 48,
                           decoration: BoxDecoration(
                             color: selected
-                                ? BColors.primary.withOpacity(0.15)
-                                : Colors.transparent,
+                                ? BColors.primary.withOpacity(0.12)
+                                : (isDark
+                                    ? BColors.backgroundColorDark
+                                    : const Color(0xFFF7F7F7)),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: selected
                                   ? BColors.primary
-                                  : Colors.grey.shade300,
-                              width: selected ? 2 : 1,
+                                  : Colors.grey.withOpacity(0.25),
+                              width: selected ? 2 : 1.5,
                             ),
                           ),
                           child: Icon(
                             entry.value,
-                            size: 26,
-                            color: selected
-                                ? BColors.primary
-                                : Colors.grey.shade500,
+                            size: 24,
+                            color:
+                                selected ? BColors.primary : Colors.grey.shade500,
                           ),
                         ),
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 10),
-                  // Toggle: fixed time vs. prayer-based time
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // ── Zeit ─────────────────────────────────────────────────────
+            _card(
+              isDark: isDark,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _sectionHeader(Icons.schedule_outlined, 'Zeit', isDark),
+                  const SizedBox(height: 4),
+                  // Toggle
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Gebetszeiten verwenden'),
+                      Text(
+                        'Gebetszeiten verwenden',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white70 : Colors.grey.shade700,
+                        ),
+                      ),
                       Switch(
                         value: _usePrayerTimes,
-                        onChanged: (value) {
-                          setState(() {
-                            _usePrayerTimes = value;
-                            if (value) {
-                              selectedBeginTime = null;
-                              selectedEndTime = null;
-                            } else {
-                              _startPrayer = null;
-                              _startPrayerLabel = null;
-                              _endPrayer = null;
-                              _endPrayerLabel = null;
-                            }
-                          });
-                        },
+                        activeColor: BColors.primary,
+                        onChanged: (v) => setState(() {
+                          _usePrayerTimes = v;
+                          if (v) {
+                            selectedBeginTime = null;
+                            selectedEndTime = null;
+                          } else {
+                            _startPrayer = _startPrayerLabel = null;
+                            _endPrayer = _endPrayerLabel = null;
+                          }
+                        }),
                       ),
                     ],
                   ),
-                  // Time pickers: prayer-based or fixed
+                  const SizedBox(height: 10),
                   if (_usePrayerTimes) ...[
-                    BTextButton(
-                      onPressed: () async {
-                        final result = await EventPickers.showPrayerPicker(
-                          context,
-                        );
-                        if (result != null) {
+                    PickerTile(
+                      label: 'Startgebet',
+                      hint: 'obligatorisch',
+                      icon: Icons.wb_twilight_outlined,
+                      selected: _startPrayerLabel,
+                      onTap: () async {
+                        final r = await EventPickers.showPrayerPicker(context);
+                        if (r != null) {
                           setState(() {
-                            _startPrayer = result['value'];
-                            _startPrayerLabel = result['label'];
+                            _startPrayer = r['value'];
+                            _startPrayerLabel = r['label'];
                           });
                         }
                       },
-                      text: _startPrayerLabel == null
-                          ? 'Startgebet auswählen *'
-                          : 'Beginn: $_startPrayerLabel',
+                      isDark: isDark,
                     ),
-                    BTextButton(
-                      onPressed: () async {
-                        final result = await EventPickers.showPrayerPicker(
-                          context,
-                        );
-                        if (result != null) {
+                    const SizedBox(height: 10),
+                    PickerTile(
+                      label: 'Endgebet',
+                      hint: 'obligatorisch',
+                      icon: Icons.nightlight_outlined,
+                      selected: _endPrayerLabel,
+                      onTap: () async {
+                        final r = await EventPickers.showPrayerPicker(context);
+                        if (r != null) {
                           setState(() {
-                            _endPrayer = result['value'];
-                            _endPrayerLabel = result['label'];
+                            _endPrayer = r['value'];
+                            _endPrayerLabel = r['label'];
                           });
                         }
                       },
-                      text: _endPrayerLabel == null
-                          ? 'Endgebet auswählen *'
-                          : 'Ende: $_endPrayerLabel',
+                      isDark: isDark,
                     ),
                   ] else ...[
-                    BTextButton(
-                      onPressed: () => EventPickers.pickTime(
+                    PickerTile(
+                      label: 'Beginn',
+                      hint: 'obligatorisch',
+                      icon: Icons.access_time_outlined,
+                      selectedIcon: Icons.access_time_filled,
+                      selected: selectedBeginTime != null
+                          ? _formatTime(selectedBeginTime!)
+                          : null,
+                      onTap: () => EventPickers.pickTime(
                         context,
-                        onConfirm: (selected) {
-                          setState(() => selectedBeginTime = selected);
-                        },
+                        onConfirm: (t) => setState(() => selectedBeginTime = t),
                       ),
-                      text: selectedBeginTime == null
-                          ? 'Uhrzeit Beginn auswählen *'
-                          : 'Uhrzeit Beginn: ${selectedBeginTime!.hour.toString().padLeft(2, '0')}:${selectedBeginTime!.minute.toString().padLeft(2, '0')} Uhr',
+                      isDark: isDark,
                     ),
-                    BTextButton(
-                      onPressed: () => EventPickers.pickTime(
+                    const SizedBox(height: 10),
+                    PickerTile(
+                      label: 'Ende',
+                      hint: 'obligatorisch',
+                      icon: Icons.access_time_outlined,
+                      selectedIcon: Icons.access_time_filled,
+                      selected: selectedEndTime != null
+                          ? _formatTime(selectedEndTime!)
+                          : null,
+                      onTap: () => EventPickers.pickTime(
                         context,
-                        onConfirm: (selected) {
-                          setState(() => selectedEndTime = selected);
-                        },
+                        onConfirm: (t) => setState(() => selectedEndTime = t),
                       ),
-                      text: selectedEndTime == null
-                          ? 'Uhrzeit Ende auswählen *'
-                          : 'Uhrzeit Ende: ${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')} Uhr',
+                      isDark: isDark,
                     ),
                   ],
-                  BTextButton(
-                    onPressed: () => EventPickers.pickDate(
-                      context,
-                      onConfirm: (date) {
-                        setState(() => selectedDate = date);
-                      },
-                    ),
-                    text: selectedDate == null
-                        ? 'Datum auswählen *'
-                        : 'Datum: ${selectedDate!.day.toString().padLeft(2, '0')}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.year}',
-                  ),
-                  // Buttons to pick repeat option and frequency
-                  BTextButton(
-                    onPressed: () async {
-                      final result = await EventPickers.showRepeatPicker(
-                        context,
-                      );
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
 
-                      if (result != null) {
+            // ── Datum & Wiederholung ──────────────────────────────────────
+            _card(
+              isDark: isDark,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _sectionHeader(Icons.calendar_month_outlined, 'Datum & Wiederholung', isDark),
+                  const SizedBox(height: 14),
+                  PickerTile(
+                    label: 'Datum',
+                    hint: 'obligatorisch',
+                    icon: Icons.calendar_today_outlined,
+                    selectedIcon: Icons.event_available_outlined,
+                    selected: selectedDate != null ? _formatDate(selectedDate!) : null,
+                    onTap: () => EventPickers.pickDate(
+                      context,
+                      onConfirm: (d) => setState(() => selectedDate = d),
+                    ),
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 10),
+                  PickerTile(
+                    label: 'Wiederholen',
+                    hint: 'obligatorisch',
+                    icon: Icons.repeat_outlined,
+                    selectedIcon: Icons.repeat_on_outlined,
+                    selected: repeatLabel,
+                    onTap: () async {
+                      final r = await EventPickers.showRepeatPicker(context);
+                      if (r != null) {
                         setState(() {
-                          repeat = result['value'];
-                          repeatLabel = result['label'];
-                          // frequency only applies to repeating events
+                          repeat = r['value'];
+                          repeatLabel = r['label'];
                           if (repeat == 'none') frequency = null;
                         });
                       }
                     },
-                    text: repeatLabel == null
-                        ? "Wiederholen *"
-                        : "Wiederholen: $repeatLabel",
+                    isDark: isDark,
                   ),
-                  if (repeat != null && repeat != 'none')
-                    BTextButton(
-                      onPressed: () async {
-                        final result = await EventPickers.showFrequencyPicker(
+                  if (repeat != null && repeat != 'none') ...[
+                    const SizedBox(height: 10),
+                    PickerTile(
+                      label: 'Frequenz',
+                      hint: 'obligatorisch',
+                      icon: Icons.numbers_outlined,
+                      selectedIcon: Icons.tag,
+                      selected: frequency?.toString(),
+                      onTap: () async {
+                        final r = await EventPickers.showFrequencyPicker(
                           context,
                           frequency ?? 1,
                         );
-
-                        if (result != null) {
-                          setState(() {
-                            frequency = result;
-                          });
-                        }
+                        if (r != null) setState(() => frequency = r);
                       },
-                      text: frequency == null
-                          ? "Frequenz auswählen *"
-                          : "Frequenz: $frequency",
+                      isDark: isDark,
                     ),
-                  // TextFields to input title, content, location, and sign-up link
-                  TextField(
-                    controller: titleTextController,
-                    cursorColor: BColors.primary,
-                    minLines: 1,
-                    maxLines: 5,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: 'Titel *',
-                      errorText:
-                          _displayErrorText &&
-                              titleTextController.text.trim().isEmpty
-                          ? 'Pflichtfeld'
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: BColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  TextField(
-                    controller: contentTextController,
-                    cursorColor: BColors.primary,
-                    minLines: 1,
-                    maxLines: 5,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: 'Beschreibung *',
-                      errorText:
-                          _displayErrorText &&
-                              contentTextController.text.trim().isEmpty
-                          ? 'Pflichtfeld'
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: BColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  TextField(
-                    controller: locationTextController,
-                    cursorColor: BColors.primary,
-                    minLines: 1,
-                    maxLines: 5,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: 'Ort - zB. Großer Gebetsraum *',
-                      errorText:
-                          _displayErrorText &&
-                              locationTextController.text.trim().isEmpty
-                          ? 'Pflichtfeld'
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: BColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  TextField(
-                    controller: signUpTextController,
-                    cursorColor: BColors.primary,
-                    minLines: 1,
-                    maxLines: 5,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: 'Anmeldelink',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: BColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  if (_displayErrorText)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Text(
-                        'Bitte alle Pflichtfelder ausfüllen!',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(Icons.arrow_back_ios),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (!_isFormValid) {
-                            setState(() => _displayErrorText = true);
-                            return;
-                          }
-                          final navigator = Navigator.of(context);
-
-                          final beginTimeInMinutes = _usePrayerTimes
-                              ? 0
-                              : (selectedBeginTime != null
-                                    ? selectedBeginTime!.hour * 60 +
-                                          selectedBeginTime!.minute
-                                    : 0);
-                          final endTimeInMinutes = _usePrayerTimes
-                              ? 0
-                              : (selectedEndTime != null
-                                    ? selectedEndTime!.hour * 60 +
-                                          selectedEndTime!.minute
-                                    : 0);
-                          // frequency only applies to repeating events, none -> 0
-                          final eventFrequency =
-                              (repeat == null || repeat == 'none')
-                              ? 0
-                              : (frequency ?? 1);
-                          await calendarService.addEventToBackEnd(
-                            titleTextController.text,
-                            contentTextController.text,
-                            locationTextController.text,
-                            selectedDate!.year,
-                            selectedDate!.month,
-                            selectedDate!.day,
-                            beginTimeInMinutes,
-                            endTimeInMinutes,
-                            repeat!,
-                            eventFrequency,
-                            signUpTextController.text,
-                            startPrayer: _usePrayerTimes ? _startPrayer : null,
-                            endPrayer: _usePrayerTimes ? _endPrayer : null,
-                            iconKey: _iconKey,
-                          );
-                          navigator.pop(true);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                          ),
-                          child: Text('Hinzufügen'),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ],
               ),
             ),
+            const SizedBox(height: 14),
+
+            // ── Textfelder ────────────────────────────────────────────────
+            _card(
+              isDark: isDark,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _sectionHeader(Icons.edit_outlined, 'Details', isDark),
+                  const SizedBox(height: 14),
+                  _inputField(titleTextController, 'Titel *', isDark),
+                  const SizedBox(height: 10),
+                  _inputField(contentTextController, 'Beschreibung *', isDark, maxLines: 3),
+                  const SizedBox(height: 10),
+                  _inputField(locationTextController, 'Ort *', isDark),
+                  const SizedBox(height: 10),
+                  _inputField(signUpTextController, 'Anmeldelink (optional)', isDark),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // ── Fehler + Button ───────────────────────────────────────────
+            AppErrorBanner(
+              message: 'Bitte alle Pflichtfelder ausfüllen.',
+              visible: _showError,
+            ),
+            const SizedBox(height: 14),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Event hinzufügen',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  Widget _card({required bool isDark, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _sectionHeader(IconData icon, String label, bool isDark) {
+    return Row(
+      children: [
+        IconCircle(icon: icon, iconSize: 18, padding: 6),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputField(
+    TextEditingController controller,
+    String label,
+    bool isDark, {
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      onChanged: (_) {
+        if (_showError) setState(() => _showError = false);
+      },
+      style: TextStyle(
+        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        fontSize: 14,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+        filled: true,
+        fillColor:
+            isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
         ),
       ),
     );
