@@ -710,13 +710,15 @@ class _PrayerTimesState extends State<PrayerTimes> {
   // opens Notification setting if Icon is tapped
   NotificationSettings _notificationSettingsIcon(
     String name,
-    List<Map<String, String>> csvData,
-  ) {
+    List<Map<String, String>> csvData, {
+    int? tabIndex,
+  }) {
     return NotificationSettings(
       context: context,
       prayerKeys: prayerKeys,
       name: name,
       csvData: csvData,
+      tabIndex: tabIndex,
     );
   }
 
@@ -954,6 +956,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    Widget? trailing,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -975,31 +978,37 @@ class _PrayerTimesState extends State<PrayerTimes> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Icon(icon, color: Colors.green, size: 26),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, color: Colors.green, size: 26),
 
-              const Spacer(),
+                  const Spacer(),
 
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 2),
+
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 2),
-
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
+              if (trailing != null)
+                Positioned(top: 0, right: 0, child: trailing),
             ],
           ),
         ),
@@ -1083,6 +1092,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         title: "Shuruq",
                         subtitle: getShuruqTimes(),
                         onTap: () {},
+                        trailing: _notificationSettingsIcon(
+                          'Sunrise',
+                          csvData,
+                          tabIndex: 5,
+                        ),
                       ),
 
                       _bottomInfoCard(
@@ -1316,10 +1330,12 @@ class NotificationSettings extends StatelessWidget {
     required this.prayerKeys,
     required this.name,
     required this.csvData,
+    this.tabIndex,
   });
 
   final BuildContext context;
   final List<String> prayerKeys;
+  final int? tabIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -1337,12 +1353,13 @@ class NotificationSettings extends StatelessWidget {
             return BDraggableScrollableSheet(
               scrollViewRequired: false,
               content: DefaultTabController(
-                initialIndex: prayerKeys.indexOf(name),
-                length: 5,
+                initialIndex: tabIndex ?? prayerKeys.indexOf(name),
+                length: 6,
                 child: Column(
                   children: [
                     TabBar(
                       isScrollable: true,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                       indicatorColor: BColors.primary,
                       labelColor: BColors.primary,
                       unselectedLabelColor: isDark
@@ -1354,6 +1371,7 @@ class NotificationSettings extends StatelessWidget {
                         Tab(text: 'Asr'),
                         Tab(text: 'Maghrib'),
                         Tab(text: 'Isha'),
+                        Tab(text: 'Shuruq'),
                       ],
                     ),
                     Expanded(
@@ -1364,6 +1382,7 @@ class NotificationSettings extends StatelessWidget {
                           _asrNotificationSettings(prayerTimesHelper),
                           _maghribNotificationSettings(prayerTimesHelper),
                           _ishaNotificationSettings(prayerTimesHelper),
+                          _sunriseNotificationSettings(prayerTimesHelper),
                         ],
                       ),
                     ),
@@ -1457,6 +1476,23 @@ class NotificationSettings extends StatelessWidget {
       builder: (context, asyncSnapshot) {
         return NotificationSettingsPage(
           name: "Fajr",
+          prayerTime: asyncSnapshot.data,
+        );
+      },
+    );
+  }
+
+  FutureBuilder<DateTime?> _sunriseNotificationSettings(
+    PrayerTimesHelper prayerTimesHelper,
+  ) {
+    return FutureBuilder(
+      future: prayerTimesHelper.getCertainPrayerTimeAsDateTimes(
+        "Sunrise",
+        csvData,
+      ),
+      builder: (context, asyncSnapshot) {
+        return NotificationSettingsPage(
+          name: "Sunrise",
           prayerTime: asyncSnapshot.data,
         );
       },

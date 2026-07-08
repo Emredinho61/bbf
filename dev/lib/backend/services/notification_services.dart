@@ -199,6 +199,68 @@ class NotificationServices {
     await scheduleAllPreNotifications(csvData);
   }
 
+  // Cancels and reschedules only the notifications for a single prayer,
+  // leaving all other prayers' notifications untouched.
+  Future<void> rescheduleSinglePrayer(
+    String prayerName,
+    List<Map<String, String>> csvData,
+  ) async {
+    final int prayerIndex = prayerNames.indexOf(prayerName);
+    if (prayerIndex == -1) return;
+
+    final today = DateTime.now();
+
+    for (int dayOffset = 0; dayOffset < 4; dayOffset++) {
+      final day = today.add(Duration(days: dayOffset));
+
+      // Cancel this prayer's main notification
+      final prayerId = day.day * 10 + prayerIndex;
+      await flutterLocalNotificationsPlugin.cancel(prayerId);
+
+      // Cancel all possible pre-prayer notification IDs for this prayer
+      for (final minutes in [5, 10, 15, 20, 30, 45]) {
+        await flutterLocalNotificationsPlugin.cancel(
+          day.day * 100 + prayerIndex * 10 + minutes,
+        );
+      }
+
+      // Reschedule the main prayer notification
+      final List<DateTime> prayerTimes =
+          await prayerTimesHelper.getAnyDayPrayerTimesAsDateTimes(csvData, day);
+      if (prayerIndex >= prayerTimes.length) continue;
+
+      await scheduledNotification(
+        prayerId,
+        getNotificationTitleForPrayer(prayerName),
+        getNotificationBodyForPrayer(prayerName),
+        prayerTimes[prayerIndex],
+      );
+
+      // Reschedule the pre-prayer notification if one is set
+      final userSetting =
+          schedulerHelper.getUsersPrePrayerSettings('notifyPre_$prayerName');
+      final Map<String, Duration> preOptions = {
+        '5 Minuten': const Duration(minutes: 5),
+        '10 Minuten': const Duration(minutes: 10),
+        '15 Minuten': const Duration(minutes: 15),
+        '20 Minuten': const Duration(minutes: 20),
+        '30 Minuten': const Duration(minutes: 30),
+        '45 Minuten': const Duration(minutes: 45),
+      };
+      final preDuration = preOptions[userSetting];
+      if (preDuration == null) continue; // 'Keine' → nothing to schedule
+
+      final preId = day.day * 100 + prayerIndex * 10 + preDuration.inMinutes;
+      await scheduledPreNotification(
+        preId,
+        getNotificationTitleForPrePrayer(prayerName, userSetting),
+        getNotificationBodyForPrePrayer(prayerName, userSetting),
+        prayerTimes[prayerIndex].subtract(preDuration),
+        userSetting,
+      );
+    }
+  }
+
   // schedule Notifications for a certain given day
   Future<void> scheduleDailyPrayers(
     List<Map<String, String>> csvData,
