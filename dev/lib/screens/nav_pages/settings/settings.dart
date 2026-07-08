@@ -41,6 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /*--Initialize Variables-------------------------------------------------------*/
   late bool isUserAdmin;
+  int _versionTapCount = 0;
+  bool _adminUnlocked = false;
 
   /*--Initialize State-------------------------------------------------------*/
   @override
@@ -286,14 +288,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: 'App-Version',
                 isDark: isDark,
                 isLast: true,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
-                  ],
-                ),
+                trailing: Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                onTap: () {
+                  final newCount = _versionTapCount + 1;
+                  setState(() => _versionTapCount = newCount);
+                  if (newCount == 5) {
+                    setState(() => _adminUnlocked = true);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Admin-Modus entsperrt'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
               ),
             ]),
 
@@ -306,34 +314,37 @@ class _SettingsPageState extends State<SettingsPage> {
               _settingsTile(icon: Icons.description_outlined, title: 'Über Uns', isDark: isDark, isLast: true, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()))),
             ]),
 
-            // Benutzer
-            _sectionHeader('Benutzer', isDark),
-            _buildCard(isDark: isDark, children: [
-              if (!authService.currentUser!.isAnonymous)
-                _settingsTile(
-                  icon: Icons.logout,
-                  title: 'Ausloggen',
-                  isDark: isDark,
-                  isLast: true,
-                  onTap: () async {
-                    await authService.signOut();
-                    if (context.mounted) Navigator.pushNamed(context, '/authpage');
-                  },
-                ),
-              if (authService.currentUser!.isAnonymous)
-                _settingsTile(
-                  icon: Icons.person_outline,
-                  title: 'Account erstellen / einloggen',
-                  isDark: isDark,
-                  isLast: true,
-                  onTap: () => Navigator.pushNamed(context, '/authpage', arguments: {'showGuestLogin': true}),
-                ),
-            ]),
-
-            const SizedBox(height: 16),
-
-            if (!authService.currentUser!.isAnonymous)
-              DeleteAccountButton(authService: authService),
+            // Benutzer (nur sichtbar wenn Admin-Modus entsperrt oder eingeloggt)
+            if (_adminUnlocked || authService.currentUser != null) ...[
+              _sectionHeader('Benutzer', isDark),
+              _buildCard(isDark: isDark, children: [
+                if (authService.currentUser == null && _adminUnlocked)
+                  _settingsTile(
+                    icon: Icons.admin_panel_settings_outlined,
+                    title: 'Als Admin registrieren',
+                    isDark: isDark,
+                    isLast: true,
+                    onTap: () => Navigator.pushNamed(context, '/authpage'),
+                  ),
+                if (authService.currentUser != null)
+                  _settingsTile(
+                    icon: Icons.logout,
+                    title: 'Ausloggen',
+                    isDark: isDark,
+                    isLast: true,
+                    onTap: () async {
+                      await authService.signOut();
+                      if (mounted) {
+                        setState(() {
+                          isUserAdmin = false;
+                          _adminUnlocked = false;
+                          _versionTapCount = 0;
+                        });
+                      }
+                    },
+                  ),
+              ]),
+            ],
 
             const SizedBox(height: 32),
           ],
@@ -674,117 +685,6 @@ class _SettingsPageState extends State<SettingsPage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Schließen'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Delete Account Button ─────────────────────────────────────────────────────
-
-class DeleteAccountButton extends StatelessWidget {
-  const DeleteAccountButton({super.key, required this.authService});
-
-  final AuthService authService;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
-        onTap: () => _showDeleteDialog(context),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: BColors.primary,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Text(
-                  'Konto löschen',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: Colors.white, size: 22),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteDialog(BuildContext context) {
-    final UserService userService = UserService();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Konto löschen'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: 'E-Mail', border: OutlineInputBorder()),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Passwort', border: OutlineInputBorder()),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Abbrechen'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () async {
-              final email = emailController.text.trim();
-              final password = passwordController.text.trim();
-              Navigator.pop(ctx);
-              try {
-                await userService.deleteUserFromBackend();
-                await authService.deleteAccount(email: email, password: password);
-                if (context.mounted) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/authpage', (_) => false);
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Fehler beim Löschen: $e')),
-                  );
-                }
-              }
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('Löschen'),
-            ),
           ),
         ],
       ),

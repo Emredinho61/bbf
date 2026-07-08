@@ -1,9 +1,6 @@
 import 'package:bbf_app/backend/services/auth_services.dart';
-import 'package:bbf_app/backend/services/settings_service.dart';
 import 'package:bbf_app/screens/homepage.dart';
-import 'package:bbf_app/utils/helper/auth_page_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/validation/registration_handler.dart';
 import 'package:bbf_app/screens/validation/login_handler.dart';
 
@@ -45,9 +42,6 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SettingsService settingsService = SettingsService();
-    final AuthPageHelper authPageHelper = AuthPageHelper();
-
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -123,34 +117,6 @@ class WelcomePage extends StatelessWidget {
                 ),
               ),
 
-              // "Als Gast fortfahren" - button Text
-              SizedBox(height: 3),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (!authPageHelper.isUserGuest())
-                    BTextButton(
-                      onPressed: () async {
-                        await authService.value.logInAnymously();
-                        final user = authService.value.currentUser;
-                        if (user != null) {
-                          await settingsService.addSettings();
-                          await authPageHelper.setUserAsAGuest();
-                          if (!context.mounted) return;
-                          Navigator.pushNamed(context, '/homepage');
-                        }
-                      },
-                      text: 'Als Gast fortfahren',
-                    ),
-                  if (authPageHelper.isUserGuest())
-                    BTextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/homepage');
-                      },
-                      text: 'Zurück',
-                    ),
-                ],
-              ),
             ],
           ),
         ),
