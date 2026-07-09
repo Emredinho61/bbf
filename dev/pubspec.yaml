@@ -50,6 +50,7 @@ dependencies:
   flutter_datetime_picker_plus: ^2.4.0
   numberpicker: ^2.1.2
   flutter_screenutil: ^5.9.3
+  calendar_view: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -132,7 +132,6 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 220.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32.r),
         gradient: const LinearGradient(
@@ -143,7 +142,7 @@ class _HeroCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -163,7 +162,7 @@ class _HeroCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Spacer(),
+            SizedBox(height: 24.h),
             FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,

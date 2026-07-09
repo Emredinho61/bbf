@@ -3,6 +3,7 @@ import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/add_event_page.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/week_calendar_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_event_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/delete_single_event_page.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
@@ -385,6 +386,16 @@ class _CalenderViewState extends State<CalenderView> {
                 isUserAdmin: _isUserAdmin,
               ),
             ),
+          ),
+        ),
+        _navButton(
+          context,
+          isDark: isDark,
+          icon: Icons.view_week_rounded,
+          label: 'Wochenübersicht aller Events',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const WeekCalendarPage()),
           ),
         ),
       ],
