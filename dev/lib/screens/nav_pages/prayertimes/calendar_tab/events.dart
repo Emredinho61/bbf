@@ -10,6 +10,7 @@ class Event {
   final String? startPrayer; // CSV key, e.g. "Maghrib"
   final String? endPrayer;
   final String iconKey; // one of the keys in availableIcons
+  final int colorIndex;
 
   Event(
     this.id,
@@ -21,7 +22,37 @@ class Event {
     this.startPrayer,
     this.endPrayer,
     this.iconKey = 'event',
+    this.colorIndex = 0,
   });
+
+  static const List<Color> lightPalette = [
+    Color(0xFF2E7D32), // Grün
+    Color(0xFF1565C0), // Blau
+    Color(0xFF6A1B9A), // Lila
+    Color(0xFFE65100), // Orange
+    Color(0xFFC62828), // Rot
+    Color(0xFF00695C), // Türkis
+    Color(0xFF283593), // Indigo
+    Color(0xFF4E342E), // Braun
+  ];
+
+  static const List<Color> darkPalette = [
+    Color(0xFF81C784), // Helles Grün
+    Color(0xFF64B5F6), // Helles Blau
+    Color(0xFFCE93D8), // Helles Lila
+    Color(0xFFFFB74D), // Helles Orange
+    Color(0xFFEF9A9A), // Helles Rot
+    Color(0xFF80CBC4), // Helles Türkis
+    Color(0xFF9FA8DA), // Helles Indigo
+    Color(0xFFBCAAA4), // Helles Braun
+  ];
+
+  static int get paletteSize => lightPalette.length;
+
+  Color colorFor(bool isDark) {
+    final index = colorIndex % paletteSize;
+    return isDark ? darkPalette[index] : lightPalette[index];
+  }
 
   static const Map<String, IconData> availableIcons = {
     'event': Icons.event,

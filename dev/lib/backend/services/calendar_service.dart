@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:bbf_app/utils/helper/prayer_times_helper.dart';
@@ -92,6 +94,7 @@ class CalendarService {
           startPrayer: isPrayerBased ? startPrayer : null,
           endPrayer: isPrayerBased ? endPrayer : null,
           iconKey: data['iconKey'] as String? ?? 'event',
+          colorIndex: data['colorIndex'] as int? ?? 0,
         );
       }
 
@@ -159,6 +162,7 @@ class CalendarService {
       'year': year,
       'month': month,
       'day': day,
+      'colorIndex': Random().nextInt(Event.paletteSize),
       // always stored so the Firestore orderBy('beginninghour') query includes
       // this document; prayer-based events use 0 as a placeholder.
       'beginninghour': beginTimeInMinutes ~/ 60,

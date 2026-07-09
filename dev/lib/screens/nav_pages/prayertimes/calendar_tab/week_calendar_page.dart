@@ -69,7 +69,7 @@ class _WeekCalendarPageState extends State<WeekCalendarPage> {
         date: date,
         startTime: startTime,
         endTime: endTime,
-        color: BColors.primary,
+        color: Event.lightPalette[event.colorIndex % Event.paletteSize],
       );
     } catch (_) {
       return null;
@@ -231,9 +231,18 @@ class _EventTile extends StatelessWidget {
   final List<CalendarEventData> events;
   final bool isDark;
 
+  // Maps a light-palette color back to its dark-palette counterpart.
+  Color _resolveColor(Color lightColor) {
+    if (!isDark) return lightColor;
+    final index = Event.lightPalette.indexOf(lightColor);
+    if (index == -1) return lightColor;
+    return Event.darkPalette[index];
+  }
+
   @override
   Widget build(BuildContext context) {
     final event = events.first;
+    final color = _resolveColor(event.color);
     return LayoutBuilder(
       builder: (context, constraints) {
         final tooNarrow = constraints.maxWidth < 32;
@@ -243,9 +252,9 @@ class _EventTile extends StatelessWidget {
           margin: EdgeInsets.all(1.5.w),
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-            color: BColors.primary.withOpacity(0.15),
+            color: color.withOpacity(0.15),
             borderRadius: BorderRadius.circular(6.r),
-            border: Border(left: BorderSide(color: BColors.primary, width: 3)),
+            border: Border(left: BorderSide(color: color, width: 3)),
           ),
           child: (tooNarrow || tooShort)
               ? const SizedBox.expand()

@@ -260,29 +260,31 @@ class _CalenderViewState extends State<CalenderView> {
                 final isSelected = isSameDay(_selectedDay, day);
                 final isToday = isSameDay(DateTime.now(), day);
 
-                final Color dotColor;
-                if (isToday) {
-                  dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
-                } else if (isSelected) {
-                  dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
-                } else {
-                  dotColor = BColors.primary;
-                }
                 return Positioned(
                   bottom: 3,
                   left: 0,
                   right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: events.take(3).map((_) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 1.5.w),
-                      width: 5.r,
-                      height: 5.r,
-                      decoration: BoxDecoration(
-                        color: dotColor,
-                        shape: BoxShape.circle,
-                      ),
-                    )).toList(),
+                    children: events.take(3).map((e) {
+                      final Color dotColor;
+                      if (isToday || isSelected) {
+                        dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
+                      } else if (e is Event) {
+                        dotColor = e.colorFor(isDarkMarker);
+                      } else {
+                        dotColor = BColors.primary;
+                      }
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 1.5.w),
+                        width: 5.r,
+                        height: 5.r,
+                        decoration: BoxDecoration(
+                          color: dotColor,
+                          shape: BoxShape.circle,
+                        ),
+                      );
+                    }).toList(),
                   ),
                 );
               },
