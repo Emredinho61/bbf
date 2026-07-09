@@ -3,6 +3,7 @@
 import 'package:bbf_app/components/icon_circle.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Icon-Kreis + Titel-Zeile für Dialog-Header.
 class AppDialogHeader extends StatelessWidget {
@@ -22,11 +23,11 @@ class AppDialogHeader extends StatelessWidget {
     return Row(
       children: [
         IconCircle(icon: icon, iconSize: 22),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         Text(
           title,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 18.sp,
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),
@@ -53,23 +54,23 @@ class AppErrorBanner extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SizedBox(height: 14),
+        SizedBox(height: 14.h),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
           decoration: BoxDecoration(
             color: Colors.red.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
             border: Border.all(color: Colors.red.withOpacity(0.3)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 16),
-              const SizedBox(width: 8),
+              Icon(Icons.error_outline, color: Colors.red, size: 16.sp),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Text(
                   message,
-                  style: const TextStyle(color: Colors.red, fontSize: 13),
+                  style: TextStyle(color: Colors.red, fontSize: 13.sp),
                 ),
               ),
             ],
@@ -105,9 +106,9 @@ class AppDialogButtonRow extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               side: BorderSide(color: Colors.grey.withOpacity(0.4)),
             ),
@@ -120,16 +121,16 @@ class AppDialogButtonRow extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         Expanded(
           child: ElevatedButton(
             onPressed: isLoading ? null : onConfirm,
             style: ElevatedButton.styleFrom(
               backgroundColor: BColors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               elevation: 0,
             ),

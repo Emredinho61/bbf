@@ -4,6 +4,7 @@ import 'package:bbf_app/screens/nav_pages/project/projects_by_tense.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AllProjects extends StatefulWidget {
   const AllProjects({super.key});
@@ -26,7 +27,7 @@ class _AllProjectsState extends State<AllProjects> {
       backgroundColor: isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 10),
+          padding: EdgeInsets.only(top: 10.h),
           child: Column(
             children: [
               Expanded(
@@ -35,14 +36,14 @@ class _AllProjectsState extends State<AllProjects> {
                   child: Column(
                     children: [
                       Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 10.h,
                         ),
-                        padding: const EdgeInsets.all(6),
+                        padding: EdgeInsets.all(6.w),
                         decoration: BoxDecoration(
                           color: isDark ? BColors.prayerRowDark : const Color.fromARGB(255, 220, 228, 240),
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: BorderRadius.circular(28.r),
                           border: Border.all(
                             color: isDark ? Colors.white.withOpacity(0.06) : const Color.fromARGB(255, 200, 210, 225),
                             width: 1,
@@ -52,7 +53,7 @@ class _AllProjectsState extends State<AllProjects> {
                           dividerColor: Colors.transparent,
                           indicator: BoxDecoration(
                             color: isDark ? const Color(0xFF3D4A5C) : Colors.white,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(24.r),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.05),
@@ -66,13 +67,13 @@ class _AllProjectsState extends State<AllProjects> {
 
                           unselectedLabelColor: isDark ? Colors.grey.shade400 : const Color(0xFF5F6368),
 
-                          labelStyle: const TextStyle(
-                            fontSize: 16,
+                          labelStyle: TextStyle(
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                           ),
 
-                          unselectedLabelStyle: const TextStyle(
-                            fontSize: 16,
+                          unselectedLabelStyle: TextStyle(
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
                           ),
 
@@ -85,13 +86,13 @@ class _AllProjectsState extends State<AllProjects> {
                                 children: [
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
-                                    children: const [
+                                    children: [
                                       Icon(
                                         Icons.calendar_today_outlined,
-                                        size: 18,
+                                        size: 18.sp,
                                       ),
-                                      SizedBox(width: 8),
-                                      Text("Kommend"),
+                                      SizedBox(width: 8.w),
+                                      const Text("Kommend"),
                                     ],
                                   ),
                                 ],
@@ -101,10 +102,10 @@ class _AllProjectsState extends State<AllProjects> {
                             Tab(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.access_time_outlined, size: 18),
-                                  SizedBox(width: 8),
-                                  Text("Vergangen"),
+                                children: [
+                                  Icon(Icons.access_time_outlined, size: 18.sp),
+                                  SizedBox(width: 8.w),
+                                  const Text("Vergangen"),
                                 ],
                               ),
                             ),
@@ -112,7 +113,7 @@ class _AllProjectsState extends State<AllProjects> {
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
 
                       Expanded(
                         child: TabBarView(

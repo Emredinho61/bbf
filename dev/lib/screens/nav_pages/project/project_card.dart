@@ -7,6 +7,7 @@ import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -158,18 +159,18 @@ class _ProjectState extends State<Project> {
             decoration: BoxDecoration(
               border: Border.all(color: BColors.primary, width: 1),
               color: isDark ? BColors.prayerRowDark : BColors.backgroundColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(12.0.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   // picture
                   (data != null && (data['imageUrl'] ?? '').isNotEmpty)
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           child: AspectRatio(
                             aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
                             child: CachedNetworkImage(
@@ -178,7 +179,7 @@ class _ProjectState extends State<Project> {
                               placeholder: (context, url) => Center(
                                 child: Skeletonizer(
                                   enabled: true,
-                                  child: SizedBox(height: 200, width: 200),
+                                  child: SizedBox(height: 200.h, width: 200.w),
                                 ),
                               ),
                               errorWidget: (context, url, error) =>
@@ -191,7 +192,7 @@ class _ProjectState extends State<Project> {
                           height: 100,
                           width: 50,
                         ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   // Title
                   Text(
                     widget.title,
@@ -199,7 +200,7 @@ class _ProjectState extends State<Project> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   // Small text introduction
                   Text(
                     'Dies ist eine kleine Beschreibung für das Projekt',
@@ -209,33 +210,33 @@ class _ProjectState extends State<Project> {
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   // Date Container
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
                           color: BColors.primary.withAlpha(50),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.calendar_month_outlined,
-                              size: 14,
+                              size: 14.sp,
                               color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4.w),
                             Text(
                               '${widget.day}. ${_monthName(widget.month)} ${widget.year}',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                                 color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                               ),
@@ -249,14 +250,14 @@ class _ProjectState extends State<Project> {
                             ? () => showMoreBottomSheet(context, data)
                             : null,
                         child: Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(6.w),
                           decoration: BoxDecoration(
                             color: BColors.primary.withAlpha(50),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Icon(
                             Icons.arrow_forward,
-                            size: 14,
+                            size: 14.sp,
                             color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
                           ),
                         ),
@@ -266,7 +267,7 @@ class _ProjectState extends State<Project> {
                   // Delete Icon for Admin
                   if (isUserAdmin)
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0.w),
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
@@ -283,14 +284,14 @@ class _ProjectState extends State<Project> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(30.r),
                               border: Border.all(color: Colors.red),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(8.0.w),
                               child: Icon(
                                 Icons.delete,
-                                size: 20,
+                                size: 20.sp,
                                 color: Colors.red,
                               ),
                             ),
@@ -317,17 +318,17 @@ class _ProjectState extends State<Project> {
       context: context,
       isScrollControlled: true,
       backgroundColor: isDarkSheet ? BColors.backgroundColorDark : BColors.backgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.r)),
       ),
       builder: (context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.9,
           width: double.infinity,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-              vertical: 16.0,
+            padding: EdgeInsets.symmetric(
+              horizontal: 8.0.w,
+              vertical: 16.0.h,
             ),
             child: SingleChildScrollView(
               child: ShowMoreContent(
@@ -393,7 +394,7 @@ class ShowMoreContent extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(36)),
+              borderRadius: BorderRadius.all(Radius.circular(36.r)),
               child: AspectRatio(
                 aspectRatio: aspectRatio,
                 child: CachedNetworkImage(
@@ -411,9 +412,9 @@ class ShowMoreContent extends StatelessWidget {
 
             Positioned.fill(
               child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(36),
-                  bottomRight: Radius.circular(36),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(36.r),
+                  bottomRight: Radius.circular(36.r),
                 ),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -436,13 +437,13 @@ class ShowMoreContent extends StatelessWidget {
               left: 16,
               right: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                  vertical: 16.h,
                 ),
                 decoration: BoxDecoration(
                   color: isDark ? BColors.prayerRowDark : Colors.white,
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(22.r),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.09),
@@ -466,43 +467,43 @@ class ShowMoreContent extends StatelessWidget {
                                   height: 1.2,
                                 ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           Container(
-                            height: 3,
-                            width: 38,
+                            height: 3.h,
+                            width: 38.w,
                             decoration: BoxDecoration(
                               color: BColors.primary,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 7,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 7.h,
                       ),
                       decoration: BoxDecoration(
                         color: BColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.calendar_month_outlined,
-                            size: 13,
+                            size: 13.sp,
                             color: BColors.primary,
                           ),
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5.w),
                           Text(
                             '$day. ${_monthName(month)} $year',
                             style: TextStyle(
                               color: BColors.primary,
                               fontWeight: FontWeight.w600,
-                              fontSize: 12,
+                              fontSize: 12.sp,
                             ),
                           ),
                         ],
@@ -518,13 +519,13 @@ class ShowMoreContent extends StatelessWidget {
         const SizedBox(height: cardOverlap + 20),
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
               color: isDark ? BColors.prayerRowDark : const Color(0xFFF5F5F4),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -539,38 +540,38 @@ class ShowMoreContent extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: EdgeInsets.all(6.w),
                       decoration: BoxDecoration(
                         color: BColors.primary.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Icon(
                         Icons.description_outlined,
                         color: BColors.primary,
-                        size: 18,
+                        size: 18.sp,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Text(
                       'Beschreibung',
                       style: TextStyle(
                         color: BColors.primary,
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14.h),
                 Divider(color: Colors.grey.withOpacity(0.18), height: 1),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 MarkdownBody(data: data['body'] ?? ''),
               ],
             ),
           ),
         ),
 
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
       ],
     );
   }

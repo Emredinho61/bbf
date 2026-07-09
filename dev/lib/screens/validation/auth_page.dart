@@ -3,6 +3,7 @@ import 'package:bbf_app/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/validation/registration_handler.dart';
 import 'package:bbf_app/screens/validation/login_handler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AuthPage extends StatefulWidget {
   AuthPage({super.key});
@@ -44,7 +45,7 @@ class WelcomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: EdgeInsets.all(12.0.w),
         child: Center(
           child: Column(
             children: [
@@ -55,7 +56,7 @@ class WelcomePage extends StatelessWidget {
                 height: 100,
               ),
 
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
 
               // Welcome Text
               Text(
@@ -63,7 +64,7 @@ class WelcomePage extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
 
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
 
               Row(
                 children: [
@@ -74,7 +75,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 5),
+              SizedBox(height: 5.h),
 
               SizedBox(
                 width: double.infinity,
@@ -91,7 +92,7 @@ class WelcomePage extends StatelessWidget {
               ),
 
               // Register Button
-              SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
               Row(
                 children: [
@@ -101,7 +102,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 5),
+              SizedBox(height: 5.h),
 
               SizedBox(
                 width: double.infinity,

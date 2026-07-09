@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 
@@ -21,12 +22,12 @@ class IconButtonForPayPal extends StatelessWidget {
       child: Align(
         alignment: Alignment.center,
         child: Container(
-          height: 60,
-          width: 60,
+          height: 60.h,
+          width: 60.w,
           decoration: BoxDecoration(
             color: isDark ? Colors.green.shade300 : Colors.green.shade200,
             border: Border.all(color: Colors.white),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           child: Image.asset('assets/images/PayPalLogo.png'),
         ),
@@ -53,7 +54,7 @@ class BankInfoCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.copy, size: 18),
+            icon: Icon(Icons.copy, size: 18.sp),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: value));
               ScaffoldMessenger.of(
@@ -66,8 +67,8 @@ class BankInfoCard extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.symmetric(horizontal: 10.w),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         border: Border.all(color: isDark ? Colors.white : Colors.green),
       ),
@@ -104,17 +105,17 @@ class DividerWithText extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 50,
+            width: 50.w,
             child: Divider(
               color: isDark ? Colors.white : Colors.black,
               thickness: 1,
             ),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Text('oder'),
-          SizedBox(width: 10),
+          SizedBox(width: 10.w),
           SizedBox(
-            width: 50,
+            width: 50.w,
             child: Divider(
               color: isDark ? Colors.white : Colors.black,
               thickness: 1,

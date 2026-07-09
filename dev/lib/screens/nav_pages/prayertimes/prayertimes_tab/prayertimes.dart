@@ -16,6 +16,7 @@ import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:intl/intl.dart';
@@ -620,11 +621,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: isActive ? Colors.green : Colors.transparent,
           width: 1.5,
@@ -640,8 +641,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 32,
+            width: 42.w,
+            height: 32.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: isActive
@@ -657,13 +658,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
             child: Icon(icon, color: isActive ? Colors.white : Colors.black54),
           ),
 
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
 
           Expanded(
             child: Text(
               name,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : Colors.black87,
               ),
@@ -678,19 +679,19 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   Text(
                     time ?? '--:--',
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
 
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
 
                   Text(
                     '+$iqamaTime',
                     style: TextStyle(
                       color: Colors.green,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -699,7 +700,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
             ],
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
 
           _notificationSettingsIcon(name, csvData),
         ],
@@ -798,21 +799,21 @@ class _PrayerTimesState extends State<PrayerTimes> {
                   children: <Widget>[
                     Column(
                       children: [
-                        SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         Text(
                           'BBF Verein - Freiburg',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
 
-                        SizedBox(height: 20),
+                        SizedBox(height: 20.h),
 
                         ClipRect(
                           child: SizedBox(
-                            height: 130,
+                            height: 130.h,
                             child: OverflowBox(
                               maxHeight: 300,
                               alignment: Alignment.topCenter,
@@ -831,8 +832,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                     children: [
                                       Text(
                                         countdownText,
-                                        style: const TextStyle(
-                                          fontSize: 25,
+                                        style: TextStyle(
+                                          fontSize: 25.sp,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -840,7 +841,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                       Text(
                                         'bis ${_getCountdownLabel()}',
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 16.sp,
                                           color: BColors.primary,
                                         ),
                                       ),
@@ -854,11 +855,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
 
                     _currentDate(hijridate, now, isDark),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     Expanded(
                       child: DefaultTabController(
                         length: 3,
@@ -866,16 +867,16 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         child: Column(
                           children: [
                             Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 2,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 2.h,
                               ),
-                              padding: const EdgeInsets.all(6),
+                              padding: EdgeInsets.all(6.w),
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? const Color(0xFF2A2D35)
                                     : const Color(0xFFF1F4F8),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(20.r),
                                 border: Border.all(
                                   color: isDark
                                       ? Colors.white.withOpacity(0.06)
@@ -892,7 +893,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                   color: isDark
                                       ? const Color(0xFF3D4A5C)
                                       : Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(18.r),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.04),
@@ -907,13 +908,13 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 labelColor: BColors.primary,
                                 unselectedLabelColor: const Color(0xFF6B7280),
 
-                                labelStyle: const TextStyle(
-                                  fontSize: 15,
+                                labelStyle: TextStyle(
+                                  fontSize: 15.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
 
-                                unselectedLabelStyle: const TextStyle(
-                                  fontSize: 13,
+                                unselectedLabelStyle: TextStyle(
+                                  fontSize: 13.sp,
                                   fontWeight: FontWeight.w500,
                                 ),
 
@@ -924,7 +925,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                                 ],
                               ),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 10.h),
                             Expanded(
                               child: TabBarView(
                                 children: [
@@ -964,12 +965,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 98,
-          margin: const EdgeInsets.symmetric(horizontal: 6),
-          padding: const EdgeInsets.all(14),
+          margin: EdgeInsets.symmetric(horizontal: 6.w),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(22.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -982,26 +982,27 @@ class _PrayerTimesState extends State<PrayerTimes> {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, color: Colors.green, size: 26),
+                  Icon(icon, color: Colors.green, size: 24.sp),
 
-                  const Spacer(),
+                  SizedBox(height: 10.h),
 
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
 
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
 
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12.sp,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
@@ -1078,59 +1079,65 @@ class _PrayerTimesState extends State<PrayerTimes> {
               ishaIqama,
               Icons.nightlight_round_outlined,
             ),
-            SizedBox(height: 6),
+            SizedBox(height: 6.h),
             _divider(context),
-            SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      _bottomInfoCard(
-                        icon: Icons.wb_sunny_outlined,
-                        title: "Shuruq",
-                        subtitle: getShuruqTimes(),
-                        onTap: () {},
-                        trailing: _notificationSettingsIcon(
-                          'Sunrise',
-                          csvData,
-                          tabIndex: 5,
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _bottomInfoCard(
+                          icon: Icons.wb_sunny_outlined,
+                          title: "Shuruq",
+                          subtitle: getShuruqTimes(),
+                          onTap: () {},
+                          trailing: _notificationSettingsIcon(
+                            'Sunrise',
+                            csvData,
+                            tabIndex: 5,
+                          ),
                         ),
-                      ),
 
-                      _bottomInfoCard(
-                        icon: Icons.calendar_month,
-                        title: "Jumu'a",
-                        subtitle: "$fridayPrayer1 | $fridayPrayer2",
-                        onTap: () {},
-                      ),
-                    ],
+                        _bottomInfoCard(
+                          icon: Icons.calendar_month,
+                          title: "Jumu'a",
+                          subtitle: "$fridayPrayer1 | $fridayPrayer2",
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
 
-                  Row(
-                    children: [
-                      _bottomInfoCard(
-                        icon: Icons.picture_as_pdf,
-                        title: "Monat PDF",
-                        subtitle: "Clicke für Gebetszeiten",
-                        onTap: () => _showMonthPickerDialog(context),
-                      ),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _bottomInfoCard(
+                          icon: Icons.picture_as_pdf,
+                          title: "Monat PDF",
+                          subtitle: "Clicke für Gebetszeiten",
+                          onTap: () => _showMonthPickerDialog(context),
+                        ),
 
-                      _bottomInfoCard(
-                        icon: Icons.mobile_friendly_rounded,
-                        title: "Deine Spende zählt!",
-                        subtitle: "Clicke um zu spenden",
-                        onTap: () => _showDonationDialog(context),
-                      ),
-                    ],
+                        _bottomInfoCard(
+                          icon: Icons.mobile_friendly_rounded,
+                          title: "Deine Spende zählt!",
+                          subtitle: "Clicke um zu spenden",
+                          onTap: () => _showDonationDialog(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 35),
+            SizedBox(height: 35.h),
             // popUpDonationButton(context),
           ],
         ),
@@ -1152,11 +1159,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
             children: [
               IconButtonForPayPal(isDark: isDark),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
               DividerWithText(isDark: isDark),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
               BankInfoCard(isDark: isDark),
             ],
@@ -1282,7 +1289,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   SizedBox _divider(BuildContext context) {
     return SizedBox(
-      width: 250,
+      width: 250.w,
       child: Divider(
         color: Theme.of(context).brightness == Brightness.dark
             ? Colors.white
@@ -1295,7 +1302,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
   Text _currentDate(HijriCalendarConfig hijridate, DateTime now, bool isDark) {
     return Text(
       '${hijridate.hDay} ${hijridate.getLongMonthName()} ${hijridate.hYear} | ${now.day}. ${_getMonthName(now.month)}',
-      style: TextStyle(color: BColors.primary, fontSize: 14),
+      style: TextStyle(color: BColors.primary, fontSize: 14.sp),
     );
   }
 
@@ -1346,7 +1353,7 @@ class NotificationSettings extends StatelessWidget {
           context: context,
           isScrollControlled: true,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0.r)),
           ),
 
           builder: (context) {

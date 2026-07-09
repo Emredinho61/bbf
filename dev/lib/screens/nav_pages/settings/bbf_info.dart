@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -15,7 +16,7 @@ class AboutPage extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.w),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,8 +29,8 @@ class AboutPage extends StatelessWidget {
               ),
               _buildSection(
                 "Die Identität",
-                "Der Verein vertritt eine gemäßigte Ansicht, die aus dem Buch Gottes, aus der Lebensgeschichte des Propheten, der „Sunna“ "
-                    "und an Beispiel der rechtschaffenen Vorgänger hergeleitet ist.",
+                'Der Verein vertritt eine gemäßigte Ansicht, die aus dem Buch Gottes, aus der Lebensgeschichte des Propheten, der \u{201e}Sunna\u{201c} '
+                    'und an Beispiel der rechtschaffenen Vorgänger hergeleitet ist.',
               ),
               _buildSection(
                 "Die Vision",
@@ -76,20 +77,20 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildSection(String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: EdgeInsets.only(bottom: 20.0.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.green,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(content, style: const TextStyle(fontSize: 15, height: 1.5)),
+          SizedBox(height: 8.h),
+          Text(content, style: TextStyle(fontSize: 15.sp, height: 1.5)),
         ],
       ),
     );
@@ -97,36 +98,36 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildBulletSection(String title, List<String> items, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: EdgeInsets.only(bottom: 20.0.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.green,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           ...items.map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 6.0),
+              padding: EdgeInsets.only(bottom: 6.0.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "• ",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
                   Expanded(
                     child: Text(
                       item,
-                      style: const TextStyle(fontSize: 15, height: 1.4),
+                      style: TextStyle(fontSize: 15.sp, height: 1.4),
                     ),
                   ),
                 ],

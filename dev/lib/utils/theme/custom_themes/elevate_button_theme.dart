@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BElevatedButtonTheme {
   BElevatedButtonTheme._();
@@ -12,14 +13,14 @@ class BElevatedButtonTheme {
           disabledForegroundColor: Colors.grey,
           disabledBackgroundColor: Colors.grey,
           side: const BorderSide(color: Colors.green),
-          padding: EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           textStyle: TextStyle(
-            fontSize: 16,
+            fontSize: 16.sp,
             color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
       );
@@ -33,14 +34,14 @@ class BElevatedButtonTheme {
           disabledForegroundColor: Colors.grey,
           disabledBackgroundColor: Colors.grey,
           side: const BorderSide(color: Colors.white),
-          padding: EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           textStyle: TextStyle(
-            fontSize: 16,
+            fontSize: 16.sp,
             color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
       );

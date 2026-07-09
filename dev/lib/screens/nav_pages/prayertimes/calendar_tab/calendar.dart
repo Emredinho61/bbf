@@ -10,6 +10,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_page.d
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/calendar_page_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalenderView extends StatefulWidget {
@@ -92,7 +93,7 @@ class _CalenderViewState extends State<CalenderView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
       color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(30.r),
       border: Border.all(color: BColors.primary),
     );
   }
@@ -113,8 +114,8 @@ class _CalenderViewState extends State<CalenderView> {
       child: Container(
         decoration: _adminIconDecoration(context),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.add, size: 35, color: BColors.primary),
+          padding: EdgeInsets.all(8.w),
+          child: Icon(Icons.add, size: 35.sp, color: BColors.primary),
         ),
       ),
     );
@@ -136,8 +137,8 @@ class _CalenderViewState extends State<CalenderView> {
       child: Container(
         decoration: _adminIconDecoration(context),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.delete_forever, size: 35, color: BColors.primary),
+          padding: EdgeInsets.all(8.w),
+          child: Icon(Icons.delete_forever, size: 35.sp, color: BColors.primary),
         ),
       ),
     );
@@ -162,8 +163,8 @@ class _CalenderViewState extends State<CalenderView> {
       child: Container(
         decoration: _adminIconDecoration(context),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.delete, size: 35, color: BColors.primary),
+          padding: EdgeInsets.all(8.w),
+          child: Icon(Icons.delete, size: 35.sp, color: BColors.primary),
         ),
       ),
     );
@@ -188,14 +189,14 @@ class _CalenderViewState extends State<CalenderView> {
               _addEventIcon(context),
             ],
           ),
-        SizedBox(height: 10),
+        SizedBox(height: 10.h),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
           decoration: BoxDecoration(
             color: isDark
                 ? BColors.prayerRowDark
                 : const Color.fromARGB(255, 255, 255, 255),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
 
             border: Border.all(
               color: BColors.primary.withOpacity(0.3),
@@ -215,7 +216,7 @@ class _CalenderViewState extends State<CalenderView> {
               ),
             ],
           ),
-          width: 380,
+          width: 380.w,
           child: TableCalendar(
             locale: 'de_DE',
             rowHeight: 36,
@@ -227,7 +228,7 @@ class _CalenderViewState extends State<CalenderView> {
             },
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
-              cellMargin: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+              cellMargin: EdgeInsets.symmetric(vertical: 3.h, horizontal: 4.w),
               todayDecoration: BoxDecoration(
                 color: BColors.primary,
                 shape: BoxShape.circle,
@@ -273,9 +274,9 @@ class _CalenderViewState extends State<CalenderView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: events.take(3).map((_) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                      width: 5,
-                      height: 5,
+                      margin: EdgeInsets.symmetric(horizontal: 1.5.w),
+                      width: 5.r,
+                      height: 5.r,
                       decoration: BoxDecoration(
                         color: dotColor,
                         shape: BoxShape.circle,
@@ -290,13 +291,13 @@ class _CalenderViewState extends State<CalenderView> {
               formatButtonShowsNext: false,
               titleCentered: true,
               titleTextStyle: TextStyle(
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87,
               ),
               formatButtonTextStyle: TextStyle(
                 color: BColors.primary,
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
               formatButtonDecoration: BoxDecoration(
@@ -304,7 +305,7 @@ class _CalenderViewState extends State<CalenderView> {
                     ? const Color(0xFF1F2937)
                     : BColors.primary.withOpacity(0.08),
                 border: Border.all(color: BColors.primary.withOpacity(0.5)),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               leftChevronIcon: Icon(
                 Icons.chevron_left,
@@ -324,7 +325,7 @@ class _CalenderViewState extends State<CalenderView> {
                 fontFamily: 'SF-Pro',
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : Color(0XFF8F9BB3),
-                fontSize: 13,
+                fontSize: 13.sp,
               ),
               weekendStyle: TextStyle(
                 fontFamily: 'SF-Pro',
@@ -332,7 +333,7 @@ class _CalenderViewState extends State<CalenderView> {
                 color: isDark
                     ? Colors.white
                     : Color.fromARGB(255, 114, 118, 125),
-                fontSize: 13,
+                fontSize: 13.sp,
               ),
             ),
             focusedDay: _focusedDay,
@@ -364,12 +365,12 @@ class _CalenderViewState extends State<CalenderView> {
             },
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 20.h),
         PrayerTimesTable(
           prayerTimes: prayerTimes,
           selectedDate: _selectedDay ?? DateTime.now(),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 20.h),
         _navButton(
           context,
           isDark: isDark,
@@ -398,12 +399,12 @@ class _CalenderViewState extends State<CalenderView> {
     required VoidCallback onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
       decoration: BoxDecoration(
         color: isDark
             ? BColors.prayerRowDark
             : BColors.primary.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: BColors.primary.withOpacity(0.15)),
         boxShadow: [
           BoxShadow(
@@ -414,28 +415,28 @@ class _CalenderViewState extends State<CalenderView> {
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white.withOpacity(0.08)
                       : const Color(0xFFEBEBEB),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Icon(icon, size: 18, color: BColors.primary),
+                child: Icon(icon, size: 18.sp, color: BColors.primary),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF374151),
                   ),
@@ -444,7 +445,7 @@ class _CalenderViewState extends State<CalenderView> {
               Icon(
                 Icons.chevron_right_rounded,
                 color: BColors.primary,
-                size: 24,
+                size: 24.sp,
               ),
             ],
           ),
@@ -469,11 +470,11 @@ class PrayerTimesTable extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: BColors.primary.withOpacity(0.08)),
         boxShadow: [
           BoxShadow(
@@ -492,13 +493,13 @@ class PrayerTimesTable extends StatelessWidget {
               Icon(
                 Icons.access_time_outlined,
                 color: BColors.primary,
-                size: 18,
+                size: 18.sp,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 '${selectedDate.day.toString().padLeft(2, '0')}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.year}',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : const Color(0xFF374151),
                 ),
@@ -506,7 +507,7 @@ class PrayerTimesTable extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           Row(
             children: prayerTimes.entries.map((entry) {
@@ -524,8 +525,8 @@ class PrayerTimesTable extends StatelessWidget {
 
                     if (!isLast)
                       Container(
-                        width: 1,
-                        height: 55,
+                        width: 1.w,
+                        height: 55.h,
                         color: Colors.grey.withOpacity(0.15),
                       ),
                   ],
@@ -568,20 +569,20 @@ class _PrayerTimeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(_getIcon(), color: BColors.primary, size: 24),
+        Icon(_getIcon(), color: BColors.primary, size: 24.sp),
 
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
 
         Text(
           name,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+          style: TextStyle(fontSize: 11.sp, color: const Color(0xFF6B7280)),
         ),
 
-        const SizedBox(height: 6),
+        SizedBox(height: 6.h),
 
         Text(
           time,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
         ),
       ],
     );

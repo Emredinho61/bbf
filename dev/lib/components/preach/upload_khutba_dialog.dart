@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UploadKhutbaDialog extends StatefulWidget {
   const UploadKhutbaDialog({super.key});
@@ -61,7 +62,7 @@ class _UploadKhutbaDialogState extends State<UploadKhutbaDialog> {
             icon: const Icon(Icons.attach_file),
             label: const Text("PDF auswählen"),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           if (_selectedFileName != null) Text("Ausgewählt: $_selectedFileName"),
         ],
       ),

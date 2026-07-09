@@ -1,5 +1,6 @@
 import 'package:bbf_app/backend/services/information_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DeleteInformationPage extends StatefulWidget {
   const DeleteInformationPage({super.key});
@@ -60,40 +61,40 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
     return SafeArea(
       child: AlertDialog(
         content: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
           child: SingleChildScrollView(
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.w),
                       child: Text(
                         'Information löschen',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     if (_isLoading)
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
+                      Padding(
+                        padding: EdgeInsets.all(16.w),
+                        child: const CircularProgressIndicator(),
                       )
                     else if (_allInformation.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Keine Informationen vorhanden.'),
+                      Padding(
+                        padding: EdgeInsets.all(8.w),
+                        child: const Text('Keine Informationen vorhanden.'),
                       )
                     else
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.w),
                         child: DropdownButtonFormField<String>(
                           decoration: InputDecoration(
                             labelText: 'Information auswählen',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                           value: _selectedId,
@@ -113,7 +114,7 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
                               setState(() => _selectedId = value),
                         ),
                       ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                   ],
                 ),
               ),
@@ -124,7 +125,7 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
             child: const Text('Abbrechen'),
           ),
@@ -133,15 +134,15 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
                 ? null
                 : _deleteInformation,
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               backgroundColor: Colors.red.shade600,
               foregroundColor: Colors.white,
             ),
             child: _isDeleting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
+                ? SizedBox(
+                    width: 18.w,
+                    height: 18.h,
+                    child: const CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
                     ),

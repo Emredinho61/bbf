@@ -10,6 +10,7 @@ import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/information_page_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class InformationPage extends StatefulWidget {
@@ -77,7 +78,7 @@ class _InformationPageState extends State<InformationPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
         itemCount: _allInformation.length + (isUserAdmin ? 1 : 0),
         itemBuilder: (context, index) {
           if (isUserAdmin && index == 0) {
@@ -111,10 +112,10 @@ class _InformationPageState extends State<InformationPage> {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xff1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
           boxShadow: [
             BoxShadow(
@@ -125,11 +126,11 @@ class _InformationPageState extends State<InformationPage> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.w),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               child: Hero(
                 tag: imageUrl,
                 child: AspectRatio(
@@ -141,8 +142,8 @@ class _InformationPageState extends State<InformationPage> {
                       enabled: true,
                       child: Container(color: Colors.grey.shade200),
                     ),
-                    errorWidget: (context, url, error) => const Center(
-                      child: Icon(Icons.broken_image_outlined, size: 48),
+                    errorWidget: (context, url, error) => Center(
+                      child: Icon(Icons.broken_image_outlined, size: 48.sp),
                     ),
                   ),
                 ),
@@ -174,11 +175,11 @@ class _InformationPageState extends State<InformationPage> {
               })
           : null,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xff1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: Colors.green.withOpacity(0.35), width: 1),
           boxShadow: [
             BoxShadow(
@@ -198,7 +199,7 @@ class _InformationPageState extends State<InformationPage> {
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xff1a1a1a),
                     ),
@@ -208,16 +209,16 @@ class _InformationPageState extends State<InformationPage> {
                   Icon(
                     isExpanded ? Icons.expand_less : Icons.expand_more,
                     color: Colors.green,
-                    size: 24,
+                    size: 24.sp,
                   ),
               ],
             ),
             if (isExpanded && hasText) ...[
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Text(
                 text,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   height: 1.65,
                   color: isDark
                       ? Colors.grey.shade300
@@ -235,7 +236,7 @@ class _InformationPageState extends State<InformationPage> {
 
   Widget _buildAdminRow(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -252,7 +253,7 @@ class _InformationPageState extends State<InformationPage> {
               if (result == true) _loadInformation();
             },
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           _iconButton(
             context,
             icon: Icons.add,
@@ -282,11 +283,11 @@ class _InformationPageState extends State<InformationPage> {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(30.r),
           border: Border.all(color: BColors.primary),
         ),
-        padding: const EdgeInsets.all(8),
-        child: Icon(icon, size: 35, color: BColors.primary),
+        padding: EdgeInsets.all(8.w),
+        child: Icon(icon, size: 35.sp, color: BColors.primary),
       ),
     );
   }
@@ -313,10 +314,10 @@ class _FullscreenImagePage extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: imageUrl,
                   fit: BoxFit.contain,
-                  errorWidget: (context, url, error) => const Icon(
+                  errorWidget: (context, url, error) => Icon(
                     Icons.broken_image_outlined,
                     color: Colors.white,
-                    size: 64,
+                    size: 64.sp,
                   ),
                 ),
               ),
@@ -329,7 +330,7 @@ class _FullscreenImagePage extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                icon: Icon(Icons.close, color: Colors.white, size: 28.sp),
               ),
             ),
           ),

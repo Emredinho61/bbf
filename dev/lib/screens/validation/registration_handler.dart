@@ -8,6 +8,7 @@ import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/validation/login_handler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -95,7 +96,7 @@ class _RegisterFormState extends State<RegisterForm> {
             errorText: errorMessageRegister.isNotEmpty ? '' : null,
           ),
 
-          SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           BTextField(
             controller: emailControllerForRegister,
@@ -106,7 +107,7 @@ class _RegisterFormState extends State<RegisterForm> {
             errorText: errorMessageRegister.isNotEmpty ? '' : null,
           ),
 
-          SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // Password Text Field
           BTextField(
@@ -122,7 +123,7 @@ class _RegisterFormState extends State<RegisterForm> {
             errorText: errorMessageRegister.isNotEmpty ? '' : null,
           ),
 
-          SizedBox(height: 10),
+          SizedBox(height: 10.h),
           // Mobile Number Text Field
           BTextField(
             controller: numberController,
@@ -131,7 +132,7 @@ class _RegisterFormState extends State<RegisterForm> {
             icon: Icons.call,
             obligatory: false,
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: 5.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -141,7 +142,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: 5.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -151,9 +152,9 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: 5.h),
 
-          SizedBox(height: 15),
+          SizedBox(height: 15.h),
 
           // Registration Button
           SizedBox(
@@ -176,7 +177,7 @@ Future<dynamic> registrationButtomSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0.r)),
     ),
 
     // Bottom Sheet is draggable and scrollable
@@ -186,7 +187,7 @@ Future<dynamic> registrationButtomSheet(BuildContext context) {
         content: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: EdgeInsets.symmetric(vertical: 30.h),
 
               // 'Registration' headline
               child: Text(

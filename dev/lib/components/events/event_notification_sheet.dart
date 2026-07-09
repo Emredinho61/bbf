@@ -2,6 +2,7 @@ import 'package:bbf_app/backend/services/notification_services.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/event_notification_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Opens the "Benachrichtigungen" bottom sheet for one calendar event
 // occurrence and wires the chosen mode to the notification services.
@@ -19,8 +20,8 @@ Future<void> showEventNotificationSheet({
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
     ),
     builder: (context) {
       return EventNotificationSheet(
@@ -106,7 +107,7 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -115,11 +116,11 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
               children: [
                 const Spacer(),
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: 40.w,
+                  height: 4.h,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
                 Expanded(
@@ -128,14 +129,14 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4.w),
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.close,
-                          size: 18,
+                          size: 18.sp,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -144,28 +145,28 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Icon(
               Icons.notifications_off_outlined,
               color: BColors.primary,
-              size: 40,
+              size: 40.sp,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'Benachrichtigungen',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'Wähle aus, für welche Events du Benachrichtigungen erhalten möchtest.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _OptionTile(
               icon: Icons.notifications_off_outlined,
               title: 'Benachrichtigungen aus',
@@ -175,7 +176,7 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                   ? null
                   : () => _applyMode(EventNotificationMode.off),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             _OptionTile(
               icon: Icons.notifications_outlined,
               title: 'Für diesen Event an',
@@ -186,7 +187,7 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                   ? null
                   : () => _applyMode(EventNotificationMode.thisEventOnly),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             _OptionTile(
               icon: Icons.event_available_outlined,
               title: 'Für alle künftigen Events an',
@@ -198,16 +199,16 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                   ? null
                   : () => _applyMode(EventNotificationMode.allFutureEvents),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             SizedBox(
               width: double.infinity,
               child: TextButton(
                 onPressed: _isApplying ? null : () => Navigator.pop(context),
                 style: TextButton.styleFrom(
                   backgroundColor: BColors.primary.withOpacity(0.12),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                 ),
                 child: Text(
@@ -247,21 +248,21 @@ class _OptionTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
           border: Border.all(
             color: isSelected
                 ? BColors.primary
                 : Colors.grey.withOpacity(0.3),
           ),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
           children: [
             Icon(icon, color: BColors.primary),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,22 +271,22 @@ class _OptionTile extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Colors.grey.shade500,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               color: isSelected

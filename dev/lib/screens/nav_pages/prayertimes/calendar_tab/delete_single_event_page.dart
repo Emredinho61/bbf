@@ -7,6 +7,7 @@ import 'package:bbf_app/components/icon_circle.dart';
 import 'package:bbf_app/components/picker_tile.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DeleteSingleEvent extends StatefulWidget {
   const DeleteSingleEvent({super.key});
@@ -45,21 +46,21 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? BColors.backgroundColorDark : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (ctx) => Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
             child: Row(
               children: [
                 IconCircle(icon: Icons.event_outlined, iconSize: 20),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Text(
                   'Event auswählen',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                   ),
@@ -99,7 +100,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                           ),
                         ),
                         trailing: isSelected
-                            ? Icon(Icons.check_circle, color: BColors.primary, size: 20)
+                            ? Icon(Icons.check_circle, color: BColors.primary, size: 20.sp)
                             : null,
                         onTap: () {
                           setState(() {
@@ -156,16 +157,16 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
                       color: isDark ? BColors.prayerRowDark : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,23 +174,23 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                         Row(
                           children: [
                             IconCircle(icon: Icons.delete_outline, iconSize: 22),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Text(
                               'Einzelnen Termin löschen',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
                                 color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6.h),
                         Text(
                           'Nur der gewählte Tag wird gelöscht. Bei Wiederholungen wird eine Ausnahme gesetzt.',
-                          style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
 
                         PickerTile(
                           label: 'Event',
@@ -199,7 +200,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                           onTap: () => _showTitlePicker(isDark),
                           isDark: isDark,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
 
                         PickerTile(
                           label: 'Datum',
@@ -222,7 +223,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                           visible: _showError,
                         ),
 
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24.h),
 
                         SizedBox(
                           width: double.infinity,
@@ -231,17 +232,17 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red.shade600,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(vertical: 14.h),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                               ),
                               elevation: 0,
                             ),
                             child: _isDeleting
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
+                                ? SizedBox(
+                                    width: 18.w,
+                                    height: 18.h,
+                                    child: const CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
                                     ),

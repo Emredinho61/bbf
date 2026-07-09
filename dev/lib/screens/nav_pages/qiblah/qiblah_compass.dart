@@ -3,6 +3,7 @@ import 'dart:math' show pi;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -100,7 +101,7 @@ class _QiblahCompassState extends State<QiblahCompass> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0.w),
       child: StreamBuilder<LocationStatus>(
         stream: stream,
         builder: (context, snapshot) {
@@ -119,14 +120,14 @@ class _QiblahCompassState extends State<QiblahCompass> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Qiblah – Kompass",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     Expanded(
                       child: CachedQiblahCompassWidget(
                         cachedData: _cachedQiblahData,
@@ -266,14 +267,14 @@ class _CachedQiblahCompassWidgetState extends State<CachedQiblahCompassWidget> {
           cacheIndicator = Positioned(
             top: 8,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: Colors.orange.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(4.r),
               ),
-              child: const Text(
+              child: Text(
                 "Gecachte Daten - Aktualisiere...",
-                style: TextStyle(fontSize: 12, color: Colors.white),
+                style: TextStyle(fontSize: 12.sp, color: Colors.white),
               ),
             ),
           );
@@ -299,7 +300,7 @@ class _CachedQiblahCompassWidgetState extends State<CachedQiblahCompassWidget> {
               bottom: 8,
               child: Text(
                 "${offset.toStringAsFixed(2)}°",
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16.sp),
               ),
             ),
           ],

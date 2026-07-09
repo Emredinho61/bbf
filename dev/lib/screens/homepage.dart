@@ -10,6 +10,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/prayertimes_tab/prayertimes.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NavBarShell extends StatefulWidget {
   const NavBarShell({super.key});
@@ -90,7 +91,7 @@ class _NavBarShellState extends State<NavBarShell> {
 
           Icon(
             Icons.access_time_outlined,
-            size: 30,
+            size: 30.sp,
             color: _isActive(2) ? Colors.white : inactiveColor,
           ),
 

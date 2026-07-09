@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BDraggableScrollableSheet extends StatelessWidget {
   final Widget content;
@@ -24,9 +25,9 @@ class BDraggableScrollableSheet extends StatelessWidget {
           child: scrollViewRequired
               ? SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
                   ),
                   child: content,
                 )

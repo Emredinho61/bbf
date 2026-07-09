@@ -6,13 +6,14 @@ import 'package:bbf_app/components/draggable_scrollable_sheet.dart';
 import 'package:bbf_app/components/text_field.dart';
 import 'package:bbf_app/screens/validation/registration_handler.dart';
 import 'package:bbf_app/components/text_button.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Future<dynamic> loginButtomSheet(BuildContext context) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0.r)),
     ),
 
     // Bottom Sheet is draggable and scrollable
@@ -22,7 +23,7 @@ Future<dynamic> loginButtomSheet(BuildContext context) {
         content: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: EdgeInsets.symmetric(vertical: 30.h),
 
               // 'Login' headline
               child: Text(
@@ -144,7 +145,7 @@ class _LoginFormState extends State<LoginForm> {
                     obscureText: false,
                     obligatory: false,
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 5.h),
                   Text(message),
                 ],
               ),
@@ -173,9 +174,9 @@ class _LoginFormState extends State<LoginForm> {
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4.0,
-                          vertical: 2.0,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.0.w,
+                          vertical: 2.0.h,
                         ),
                         child: Text(
                           'Passwort zurücksetzen',
@@ -207,7 +208,7 @@ class _LoginFormState extends State<LoginForm> {
             obligatory: false,
           ),
 
-          SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // Password Text Field
           BTextField(
@@ -222,7 +223,7 @@ class _LoginFormState extends State<LoginForm> {
             obligatory: false,
           ),
 
-          SizedBox(height: 5),
+          SizedBox(height: 5.h),
           Text(errorMessageLogin, style: TextStyle(color: Colors.redAccent)),
 
           // Forgot Password Text
@@ -241,7 +242,7 @@ class _LoginFormState extends State<LoginForm> {
             ],
           ),
 
-          SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // Login Button
           SizedBox(

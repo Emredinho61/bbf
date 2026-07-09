@@ -14,6 +14,7 @@ import 'package:bbf_app/screens/validation/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 main() async {
@@ -38,12 +39,17 @@ main() async {
 
   initializeDateFormatting().then(
     (_) => runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => ThemeProvider()),
-          ChangeNotifierProvider(create: (context) => LoadingProvider()),
-        ],
-        child: MyApp(),
+      ScreenUtilInit(
+        designSize: const Size(390, 844),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (context) => ThemeProvider()),
+            ChangeNotifierProvider(create: (context) => LoadingProvider()),
+          ],
+          child: MyApp(),
+        ),
       ),
     ),
   );

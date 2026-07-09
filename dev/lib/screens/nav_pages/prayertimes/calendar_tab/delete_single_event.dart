@@ -1,6 +1,7 @@
 import 'package:bbf_app/backend/services/trigger_background_functions_service.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DeleteSingleEvent extends StatefulWidget {
   const DeleteSingleEvent({super.key});
@@ -21,12 +22,12 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
         child: SingleChildScrollView(
           child: Card(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.w),
               child: Column(
                 children: [
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text('Ein bestimmtes Event löschen'),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   TextField(
                     controller: idSingleTextController,
                     cursorColor: BColors.primary,
@@ -36,7 +37,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                     decoration: InputDecoration(
                       labelText: 'ID - zB. 05',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
                           color: BColors.primary,
                           width: 2,
@@ -44,7 +45,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   TextField(
                     controller: yearTextController,
                     cursorColor: BColors.primary,
@@ -54,7 +55,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                     decoration: InputDecoration(
                       labelText: 'Jahr - zb. 2025',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
                           color: BColors.primary,
                           width: 2,
@@ -62,7 +63,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   TextField(
                     controller: monthTextController,
                     cursorColor: BColors.primary,
@@ -72,7 +73,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                     decoration: InputDecoration(
                       labelText: 'Monat - zB. 10',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
                           color: BColors.primary,
                           width: 2,
@@ -80,7 +81,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   TextField(
                     controller: dayTextController,
                     cursorColor: BColors.primary,
@@ -90,7 +91,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                     decoration: InputDecoration(
                       labelText: 'Tag - zB. 07',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
                           color: BColors.primary,
                           width: 2,
@@ -98,7 +99,7 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -110,16 +111,17 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
+                          final navigator = Navigator.of(context);
                           await calendarService.addExceptionOrDeleteSingleEvent(
                             idSingleTextController.text,
                             yearTextController.text,
                             monthTextController.text,
                             dayTextController.text,
                           );
-                          Navigator.pop(context, true);
+                          if (mounted) navigator.pop(true);
                         },
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
                           child: Text('Bestätigen'),
                         ),
                       ),

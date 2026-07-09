@@ -6,6 +6,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/event_notification_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Eventspage extends StatefulWidget {
   final List<Event> events;
@@ -68,12 +69,12 @@ class _EventspageState extends State<Eventspage> {
               right: -2,
               bottom: -2,
               child: Container(
-                padding: const EdgeInsets.all(1),
+                padding: EdgeInsets.all(1.w),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.repeat, size: 10, color: Colors.green),
+                child: Icon(Icons.repeat, size: 10.sp, color: Colors.green),
               ),
             ),
           ],
@@ -95,7 +96,7 @@ class _EventspageState extends State<Eventspage> {
           children: [
             // HEADER
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -106,7 +107,7 @@ class _EventspageState extends State<Eventspage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new, size: 20.sp),
                       color: Colors.green,
                     ),
                   ),
@@ -120,7 +121,7 @@ class _EventspageState extends State<Eventspage> {
                               "Keine Projekte am $formattedDate",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
                                     ? Colors.white
@@ -131,20 +132,20 @@ class _EventspageState extends State<Eventspage> {
                               "Projekte am $formattedDate",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
                                     ? Colors.white
                                     : const Color(0xff263238),
                               ),
                             ),
-                      const SizedBox(height: 5),
+                      SizedBox(height: 5.h),
                       if (widget.events.isNotEmpty)
                         Text(
                           "Übersicht aller Projekte und Aktivitäten",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: Colors.grey.shade500,
                           ),
                         ),
@@ -154,12 +155,12 @@ class _EventspageState extends State<Eventspage> {
               ),
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
 
             // All Events
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: EdgeInsets.symmetric(horizontal: 14.w),
 
                 itemCount: widget.events.length,
 
@@ -167,14 +168,14 @@ class _EventspageState extends State<Eventspage> {
                   final event = widget.events[index];
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 14),
+                    margin: EdgeInsets.only(bottom: 14.h),
 
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14.w),
 
                     decoration: BoxDecoration(
                       color: isDark ? BColors.prayerRowDark : Colors.white,
 
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18.r),
 
                       boxShadow: [
                         BoxShadow(
@@ -190,38 +191,38 @@ class _EventspageState extends State<Eventspage> {
                     child: Row(
                       children: [
                         Container(
-                          width: 60,
-                          height: 60,
+                          width: 60.w,
+                          height: 60.h,
 
                           decoration: BoxDecoration(
                             color: Colors.green.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(16.r),
                           ),
 
                           child: Icon(
                             event.icon,
                             color: Colors.green,
-                            size: 30,
+                            size: 30.sp,
                           ),
                         ),
 
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
 
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
 
-                            // event type badget
+                            // event type badge
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 3.h,
                                 ),
 
                                 decoration: BoxDecoration(
                                   color: Colors.green.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(20.r),
                                 ),
 
                                 child: const Text(
@@ -233,59 +234,59 @@ class _EventspageState extends State<Eventspage> {
                                 ),
                               ),
 
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6.h),
 
                               Text(
                                 event.title,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 15,
+                                  fontSize: 15.sp,
                                   color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
 
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6.h),
 
                               // Time of Event
                               Row(
                                 children: [
                                   Icon(
                                     Icons.access_time,
-                                    size: 14,
+                                    size: 14.sp,
                                     color: Colors.grey.shade500,
                                   ),
 
-                                  const SizedBox(width: 5),
+                                  SizedBox(width: 5.w),
 
                                   Text(
                                     event.startPrayer != null
                                         ? event.displayTime
                                         : "${event.displayTime} Uhr",
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
                                 ],
                               ),
 
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4.h),
 
                               // event location
                               Row(
                                 children: [
                                   Icon(
                                     Icons.location_on_outlined,
-                                    size: 14,
+                                    size: 14.sp,
                                     color: Colors.grey.shade500,
                                   ),
 
-                                  const SizedBox(width: 5),
+                                  SizedBox(width: 5.w),
 
                                   Text(
                                     event.location,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
@@ -311,7 +312,7 @@ class _EventspageState extends State<Eventspage> {
                               },
                             ),
 
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10.h),
 
                             // show description of event
                             GestureDetector(

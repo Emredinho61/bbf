@@ -7,6 +7,7 @@ import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UploadPrayerTimesDialog extends StatefulWidget {
   const UploadPrayerTimesDialog({super.key});
@@ -77,10 +78,10 @@ class _UploadPrayerTimesDialogState extends State<UploadPrayerTimesDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +91,7 @@ class _UploadPrayerTimesDialogState extends State<UploadPrayerTimesDialog> {
               title: 'Gebetszeiten hochladen',
               isDark: isDark,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
 
             PickerTile(
               label: 'CSV-Datei',
@@ -106,7 +107,7 @@ class _UploadPrayerTimesDialogState extends State<UploadPrayerTimesDialog> {
               visible: _showError,
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             AppDialogButtonRow(
               isDark: isDark,
               isLoading: _isUploading,

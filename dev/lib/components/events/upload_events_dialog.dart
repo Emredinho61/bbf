@@ -13,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UploadProjectDialog extends StatefulWidget {
   const UploadProjectDialog({super.key});
@@ -160,10 +161,10 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -174,7 +175,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 title: 'Projekt hochladen',
                 isDark: isDark,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
               // Mandatory
               PickerTile(
@@ -185,7 +186,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 onTap: _pickMarkdown,
                 isDark: isDark,
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               PickerTile(
                 label: 'Datum',
                 hint: 'obligatorisch – Datum auswählen',
@@ -198,7 +199,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 ),
                 isDark: isDark,
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14.h),
 
               // Optional
               BTextField(
@@ -207,7 +208,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
                 obscureText: false,
                 obligatory: true,
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               PickerTile(
                 label: 'Bild',
                 hint: 'optional',
@@ -219,7 +220,7 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
 
               AppErrorBanner(message: _errorMessage, visible: _showError),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               AppDialogButtonRow(
                 isDark: isDark,
                 isLoading: _isUploading,

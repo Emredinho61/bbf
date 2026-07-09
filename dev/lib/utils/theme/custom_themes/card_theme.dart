@@ -1,10 +1,11 @@
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BCardTheme {
   static CardThemeData cardLightThemeData = CardThemeData(
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12.0),
+      borderRadius: BorderRadius.circular(12.0.r),
       side: BorderSide(color: BColors.primary),
     ),
     elevation: 4,
@@ -13,7 +14,7 @@ class BCardTheme {
 
   static CardThemeData cardDarkThemeData = CardThemeData(
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12.0),
+      borderRadius: BorderRadius.circular(12.0.r),
       side: BorderSide(color: BColors.primary),
     ),
     elevation: 4,

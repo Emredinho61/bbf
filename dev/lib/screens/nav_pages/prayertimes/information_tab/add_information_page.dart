@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddInformationPage extends StatefulWidget {
   const AddInformationPage({super.key});
@@ -125,38 +126,38 @@ class _AddInformationPageState extends State<AddInformationPage> {
     return SafeArea(
       child: AlertDialog(
         content: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
           child: SingleChildScrollView(
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.w),
                       child: Text(
                         'Information hinzufügen',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
 
                     // ── Type selector ──────────────────────────────────────
                     Row(
                       children: [
                         Expanded(child: _typeCard('text', Icons.text_fields, 'Text')),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10.w),
                         Expanded(child: _typeCard('image', Icons.image, 'Bild / Flyer')),
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
 
                     // ── Text form ──────────────────────────────────────────
                     if (_type == 'text') ...[
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.w),
                         child: TextField(
                           controller: _titelController,
                           cursorColor: BColors.primary,
@@ -164,7 +165,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                           decoration: InputDecoration(
                             labelText: 'Titel *',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide:
                                   BorderSide(color: BColors.primary, width: 2),
                             ),
@@ -172,7 +173,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.w),
                         child: TextField(
                           controller: _textController,
                           cursorColor: BColors.primary,
@@ -182,7 +183,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                           decoration: InputDecoration(
                             labelText: 'Text',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide:
                                   BorderSide(color: BColors.primary, width: 2),
                             ),
@@ -194,7 +195,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                     // ── Image form ─────────────────────────────────────────
                     if (_type == 'image') ...[
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.w),
                         child: TextField(
                           controller: _titelController,
                           cursorColor: BColors.primary,
@@ -205,7 +206,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                                 'Nur für die Verwaltung – wird Nutzern nicht angezeigt',
                             helperMaxLines: 2,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide:
                                   BorderSide(color: BColors.primary, width: 2),
                             ),
@@ -213,7 +214,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.w),
                         child: ElevatedButton.icon(
                           onPressed: _pickImage,
                           icon: const Icon(Icons.image),
@@ -223,16 +224,16 @@ class _AddInformationPageState extends State<AddInformationPage> {
                       if (_selectedImageName != null)
                         Padding(
                           padding:
-                              const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                              EdgeInsets.only(bottom: 8.h, left: 8.w, right: 8.w),
                           child: Row(
                             children: [
-                              const Icon(Icons.check_circle,
-                                  color: Colors.green, size: 16),
-                              const SizedBox(width: 6),
+                              Icon(Icons.check_circle,
+                                  color: Colors.green, size: 16.sp),
+                              SizedBox(width: 6.w),
                               Expanded(
                                 child: Text(
                                   '$_selectedImageName · $_imageOrientation',
-                                  style: const TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 12.sp),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -241,7 +242,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
                         ),
                     ],
 
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                   ],
                 ),
               ),
@@ -252,20 +253,20 @@ class _AddInformationPageState extends State<AddInformationPage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
             child: const Text('Abbrechen'),
           ),
           ElevatedButton(
             onPressed: (_isUploading || !_canUpload) ? null : _uploadInformation,
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
             child: _isUploading
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                ? SizedBox(
+                    width: 18.w,
+                    height: 18.h,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text('Hochladen'),
           ),
@@ -280,7 +281,7 @@ class _AddInformationPageState extends State<AddInformationPage> {
       onTap: () => setState(() => _type = value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
           color: selected
               ? BColors.primary.withOpacity(0.12)
@@ -289,17 +290,17 @@ class _AddInformationPageState extends State<AddInformationPage> {
             color: selected ? BColors.primary : Colors.grey.shade300,
             width: selected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 32,
+              size: 32.sp,
               color: selected ? BColors.primary : Colors.grey.shade500,
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: TextStyle(

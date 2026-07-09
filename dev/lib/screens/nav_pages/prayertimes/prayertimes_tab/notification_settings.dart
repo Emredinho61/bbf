@@ -5,6 +5,7 @@ import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/notification_provider.dart';
 import 'package:bbf_app/utils/helper/scheduler_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
@@ -146,12 +147,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final showCheckmark = context.watch<LoadingProvider>().showCheckmark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _header(isDark),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           _card(
             isDark: isDark,
@@ -159,12 +160,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _label(Icons.notifications_outlined, 'Benachrichtigung', isDark),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _toggleRow(isDark),
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
 
           _card(
             isDark: isDark,
@@ -172,17 +173,17 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _label(Icons.timer_outlined, 'Vorankündigung', isDark),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Text(
                   'Erinnere mich vor dem Gebet',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _timeChips(isDark),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           SizedBox(
             width: double.infinity,
@@ -195,28 +196,28 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 foregroundColor: Colors.white,
                 disabledBackgroundColor:
                     showCheckmark ? BColors.primary : Colors.grey.shade300,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 14.h),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
                 elevation: 0,
               ),
               child: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
+                  ? SizedBox(
+                      width: 20.w,
+                      height: 20.h,
+                      child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         color: Colors.white,
                       ),
                     )
                   : showCheckmark
-                  ? const Row(
+                  ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
-                        SizedBox(width: 8),
-                        Text(
+                        Icon(Icons.check_circle_outline, color: Colors.white, size: 20.sp),
+                        SizedBox(width: 8.w),
+                        const Text(
                           'Gespeichert',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -225,12 +226,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         ),
                       ],
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.all_inclusive, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text(
+                        Icon(Icons.all_inclusive, color: Colors.white, size: 18.sp),
+                        SizedBox(width: 8.w),
+                        const Text(
                           'Für alle Gebete übernehmen',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -250,31 +251,31 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     return Row(
       children: [
         Container(
-          width: 52,
-          height: 52,
+          width: 52.r,
+          height: 52.r,
           decoration: BoxDecoration(
             color: BColors.primary.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
-          child: Icon(_prayerIcon, color: BColors.primary, size: 28),
+          child: Icon(_prayerIcon, color: BColors.primary, size: 28.sp),
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: 14.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               _displayName,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : const Color(0xFF1C1C1E),
               ),
             ),
             if (_formattedTime != null) ...[
-              const SizedBox(height: 2),
+              SizedBox(height: 2.h),
               Text(
                 'Heute: $_formattedTime',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
               ),
             ],
           ],
@@ -295,7 +296,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             onTap: () => _setActive(false),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10.w),
         Expanded(
           child: _toggleOption(
             icon: Icons.notifications_active_outlined,
@@ -320,12 +321,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: EdgeInsets.symmetric(vertical: 14.h),
         decoration: BoxDecoration(
           color: active
               ? BColors.primary
               : (isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7)),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: active ? BColors.primary : Colors.grey.withOpacity(0.2),
             width: 1.5,
@@ -335,14 +336,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           children: [
             Icon(
               icon,
-              size: 26,
+              size: 26.sp,
               color: active ? Colors.white : Colors.grey.shade500,
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
                 color: active ? Colors.white : Colors.grey.shade500,
               ),
@@ -355,20 +356,20 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   Widget _timeChips(bool isDark) {
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: 8.w,
+      runSpacing: 8.h,
       children: List.generate(_timeOptions.length, (i) {
         final selected = _selectedIndex == i;
         return GestureDetector(
           onTap: () => _selectPreTime(i),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
             decoration: BoxDecoration(
               color: selected
                   ? BColors.primary
                   : (isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7)),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
                 color: selected ? BColors.primary : Colors.grey.withOpacity(0.2),
                 width: 1.5,
@@ -377,7 +378,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             child: Text(
               _timeOptions[i],
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                 color: selected
                     ? Colors.white
@@ -393,10 +394,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Widget _card({required bool isDark, required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: child,
     );
@@ -406,18 +407,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: EdgeInsets.all(6.w),
           decoration: BoxDecoration(
             color: BColors.primary.withOpacity(0.12),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: BColors.primary, size: 16),
+          child: Icon(icon, color: BColors.primary, size: 16.sp),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         Text(
           text,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 14.sp,
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),

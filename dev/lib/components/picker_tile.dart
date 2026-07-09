@@ -2,6 +2,7 @@
 
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PickerTile extends StatelessWidget {
   const PickerTile({
@@ -28,12 +29,12 @@ class PickerTile extends StatelessWidget {
     final hasValue = selected != null;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: hasValue
                 ? BColors.primary.withOpacity(0.6)
@@ -46,9 +47,9 @@ class PickerTile extends StatelessWidget {
             Icon(
               hasValue ? selectedIcon : icon,
               color: hasValue ? BColors.primary : Colors.grey,
-              size: 22,
+              size: 22.sp,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,15 +58,15 @@ class PickerTile extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     selected ?? hint,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: hasValue ? BColors.primary : Colors.grey.shade500,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -73,7 +74,7 @@ class PickerTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20.sp),
           ],
         ),
       ),

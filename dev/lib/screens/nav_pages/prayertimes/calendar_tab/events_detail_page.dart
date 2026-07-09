@@ -1,5 +1,6 @@
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EventDetailPage extends StatelessWidget {
   final Event event;
@@ -22,7 +23,7 @@ class EventDetailPage extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
 
           child: Column(
             children: [
@@ -36,11 +37,11 @@ class EventDetailPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new, size: 20.sp),
                       color: Colors.green,
                     ),
                   ),
-              
+
                   // Title of Tab
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -49,7 +50,7 @@ class EventDetailPage extends StatelessWidget {
                         "Projektdetails",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.w700,
                           color: isDark
                               ? Colors.white
@@ -61,17 +62,17 @@ class EventDetailPage extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18.h),
 
               Container(
                 width: double.infinity,
 
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.w),
 
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xff1E1E1E) : Colors.white,
 
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(22.r),
 
                   boxShadow: [
                     BoxShadow(
@@ -89,23 +90,23 @@ class EventDetailPage extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          width: 65,
-                          height: 65,
+                          width: 65.w,
+                          height: 65.h,
 
                           decoration: BoxDecoration(
                             color: Colors.green.withOpacity(0.12),
 
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(18.r),
                           ),
 
-                          child: const Icon(
+                          child: Icon(
                             Icons.calendar_month,
                             color: Colors.green,
-                            size: 34,
+                            size: 34.sp,
                           ),
                         ),
 
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
 
                         Expanded(
                           child: Column(
@@ -113,15 +114,15 @@ class EventDetailPage extends StatelessWidget {
 
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 9,
-                                  vertical: 3,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 9.w,
+                                  vertical: 3.h,
                                 ),
 
                                 decoration: BoxDecoration(
                                   color: Colors.green.withOpacity(0.1),
 
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(20.r),
                                 ),
 
                                 child: const Text(
@@ -135,13 +136,13 @@ class EventDetailPage extends StatelessWidget {
                                 ),
                               ),
 
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8.h),
 
                               Text(
                                 event.title,
 
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 20.sp,
 
                                   fontWeight: FontWeight.w800,
 
@@ -154,7 +155,7 @@ class EventDetailPage extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
 
                     _detailRow(
                       Icons.access_time,
@@ -186,17 +187,17 @@ class EventDetailPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               Container(
                 width: double.infinity,
 
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.w),
 
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xff1E1E1E) : Colors.white,
 
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
 
                   boxShadow: [
                     BoxShadow(
@@ -214,7 +215,7 @@ class EventDetailPage extends StatelessWidget {
                       "Beschreibung",
 
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 22.sp,
 
                         fontWeight: FontWeight.w800,
 
@@ -222,11 +223,11 @@ class EventDetailPage extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
 
-                    Container(width: 75, height: 3, color: Colors.green),
+                    Container(width: 75.w, height: 3.h, color: Colors.green),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
 
                     Text(
                       event.content.isEmpty
@@ -234,7 +235,7 @@ class EventDetailPage extends StatelessWidget {
                           : event.content,
 
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16.sp,
 
                         height: 1.6,
 
@@ -256,9 +257,9 @@ class EventDetailPage extends StatelessWidget {
   Widget _detailRow(IconData icon, String title, String value, bool isDark) {
     return Row(
       children: [
-        Icon(icon, color: Colors.green, size: 22),
+        Icon(icon, color: Colors.green, size: 22.sp),
 
-        const SizedBox(width: 14),
+        SizedBox(width: 14.w),
 
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,16 +268,16 @@ class EventDetailPage extends StatelessWidget {
             Text(
               title,
 
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
             ),
 
-            const SizedBox(height: 3),
+            SizedBox(height: 3.h),
 
             Text(
               value,
 
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
 
                 fontWeight: FontWeight.w600,
 
@@ -291,7 +292,7 @@ class EventDetailPage extends StatelessWidget {
 
   Widget _divider() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
 
       child: Divider(color: Colors.grey.withOpacity(0.2)),
     );

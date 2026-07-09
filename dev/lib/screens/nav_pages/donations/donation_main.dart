@@ -1,5 +1,6 @@
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DonationOverview extends StatelessWidget {
   const DonationOverview({super.key});
@@ -24,26 +25,26 @@ class DonationOverview extends StatelessWidget {
               ),
         child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20.w),
           child: Column(
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
               const _HeroCard(),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28.h),
 
               _sectionTitle("Hauptprojekt"),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14.h),
 
               const _FeaturedProjectCard(),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28.h),
 
               _sectionTitle("Kleinere Projekte"),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14.h),
 
               const _ProjectCard(
                 title: "Klimanlagen modernisieren",
@@ -54,7 +55,7 @@ class DonationOverview extends StatelessWidget {
                 progress: .62,
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14.h),
 
               const _ProjectCard(
                 title: "Küche",
@@ -65,7 +66,7 @@ class DonationOverview extends StatelessWidget {
                 progress: .45,
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14.h),
 
               const _ProjectCard(
                 title: "Islamische Schule",
@@ -76,13 +77,13 @@ class DonationOverview extends StatelessWidget {
                 progress: .005,
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: EdgeInsets.all(18.w),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                 ),
                 child: Row(
                   children: [
@@ -90,7 +91,7 @@ class DonationOverview extends StatelessWidget {
                       Icons.volunteer_activism,
                       color: Color(0xff2E7D32),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     const Expanded(
                       child: Text(
                         "Let's make bbf great again..",
@@ -115,8 +116,8 @@ class DonationOverview extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 20,
+          style: TextStyle(
+            fontSize: 20.sp,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -131,9 +132,9 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 220,
+      height: 220.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(32.r),
         gradient: const LinearGradient(
           colors: [
             Color(0xff2E7D32),
@@ -142,7 +143,7 @@ class _HeroCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -153,7 +154,7 @@ class _HeroCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             const Text(
               "Helfe mit unsere Gemeinde zu stärken.",
               style: TextStyle(
@@ -194,16 +195,16 @@ class _FeaturedProjectCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(28.r),
       ),
       child: Column(
         children: [
           Container(
-            height: 180,
-            decoration: const BoxDecoration(
-              color: Color(0xffDDE7D8),
+            height: 180.h,
+            decoration: BoxDecoration(
+              color: const Color(0xffDDE7D8),
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(28),
+                top: Radius.circular(28.r),
               ),
             ),
             child: const Center(
@@ -215,7 +216,7 @@ class _FeaturedProjectCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             child: Column(
               children: [
                 const Row(
@@ -238,12 +239,12 @@ class _FeaturedProjectCard extends StatelessWidget {
                     )
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 const LinearProgressIndicator(
                   value: .72,
                   minHeight: 10,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Row(
                   children: const [
                     Text(
@@ -285,28 +286,28 @@ class _ProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
       ),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 68,
-                height: 68,
+                width: 68.w,
+                height: 68.h,
                 decoration: BoxDecoration(
                   color: const Color(0xffE8F5E9),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(18.r),
                 ),
                 child: const Icon(
                   Icons.volunteer_activism,
                   color: Color(0xff2E7D32),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,7 +319,7 @@ class _ProjectCard extends StatelessWidget {
                         fontSize: 17,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6.h),
                     Text(
                       description,
                       style: TextStyle(
@@ -330,12 +331,12 @@ class _ProjectCard extends StatelessWidget {
               )
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           LinearProgressIndicator(
             value: progress,
             minHeight: 8,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Row(
             children: [
               Text(

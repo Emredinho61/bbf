@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class EventPickers {
@@ -155,7 +156,7 @@ class EventPickers {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.w),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -164,7 +165,7 @@ class EventPickers {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
 
                   NumberPicker(
                     value: selectedValue,
@@ -177,7 +178,7 @@ class EventPickers {
                     },
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
 
                   ElevatedButton(
                     onPressed: () {

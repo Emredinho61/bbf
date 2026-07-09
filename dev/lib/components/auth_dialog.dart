@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AuthDialogButton extends StatelessWidget {
   final String buttonText;
@@ -46,7 +47,7 @@ class AuthDialogButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: List.generate(fieldLabels.length, (index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0),
+                  padding: EdgeInsets.symmetric(vertical: 6.0.h),
                   child: TextField(
                     controller: controllers[index],
                     obscureText: index == passwordFieldIndex,
@@ -79,7 +80,7 @@ class AuthDialogButton extends StatelessWidget {
                 await onSubmit(values, context);
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: EdgeInsets.symmetric(horizontal: 8.0.w),
                 child: Text(confirmButtonText),
               ),
             ),

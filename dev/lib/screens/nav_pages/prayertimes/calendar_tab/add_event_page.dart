@@ -8,6 +8,7 @@ import 'package:bbf_app/components/picker_tile.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddEventPage extends StatefulWidget {
   const AddEventPage({super.key});
@@ -114,7 +115,7 @@ class _AddEventPageState extends State<AddEventPage> {
         surfaceTintColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           children: [
             // ── Icon picker ───────────────────────────────────────────────
@@ -124,7 +125,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader(Icons.emoji_emotions_outlined, 'Icon', isDark),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: Event.availableIcons.entries.map((entry) {
@@ -133,15 +134,15 @@ class _AddEventPageState extends State<AddEventPage> {
                         onTap: () => setState(() => _iconKey = entry.key),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
-                          width: 48,
-                          height: 48,
+                          width: 48.w,
+                          height: 48.h,
                           decoration: BoxDecoration(
                             color: selected
                                 ? BColors.primary.withOpacity(0.12)
                                 : (isDark
                                     ? BColors.backgroundColorDark
                                     : const Color(0xFFF7F7F7)),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
                               color: selected
                                   ? BColors.primary
@@ -151,7 +152,7 @@ class _AddEventPageState extends State<AddEventPage> {
                           ),
                           child: Icon(
                             entry.value,
-                            size: 24,
+                            size: 24.sp,
                             color:
                                 selected ? BColors.primary : Colors.grey.shade500,
                           ),
@@ -162,7 +163,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
 
             // ── Zeit ─────────────────────────────────────────────────────
             _card(
@@ -171,7 +172,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader(Icons.schedule_outlined, 'Zeit', isDark),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   // Toggle
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -179,7 +180,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       Text(
                         'Gebetszeiten verwenden',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           color: isDark ? Colors.white70 : Colors.grey.shade700,
                         ),
                       ),
@@ -199,7 +200,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   if (_usePrayerTimes) ...[
                     PickerTile(
                       label: 'Startgebet',
@@ -217,7 +218,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       },
                       isDark: isDark,
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     PickerTile(
                       label: 'Endgebet',
                       hint: 'obligatorisch',
@@ -249,7 +250,7 @@ class _AddEventPageState extends State<AddEventPage> {
                       ),
                       isDark: isDark,
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     PickerTile(
                       label: 'Ende',
                       hint: 'obligatorisch',
@@ -268,7 +269,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
 
             // ── Datum & Wiederholung ──────────────────────────────────────
             _card(
@@ -277,7 +278,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader(Icons.calendar_month_outlined, 'Datum & Wiederholung', isDark),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   PickerTile(
                     label: 'Datum',
                     hint: 'obligatorisch',
@@ -290,7 +291,7 @@ class _AddEventPageState extends State<AddEventPage> {
                     ),
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   PickerTile(
                     label: 'Wiederholen',
                     hint: 'obligatorisch',
@@ -310,7 +311,7 @@ class _AddEventPageState extends State<AddEventPage> {
                     isDark: isDark,
                   ),
                   if (repeat != null && repeat != 'none') ...[
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     PickerTile(
                       label: 'Frequenz',
                       hint: 'obligatorisch',
@@ -330,7 +331,7 @@ class _AddEventPageState extends State<AddEventPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
 
             // ── Textfelder ────────────────────────────────────────────────
             _card(
@@ -339,25 +340,25 @@ class _AddEventPageState extends State<AddEventPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader(Icons.edit_outlined, 'Details', isDark),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   _inputField(titleTextController, 'Titel *', isDark),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   _inputField(contentTextController, 'Beschreibung *', isDark, maxLines: 3),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   _inputField(locationTextController, 'Ort *', isDark),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   _inputField(signUpTextController, 'Anmeldelink (optional)', isDark),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
 
             // ── Fehler + Button ───────────────────────────────────────────
             AppErrorBanner(
               message: 'Bitte alle Pflichtfelder ausfüllen.',
               visible: _showError,
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
 
             SizedBox(
               width: double.infinity,
@@ -366,31 +367,31 @@ class _AddEventPageState extends State<AddEventPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: BColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
                 child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
+                    ? SizedBox(
+                        width: 20.w,
+                        height: 20.h,
+                        child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Event hinzufügen',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
           ],
         ),
       ),
@@ -402,10 +403,10 @@ class _AddEventPageState extends State<AddEventPage> {
   Widget _card({required bool isDark, required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: child,
     );
@@ -415,11 +416,11 @@ class _AddEventPageState extends State<AddEventPage> {
     return Row(
       children: [
         IconCircle(icon: icon, iconSize: 18, padding: 6),
-        const SizedBox(width: 10),
+        SizedBox(width: 10.w),
         Text(
           label,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 15.sp,
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),
@@ -442,28 +443,28 @@ class _AddEventPageState extends State<AddEventPage> {
       },
       style: TextStyle(
         color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-        fontSize: 14,
+        fontSize: 14.sp,
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
         fillColor:
             isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide:
               BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide:
               BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide:
               BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
         ),

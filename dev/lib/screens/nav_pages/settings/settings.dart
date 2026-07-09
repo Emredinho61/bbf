@@ -15,6 +15,7 @@ import 'package:bbf_app/utils/helper/settings_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
@@ -108,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? '1. Freitagsgebet auswählen'
                         : '1. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer1Time)} Uhr',
                   ),
-                  const SizedBox(height: 5),
+                  SizedBox(height: 5.h),
                   BTextButton(
                     onPressed: () => EventPickers.pickTime(
                       dialogContext,
@@ -213,7 +214,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _iqamaPickerRow(String prayerName, int value, ValueChanged<int> onChanged) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: EdgeInsets.symmetric(vertical: 4.0.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -242,7 +243,7 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(vertical: 8.h),
           children: [
             // Monitor-Modus link (nur Admin)
             if (isUserAdmin && authService.currentUser != null)
@@ -288,7 +289,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: 'App-Version',
                 isDark: isDark,
                 isLast: true,
-                trailing: Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                trailing: Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14.sp)),
                 onTap: () {
                   final newCount = _versionTapCount + 1;
                   setState(() => _versionTapCount = newCount);
@@ -346,7 +347,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ]),
             ],
 
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
           ],
         ),
       ),
@@ -359,14 +360,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return GestureDetector(
       onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MonitorPage())),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Center(
           child: Text(
             'Zum Monitor-Modus wechseln',
             style: TextStyle(
               color: BColors.primary,
               fontWeight: FontWeight.w600,
-              fontSize: 15,
+              fontSize: 15.sp,
               decoration: TextDecoration.underline,
               decorationColor: BColors.primary,
             ),
@@ -378,12 +379,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _sectionHeader(String text, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 16.w, 6.h),
       child: Text(
         text.toUpperCase(),
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 12,
+          fontSize: 12.sp,
           color: Colors.grey.shade500,
           letterSpacing: 0.8,
         ),
@@ -393,10 +394,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildCard({required bool isDark, required List<Widget> children}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.15 : 0.06),
@@ -406,7 +407,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Column(children: children),
       ),
     );
@@ -426,19 +427,19 @@ class _SettingsPageState extends State<SettingsPage> {
         InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 36.r,
+                  height: 36.r,
                   decoration: BoxDecoration(
                     color: BColors.primary.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: BColors.primary, size: 20),
+                  child: Icon(icon, color: BColors.primary, size: 20.sp),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,19 +447,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text(
                         title,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
                           color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                         ),
                       ),
                       if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                        SizedBox(height: 2.h),
+                        Text(subtitle, style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500)),
                       ],
                     ],
                   ),
                 ),
-                trailing ?? Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+                trailing ?? Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22.sp),
               ],
             ),
           ),
@@ -485,19 +486,19 @@ class _SettingsPageState extends State<SettingsPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 36.r,
+                height: 36.r,
                 decoration: BoxDecoration(
                   color: BColors.primary.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: BColors.primary, size: 20),
+                child: Icon(icon, color: BColors.primary, size: 20.sp),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,14 +506,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                      SizedBox(height: 2.h),
+                      Text(subtitle, style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500)),
                     ],
                   ],
                 ),
@@ -540,22 +541,22 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 42.w,
+              height: 42.h,
               decoration: BoxDecoration(
                 color: const Color(0xFFEEF5FF),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(6.w),
                 child: Image.asset('assets/images/PayPalLogo.png', fit: BoxFit.contain),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,20 +564,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   Text(
                     'Über eine Spende würden wir uns freuen!',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w500,
                       color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     'Jetzt mit PayPal spenden',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22.sp),
           ],
         ),
       ),
@@ -593,14 +594,14 @@ class _SettingsPageState extends State<SettingsPage> {
           color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
         ),
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.w),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
               color: isDark ? BColors.backgroundColorDark : const Color(0xFFF8FFF8),
               border: Border.all(color: BColors.primary.withOpacity(0.4)),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,32 +609,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 Row(
                   children: [
                     Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.r,
+                      height: 36.r,
                       decoration: BoxDecoration(
                         color: BColors.primary.withOpacity(0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.account_balance, color: BColors.primary, size: 20),
+                      child: Icon(Icons.account_balance, color: BColors.primary, size: 20.sp),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Text(
                         'Bildungs- und Begegnungsverein\nFreiburg e.V.',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 _copyRow(context, Icons.receipt_outlined, 'IBAN', 'DE11 6805 0101 0014 3501 24', isDark),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 _copyRow(context, Icons.swap_horiz, 'BIC', 'FRSPDE66XXX', isDark),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 _copyRow(context, Icons.credit_card_outlined, 'Verwendungszweck', 'Spende', isDark),
               ],
             ),
@@ -646,17 +647,17 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _copyRow(BuildContext context, IconData icon, String label, String value, bool isDark) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade500),
-        const SizedBox(width: 8),
+        Icon(icon, size: 16.sp, color: Colors.grey.shade500),
+        SizedBox(width: 8.w),
         Text(
           '$label: ',
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
         ),
         Expanded(
           child: Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: isDark ? Colors.white : const Color(0xFF1C1C1E),
             ),
@@ -669,7 +670,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SnackBar(content: Text('$label kopiert!'), duration: const Duration(seconds: 2)),
             );
           },
-          child: Icon(Icons.copy_outlined, size: 18, color: Colors.grey.shade400),
+          child: Icon(Icons.copy_outlined, size: 18.sp, color: Colors.grey.shade400),
         ),
       ],
     );
@@ -755,23 +756,23 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
       controller: controller,
       maxLines: maxLines,
       onChanged: (_) { if (_showError) setState(() => _showError = false); },
-      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E), fontSize: 14),
+      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E), fontSize: 14.sp),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
         fillColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
         ),
       ),
@@ -782,10 +783,10 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -795,10 +796,10 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
               title: 'Nachricht broadcasten',
               isDark: isDark,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
 
             _inputField(_titleController, 'Titel', isDark),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             _inputField(_summaryController, 'Nachricht', isDark, maxLines: 4),
 
             AppErrorBanner(
@@ -806,7 +807,7 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
               visible: _showError,
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             AppDialogButtonRow(
               isDark: isDark,
               isLoading: _isSending,
@@ -829,19 +830,19 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 36.r,
+                height: 36.r,
                 decoration: BoxDecoration(
                   color: BColors.primary.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.access_time_filled, color: BColors.primary, size: 20),
+                child: Icon(Icons.access_time_filled, color: BColors.primary, size: 20.sp),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -849,15 +850,15 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
                     Text(
                       '+ 90 Minuten zu Isha',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         color: widget.isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       'Gebetszeit um 90 Minuten verzögern',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
                     ),
                   ],
                 ),
