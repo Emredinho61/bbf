@@ -19,8 +19,6 @@ class Project extends StatefulWidget {
   final int year;
   final int month;
   final int day;
-  final double height;
-  final Color color;
 
   const Project({
     super.key,
@@ -29,8 +27,6 @@ class Project extends StatefulWidget {
     required this.year,
     required this.month,
     required this.day,
-    required this.height,
-    required this.color,
   });
 
   @override
@@ -38,269 +34,313 @@ class Project extends StatefulWidget {
 }
 
 class _ProjectState extends State<Project> {
-  final projectsPageHelper = ProjectsPageHelper();
-  final projectsService = ProjectsService();
-  final CheckUserHelper checkUserHelper = CheckUserHelper();
-  final AuthService authService = AuthService();
-  final UserService userService = UserService();
+  final _helper = ProjectsPageHelper();
+  final _service = ProjectsService();
+  final _checkUser = CheckUserHelper();
+  final _auth = AuthService();
+  final _userService = UserService();
 
+  late final Future<Map<String, dynamic>> _future;
   bool _loading = true;
-  late bool isUserAdmin;
+  bool _isUserAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    isUserAdmin = checkUserHelper.getUsersPrefs();
-    checkUser();
+    _isUserAdmin = _checkUser.getUsersPrefs();
+    _future = _loadData();
+    _checkAdmin();
   }
 
-  // check if user is admin
-  void checkUser() async {
-    if (authService.currentUser == null) {
-      return;
-    }
-    final value = await userService.checkIfUserIsAdmin();
+  void _checkAdmin() async {
+    if (_auth.currentUser == null) return;
+    final isAdmin = await _userService.checkIfUserIsAdmin();
+    if (!mounted) return;
     setState(() {
-      if (value != isUserAdmin) {
-        checkUserHelper.setCheckUsersPrefs(value);
-        isUserAdmin = value;
+      if (isAdmin != _isUserAdmin) {
+        _checkUser.setCheckUsersPrefs(isAdmin);
+        _isUserAdmin = isAdmin;
       }
     });
   }
 
-  Future<Map<String, dynamic>> loadMarkdownParts() async {
-    final cachedData = projectsPageHelper.getCertainProjectFromCache(
-      widget.docId,
-    );
-
-    if (cachedData != null) {
-      final decoded = jsonDecode(cachedData) as Map<String, dynamic>;
-      setState(() => _loading = false);
+  Future<Map<String, dynamic>> _loadData() async {
+    final cached = _helper.getCertainProjectFromCache(widget.docId);
+    if (cached != null) {
+      final decoded = jsonDecode(cached) as Map<String, dynamic>;
+      if (mounted) setState(() => _loading = false);
       return {
         'title': decoded['title'] ?? '',
         'body': decoded['body'] ?? '',
         'imageUrl': decoded['imageUrl'] ?? '',
-        'orientation': decoded['orientation'] ?? '',
+        'orientation': decoded['orientation'] ?? 'horizontal',
       };
     }
 
-    final doc = await projectsService.getCertainProjectFromBackend(
-      widget.docId,
-    );
-
-    if (!doc.exists) throw Exception("Projekt nicht gefunden.");
+    final doc = await _service.getCertainProjectFromBackend(widget.docId);
+    if (!doc.exists) throw Exception('Projekt nicht gefunden.');
 
     final data = doc.data()!;
     final title = data['title'] ?? '';
-    final markdownUrl = data['markdownUrl'] ?? '';
     final imageUrl = data['imageUrl'] ?? '';
-    final orientation = data['orientation'] ?? 'Nicht vorhanden';
+    final orientation = data['orientation'] ?? 'horizontal';
+    final markdownUrl = data['markdownUrl'] ?? '';
 
     final response = await http.get(Uri.parse(markdownUrl));
     if (response.statusCode != 200) {
-      throw Exception("Fehler beim Laden der Markdown-Datei");
+      throw Exception('Fehler beim Laden der Markdown-Datei');
     }
-
-    final markdown = utf8.decode(response.bodyBytes);
+    final body = utf8.decode(response.bodyBytes);
 
     final projectData = {
       'title': title,
-      'body': markdown,
+      'body': body,
       'imageUrl': imageUrl,
       'orientation': orientation,
     };
 
-    await projectsPageHelper.setCertainProjectInCache(
+    await _helper.setCertainProjectInCache(
       'project_${widget.docId}',
       jsonEncode(projectData),
     );
 
-    setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
     return projectData;
   }
 
-  String shortenMarkdown(String body, int maxLines) {
-    final lines = body.split('\n');
-    if (lines.length <= maxLines) return body;
-    return '${lines.take(maxLines).join('\n')}\n...';
-  }
-
-  String _monthName(int month) {
+  String _monthName(int m) {
     const months = [
-      "Januar",
-      "Februar",
-      "März",
-      "April",
-      "Mai",
-      "Juni",
-      "Juli",
-      "August",
-      "September",
-      "Oktober",
-      "November",
-      "Dezember",
+      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
     ];
-    return months[month - 1];
+    return months[m - 1];
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: loadMarkdownParts(),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _future,
       builder: (context, snapshot) {
         final data = snapshot.data;
+        final isLoading =
+            _loading || snapshot.connectionState == ConnectionState.waiting;
+        final imageUrl = data?['imageUrl'] ?? '';
         final isHorizontal =
             (data?['orientation'] ?? 'horizontal') == 'horizontal';
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final cardAspectRatio = isHorizontal ? 16 / 9 : 3 / 4;
+
         return Skeletonizer(
-          enabled:
-              _loading || snapshot.connectionState == ConnectionState.waiting,
+          enabled: isLoading,
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: BColors.primary, width: 1),
-              color: isDark ? BColors.prayerRowDark : BColors.backgroundColor,
-              borderRadius: BorderRadius.circular(12.r),
+              color: isDark ? BColors.prayerRowDark : Colors.white,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.07),
+                  blurRadius: 18,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-            child: Padding(
-              padding: EdgeInsets.all(12.0.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 10.h),
-                  // picture
-                  (data != null && (data['imageUrl'] ?? '').isNotEmpty)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12.r),
-                          child: AspectRatio(
-                            aspectRatio: isHorizontal ? 16 / 9 : 9 / 16,
-                            child: CachedNetworkImage(
-                              imageUrl: data['imageUrl'],
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Center(
-                                child: Skeletonizer(
-                                  enabled: true,
-                                  child: SizedBox(height: 200.h, width: 200.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- Image section with gradient + title overlay ---
+                ClipRRect(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20.r)),
+                  child: Stack(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: cardAspectRatio,
+                        child: imageUrl.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                placeholder: (_, __) => Container(
+                                  color: isDark
+                                      ? const Color(0xFF2C2C2C)
+                                      : const Color(0xFFE8E8E8),
                                 ),
+                                errorWidget: (_, __, ___) => Container(
+                                  color: isDark
+                                      ? const Color(0xFF2C2C2C)
+                                      : const Color(0xFFE8E8E8),
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: Colors.grey.shade400,
+                                    size: 32.sp,
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                color: isDark
+                                    ? const Color(0xFF2C2C2C)
+                                    : const Color(0xFFE8E8E8),
                               ),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                      ),
+
+                      // Bottom gradient
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: const [0.4, 1.0],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.65),
+                              ],
                             ),
                           ),
-                        )
-                      : Image.asset(
-                          'assets/images/bbf-logo.png',
-                          height: 100,
-                          width: 50,
                         ),
-                  SizedBox(height: 8.h),
-                  // Title
-                  Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                      ),
+
+                      // Title at the bottom of the image
+                      Positioned(
+                        bottom: 12.h,
+                        left: 14.w,
+                        right: 48.w,
+                        child: Text(
+                          widget.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.25,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      // Admin delete button — top right corner
+                      if (_isUserAdmin)
+                        Positioned(
+                          top: 10.h,
+                          right: 10.w,
+                          child: GestureDetector(
+                            onTap: () async {
+                              await _service.deleteProjectFromBackend(
+                                widget.docId,
+                              );
+                              if (!context.mounted) return;
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => NavBarShell(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(7.w),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.55),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Colors.red.shade300,
+                                size: 18.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  SizedBox(height: 4.h),
-                  // Small text introduction
-                  Text(
-                    'Dies ist eine kleine Beschreibung für das Projekt',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
+                ),
+
+                // --- Bottom row: date chip + action button ---
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 12.h,
                   ),
-                  SizedBox(height: 12.h),
-                  // Date Container
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Row(
                     children: [
+                      // Date chip
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
+                          horizontal: 10.w,
                           vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
-                          color: BColors.primary.withAlpha(50),
-                          borderRadius: BorderRadius.circular(6.r),
+                          color: BColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.calendar_month_outlined,
-                              size: 14.sp,
-                              color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
+                              Icons.calendar_today_outlined,
+                              size: 12.sp,
+                              color: BColors.primary,
                             ),
-                            SizedBox(width: 4.w),
+                            SizedBox(width: 5.w),
                             Text(
                               '${widget.day}. ${_monthName(widget.month)} ${widget.year}',
                               style: TextStyle(
+                                color: BColors.primary,
                                 fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Right Arrow for complete Version of Project Card
+
+                      const Spacer(),
+
+                      // "Mehr lesen" button
                       GestureDetector(
                         onTap: data != null
-                            ? () => showMoreBottomSheet(context, data)
+                            ? () => _showDetail(context, data)
                             : null,
                         child: Container(
-                          padding: EdgeInsets.all(6.w),
-                          decoration: BoxDecoration(
-                            color: BColors.primary.withAlpha(50),
-                            borderRadius: BorderRadius.circular(12.r),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 14.w,
+                            vertical: 7.h,
                           ),
-                          child: Icon(
-                            Icons.arrow_forward,
-                            size: 14.sp,
-                            color: isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0),
+                          decoration: BoxDecoration(
+                            color: BColors.primary,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Mehr lesen',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(width: 5.w),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.white,
+                                size: 11.sp,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  // Delete Icon for Admin
-                  if (isUserAdmin)
-                    Padding(
-                      padding: EdgeInsets.all(8.0.w),
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            await projectsService.deleteProjectFromBackend(
-                              widget.docId,
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => (NavBarShell()),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1F2937) : BColors.secondary,
-                              borderRadius: BorderRadius.circular(30.r),
-                              border: Border.all(color: Colors.red),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0.w),
-                              child: Icon(
-                                Icons.delete,
-                                size: 20.sp,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -308,43 +348,41 @@ class _ProjectState extends State<Project> {
     );
   }
 
-  Future<dynamic> showMoreBottomSheet(
-    BuildContext context,
-    Map<String, dynamic> data,
-  ) {
+  void _showDetail(BuildContext context, Map<String, dynamic> data) {
     final isHorizontal = data['orientation'] == 'horizontal';
-    final isDarkSheet = Theme.of(context).brightness == Brightness.dark;
-    return showModalBottomSheet(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDarkSheet ? BColors.backgroundColorDark : BColors.backgroundColor,
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.r)),
       ),
-      builder: (context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.9,
-          width: double.infinity,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8.0.w,
-              vertical: 16.0.h,
-            ),
-            child: SingleChildScrollView(
-              child: ShowMoreContent(
-                isHorizontal: isHorizontal,
-                data: data,
-                year: widget.year,
-                month: widget.month,
-                day: widget.day,
-              ),
+      builder: (ctx) => SizedBox(
+        height: MediaQuery.of(ctx).size.height * 0.9,
+        width: double.infinity,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+          child: SingleChildScrollView(
+            child: ShowMoreContent(
+              isHorizontal: isHorizontal,
+              data: data,
+              year: widget.year,
+              month: widget.month,
+              day: widget.day,
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Detail bottom-sheet content
+// ---------------------------------------------------------------------------
 
 class ShowMoreContent extends StatelessWidget {
   final bool isHorizontal;
@@ -362,27 +400,16 @@ class ShowMoreContent extends StatelessWidget {
     required this.day,
   });
 
-  String _monthName(int month) {
+  String _monthName(int m) {
     const months = [
-      'Januar',
-      'Februar',
-      'März',
-      'April',
-      'Mai',
-      'Juni',
-      'Juli',
-      'August',
-      'September',
-      'Oktober',
-      'November',
-      'Dezember',
+      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
     ];
-    return months[month - 1];
+    return months[m - 1];
   }
 
   @override
   Widget build(BuildContext context) {
-    print('Orientation: ${data['orientation']}');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final double aspectRatio = isHorizontal ? 16 / 9 : 3 / 4;
     const double cardOverlap = 52.0;
@@ -398,18 +425,19 @@ class ShowMoreContent extends StatelessWidget {
               child: AspectRatio(
                 aspectRatio: aspectRatio,
                 child: CachedNetworkImage(
-                  imageUrl: data['imageUrl'],
+                  imageUrl: data['imageUrl'] ?? '',
                   fit: BoxFit.cover,
                   width: double.infinity,
-                  placeholder: (context, url) => Skeletonizer(
+                  placeholder: (_, __) => Skeletonizer(
                     enabled: true,
                     child: Container(color: Colors.grey[300]),
                   ),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  errorWidget: (_, __, ___) => const Icon(Icons.error),
                 ),
               ),
             ),
 
+            // Gradient overlay
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
@@ -432,6 +460,7 @@ class ShowMoreContent extends StatelessWidget {
               ),
             ),
 
+            // Floating title card
             Positioned(
               bottom: -cardOverlap,
               left: 16,
@@ -524,7 +553,9 @@ class ShowMoreContent extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: isDark ? BColors.prayerRowDark : const Color(0xFFF5F5F4),
+              color: isDark
+                  ? BColors.prayerRowDark
+                  : const Color(0xFFF5F5F4),
               borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(

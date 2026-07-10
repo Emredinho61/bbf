@@ -1,136 +1,198 @@
 import 'package:bbf_app/backend/services/projects_service.dart';
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/projects_page_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'project_card.dart';
+
 class ProjectsByTense extends StatefulWidget {
   final String tense;
-  ProjectsByTense({super.key, required this.tense});
+  const ProjectsByTense({super.key, required this.tense});
 
   @override
   State<ProjectsByTense> createState() => _ProjectsByTenseState();
 }
 
 class _ProjectsByTenseState extends State<ProjectsByTense> {
-  late List<Map<String, dynamic>> allProjectsOfACertainTenseFromCache;
-  final ProjectsPageHelper projectsPageHelper = ProjectsPageHelper();
-  final ProjectsService projectsService = ProjectsService();
+  late List<Map<String, dynamic>> _projects;
+  final ProjectsPageHelper _helper = ProjectsPageHelper();
+  final ProjectsService _service = ProjectsService();
   bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    // First initialize projects saved in cache
-    allProjectsOfACertainTenseFromCache =
-        getEitherPastOrFutureProjectsFromCache(widget.tense);
-    // Then check, if the projects in cache are up to date with the projects in backend.
-    // If not up to date, then update the cache content
-    _initPage(widget.tense);
+    _projects = widget.tense == 'past'
+        ? _helper.getPastProjectsFromCache()
+        : _helper.getFutureProjectsFromCache();
+    _initPage();
   }
 
-  List<Map<String, dynamic>> getEitherPastOrFutureProjectsFromCache(
-    String tense,
-  ) {
-    if (tense == 'past') {
-      return projectsPageHelper.getPastProjectsFromCache();
-    } else {
-      return projectsPageHelper.getFutureProjectsFromCache();
-    }
-  }
+  Future<void> _initPage() async {
+    final loaded = widget.tense == 'past'
+        ? await _service.getPastProjectsFromBackend()
+        : await _service.getFutureProjectsFromBackend();
 
-  Future<void> _initPage(String tense) async {
-    if (tense == 'past') {
-      final loadedPastProjectsFromBackend = await projectsService
-          .getPastProjectsFromBackend();
-      if (loadedPastProjectsFromBackend !=
-          allProjectsOfACertainTenseFromCache) {
-        projectsPageHelper.setPastProjectsInCache(
-          loadedPastProjectsFromBackend,
-        );
-        setState(() {
-          allProjectsOfACertainTenseFromCache = loadedPastProjectsFromBackend;
-        });
-        setState(() => _isLoading = false);
+    if (!mounted) return;
+
+    if (loaded != _projects) {
+      if (widget.tense == 'past') {
+        _helper.setPastProjectsInCache(loaded);
+      } else {
+        _helper.setFutureProjectsInCache(loaded);
       }
+      setState(() {
+        _projects = loaded;
+        _isLoading = false;
+      });
     } else {
-      final loadedFutureProjects = await projectsService
-          .getFutureProjectsFromBackend();
-      if (loadedFutureProjects != allProjectsOfACertainTenseFromCache) {
-        projectsPageHelper.setFutureProjectsInCache(loadedFutureProjects);
-        setState(() {
-          allProjectsOfACertainTenseFromCache = loadedFutureProjects;
-        });
-        setState(() => _isLoading = false);
-      }
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Setting up the layout for the projects
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      backgroundColor: isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          const crossAxisCount = 2;
-          const spacing = 8.0;
-          final itemWidth =
-              (constraints.maxWidth - spacing * (crossAxisCount + 1)) /
-              crossAxisCount;
-          final columns = List.generate(crossAxisCount, (_) => <double>[]);
 
-          for (var i = 0; i < allProjectsOfACertainTenseFromCache.length; i++) {
-            final h = (200.0) + 48;
-            final col = i % crossAxisCount;
-            final top = columns[col].isEmpty
-                ? 0.0
-                : columns[col].last + spacing;
-            columns[col].add(top + h);
-          }
+    if (_isLoading && _projects.isEmpty) {
+      return _SkeletonList(isDark: isDark);
+    }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(spacing),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(crossAxisCount, (col) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    right: col != crossAxisCount - 1 ? spacing : 0,
-                  ),
-                  child: SizedBox(
-                    width: itemWidth,
-                    child: Column(
-                      children: [
-                        for (
-                          var i = col;
-                          i < allProjectsOfACertainTenseFromCache.length;
-                          i += crossAxisCount
-                        )
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: spacing),
-                            child: Project(
-                              title:
-                                  allProjectsOfACertainTenseFromCache[i]['title'],
-                              docId:
-                                  allProjectsOfACertainTenseFromCache[i]['id'],
-                              year:
-                                  allProjectsOfACertainTenseFromCache[i]['year'],
-                              month:
-                                  allProjectsOfACertainTenseFromCache[i]['month'],
-                              day:
-                                  allProjectsOfACertainTenseFromCache[i]['day'],
-                              height: 100,
-                              color: Colors.blue,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+    if (!_isLoading && _projects.isEmpty) {
+      return _EmptyState(tense: widget.tense, isDark: isDark);
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
+      itemCount: _projects.length,
+      separatorBuilder: (_, __) => SizedBox(height: 16.h),
+      itemBuilder: (context, i) {
+        final p = _projects[i];
+        return Project(
+          title: p['title'] as String,
+          docId: p['id'] as String,
+          year: p['year'] as int,
+          month: p['month'] as int,
+          day: p['day'] as int,
+        );
+      },
+    );
+  }
+}
+
+class _SkeletonList extends StatelessWidget {
+  const _SkeletonList({required this.isDark});
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
+      itemCount: 3,
+      separatorBuilder: (_, __) => SizedBox(height: 16.h),
+      itemBuilder: (_, __) => _SkeletonCard(isDark: isDark),
+    );
+  }
+}
+
+class _SkeletonCard extends StatelessWidget {
+  const _SkeletonCard({required this.isDark});
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
+    final highlightColor =
+        isDark ? const Color(0xFF3C3C3C) : const Color(0xFFF5F5F5);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image placeholder
+          Container(
+            height: 180.h,
+            decoration: BoxDecoration(
+              color: baseColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
             ),
-          );
-        },
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            child: Row(
+              children: [
+                Container(
+                  height: 28.h,
+                  width: 110.w,
+                  decoration: BoxDecoration(
+                    color: highlightColor,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  height: 28.h,
+                  width: 90.w,
+                  decoration: BoxDecoration(
+                    color: highlightColor,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.tense, required this.isDark});
+  final String tense;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            tense == 'future'
+                ? Icons.upcoming_outlined
+                : Icons.history_outlined,
+            size: 64.sp,
+            color: Colors.grey.shade400,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            tense == 'future'
+                ? 'Keine kommenden Projekte'
+                : 'Keine vergangenen Projekte',
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Schau später wieder vorbei.',
+            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade400),
+          ),
+        ],
       ),
     );
   }
