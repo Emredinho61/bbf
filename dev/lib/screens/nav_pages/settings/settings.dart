@@ -9,6 +9,7 @@ import 'package:bbf_app/components/prayertimes_upload.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
+import 'package:bbf_app/screens/nav_pages/settings/contact_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
@@ -266,6 +267,22 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildCard(isDark: isDark, children: [
               _paypalRow(context, isDark),
               _bankCard(context, isDark),
+            ]),
+
+            // Kontakt
+            _sectionHeader('Kontakt', isDark),
+            _buildCard(isDark: isDark, children: [
+              _settingsTile(
+                icon: Icons.contact_support_outlined,
+                title: 'Kontakt & Häufige Fragen',
+                subtitle: 'Erreichbarkeit und FAQ',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ContactPage()),
+                ),
+              ),
             ]),
 
             // App
@@ -883,3 +900,4 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
     );
   }
 }
+
