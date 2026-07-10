@@ -10,6 +10,8 @@ import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/contact_page.dart';
+import 'package:bbf_app/screens/nav_pages/settings/bildung_page.dart';
+import 'package:bbf_app/screens/nav_pages/settings/social_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
@@ -269,18 +271,50 @@ class _SettingsPageState extends State<SettingsPage> {
               _bankCard(context, isDark),
             ]),
 
-            // Kontakt
-            _sectionHeader('Kontakt', isDark),
+            // Kontakt & Soziales
+            _sectionHeader('Verein', isDark),
             _buildCard(isDark: isDark, children: [
+              _settingsTile(
+                icon: Icons.school_outlined,
+                title: 'Bildungsbereich',
+                subtitle: 'Arabische Schule & Unterrichtsangebote',
+                isDark: isDark,
+                isLast: false,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BildungPage()),
+                ),
+              ),
+              _settingsTile(
+                icon: Icons.volunteer_activism_outlined,
+                title: 'Soziale Arbeit',
+                subtitle: 'Beratungsangebote des BBF-Vereins',
+                isDark: isDark,
+                isLast: false,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SocialPage()),
+                ),
+              ),
               _settingsTile(
                 icon: Icons.contact_support_outlined,
                 title: 'Kontakt & Häufige Fragen',
                 subtitle: 'Erreichbarkeit und FAQ',
                 isDark: isDark,
-                isLast: true,
+                isLast: false,
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const ContactPage()),
+                ),
+              ),
+              _settingsTile(
+                icon: Icons.info_outline,
+                title: 'Über Uns',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutPage()),
                 ),
               ),
             ]),
@@ -328,8 +362,7 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildCard(isDark: isDark, children: [
               _settingsTile(icon: Icons.description_outlined, title: 'Rechtliches', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'Rechtliches', 'Alle rechtlichen Hinweise...')),
               _settingsTile(icon: Icons.description_outlined, title: 'AGB', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'AGB', 'Unsere allgemeinen Geschäftsbedingungen...')),
-              _settingsTile(icon: Icons.description_outlined, title: 'Datenschutz', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'Datenschutz', 'Informationen zum Datenschutz...')),
-              _settingsTile(icon: Icons.description_outlined, title: 'Über Uns', isDark: isDark, isLast: true, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()))),
+              _settingsTile(icon: Icons.description_outlined, title: 'Datenschutz', isDark: isDark, isLast: true, onTap: () => _showInfoDialog(context, 'Datenschutz', 'Informationen zum Datenschutz...')),
             ]),
 
             // Benutzer (nur sichtbar wenn Admin-Modus entsperrt oder eingeloggt)
