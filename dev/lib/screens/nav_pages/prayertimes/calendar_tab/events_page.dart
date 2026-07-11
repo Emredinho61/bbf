@@ -5,6 +5,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/event_notification_helper.dart';
+import 'package:bbf_app/utils/helper/favorite_events_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -27,6 +28,7 @@ class Eventspage extends StatefulWidget {
 class _EventspageState extends State<Eventspage> {
   final EventNotificationHelper _eventNotificationHelper =
       EventNotificationHelper();
+  final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
 
   String get formattedDate {
     return "${widget.focusedDay.day}."
@@ -266,6 +268,22 @@ class _EventspageState extends State<Eventspage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
+                              onTap: () async {
+                                await _favHelper.toggleFavorite(event.id);
+                                setState(() {});
+                              },
+                              child: Icon(
+                                _favHelper.isFavorite(event.id)
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: _favHelper.isFavorite(event.id)
+                                    ? color
+                                    : Colors.grey.shade400,
+                                size: 20.sp,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            GestureDetector(
                               onTap: () => _openNotificationSheet(event),
                               child: _notificationIcon(
                                 _eventNotificationHelper
@@ -274,7 +292,7 @@ class _EventspageState extends State<Eventspage> {
                                 isDark,
                               ),
                             ),
-                            SizedBox(height: 10.h),
+                            SizedBox(height: 8.h),
                             GestureDetector(
                               onTap: () => Navigator.push(
                                 context,

@@ -6,6 +6,7 @@ import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/event_notification_helper.dart';
+import 'package:bbf_app/utils/helper/favorite_events_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -301,6 +302,7 @@ class _EventCard extends StatefulWidget {
 
 class _EventCardState extends State<_EventCard> {
   final EventNotificationHelper _notifHelper = EventNotificationHelper();
+  final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
 
   Future<void> _openNotificationSheet() async {
     final parts = widget.event.time.split(' - ').first.split(':');
@@ -436,10 +438,26 @@ class _EventCardState extends State<_EventCard> {
               ),
             ),
 
-            // Notification + chevron
+            // Favorite + notification + chevron
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                GestureDetector(
+                  onTap: () async {
+                    await _favHelper.toggleFavorite(event.id);
+                    setState(() {});
+                  },
+                  child: Icon(
+                    _favHelper.isFavorite(event.id)
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: _favHelper.isFavorite(event.id)
+                        ? color
+                        : Colors.grey.shade400,
+                    size: 20.sp,
+                  ),
+                ),
+                SizedBox(height: 8.h),
                 GestureDetector(
                   onTap: _openNotificationSheet,
                   child: _notifIcon(mode, color),
