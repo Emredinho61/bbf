@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bbf_app/backend/services/information_service.dart';
+import 'package:bbf_app/components/app_dialog.dart';
+import 'package:bbf_app/components/picker_tile.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -22,13 +24,12 @@ class _AddInformationPageState extends State<AddInformationPage> {
   final TextEditingController _titelController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
 
-  // null = not yet chosen; 'text' or 'image'
   String? _type;
-
   String? _selectedImageName;
   File? _imageFile;
   String _imageOrientation = '';
   bool _isUploading = false;
+  bool _showError = false;
 
   bool get _canUpload {
     if (_type == 'text') return _titelController.text.trim().isNotEmpty;
@@ -38,6 +39,13 @@ class _AddInformationPageState extends State<AddInformationPage> {
     return false;
   }
 
+  String get _errorMessage {
+    if (_type == null) return 'Bitte einen Typ auswählen.';
+    if (_titelController.text.trim().isEmpty) return 'Bitte einen Titel eingeben.';
+    if (_type == 'image' && _imageFile == null) return 'Bitte ein Bild auswählen.';
+    return '';
+  }
+
   @override
   void dispose() {
     _titelController.dispose();
@@ -45,7 +53,6 @@ class _AddInformationPageState extends State<AddInformationPage> {
     super.dispose();
   }
 
-  // Reads pixel dimensions of the picked image to determine orientation.
   Future<String> _detectOrientation(File imageFile) async {
     final bytes = await imageFile.readAsBytes();
     final codec = await ui.instantiateImageCodec(bytes);
@@ -65,11 +72,16 @@ class _AddInformationPageState extends State<AddInformationPage> {
         _imageFile = file;
         _selectedImageName = result.files.single.name;
         _imageOrientation = orientation;
+        _showError = false;
       });
     }
   }
 
-  Future<void> _uploadInformation() async {
+  Future<void> _upload() async {
+    if (!_canUpload) {
+      setState(() => _showError = true);
+      return;
+    }
     setState(() => _isUploading = true);
     try {
       String imageUrl = '';
@@ -79,12 +91,11 @@ class _AddInformationPageState extends State<AddInformationPage> {
           '${_imageFile!.path}_compressed.jpg',
           quality: 70,
         );
-        final fileToUpload = compressedXFile != null
-            ? File(compressedXFile.path)
-            : _imageFile!;
-        final imageRef = FirebaseStorage.instance.ref().child(
-          'information_images/$_selectedImageName',
-        );
+        final fileToUpload =
+            compressedXFile != null ? File(compressedXFile.path) : _imageFile!;
+        final imageRef = FirebaseStorage.instance
+            .ref()
+            .child('information_images/$_selectedImageName');
         await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
       }
@@ -106,7 +117,8 @@ class _AddInformationPageState extends State<AddInformationPage> {
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Information erfolgreich hochgeladen!')),
+          const SnackBar(
+              content: Text('Information erfolgreich hochgeladen!')),
         );
       }
     } catch (e) {
@@ -123,172 +135,189 @@ class _AddInformationPageState extends State<AddInformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: AlertDialog(
-        content: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
-          child: SingleChildScrollView(
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(8.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Text(
-                        'Information hinzufügen',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-                    // ── Type selector ──────────────────────────────────────
-                    Row(
-                      children: [
-                        Expanded(child: _typeCard('text', Icons.text_fields, 'Text')),
-                        SizedBox(width: 10.w),
-                        Expanded(child: _typeCard('image', Icons.image, 'Bild / Flyer')),
-                      ],
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    // ── Text form ──────────────────────────────────────────
-                    if (_type == 'text') ...[
-                      Padding(
-                        padding: EdgeInsets.all(8.w),
-                        child: TextField(
-                          controller: _titelController,
-                          cursorColor: BColors.primary,
-                          onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            labelText: 'Titel *',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide:
-                                  BorderSide(color: BColors.primary, width: 2),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.w),
-                        child: TextField(
-                          controller: _textController,
-                          cursorColor: BColors.primary,
-                          minLines: 2,
-                          maxLines: 5,
-                          keyboardType: TextInputType.multiline,
-                          decoration: InputDecoration(
-                            labelText: 'Text',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide:
-                                  BorderSide(color: BColors.primary, width: 2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-
-                    // ── Image form ─────────────────────────────────────────
-                    if (_type == 'image') ...[
-                      Padding(
-                        padding: EdgeInsets.all(8.w),
-                        child: TextField(
-                          controller: _titelController,
-                          cursorColor: BColors.primary,
-                          onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            labelText: 'Titel *',
-                            helperText:
-                                'Nur für die Verwaltung – wird Nutzern nicht angezeigt',
-                            helperMaxLines: 2,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide:
-                                  BorderSide(color: BColors.primary, width: 2),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.w),
-                        child: ElevatedButton.icon(
-                          onPressed: _pickImage,
-                          icon: const Icon(Icons.image),
-                          label: const Text('Bild auswählen'),
-                        ),
-                      ),
-                      if (_selectedImageName != null)
-                        Padding(
-                          padding:
-                              EdgeInsets.only(bottom: 8.h, left: 8.w, right: 8.w),
-                          child: Row(
-                            children: [
-                              Icon(Icons.check_circle,
-                                  color: Colors.green, size: 16.sp),
-                              SizedBox(width: 6.w),
-                              Expanded(
-                                child: Text(
-                                  '$_selectedImageName · $_imageOrientation',
-                                  style: TextStyle(fontSize: 12.sp),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-
-                    SizedBox(height: 4.h),
-                  ],
-                ),
-              ),
-            ),
+    return Scaffold(
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      appBar: AppBar(
+        backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18.sp, color: BColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Information hinzufügen',
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Typ ───────────────────────────────────────────────────────
+            _card(
+              isDark: isDark,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _sectionHeader(Icons.category_outlined, 'Typ', isDark),
+                  SizedBox(height: 14.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _typeCard(
+                            'text', Icons.text_fields, 'Text', isDark),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: _typeCard(
+                            'image', Icons.image_outlined, 'Bild / Flyer', isDark),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            child: const Text('Abbrechen'),
-          ),
-          ElevatedButton(
-            onPressed: (_isUploading || !_canUpload) ? null : _uploadInformation,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+
+            SizedBox(height: 14.h),
+
+            // ── Inhalt ────────────────────────────────────────────────────
+            _card(
+              isDark: isDark,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _sectionHeader(Icons.edit_outlined, 'Inhalt', isDark),
+                  SizedBox(height: 14.h),
+                  _inputField(
+                    controller: _titelController,
+                    label: _type == 'image'
+                        ? 'Titel (nur für Verwaltung)'
+                        : 'Titel',
+                    isDark: isDark,
+                    onChanged: (_) => setState(() => _showError = false),
+                  ),
+                  if (_type == 'text') ...[
+                    SizedBox(height: 12.h),
+                    _inputField(
+                      controller: _textController,
+                      label: 'Text',
+                      isDark: isDark,
+                      maxLines: 5,
+                    ),
+                  ],
+                  if (_type == 'image') ...[
+                    SizedBox(height: 12.h),
+                    PickerTile(
+                      label: 'Bild',
+                      hint: 'obligatorisch – Bild auswählen',
+                      icon: Icons.image_outlined,
+                      selectedIcon: Icons.check_circle_outline,
+                      selected: _selectedImageName != null
+                          ? '$_selectedImageName · $_imageOrientation'
+                          : null,
+                      onTap: _pickImage,
+                      isDark: isDark,
+                    ),
+                  ],
+                ],
+              ),
             ),
-            child: _isUploading
-                ? SizedBox(
-                    width: 18.w,
-                    height: 18.h,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Hochladen'),
-          ),
-        ],
+
+            AppErrorBanner(message: _errorMessage, visible: _showError),
+
+            SizedBox(height: 24.h),
+
+            // ── Submit button ─────────────────────────────────────────────
+            AppDialogButtonRow(
+              isDark: isDark,
+              isLoading: _isUploading,
+              onConfirm: _upload,
+              confirmLabel: 'Hochladen',
+              cancelLabel: 'Abbrechen',
+            ),
+
+            SizedBox(height: 16.h),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _typeCard(String value, IconData icon, String label) {
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  Widget _card({required bool isDark, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _sectionHeader(IconData icon, String label, bool isDark) {
+    return Row(
+      children: [
+        Container(
+          width: 32.r,
+          height: 32.r,
+          decoration: BoxDecoration(
+            color: BColors.primary.withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: BColors.primary, size: 16.sp),
+        ),
+        SizedBox(width: 10.w),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _typeCard(String value, IconData icon, String label, bool isDark) {
     final selected = _type == value;
     return GestureDetector(
-      onTap: () => setState(() => _type = value),
+      onTap: () => setState(() {
+        _type = value;
+        _showError = false;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 16.h),
+        padding: EdgeInsets.symmetric(vertical: 18.h),
         decoration: BoxDecoration(
           color: selected
               ? BColors.primary.withOpacity(0.12)
-              : Colors.transparent,
+              : (isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7)),
           border: Border.all(
-            color: selected ? BColors.primary : Colors.grey.shade300,
-            width: selected ? 2 : 1,
+            color: selected ? BColors.primary : Colors.grey.withOpacity(0.25),
+            width: selected ? 2 : 1.5,
           ),
           borderRadius: BorderRadius.circular(12.r),
         ),
@@ -297,19 +326,62 @@ class _AddInformationPageState extends State<AddInformationPage> {
           children: [
             Icon(
               icon,
-              size: 32.sp,
-              color: selected ? BColors.primary : Colors.grey.shade500,
+              size: 28.sp,
+              color: selected ? BColors.primary : Colors.grey.shade400,
             ),
             SizedBox(height: 6.h),
             Text(
               label,
               style: TextStyle(
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.normal,
-                color: selected ? BColors.primary : Colors.grey.shade600,
+                fontSize: 13.sp,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                color: selected ? BColors.primary : Colors.grey.shade500,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _inputField({
+    required TextEditingController controller,
+    required String label,
+    required bool isDark,
+    int maxLines = 1,
+    ValueChanged<String>? onChanged,
+  }) {
+    return TextField(
+      controller: controller,
+      cursorColor: BColors.primary,
+      maxLines: maxLines,
+      onChanged: onChanged,
+      style: TextStyle(
+        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        fontSize: 14.sp,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
+        filled: true,
+        fillColor:
+            isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide:
+              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide:
+              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(
+              color: BColors.primary.withOpacity(0.6), width: 1.5),
         ),
       ),
     );
