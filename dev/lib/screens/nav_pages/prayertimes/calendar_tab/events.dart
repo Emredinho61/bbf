@@ -1,5 +1,71 @@
 import 'package:flutter/material.dart';
 
+// Raw event data including repeat/schedule info for the overview page.
+class EventSummary {
+  final String id;
+  final String title;
+  final String content;
+  final String location;
+  final String displayTime;
+  final int beginHour;
+  final int beginMinute;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String repeat; // 'none' | 'weekly' | 'daily'
+  final int frequency;
+  final int colorIndex;
+  final String iconKey;
+  final String? startPrayer;
+  final String? endPrayer;
+
+  const EventSummary({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.location,
+    required this.displayTime,
+    required this.beginHour,
+    required this.beginMinute,
+    required this.startDate,
+    required this.endDate,
+    required this.repeat,
+    required this.frequency,
+    required this.colorIndex,
+    required this.iconKey,
+    this.startPrayer,
+    this.endPrayer,
+  });
+
+  Color colorFor(bool isDark) {
+    final index = colorIndex % Event.paletteSize;
+    return isDark ? Event.darkPalette[index] : Event.lightPalette[index];
+  }
+
+  IconData get icon =>
+      Event.availableIcons[iconKey] ?? Icons.event;
+
+  Event toEvent() => Event(
+        id, title, content,
+        '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ??:??',
+        location, '',
+        startPrayer: startPrayer,
+        endPrayer: endPrayer,
+        iconKey: iconKey,
+        colorIndex: colorIndex,
+      );
+
+  String get frequencyLabel {
+    switch (repeat) {
+      case 'weekly':
+        return frequency <= 1 ? 'Wöchentlich' : 'Wöchentlich · $frequency Wochen';
+      case 'daily':
+        return frequency <= 1 ? 'Täglich' : 'Täglich · $frequency Tage';
+      default:
+        return 'Einmalig';
+    }
+  }
+}
+
 class Event {
   final String id;
   final String title;

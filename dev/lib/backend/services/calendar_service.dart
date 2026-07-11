@@ -191,6 +191,85 @@ class CalendarService {
     return titles;
   }
 
+  Future<List<EventSummary>> getAllEventSummaries() async {
+    final querySnapshots = await projects.get();
+    final today = DateTime.now();
+    final todayKey = DateTime(today.year, today.month, today.day);
+    final summaries = <EventSummary>[];
+
+    const prayerDisplay = {
+      'Fajr': 'Fajr',
+      'Sunrise': 'Shuruq',
+      'Dhur': 'Dhuhr',
+      'Asr': 'Asr',
+      'Maghrib': 'Maghrib',
+      'Isha': 'Isha',
+    };
+
+    for (var doc in querySnapshots.docs) {
+      final data = doc.data();
+      final repeat = data['repeat'] as String? ?? 'none';
+      final frequency = (data['frequency'] as num?)?.toInt() ?? 0;
+
+      final startDate = DateTime(
+        (data['year'] as num).toInt(),
+        (data['month'] as num).toInt(),
+        (data['day'] as num).toInt(),
+      );
+
+      final DateTime endDate;
+      if (repeat == 'weekly') {
+        endDate = startDate.add(Duration(days: frequency * 7));
+      } else if (repeat == 'daily') {
+        endDate = startDate.add(Duration(days: frequency));
+      } else {
+        endDate = startDate;
+      }
+
+      if (endDate.isBefore(todayKey)) continue;
+
+      final String? startPrayer = data['startPrayer'] as String?;
+      final String? endPrayer = data['endPrayer'] as String?;
+      final bool isPrayer = startPrayer != null && endPrayer != null;
+
+      final int beginHour = (data['beginninghour'] as num?)?.toInt() ?? 0;
+      final int beginMinute = (data['beginningminute'] as num?)?.toInt() ?? 0;
+      final int endHour = (data['endhour'] as num?)?.toInt() ?? 0;
+      final int endMinute = (data['endminute'] as num?)?.toInt() ?? 0;
+
+      final String displayTime;
+      if (isPrayer) {
+        final sl = prayerDisplay[startPrayer] ?? startPrayer;
+        final el = prayerDisplay[endPrayer] ?? endPrayer;
+        displayTime = '$sl - $el';
+      } else {
+        displayTime =
+            '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
+      }
+
+      summaries.add(EventSummary(
+        id: data['id'] as String? ?? data['title'] as String? ?? '',
+        title: data['title'] as String? ?? '',
+        content: data['content'] as String? ?? '',
+        location: data['location'] as String? ?? '',
+        displayTime: displayTime,
+        beginHour: beginHour,
+        beginMinute: beginMinute,
+        startDate: startDate,
+        endDate: endDate,
+        repeat: repeat,
+        frequency: frequency,
+        colorIndex: (data['colorIndex'] as num?)?.toInt() ?? 0,
+        iconKey: data['iconKey'] as String? ?? 'event',
+        startPrayer: isPrayer ? startPrayer : null,
+        endPrayer: isPrayer ? endPrayer : null,
+      ));
+    }
+
+    summaries.sort((a, b) => a.startDate.compareTo(b.startDate));
+    return summaries;
+  }
+
   Future<void> deleteEventsWithId(String id) async {
     await projects.doc(id).delete();
   }
