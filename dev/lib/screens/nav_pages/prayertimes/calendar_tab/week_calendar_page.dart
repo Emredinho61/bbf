@@ -1,7 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:bbf_app/backend/services/calendar_service.dart';
+import 'package:bbf_app/components/events/event_notification_sheet.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
+import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
-import 'package:calendar_view/calendar_view.dart';
+import 'package:bbf_app/utils/helper/event_notification_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -14,186 +18,148 @@ class WeekCalendarPage extends StatefulWidget {
 
 class _WeekCalendarPageState extends State<WeekCalendarPage> {
   final CalendarService _calendarService = CalendarService();
-  final EventController _eventController = EventController();
-  final GlobalKey<WeekViewState> _weekViewKey = GlobalKey<WeekViewState>();
+  Map<DateTime, List<Event>> _allEvents = {};
   bool _isLoading = true;
+  late DateTime _weekStart; // always a Monday
+
+  static const _dayNames = [
+    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+    'Freitag', 'Samstag', 'Sonntag',
+  ];
+  static const _monthNames = [
+    '', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+  ];
 
   @override
   void initState() {
     super.initState();
+    _weekStart = _mondayOf(DateTime.now());
     _loadEvents();
   }
 
+  DateTime _mondayOf(DateTime d) =>
+      DateTime(d.year, d.month, d.day).subtract(Duration(days: d.weekday - 1));
+
   Future<void> _loadEvents() async {
-    final Map<DateTime, List<Event>> allEvents =
-        await _calendarService.getAllEvents();
-
-    for (final entry in allEvents.entries) {
-      for (final event in entry.value) {
-        final calEvent = _toCalendarEvent(event, entry.key);
-        if (calEvent != null) _eventController.add(calEvent);
-      }
+    setState(() => _isLoading = true);
+    final events = await _calendarService.getAllEvents();
+    if (mounted) {
+      setState(() {
+        _allEvents = events;
+        _isLoading = false;
+      });
     }
-
-    if (mounted) setState(() => _isLoading = false);
   }
 
-  // Converts an Event to a CalendarEventData for the calendar view,
-  // since the calendar view uses its own event data structure. Returns null if the conversion fails.
-  CalendarEventData? _toCalendarEvent(Event event, DateTime date) {
-    try {
-      final parts = event.time.split(' - ');
-      if (parts.length != 2) return null;
+  List<Event> _eventsFor(DateTime day) {
+    final key = DateTime(day.year, day.month, day.day);
+    return _allEvents[key] ?? [];
+  }
 
-      final startParts = parts[0].trim().split(':');
-      final endParts = parts[1].trim().split(':');
-      if (startParts.length != 2 || endParts.length != 2) return null;
-
-      final startTime = DateTime(
-        date.year, date.month, date.day,
-        int.parse(startParts[0]), int.parse(startParts[1]),
-      );
-      var endTime = DateTime(
-        date.year, date.month, date.day,
-        int.parse(endParts[0]), int.parse(endParts[1]),
-      );
-
-      // ensure end is after start
-      if (!endTime.isAfter(startTime)) {
-        endTime = startTime.add(const Duration(minutes: 30));
-      }
-
-      return CalendarEventData(
-        title: event.title,
-        description: event.location.isNotEmpty ? event.location : null,
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        color: Event.lightPalette[event.colorIndex % Event.paletteSize],
-      );
-    } catch (_) {
-      return null;
-    }
+  String _weekLabel() {
+    final end = _weekStart.add(const Duration(days: 6));
+    final startStr = '${_weekStart.day}. ${_monthNames[_weekStart.month]}';
+    final endStr = '${end.day}. ${_monthNames[end.month]} ${end.year}';
+    return '$startStr – $endStr';
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final today = DateTime.now();
+    final todayKey = DateTime(today.year, today.month, today.day);
 
-    return CalendarControllerProvider(
-      controller: _eventController,
-      child: Scaffold(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF5F5F5),
-        appBar: AppBar(
-          backgroundColor:
-              isDark ? BColors.backgroundColorDark : Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new,
-                size: 18.sp, color: BColors.primary),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'Wochenübersicht',
-            style: TextStyle(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-            ),
-          ),
-          centerTitle: true,
+    return Scaffold(
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      appBar: AppBar(
+        backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18.sp, color: BColors.primary),
+          onPressed: () => Navigator.pop(context),
         ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : WeekView(
-                key: _weekViewKey,
-                controller: _eventController,
-                showLiveTimeLineInAllDays: true,
-                liveTimeIndicatorSettings: LiveTimeIndicatorSettings(
-                  color: BColors.primary,
-                  height: 1.5,
-                ),
-                weekNumberBuilder: (_) => null,
-                weekPageHeaderBuilder: (startDate, endDate) => _WeekHeader(
-                  startDate: startDate,
-                  endDate: endDate,
-                  onPrev: () => _weekViewKey.currentState?.previousPage(),
-                  onNext: () => _weekViewKey.currentState?.nextPage(),
-                ),
-                startDay: WeekDays.monday,
-                timeLineWidth: 52.w,
-                timeLineBuilder: (date) => Padding(
-                  padding: EdgeInsets.only(right: 6.w),
-                  child: Text(
-                    '${date.hour.toString().padLeft(2, '0')}:00',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.grey.shade500,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-                eventTileBuilder: (date, events, boundary, startDuration,
-                    endDuration) =>
-                    _EventTile(events: events, isDark: isDark),
-                headerStyle: HeaderStyle(
-                  decoration: BoxDecoration(
-                    color: isDark ? BColors.prayerRowDark : Colors.white,
-                  ),
-                  headerTextStyle: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-                  ),
-                  leftIcon: Icon(Icons.chevron_left,
-                      color: BColors.primary, size: 22.sp),
-                  rightIcon: Icon(Icons.chevron_right,
-                      color: BColors.primary, size: 22.sp),
-                ),
-                backgroundColor:
-                    isDark ? BColors.backgroundColorDark : Colors.white,
-                minDay: DateTime(DateTime.now().year, 1, 1),
-                maxDay: DateTime(DateTime.now().year, 12, 31),
-                initialDay: DateTime.now(),
-                scrollOffset: _scrollOffsetForNow(),
+        title: Text(
+          'Wochenübersicht',
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // ── Week navigation ─────────────────────────────────────────────
+          _WeekNavHeader(
+            label: _weekLabel(),
+            isDark: isDark,
+            onPrev: () => setState(
+                () => _weekStart = _weekStart.subtract(const Duration(days: 7))),
+            onNext: () => setState(
+                () => _weekStart = _weekStart.add(const Duration(days: 7))),
+          ),
+
+          if (_isLoading)
+            const Expanded(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.only(top: 4.h, bottom: 80.h),
+                itemCount: 7,
+                itemBuilder: (context, i) {
+                  final day = _weekStart.add(Duration(days: i));
+                  final isToday =
+                      DateTime(day.year, day.month, day.day) == todayKey;
+                  final events = _eventsFor(day);
+
+                  return _DaySection(
+                    day: day,
+                    dayName: _dayNames[i],
+                    isToday: isToday,
+                    events: events,
+                    isDark: isDark,
+                  );
+                },
               ),
+            ),
+        ],
       ),
     );
   }
-
-  double _scrollOffsetForNow() {
-    final now = DateTime.now();
-    // 60px per hour, offset to 1 hour before current time
-    return ((now.hour - 1).clamp(0, 23)) * 60.0;
-  }
 }
 
-class _WeekHeader extends StatelessWidget {
-  const _WeekHeader({
-    required this.startDate,
-    required this.endDate,
+// ── Week navigation header ────────────────────────────────────────────────────
+
+class _WeekNavHeader extends StatelessWidget {
+  const _WeekNavHeader({
+    required this.label,
+    required this.isDark,
     required this.onPrev,
     required this.onNext,
   });
 
-  final DateTime startDate;
-  final DateTime endDate;
+  final String label;
+  final bool isDark;
   final VoidCallback onPrev;
   final VoidCallback onNext;
 
-  String _fmt(DateTime d) => '${d.day}.${d.month}.${d.year}';
-
-  Widget _navButton(IconData icon, VoidCallback onPressed, bool isDark) {
+  Widget _navBtn(IconData icon, VoidCallback onTap) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: onTap,
       child: Container(
         width: 36.r,
         height: 36.r,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: BColors.primary.withOpacity(0.12),
-          border: Border.all(color: BColors.primary.withOpacity(0.3)),
         ),
         child: Icon(icon, color: BColors.primary, size: 20.sp),
       ),
@@ -202,97 +168,289 @@ class _WeekHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       color: isDark ? BColors.prayerRowDark : Colors.white,
+      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _navButton(Icons.chevron_left, onPrev, isDark),
-          Text(
-            '${_fmt(startDate)} – ${_fmt(endDate)}',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-            ),
+          _navBtn(Icons.chevron_left, onPrev),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                ),
+              ),
+            ],
           ),
-          _navButton(Icons.chevron_right, onNext, isDark),
+          _navBtn(Icons.chevron_right, onNext),
         ],
       ),
     );
   }
 }
 
-class _EventTile extends StatelessWidget {
-  const _EventTile({required this.events, required this.isDark});
+// ── Day section (header + event cards) ───────────────────────────────────────
 
-  final List<CalendarEventData> events;
+class _DaySection extends StatelessWidget {
+  const _DaySection({
+    required this.day,
+    required this.dayName,
+    required this.isToday,
+    required this.events,
+    required this.isDark,
+  });
+
+  final DateTime day;
+  final String dayName;
+  final bool isToday;
+  final List<Event> events;
   final bool isDark;
 
-  // Maps a light-palette color back to its dark-palette counterpart.
-  Color _resolveColor(Color lightColor) {
-    if (!isDark) return lightColor;
-    final index = Event.lightPalette.indexOf(lightColor);
-    if (index == -1) return lightColor;
-    return Event.darkPalette[index];
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Day label row
+        Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 16.w, 8.h),
+          child: Row(
+            children: [
+              Text(
+                dayName.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.7,
+                  color: isToday ? BColors.primary : Colors.grey.shade500,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '${day.day}.${day.month}.',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: isToday ? BColors.primary : Colors.grey.shade400,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (isToday) ...[
+                SizedBox(width: 6.w),
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: BColors.primary,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Text(
+                    'HEUTE',
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        if (events.isEmpty)
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 4.h),
+            child: Text(
+              'Keine Veranstaltungen',
+              style: TextStyle(
+                  fontSize: 13.sp, color: Colors.grey.shade400),
+            ),
+          )
+        else
+          ...events.map(
+            (e) => _EventCard(event: e, day: day, isDark: isDark),
+          ),
+      ],
+    );
+  }
+}
+
+// ── Event card ────────────────────────────────────────────────────────────────
+
+class _EventCard extends StatefulWidget {
+  const _EventCard({
+    required this.event,
+    required this.day,
+    required this.isDark,
+  });
+
+  final Event event;
+  final DateTime day;
+  final bool isDark;
+
+  @override
+  State<_EventCard> createState() => _EventCardState();
+}
+
+class _EventCardState extends State<_EventCard> {
+  final EventNotificationHelper _notifHelper = EventNotificationHelper();
+
+  Future<void> _openNotificationSheet() async {
+    final parts = widget.event.time.split(' - ').first.split(':');
+    await showEventNotificationSheet(
+      context: context,
+      eventId: widget.event.id,
+      eventTitle: widget.event.title,
+      eventDate: widget.day,
+      beginHour: int.parse(parts[0]),
+      beginMinute: int.parse(parts[1]),
+    );
+    if (mounted) setState(() {});
+  }
+
+  Widget _notifIcon(EventNotificationMode mode, Color color) {
+    switch (mode) {
+      case EventNotificationMode.off:
+        return Icon(Icons.notifications_off_outlined,
+            color: Colors.grey.shade400, size: 20.sp);
+      case EventNotificationMode.thisEventOnly:
+        return Icon(Icons.notifications_active, color: color, size: 20.sp);
+      case EventNotificationMode.allFutureEvents:
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(Icons.notifications_active, color: color, size: 20.sp),
+            Positioned(
+              right: -2,
+              bottom: -2,
+              child: Container(
+                padding: EdgeInsets.all(1.w),
+                decoration: BoxDecoration(
+                  color: widget.isDark ? BColors.prayerRowDark : Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.repeat, size: 10.sp, color: color),
+              ),
+            ),
+          ],
+        );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final event = events.first;
-    final color = _resolveColor(event.color);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final tooNarrow = constraints.maxWidth < 32;
-        final tooShort = constraints.maxHeight < 24;
+    final event = widget.event;
+    final isDark = widget.isDark;
+    final color = event.colorFor(isDark);
+    final mode = _notifHelper.getEventNotificationMode(event.id);
 
-        return Container(
-          margin: EdgeInsets.all(1.5.w),
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(6.r),
-            border: Border(left: BorderSide(color: color, width: 3)),
-          ),
-          child: (tooNarrow || tooShort)
-              ? const SizedBox.expand()
-              : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => EventDetailPage(event: event, date: widget.day)),
+      ),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: isDark ? BColors.prayerRowDark : Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border(left: BorderSide(color: color, width: 3.5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Icon
+            Container(
+              width: 48.r,
+              height: 48.r,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(event.icon, color: color, size: 24.sp),
+            ),
+            SizedBox(width: 12.w),
+
+            // Title + time + location
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Row(
                     children: [
+                      Icon(Icons.access_time,
+                          size: 13.sp, color: Colors.grey.shade500),
+                      SizedBox(width: 4.w),
                       Text(
-                        event.title,
+                        event.startPrayer != null
+                            ? event.displayTime
+                            : '${event.displayTime} Uhr',
                         style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                            fontSize: 12.sp, color: Colors.grey.shade500),
                       ),
-                      if (constraints.maxHeight > 40 &&
-                          event.description != null &&
-                          event.description!.isNotEmpty) ...[
-                        SizedBox(height: 2.h),
-                        Text(
-                          event.description!,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.grey.shade600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
                     ],
                   ),
+                  if (event.location.isNotEmpty) ...[
+                    SizedBox(height: 2.h),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined,
+                            size: 13.sp, color: Colors.grey.shade500),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            event.location,
+                            style: TextStyle(
+                                fontSize: 12.sp, color: Colors.grey.shade500),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Notification + chevron
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _openNotificationSheet,
+                  child: _notifIcon(mode, color),
                 ),
-        );
-      },
+                SizedBox(height: 8.h),
+                Icon(Icons.chevron_right, color: color, size: 20.sp),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

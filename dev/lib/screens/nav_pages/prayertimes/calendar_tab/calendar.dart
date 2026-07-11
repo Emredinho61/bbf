@@ -257,8 +257,6 @@ class _CalenderViewState extends State<CalenderView> {
               markerBuilder: (context, day, events) {
                 if (events.isEmpty) return null;
                 final isDarkMarker = Theme.of(context).brightness == Brightness.dark;
-                final isSelected = isSameDay(_selectedDay, day);
-                final isToday = isSameDay(DateTime.now(), day);
 
                 return Positioned(
                   bottom: 3,
@@ -267,14 +265,9 @@ class _CalenderViewState extends State<CalenderView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: events.take(3).map((e) {
-                      final Color dotColor;
-                      if (isToday || isSelected) {
-                        dotColor = isDarkMarker ? Colors.white : const Color(0xFF1B5E20);
-                      } else if (e is Event) {
-                        dotColor = e.colorFor(isDarkMarker);
-                      } else {
-                        dotColor = BColors.primary;
-                      }
+                      final dotColor = e is Event
+                          ? e.colorFor(isDarkMarker)
+                          : BColors.primary;
                       return Container(
                         margin: EdgeInsets.symmetric(horizontal: 1.5.w),
                         width: 5.r,
@@ -400,6 +393,7 @@ class _CalenderViewState extends State<CalenderView> {
             MaterialPageRoute(builder: (_) => const WeekCalendarPage()),
           ),
         ),
+        SizedBox(height: 20.h),
       ],
     );
   }

@@ -54,27 +54,27 @@ class _EventspageState extends State<Eventspage> {
   // Renders a distinct icon for each of the three notification modes, so the
   // difference between "this event only" and "all future events" is visible
   // on the card without opening the sheet.
-  Widget _notificationIcon(EventNotificationMode mode) {
+  Widget _notificationIcon(EventNotificationMode mode, Color color, bool isDark) {
     switch (mode) {
       case EventNotificationMode.off:
-        return const Icon(Icons.notifications_off_outlined, color: Colors.grey);
+        return Icon(Icons.notifications_off_outlined, color: Colors.grey.shade400, size: 20.sp);
       case EventNotificationMode.thisEventOnly:
-        return const Icon(Icons.notifications_active, color: Colors.green);
+        return Icon(Icons.notifications_active, color: color, size: 20.sp);
       case EventNotificationMode.allFutureEvents:
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            const Icon(Icons.notifications_active, color: Colors.green),
+            Icon(Icons.notifications_active, color: color, size: 20.sp),
             Positioned(
               right: -2,
               bottom: -2,
               child: Container(
                 padding: EdgeInsets.all(1.w),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: isDark ? BColors.prayerRowDark : Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.repeat, size: 10.sp, color: Colors.green),
+                child: Icon(Icons.repeat, size: 10.sp, color: color),
               ),
             ),
           ],
@@ -166,17 +166,15 @@ class _EventspageState extends State<Eventspage> {
 
                 itemBuilder: (context, index) {
                   final event = widget.events[index];
+                  final color = event.colorFor(isDark);
 
                   return Container(
                     margin: EdgeInsets.only(bottom: 14.h),
-
                     padding: EdgeInsets.all(14.w),
-
                     decoration: BoxDecoration(
                       color: isDark ? BColors.prayerRowDark : Colors.white,
-
                       borderRadius: BorderRadius.circular(18.r),
-
+                      border: Border(left: BorderSide(color: color, width: 3.5)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -184,26 +182,17 @@ class _EventspageState extends State<Eventspage> {
                           offset: const Offset(0, 5),
                         ),
                       ],
-
-                      border: Border.all(color: Colors.green.withOpacity(0.08)),
                     ),
-
                     child: Row(
                       children: [
                         Container(
-                          width: 60.w,
-                          height: 60.h,
-
+                          width: 52.r,
+                          height: 52.r,
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16.r),
+                            color: color.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(14.r),
                           ),
-
-                          child: Icon(
-                            event.icon,
-                            color: Colors.green,
-                            size: 30.sp,
-                          ),
+                          child: Icon(event.icon, color: color, size: 26.sp),
                         ),
 
                         SizedBox(width: 14.w),
@@ -211,31 +200,23 @@ class _EventspageState extends State<Eventspage> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-
-                            // event type badge
                             children: [
                               Container(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 8.w,
-                                  vertical: 3.h,
-                                ),
-
+                                    horizontal: 8.w, vertical: 3.h),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.1),
+                                  color: color.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(20.r),
                                 ),
-
-                                child: const Text(
-                                  "Veranstaltung",
+                                child: Text(
+                                  'Veranstaltung',
                                   style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.green,
-                                  ),
+                                      fontSize: 10.sp,
+                                      color: color,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
-
                               SizedBox(height: 6.h),
-
                               Text(
                                 event.title,
                                 style: TextStyle(
@@ -244,50 +225,35 @@ class _EventspageState extends State<Eventspage> {
                                   color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
-
                               SizedBox(height: 6.h),
-
-                              // Time of Event
                               Row(
                                 children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 14.sp,
-                                    color: Colors.grey.shade500,
-                                  ),
-
+                                  Icon(Icons.access_time,
+                                      size: 13.sp, color: Colors.grey.shade500),
                                   SizedBox(width: 5.w),
-
                                   Text(
                                     event.startPrayer != null
                                         ? event.displayTime
-                                        : "${event.displayTime} Uhr",
+                                        : '${event.displayTime} Uhr',
                                     style: TextStyle(
-                                      fontSize: 12.sp,
-                                      color: Colors.grey.shade600,
-                                    ),
+                                        fontSize: 12.sp,
+                                        color: Colors.grey.shade500),
                                   ),
                                 ],
                               ),
-
                               SizedBox(height: 4.h),
-
-                              // event location
                               Row(
                                 children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    size: 14.sp,
-                                    color: Colors.grey.shade500,
-                                  ),
-
+                                  Icon(Icons.location_on_outlined,
+                                      size: 13.sp, color: Colors.grey.shade500),
                                   SizedBox(width: 5.w),
-
-                                  Text(
-                                    event.location,
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      color: Colors.grey.shade600,
+                                  Expanded(
+                                    child: Text(
+                                      event.location,
+                                      style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: Colors.grey.shade500),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -299,37 +265,26 @@ class _EventspageState extends State<Eventspage> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // notification settings for this event
-                            Builder(
-                              builder: (context) {
-                                final mode = _eventNotificationHelper
-                                    .getEventNotificationMode(event.id);
-
-                                return GestureDetector(
-                                  onTap: () => _openNotificationSheet(event),
-                                  child: _notificationIcon(mode),
-                                );
-                              },
-                            ),
-
-                            SizedBox(height: 10.h),
-
-                            // show description of event
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        EventDetailPage(event: event),
-                                  ),
-                                );
-                              },
-
-                              child: const Icon(
-                                Icons.chevron_right,
-                                color: Colors.green,
+                              onTap: () => _openNotificationSheet(event),
+                              child: _notificationIcon(
+                                _eventNotificationHelper
+                                    .getEventNotificationMode(event.id),
+                                color,
+                                isDark,
                               ),
+                            ),
+                            SizedBox(height: 10.h),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => EventDetailPage(
+                                      event: event, date: widget.focusedDay),
+                                ),
+                              ),
+                              child: Icon(Icons.chevron_right,
+                                  color: color, size: 22.sp),
                             ),
                           ],
                         ),
