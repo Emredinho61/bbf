@@ -8,9 +8,11 @@ import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/prayertimes_upload.dart';
 import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
+import 'package:bbf_app/screens/nav_pages/settings/admin_feedback_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
 import 'package:bbf_app/screens/nav_pages/settings/contact_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bildung_page.dart';
+import 'package:bbf_app/screens/nav_pages/settings/feedback_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/social_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
@@ -260,7 +262,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 _settingsTile(icon: Icons.timer_outlined, title: 'Iqama Zeiten', isDark: isDark, isLast: false, onTap: _showDialogForIqamaTimes),
                 _settingsTile(icon: Icons.upload_file_outlined, title: 'Projekt hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadProjectDialog())),
                 _settingsTile(icon: Icons.cloud_upload_outlined, title: 'Gebetszeiten hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadPrayerTimesDialog())),
-                _settingsTile(icon: Icons.campaign_outlined, title: 'Nachricht broadcasten', isDark: isDark, isLast: true, onTap: _showBroadcastDialog),
+                _settingsTile(icon: Icons.campaign_outlined, title: 'Nachricht broadcasten', isDark: isDark, isLast: false, onTap: _showBroadcastDialog),
+                _settingsTile(
+                  icon: Icons.inbox_outlined,
+                  title: 'Nutzer-Feedback',
+                  subtitle: 'Eingaben der Nutzer einsehen',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminFeedbackPage())),
+                ),
               ]),
             ],
 
@@ -316,6 +326,19 @@ class _SettingsPageState extends State<SettingsPage> {
                   context,
                   MaterialPageRoute(builder: (_) => const AboutPage()),
                 ),
+              ),
+            ]),
+
+            // Mitmachen
+            _sectionHeader('Mitmachen', isDark),
+            _buildCard(isDark: isDark, children: [
+              _settingsTile(
+                icon: Icons.handshake_outlined,
+                title: 'Mitmachen & Feedback',
+                subtitle: 'Hilf uns, den Verein und die App zu verbessern',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackPage())),
               ),
             ]),
 
