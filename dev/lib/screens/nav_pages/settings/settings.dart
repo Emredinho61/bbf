@@ -357,6 +357,35 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ]),
 
+            // Socials
+            _sectionHeader('Folge Uns', isDark),
+            _buildCard(isDark: isDark, children: [
+              _socialTile(
+                platform: 'Facebook',
+                handle: 'bbfverein',
+                url: 'https://www.facebook.com/bbfverein',
+                icon: _facebookIcon(),
+                isDark: isDark,
+                isLast: false,
+              ),
+              _socialTile(
+                platform: 'Instagram · Brüder',
+                handle: '@bbf_brueder',
+                url: 'https://www.instagram.com/bbf_brueder',
+                icon: _instagramIcon(),
+                isDark: isDark,
+                isLast: false,
+              ),
+              _socialTile(
+                platform: 'Instagram · Mädchen',
+                handle: '@bbf_maedchen',
+                url: 'https://www.instagram.com/bbf_maedchen',
+                icon: _instagramIcon(),
+                isDark: isDark,
+                isLast: true,
+              ),
+            ]),
+
             // Rechtliches
             _sectionHeader('Rechtliches', isDark),
             _buildCard(isDark: isDark, children: [
@@ -723,6 +752,92 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Icon(Icons.copy_outlined, size: 18.sp, color: Colors.grey.shade400),
         ),
       ],
+    );
+  }
+
+  Widget _socialTile({
+    required String platform,
+    required String handle,
+    required String url,
+    required Widget icon,
+    required bool isDark,
+    required bool isLast,
+  }) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () async {
+            final uri = Uri.parse(url);
+            if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+              debugPrint('Konnte $url nicht öffnen');
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            child: Row(
+              children: [
+                icon,
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        platform,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        handle,
+                        style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.open_in_new, color: Colors.grey.shade400, size: 18.sp),
+              ],
+            ),
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            indent: 66,
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+          ),
+      ],
+    );
+  }
+
+  Widget _instagramIcon() {
+    return Container(
+      width: 36.r,
+      height: 36.r,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF)],
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Icon(Icons.camera_alt, color: Colors.white, size: 20.sp),
+    );
+  }
+
+  Widget _facebookIcon() {
+    return Container(
+      width: 36.r,
+      height: 36.r,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1877F2),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Icon(Icons.facebook, color: Colors.white, size: 22.sp),
     );
   }
 
