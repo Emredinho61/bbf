@@ -26,13 +26,21 @@ main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // get prayertimes CSV file either from storage or cache
-  await ensureCSVIsCached();
+  try {
+    await ensureCSVIsCached();
+  } catch (e) {
+    debugPrint('CSV download failed (will retry on next launch): $e');
+  }
 
   // ask for notification permission
   await permissionNotification();
 
   // initialize all Notification settings
-  await setupNotifications();
+  try {
+    await setupNotifications();
+  } catch (e) {
+    debugPrint('Notification setup failed: $e');
+  }
 
   FirebaseMessaging.instance.subscribeToTopic("test");
   FlutterForegroundTask.initCommunicationPort();

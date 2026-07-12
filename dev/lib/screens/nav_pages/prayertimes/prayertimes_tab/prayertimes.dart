@@ -196,9 +196,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> _initialize() async {
-    _startTimer();
     await _initIqamaAndFridaysTimes();
     await loadCSV();
+    _startTimer(); // start only after csvData is populated
 
     await startPrayerNotificationService();
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
@@ -348,31 +348,64 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> loadCSV() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File("${dir.path}/prayer_times.csv");
+    String? rawData;
 
-    final rawData = await file.readAsString();
-
-    final lines = LineSplitter.split(rawData).toList();
-    final headers = lines.first.split(',');
-
-    final List<Map<String, String>> rows = [];
-
-    for (var i = 1; i < lines.length; i++) {
-      final values = lines[i].split(',');
-
-      final Map<String, String> row = {};
-
-      for (var j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j];
+    // 1. Try reading the cached file from the documents directory.
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File("${dir.path}/prayer_times.csv");
+      if (await file.exists()) {
+        rawData = await file.readAsString();
       }
-
-      rows.add(row);
+    } catch (e) {
+      debugPrint('loadCSV: reading cached file failed: $e');
     }
 
-    setState(() {
-      csvData = rows;
-    });
+    // 2. If cache is missing, try downloading from Firebase Storage.
+    if (rawData == null || rawData.isEmpty) {
+      try {
+        await prayerTimesHelper.ensureCSVIsCached();
+        final dir = await getApplicationDocumentsDirectory();
+        final file = File("${dir.path}/prayer_times.csv");
+        rawData = await file.readAsString();
+      } catch (e) {
+        debugPrint('loadCSV: Firebase download failed: $e');
+      }
+    }
+
+    // 3. Last resort: use the bundled asset (always available, no network needed).
+    if (rawData == null || rawData.isEmpty) {
+      try {
+        rawData = await rootBundle.loadString(
+          'assets/files/csv_files/prayer_times.csv',
+        );
+        debugPrint('loadCSV: using bundled asset as fallback');
+      } catch (e) {
+        debugPrint('loadCSV: even asset failed: $e');
+        return;
+      }
+    }
+
+    try {
+      final lines = LineSplitter.split(rawData).toList();
+      if (lines.length < 2) return;
+
+      final headers = lines.first.split(',');
+      final List<Map<String, String>> rows = [];
+
+      for (var i = 1; i < lines.length; i++) {
+        final values = lines[i].split(',');
+        final Map<String, String> row = {};
+        for (var j = 0; j < headers.length && j < values.length; j++) {
+          row[headers[j]] = values[j];
+        }
+        rows.add(row);
+      }
+
+      if (mounted) setState(() => csvData = rows);
+    } catch (e) {
+      debugPrint('loadCSV: parsing failed: $e');
+    }
   }
 
   String _showNextPrayer() {
@@ -449,6 +482,34 @@ class _PrayerTimesState extends State<PrayerTimes> {
       }
     }
 
+    // Before Fajr (i == 0): next is set but previous was never assigned.
+    // Use yesterday's Isha as the interval start.
+    if (next != null && previous == null) {
+      final yesterday = now.subtract(const Duration(days: 1));
+      final yesterdayStr = DateFormat('dd.MM.yyyy').format(yesterday);
+      final yesterdayRow = csvData.firstWhere(
+        (row) => row['Date'] == yesterdayStr,
+        orElse: () => {},
+      );
+      final ishaTimeStr = yesterdayRow['Isha'];
+      if (ishaTimeStr != null) {
+        final ishaParts = ishaTimeStr.split(':');
+        previous = MapEntry(
+          "Isha",
+          DateTime(
+            yesterday.year,
+            yesterday.month,
+            yesterday.day,
+            int.parse(ishaParts[0]),
+            int.parse(ishaParts[1]),
+          ),
+        );
+      } else {
+        // Fallback: midnight (start of today)
+        previous = MapEntry("Isha", DateTime(now.year, now.month, now.day, 0, 0));
+      }
+    }
+
     if (next == null) {
       final tomorrow = DateTime.now().add(const Duration(days: 1));
 
@@ -476,6 +537,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
         ),
       );
 
+      if (prayers.isEmpty) return {};
       previous = prayers.last;
     }
 
@@ -499,7 +561,8 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
     final tomorrowDate = now.add(Duration(days: 1));
     final fajrTimeStr = tomorrowRow['Fajr'];
-    final fajrTimeParts = fajrTimeStr!.split(':');
+    if (fajrTimeStr == null) return Duration.zero;
+    final fajrTimeParts = fajrTimeStr.split(':');
     final fajrPrayTime = DateTime(
       tomorrowDate.year,
       tomorrowDate.month,
@@ -1327,10 +1390,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
 // Here, user can modify its notifications for all the 5 prayers
 class NotificationSettings extends StatelessWidget {
-  late final String name;
-  List<Map<String, String>> csvData;
-  SchedulerHelper schedulerHelper = SchedulerHelper();
-  PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
+  final String name;
+  final List<Map<String, String>> csvData;
+  final SchedulerHelper schedulerHelper = SchedulerHelper();
+  final PrayerTimesHelper prayerTimesHelper = PrayerTimesHelper();
   NotificationSettings({
     super.key,
     required this.context,
