@@ -1,15 +1,18 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String _kQiblahCacheKey = 'qiblah_v2_bearing';
 
-// Shortest-path angle interpolation (handles 359° → 1° correctly).
 double _lerpAngle(double from, double to, double t) {
   double diff = (to - from) % 360;
   if (diff > 180) diff -= 360;
@@ -17,7 +20,7 @@ double _lerpAngle(double from, double to, double t) {
   return from + diff * t;
 }
 
-// ─── Entry point ─────────────────────────────────────────────────────────────
+// ─── Entry point ──────────────────────────────────────────────────────────────
 
 class QiblahScreen extends StatefulWidget {
   const QiblahScreen({super.key});
@@ -41,7 +44,6 @@ class _QiblahScreenState extends State<QiblahScreen> {
     if (!mounted) return;
     setState(() => _perm = _PermState.checking);
 
-    // Android-only check — iOS always has a magnetometer.
     if (Platform.isAndroid) {
       final ok = await FlutterQiblah.androidDeviceSensorSupport() ?? false;
       if (!ok) {
@@ -88,19 +90,56 @@ class _QiblahScreenState extends State<QiblahScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? [const Color(0xff091a09), const Color(0xff1c1c1c)]
-                : [const Color(0xffe8f5e9), const Color(0xfffafafa)],
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new,
+              color: BColors.primary, size: 18.sp),
+          onPressed: () => Navigator.maybePop(context),
+        ),
+        title: Text(
+          'Qibla Kompass',
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
           ),
         ),
-        child: SafeArea(child: _body(isDark)),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline_rounded,
+                color: BColors.primary, size: 22.sp),
+            onPressed: () => _showCalibrationTip(context),
+          ),
+        ],
+      ),
+      body: _body(isDark),
+    );
+  }
+
+  void _showCalibrationTip(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        title: const Text('Kalibrierung'),
+        content: const Text(
+          'Bewege dein Gerät in einer liegenden 8-Form, um den Kompass zu '
+          'kalibrieren. Halte das Gerät dabei flach.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK', style: TextStyle(color: BColors.primary)),
+          ),
+        ],
       ),
     );
   }
@@ -113,14 +152,14 @@ class _QiblahScreenState extends State<QiblahScreen> {
         return _QiblahCompass(isDark: isDark);
       case _PermState.locationOff:
         return _ErrorView(
-          icon: Icons.location_off,
+          icon: Icons.location_off_rounded,
           title: 'Standortdienst deaktiviert',
           message: 'Bitte aktiviere den Standortdienst auf deinem Gerät.',
           onAction: _init,
         );
       case _PermState.denied:
         return _ErrorView(
-          icon: Icons.location_off,
+          icon: Icons.location_off_rounded,
           title: 'Standortberechtigung abgelehnt',
           message:
               'Bitte erlaube der App den Zugriff auf deinen Standort, um die Qibla-Richtung zu berechnen.',
@@ -128,7 +167,7 @@ class _QiblahScreenState extends State<QiblahScreen> {
         );
       case _PermState.deniedForever:
         return _ErrorView(
-          icon: Icons.location_disabled,
+          icon: Icons.location_disabled_rounded,
           title: 'Berechtigung dauerhaft verweigert',
           message:
               'Öffne die App-Einstellungen und erlaube den Standortzugriff.',
@@ -140,7 +179,7 @@ class _QiblahScreenState extends State<QiblahScreen> {
         );
       case _PermState.noSensor:
         return _ErrorView(
-          icon: Icons.explore_off,
+          icon: Icons.explore_off_rounded,
           title: 'Kein Kompasssensor',
           message: 'Dein Gerät unterstützt keinen Magnetometer-Sensor.',
           onAction: _init,
@@ -149,7 +188,7 @@ class _QiblahScreenState extends State<QiblahScreen> {
   }
 }
 
-// ─── Compass ─────────────────────────────────────────────────────────────────
+// ─── Compass widget ───────────────────────────────────────────────────────────
 
 class _QiblahCompass extends StatefulWidget {
   const _QiblahCompass({required this.isDark});
@@ -164,51 +203,49 @@ class _QiblahCompassState extends State<_QiblahCompass>
   late final AnimationController _ticker;
   StreamSubscription<QiblahDirection>? _sub;
 
-  // Raw targets received from the sensor stream
-  double _targetDir = 0;
-  double _targetQiblah = 0;
-  double _liveOffset = 0;
-
-  // Smoothly interpolated display values (updated on every tick)
+  // Smoothed display values
   double _dir = 0;
+  double _offset = 0;
   double _qiblah = 0;
+
+  // Raw targets
+  double _targetDir = 0;
+  double _targetOffset = 0;
+  double _targetQiblah = 0;
 
   bool _hasLiveData = false;
   double? _lastSaved;
+  DateTime? _lastUpdate;
+  Position? _position;
 
   @override
   void initState() {
     super.initState();
-    _loadCachedQiblah(); // show last-known bearing before first GPS fix
+    _loadCachedQiblah();
+    _loadPosition();
 
-    // AnimationController used as a 60-fps ticker only — duration is irrelevant.
-    _ticker = AnimationController(
-      vsync: this,
-      duration: const Duration(days: 1),
-    )
-      ..repeat()
-      ..addListener(_tick);
+    // Ticker drives AnimatedBuilder for compass only — no full-widget setState
+    _ticker =
+        AnimationController(vsync: this, duration: const Duration(days: 1))
+          ..repeat();
 
     _sub = FlutterQiblah.qiblahStream.listen(_onData);
   }
 
-  void _tick() {
-    setState(() {
-      _dir = _lerpAngle(_dir, _targetDir, 0.14);
-      _qiblah = _lerpAngle(_qiblah, _targetQiblah, 0.14);
-    });
-  }
-
   void _onData(QiblahDirection data) {
     if (!_hasLiveData) {
-      // Snap to first reading so there is no long animation from 0.
+      // Snap lerped values to first reading so compass doesn't sweep from 0°
       _dir = data.direction;
+      _offset = data.offset;
       _qiblah = data.qiblah;
       _hasLiveData = true;
     }
-    _targetDir = data.direction;
-    _targetQiblah = data.qiblah;
-    _liveOffset = data.offset;
+    setState(() {
+      _targetDir = data.direction;
+      _targetOffset = data.offset;
+      _targetQiblah = data.qiblah;
+      _lastUpdate = DateTime.now();
+    });
     _maybeSave(data.qiblah);
   }
 
@@ -223,8 +260,13 @@ class _QiblahCompassState extends State<_QiblahCompass>
     }
   }
 
-  // Only write to disk when the bearing shifts by more than 1° (avoids
-  // constant IO from minor sensor noise while holding the phone still).
+  Future<void> _loadPosition() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition();
+      if (mounted) setState(() => _position = pos);
+    } catch (_) {}
+  }
+
   void _maybeSave(double qiblah) async {
     if (_lastSaved != null && (qiblah - _lastSaved!).abs() < 1) return;
     _lastSaved = qiblah;
@@ -239,124 +281,389 @@ class _QiblahCompassState extends State<_QiblahCompass>
     super.dispose();
   }
 
+  double? get _distanceKm {
+    if (_position == null) return null;
+    return Geolocator.distanceBetween(
+            _position!.latitude, _position!.longitude, 21.4225, 39.8262) /
+        1000;
+  }
+
+  String _accuracyLabel() {
+    if (_position == null || !_hasLiveData) return '–';
+    final acc = _position!.accuracy;
+    if (acc <= 15) return 'Sehr hoch';
+    if (acc <= 50) return 'Hoch';
+    if (acc <= 150) return 'Mittel';
+    return 'Niedrig';
+  }
+
+  String _lastUpdateLabel() {
+    if (_lastUpdate == null) return 'Ausstehend';
+    final diff = DateTime.now().difference(_lastUpdate!);
+    if (diff.inSeconds < 5) return 'Gerade eben';
+    if (diff.inSeconds < 60) return 'Vor ${diff.inSeconds}s';
+    return 'Vor ${diff.inMinutes} min';
+  }
+
+  String _directionLabel() {
+    final d = ((_qiblah % 360) + 360) % 360;
+    if (d < 22.5) return 'Nördlich';
+    if (d < 67.5) return 'Nordöstlich';
+    if (d < 112.5) return 'Östlich';
+    if (d < 157.5) return 'Südöstlich';
+    if (d < 202.5) return 'Südlich';
+    if (d < 247.5) return 'Südwestlich';
+    if (d < 292.5) return 'Westlich';
+    if (d < 337.5) return 'Nordwestlich';
+    return 'Nördlich';
+  }
+
+  String _formatDistance(double km) {
+    final i = km.round();
+    if (i >= 1000) {
+      return '${i ~/ 1000}.${(i % 1000).toString().padLeft(3, '0')} km';
+    }
+    return '$i km';
+  }
+
+  String? _guessCountry() {
+    final pos = _position;
+    if (pos == null) return null;
+    if (pos.latitude >= 47 &&
+        pos.latitude <= 55 &&
+        pos.longitude >= 6 &&
+        pos.longitude <= 15) {
+      return 'Deutschland';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final aligned = _hasLiveData && _liveOffset.abs() < 5;
     final isDark = widget.isDark;
-    final textColor = isDark ? Colors.white : const Color(0xff1b5e20);
+    final green = BColors.primary;
 
-    return Column(
-      children: [
-        // ── Header ──────────────────────────────────────────────────────────
-        const SizedBox(height: 22),
-        Text(
-          'Qibla Kompass',
-          style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-            letterSpacing: 0.4,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          'Richtung zur Kaaba in Mekka',
-          style: TextStyle(
-            fontSize: 13,
-            color: isDark ? Colors.green.shade300 : Colors.green.shade700,
-          ),
-        ),
-        const SizedBox(height: 20),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(height: 16.h),
 
-        // ── Compass ──────────────────────────────────────────────────────────
-        Expanded(
-          child: Center(
-            child: LayoutBuilder(
-              builder: (_, constraints) {
-                final size = constraints.maxWidth.clamp(0.0, 360.0);
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    width: size,
-                    height: size,
-                    child: CustomPaint(
-                      painter: _QiblahPainter(
-                        direction: _dir,
-                        qiblah: _qiblah,
-                        isDark: isDark,
-                      ),
-                    ),
-                  ),
+          // ── Location card ────────────────────────────────────────────────
+          _locationCard(isDark, green),
+          SizedBox(height: 18.h),
+
+          // ── Compass ──────────────────────────────────────────────────────
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: LayoutBuilder(builder: (_, c) {
+                final size = c.maxWidth;
+                // AnimatedBuilder rebuilds only this subtree at 60fps,
+                // leaving the SingleChildScrollView scroll-position untouched.
+                return AnimatedBuilder(
+                  animation: _ticker,
+                  builder: (_, __) {
+                    _dir = _lerpAngle(_dir, _targetDir, 0.14);
+                    _qiblah = _lerpAngle(_qiblah, _targetQiblah, 0.14);
+                    _offset = _lerpAngle(_offset, _targetOffset, 0.14);
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: Size(size, size),
+                          painter: _QiblahPainter(
+                            direction: _dir,
+                            qiblah: _qiblah,
+                            isDark: isDark,
+                          ),
+                        ),
+                        // BBF logo overlay in center
+                        Container(
+                          width: size * 0.18,
+                          height: size * 0.18,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1F2937)
+                                : Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(3.r),
+                          child: Image.asset(
+                            'assets/images/bbf-logo.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
-              },
+              }),
             ),
           ),
-        ),
+          SizedBox(height: 16.h),
 
-        // ── Status area ──────────────────────────────────────────────────────
-        const SizedBox(height: 24),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          child: !_hasLiveData
-              ? Row(
-                  key: const ValueKey('loading'),
-                  mainAxisAlignment: MainAxisAlignment.center,
+          // ── Direction card ───────────────────────────────────────────────
+          _directionCard(isDark, green),
+          SizedBox(height: 12.h),
+
+          // ── Stats row ────────────────────────────────────────────────────
+          _statsRow(isDark, green),
+          SizedBox(height: 120.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _locationCard(bool isDark, Color green) {
+    final pos = _position;
+    final coordText = pos != null
+        ? '${pos.latitude.abs().toStringAsFixed(4)}° ${pos.latitude >= 0 ? 'N' : 'S'}'
+            '  ${pos.longitude.abs().toStringAsFixed(4)}° ${pos.longitude >= 0 ? 'O' : 'W'}'
+        : 'Standort wird ermittelt…';
+    final country = _guessCountry();
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isDark ? BColors.prayerRowDark : Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.15 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42.r,
+              height: 42.r,
+              decoration: BoxDecoration(
+                color: green.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child:
+                  Icon(Icons.location_on_rounded, color: green, size: 20.sp),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dein Standort',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      color: green,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    coordText,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          isDark ? Colors.white : const Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  if (country != null)
+                    Text(
+                      country,
+                      style: TextStyle(
+                          fontSize: 12.sp, color: Colors.grey.shade500),
+                    ),
+                ],
+              ),
+            ),
+            Image.asset(
+              'assets/images/bbf-logo.png',
+              width: 52.r,
+              height: 52.r,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _directionCard(bool isDark, Color green) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: green.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Row(
+          children: [
+            _kaabaWidget(44.r),
+            SizedBox(width: 14.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Richtung zur Kaaba',
+                  style: TextStyle(
+                      fontSize: 12.sp, color: Colors.grey.shade600),
+                ),
+                SizedBox(height: 2.h),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.green.shade400,
+                    Text(
+                      '${((_qiblah % 360 + 360) % 360).toStringAsFixed(0)}°',
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w800,
+                        color: green,
+                        height: 1,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 6.w),
                     Text(
-                      'Kompass wird kalibriert…',
+                      _directionLabel(),
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
-                  key: const ValueKey('live'),
-                  children: [
-                    Icon(
-                      aligned ? Icons.check_circle_rounded : Icons.explore,
-                      color: aligned ? Colors.green : Colors.grey,
-                      size: 28,
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      aligned ? 'Du zeigst zur Qibla ✓' : 'Richtung zur Qibla',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: aligned
-                            ? Colors.green
-                            : (isDark ? Colors.white : Colors.black87),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${_liveOffset.abs().toStringAsFixed(1)}°',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF374151),
                       ),
                     ),
                   ],
                 ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 36),
-      ],
+      ),
+    );
+  }
+
+  Widget _statsRow(bool isDark, Color green) {
+    final dist = _distanceKm;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        children: [
+          _statCard(
+            isDark: isDark,
+            green: green,
+            icon: Icons.gps_fixed_rounded,
+            label: 'Genauigkeit',
+            value: _accuracyLabel(),
+          ),
+          SizedBox(width: 8.w),
+          _statCard(
+            isDark: isDark,
+            green: green,
+            icon: Icons.navigation_rounded,
+            label: 'Entfernung',
+            value: dist != null ? _formatDistance(dist) : '–',
+          ),
+          SizedBox(width: 8.w),
+          _statCard(
+            isDark: isDark,
+            green: green,
+            icon: Icons.history_rounded,
+            label: 'Letzte Update',
+            value: _lastUpdateLabel(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statCard({
+    required bool isDark,
+    required Color green,
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isDark ? BColors.prayerRowDark : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32.r,
+              height: 32.r,
+              decoration: BoxDecoration(
+                color: green.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: green, size: 16.sp),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              label,
+              style:
+                  TextStyle(fontSize: 10.sp, color: Colors.grey.shade500),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w700,
+                color: green,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _kaabaWidget(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1a1a2e),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: CustomPaint(
+          size: Size(size * 0.55, size * 0.55),
+          painter: _KaabaIconPainter(),
+        ),
+      ),
     );
   }
 }
 
-// ─── Painter ─────────────────────────────────────────────────────────────────
+// ─── Compass painter ──────────────────────────────────────────────────────────
 
 class _QiblahPainter extends CustomPainter {
   const _QiblahPainter({
@@ -371,55 +678,70 @@ class _QiblahPainter extends CustomPainter {
 
   static const double _deg = pi / 180;
 
+  Color get _green =>
+      isDark ? const Color(0xFF4ADE80) : Colors.green;
+  Color get _bg => isDark ? const Color(0xFF111827) : Colors.white;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final r = size.width / 2;
     final paint = Paint();
 
-    // ── Background circle ─────────────────────────────────────────────────
-    paint.color = isDark ? const Color(0xff0f230f) : const Color(0xfff0faf0);
+    // Background
+    paint
+      ..color = _bg
+      ..style = PaintingStyle.fill;
     canvas.drawCircle(center, r, paint);
 
-    // Subtle inner ring
-    paint
-      ..color = (isDark ? Colors.green.shade900 : Colors.green.shade100)
-          .withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = r * 0.04;
-    canvas.drawCircle(center, r * 0.88, paint);
-    paint.style = PaintingStyle.fill;
-
-    // ── Compass face — rotates with the device ────────────────────────────
+    // Compass face — rotates with device so N always tracks real North
     canvas.save();
     canvas.translate(center.dx, center.dy);
     canvas.rotate(-direction * _deg);
+    _drawIslamicStar(canvas, r);
     _drawFace(canvas, r);
     canvas.restore();
 
-    // ── Qibla arrow — stays pointing at Mecca regardless of rotation ──────
+    // Qibla needle
     canvas.save();
     canvas.translate(center.dx, center.dy);
     canvas.rotate(-qiblah * _deg);
-    _drawArrow(canvas, r);
+    _drawNeedle(canvas, r);
     canvas.restore();
 
-    // ── Center knob ───────────────────────────────────────────────────────
-    paint.color = isDark ? const Color(0xff1a3a1a) : Colors.white;
-    canvas.drawCircle(center, r * 0.07, paint);
-    paint.color = Colors.green.shade600;
-    canvas.drawCircle(center, r * 0.045, paint);
-
-    // ── Outer border ──────────────────────────────────────────────────────
+    // Outer ring
     paint
-      ..color = isDark ? Colors.green.shade800 : Colors.green.shade300
+      ..color = _green
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawCircle(center, r - 1, paint);
+      ..strokeWidth = r * 0.022;
+    canvas.drawCircle(center, r - r * 0.011, paint);
+    paint.style = PaintingStyle.fill;
   }
 
-  // Draws compass rose (tick marks + cardinal labels) in compass-local space.
-  // The canvas is already translated to center and rotated by -direction.
+  void _drawIslamicStar(Canvas canvas, double r) {
+    final paint = Paint()
+      ..color = (isDark ? Colors.white : Colors.grey.shade400)
+          .withOpacity(isDark ? 0.04 : 0.08)
+      ..style = PaintingStyle.fill;
+
+    final starR = r * 0.44;
+    const spikes = 8;
+    final path = Path();
+    for (int i = 0; i < spikes * 2; i++) {
+      final angle = i * pi / spikes - pi / 2;
+      final radius = i.isEven ? starR : starR * 0.42;
+      final x = cos(angle) * radius;
+      final y = sin(angle) * radius;
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
   void _drawFace(Canvas canvas, double r) {
     final tick = Paint()
       ..style = PaintingStyle.stroke
@@ -427,29 +749,29 @@ class _QiblahPainter extends CustomPainter {
 
     for (int i = 0; i < 72; i++) {
       final angle = i * 5 * _deg;
-      final isCardinal = i % 18 == 0; // 0°, 90°, 180°, 270°
-      final isMajor = i % 9 == 0; // intercardinal 45°, 135°, etc.
+      final isCardinal = i % 18 == 0;
+      final isMedium = i % 6 == 0;
 
-      final outerR = r * 0.95;
+      final outerR = r * 0.93;
       final tickLen = isCardinal
-          ? r * 0.14
-          : isMajor
-              ? r * 0.09
-              : r * 0.05;
+          ? r * 0.11
+          : isMedium
+              ? r * 0.07
+              : r * 0.04;
 
       tick
         ..color = isCardinal
-            ? (i == 0
-                ? Colors.red.shade400
-                : (isDark ? Colors.white : Colors.black87))
-            : (isDark
-                ? Colors.white.withValues(alpha: 0.25)
-                : Colors.black.withValues(alpha: 0.2))
-        ..strokeWidth = isCardinal
-            ? 2.8
-            : isMajor
-                ? 1.5
-                : 1.0;
+            ? (isDark
+                ? Colors.white.withOpacity(0.45)
+                : Colors.grey.shade400)
+            : isMedium
+                ? (isDark
+                    ? Colors.white.withOpacity(0.18)
+                    : Colors.grey.shade300)
+                : (isDark
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.grey.shade200)
+        ..strokeWidth = isCardinal ? 2.0 : isMedium ? 1.4 : 0.9;
 
       final s = sin(angle);
       final c = cos(angle);
@@ -460,19 +782,31 @@ class _QiblahPainter extends CustomPainter {
       );
     }
 
-    // Cardinal labels — counter-rotated so text stays upright on screen.
-    _drawLabel(canvas, 'N', 0, r, Colors.red.shade400, 20, FontWeight.bold);
-    _drawLabel(canvas, 'O', pi / 2, r,
-        isDark ? Colors.white70 : Colors.black54, 15, FontWeight.w600);
+    // North indicator triangle
+    final triPaint = Paint()
+      ..color = _green
+      ..style = PaintingStyle.fill;
+    final triPath = Path()
+      ..moveTo(0, -r * 0.895)
+      ..lineTo(-r * 0.032, -r * 0.785)
+      ..lineTo(r * 0.032, -r * 0.785)
+      ..close();
+    canvas.drawPath(triPath, triPaint);
+
+    // Cardinal labels
+    _drawLabel(canvas, 'N', 0, r,
+        isDark ? Colors.white : const Color(0xFF1F2937), 18, FontWeight.bold);
+    _drawLabel(canvas, 'E', pi / 2, r,
+        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
     _drawLabel(canvas, 'S', pi, r,
-        isDark ? Colors.white70 : Colors.black54, 15, FontWeight.w600);
+        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
     _drawLabel(canvas, 'W', 3 * pi / 2, r,
-        isDark ? Colors.white70 : Colors.black54, 15, FontWeight.w600);
+        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
   }
 
   void _drawLabel(Canvas canvas, String text, double angle, double r,
       Color color, double fontSize, FontWeight weight) {
-    final labelR = r * 0.73;
+    final labelR = r * 0.68;
     final x = labelR * sin(angle);
     final y = -labelR * cos(angle);
 
@@ -480,114 +814,135 @@ class _QiblahPainter extends CustomPainter {
       text: TextSpan(
         text: text,
         style: TextStyle(
-          color: color,
-          fontSize: fontSize,
-          fontWeight: weight,
-          height: 1,
-        ),
+            color: color,
+            fontSize: fontSize,
+            fontWeight: weight,
+            height: 1),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
 
     canvas.save();
     canvas.translate(x, y);
-    // Cancel the outer -direction rotation so the label reads upright.
     canvas.rotate(direction * _deg);
     tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
     canvas.restore();
   }
 
-  // Draws the Qibla arrow in compass-local space already rotated to -qiblah.
-  // The tip of the arrow points toward the top of this local space = Mecca.
-  void _drawArrow(Canvas canvas, double r) {
-    final len = r * 0.74;
-    final w = r * 0.08;
-    final paint = Paint();
+  void _drawNeedle(Canvas canvas, double r) {
+    final len = r * 0.72;
+    final w = r * 0.055;
+    final paint = Paint()..style = PaintingStyle.fill;
 
-    // Drop shadow
-    final shadowPath = Path()
-      ..moveTo(0, -len)
-      ..lineTo(-w, -len * 0.28)
-      ..lineTo(-w * 0.45, 0)
-      ..lineTo(w * 0.45, 0)
-      ..lineTo(w, -len * 0.28)
+    // Counter-needle (gray)
+    final counterPath = Path()
+      ..moveTo(0, len * 0.52)
+      ..lineTo(-w * 0.8, len * 0.12)
+      ..lineTo(-w * 0.38, 0)
+      ..lineTo(w * 0.38, 0)
+      ..lineTo(w * 0.8, len * 0.12)
       ..close();
+    paint.color = isDark ? Colors.grey.shade700 : Colors.grey.shade300;
+    canvas.drawPath(counterPath, paint);
+    paint
+      ..color = isDark ? Colors.grey.shade600 : Colors.grey.shade400
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+    canvas.drawPath(counterPath, paint);
+    paint.style = PaintingStyle.fill;
+
+    // Drop shadow for green needle
     canvas.drawPath(
-      shadowPath,
+      Path()
+        ..moveTo(0, -len)
+        ..lineTo(-w, -len * 0.25)
+        ..lineTo(-w * 0.4, 0)
+        ..lineTo(w * 0.4, 0)
+        ..lineTo(w, -len * 0.25)
+        ..close(),
       Paint()
-        ..color = Colors.black.withValues(alpha: 0.25)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+        ..color = Colors.black.withOpacity(0.18)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
 
-    // Arrow body (dark green base)
+    // Green needle body
     final arrowPath = Path()
       ..moveTo(0, -len)
-      ..lineTo(-w, -len * 0.28)
-      ..lineTo(-w * 0.45, 0)
-      ..lineTo(w * 0.45, 0)
-      ..lineTo(w, -len * 0.28)
+      ..lineTo(-w, -len * 0.25)
+      ..lineTo(-w * 0.4, 0)
+      ..lineTo(w * 0.4, 0)
+      ..lineTo(w, -len * 0.25)
       ..close();
 
-    paint
-      ..color = Colors.green.shade700
-      ..style = PaintingStyle.fill;
+    paint.color =
+        isDark ? const Color(0xFF166534) : const Color(0xFF15803D);
     canvas.drawPath(arrowPath, paint);
 
-    // Bright highlight on upper half
-    final highlightPath = Path()
-      ..moveTo(0, -len)
-      ..lineTo(-w, -len * 0.28)
-      ..lineTo(0, -len * 0.28)
-      ..close();
-    paint.color = Colors.green.shade400;
-    canvas.drawPath(highlightPath, paint);
+    // Highlight
+    paint.color =
+        isDark ? const Color(0xFF4ADE80) : const Color(0xFF22C55E);
+    canvas.drawPath(
+      Path()
+        ..moveTo(0, -len)
+        ..lineTo(-w, -len * 0.25)
+        ..lineTo(0, -len * 0.25)
+        ..close(),
+      paint,
+    );
 
-    // Arrow outline
+    // Needle outline
     paint
-      ..color = Colors.green.shade900
+      ..color = isDark
+          ? const Color(0xFF14532D)
+          : const Color(0xFF166534)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
       ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(arrowPath, paint);
     paint.style = PaintingStyle.fill;
 
-    // ── Kaaba icon at the tip ─────────────────────────────────────────────
-    final kSize = r * 0.095;
-    final kTop = -len - kSize * 0.5;
+    // Kaaba marker at needle tip
+    final kR = r * 0.09;
+    final kCenter = Offset(0, -len - kR * 0.2);
 
-    // Black cube body
-    paint.color = const Color(0xff1a1a1a);
+    paint.color = Colors.white;
+    canvas.drawCircle(kCenter, kR, paint);
+
+    paint
+      ..color = _green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kR * 0.22;
+    canvas.drawCircle(kCenter, kR * 0.87, paint);
+    paint.style = PaintingStyle.fill;
+
+    final kBW = kR * 0.78;
+    final kBH = kR * 0.68;
+    paint.color = const Color(0xFF1a1a1a);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(0, kTop),
-          width: kSize,
-          height: kSize,
-        ),
-        Radius.circular(kSize * 0.15),
+        Rect.fromCenter(center: kCenter, width: kBW, height: kBH),
+        Radius.circular(kR * 0.1),
       ),
       paint,
     );
 
-    // Golden door (Bab al-Tawbah)
-    paint.color = const Color(0xffD4A017);
+    paint.color = const Color(0xFFD4A017);
     canvas.drawRect(
       Rect.fromCenter(
-        center: Offset(0, kTop + kSize * 0.15),
-        width: kSize * 0.3,
-        height: kSize * 0.45,
+        center: Offset(kCenter.dx, kCenter.dy + kBH * 0.1),
+        width: kBW * 0.28,
+        height: kBH * 0.45,
       ),
       paint,
     );
 
-    // White Kiswa stripe
     paint
-      ..color = Colors.white.withValues(alpha: 0.25)
+      ..color = Colors.white.withOpacity(0.28)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = kSize * 0.1;
+      ..strokeWidth = kR * 0.09;
     canvas.drawLine(
-      Offset(-kSize * 0.45, kTop - kSize * 0.05),
-      Offset(kSize * 0.45, kTop - kSize * 0.05),
+      Offset(kCenter.dx - kBW * 0.4, kCenter.dy - kBH * 0.08),
+      Offset(kCenter.dx + kBW * 0.4, kCenter.dy - kBH * 0.08),
       paint,
     );
     paint.style = PaintingStyle.fill;
@@ -600,7 +955,43 @@ class _QiblahPainter extends CustomPainter {
       isDark != old.isDark;
 }
 
-// ─── Error / permission view ──────────────────────────────────────────────────
+// ─── Kaaba icon painter (for direction card) ──────────────────────────────────
+
+class _KaabaIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    paint.color = const Color(0xFF1a1a1a);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, h * 0.1, w, h * 0.9),
+        Radius.circular(w * 0.08),
+      ),
+      paint,
+    );
+
+    paint.color = const Color(0xFFD4A017);
+    canvas.drawRect(
+      Rect.fromLTWH(w * 0.35, h * 0.48, w * 0.3, h * 0.52),
+      paint,
+    );
+
+    paint
+      ..color = Colors.white.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = h * 0.07;
+    canvas.drawLine(Offset(0, h * 0.36), Offset(w, h * 0.36), paint);
+    paint.style = PaintingStyle.fill;
+  }
+
+  @override
+  bool shouldRepaint(_KaabaIconPainter old) => false;
+}
+
+// ─── Error view ───────────────────────────────────────────────────────────────
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({
@@ -621,41 +1012,39 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 36),
+        padding: EdgeInsets.symmetric(horizontal: 36.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 80, color: Colors.red.shade400),
-            const SizedBox(height: 24),
+            Icon(icon, size: 72.sp, color: Colors.red.shade400),
+            SizedBox(height: 20.h),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style:
+                  TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 10.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              style:
+                  TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: onAction,
-              icon: Icon(actionLabel != null ? Icons.settings : Icons.refresh),
+              icon: Icon(actionLabel != null
+                  ? Icons.settings_rounded
+                  : Icons.refresh_rounded),
               label: Text(actionLabel ?? 'Erneut versuchen'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: BColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 24.w, vertical: 12.h),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
             ),
           ],

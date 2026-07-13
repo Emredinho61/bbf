@@ -27,7 +27,7 @@ main() async {
 
   // get prayertimes CSV file either from storage or cache
   try {
-    await ensureCSVIsCached();
+    await ensureCSVIsCached().timeout(const Duration(seconds: 6));
   } catch (e) {
     debugPrint('CSV download failed (will retry on next launch): $e');
   }
@@ -37,7 +37,7 @@ main() async {
 
   // initialize all Notification settings
   try {
-    await setupNotifications();
+    await setupNotifications().timeout(const Duration(seconds: 8));
   } catch (e) {
     debugPrint('Notification setup failed: $e');
   }
