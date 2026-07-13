@@ -71,38 +71,45 @@ class _NavBarShellState extends State<NavBarShell> {
     return Scaffold(
       extendBody: true,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _selectedIndex,
-        backgroundColor: Colors.transparent,
-        color: backgroundColor,
-        buttonBackgroundColor: activeColor,
-        animationDuration: const Duration(milliseconds: 350),
-        onTap: _onItemTapped,
-        items: [
-          Icon(
-            Icons.work_outline,
-            color: _isActive(0) ? Colors.white : inactiveColor,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CurvedNavigationBar(
+            index: _selectedIndex,
+            backgroundColor: Colors.transparent,
+            color: backgroundColor,
+            buttonBackgroundColor: activeColor,
+            animationDuration: const Duration(milliseconds: 350),
+            onTap: _onItemTapped,
+            items: [
+              Icon(
+                Icons.work_outline,
+                color: _isActive(0) ? Colors.white : inactiveColor,
+              ),
+              Icon(
+                Icons.construction,
+                color: _isActive(1) ? Colors.white : inactiveColor,
+              ),
+              Icon(
+                Icons.access_time_outlined,
+                size: 30.sp,
+                color: _isActive(2) ? Colors.white : inactiveColor,
+              ),
+              Icon(
+                Icons.explore_outlined,
+                color: _isActive(3) ? Colors.white : inactiveColor,
+              ),
+              Icon(
+                Icons.menu_outlined,
+                color: _isActive(4) ? Colors.white : inactiveColor,
+              ),
+            ],
           ),
-
-          Icon(
-            Icons.construction,
-            color: _isActive(1) ? Colors.white : inactiveColor,
-          ),
-
-          Icon(
-            Icons.access_time_outlined,
-            size: 30.sp,
-            color: _isActive(2) ? Colors.white : inactiveColor,
-          ),
-
-          Icon(
-            Icons.explore_outlined,
-            color: _isActive(3) ? Colors.white : inactiveColor,
-          ),
-
-          Icon(
-            Icons.menu_outlined,
-            color: _isActive(4) ? Colors.white : inactiveColor,
+          // Fills the Android system navigation bar area so it doesn't
+          // overlap with the app nav bar on edge-to-edge Android devices.
+          Container(
+            height: MediaQuery.viewPaddingOf(context).bottom,
+            color: backgroundColor,
           ),
         ],
       ),
