@@ -1,6 +1,18 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+const _kTeal = PdfColor(0.05, 0.26, 0.20); // header + footer dark teal
+const _kMonthBar = PdfColor(0.08, 0.20, 0.16); // month bar, slightly darker
+const _kMonthBadge = PdfColor(0.04, 0.14, 0.11); // day-number badge
+const _kAccentGreen = PdfColor(0.13, 0.55, 0.33); // logo circle accent
+const _kFridayRow = PdfColor(0.82, 0.94, 0.84); // Friday highlight
+const _kAltRow = PdfColor(0.96, 0.98, 0.96); // alternating row tint
+const _kBorder = PdfColor(0.78, 0.78, 0.78); // table grid
 
 Future<void> generateMonthlyPrayerPdf(
   List<Map<String, String>> csvData,
@@ -9,183 +21,310 @@ Future<void> generateMonthlyPrayerPdf(
   int month,
   int year,
 ) async {
-  final pdf = pw.Document();
+  // ── Fonts ────────────────────────────────────────────────────────────────
+  final latin = await PdfGoogleFonts.notoSansRegular();
+  final latinBold = await PdfGoogleFonts.notoSansBold();
+  final arabic = await PdfGoogleFonts.notoNaskhArabicRegular();
 
-  final selectedMonth = month;
-  final selectedYear = year;
+  // ── Logo asset ───────────────────────────────────────────────────────────
+  final logoData = await rootBundle.load('assets/images/bbf-logo.png');
+  final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
 
-  final monthRows = csvData.where((row) {
+  // ── Filter CSV to requested month ────────────────────────────────────────
+  final entries = csvData.where((row) {
     if (row['Date'] == null) return false;
     try {
-      final parts = row['Date']!.split('.');
-      final day = int.parse(parts[0]);
-      final month = int.parse(parts[1]);
-      final year = int.parse(parts[2]);
-      final date = DateTime(year, month, day);
-      return date.month == selectedMonth && date.year == selectedYear;
+      final p = row['Date']!.split('.');
+      final d = DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+      return d.month == month && d.year == year;
     } catch (_) {
       return false;
     }
+  }).map((row) {
+    final p = row['Date']!.split('.');
+    final date = DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+    return {'row': row, 'date': date, 'isFriday': date.weekday == DateTime.friday};
   }).toList();
 
-  final rowsWithDate = monthRows.map((row) {
-    final parts = row['Date']!.split('.');
-    final date = DateTime(
-      int.parse(parts[2]),
-      int.parse(parts[1]),
-      int.parse(parts[0]),
-    );
-    return {
-      'row': row,
-      'date': date,
-      'isFriday': date.weekday == DateTime.friday,
-    };
-  }).toList();
+  // ── Build PDF ────────────────────────────────────────────────────────────
+  final pdf = pw.Document();
 
   pdf.addPage(
-    pw.MultiPage(
-      maxPages: 1, // forces everything on a single page
-      margin: const pw.EdgeInsets.only(left: 50, right: 0, top: 30, bottom: 30),
-      footer: (context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.center,
-          children: [
-            pw.Divider(),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              'Erstes Freitagsgebet: $firstPrayer Uhr   |   Zweites Freitagsgebet: $secondPrayer Uhr',
-              style: const pw.TextStyle(fontSize: 10),
-              textAlign: pw.TextAlign.center,
-            ),
-            pw.SizedBox(height: 2),
-            pw.Text(
-              'Bildungs- und Begegnung Freiburg e.V. | Rufacherstr. 5, 79110 Freiburg',
-              style: const pw.TextStyle(fontSize: 10),
-              textAlign: pw.TextAlign.center,
-            ),
-            pw.Text(
-              'Sparkasse Freiburg | IBAN: DE11 6805 0101 0014 3501 24 | BIC: FRSPDE66XXX',
-              style: const pw.TextStyle(fontSize: 10),
-              textAlign: pw.TextAlign.center,
-            ),
-            pw.SizedBox(height: 2),
-            pw.Text(
-              'Seite ${context.pageNumber} / ${context.pagesCount}',
-              style: const pw.TextStyle(fontSize: 9),
-              textAlign: pw.TextAlign.center,
-            ),
-          ],
-        );
-      },
-      build: (context) => [
-        pw.Center(
-          child: pw.Text(
-            "Gebetszeiten - ${_monthName(selectedMonth)} $selectedYear",
-            style: pw.TextStyle(fontSize: 25, fontWeight: pw.FontWeight.bold),
-            textAlign: pw.TextAlign.center,
-          ),
-        ),
-        pw.SizedBox(height: 35),
-
-        pw.Table(
-          border: pw.TableBorder.all(width: 0),
-          columnWidths: {
-            0: const pw.FixedColumnWidth(55),
-            1: const pw.FixedColumnWidth(50),
-            2: const pw.FixedColumnWidth(80),
-            3: const pw.FixedColumnWidth(50),
-            4: const pw.FixedColumnWidth(50),
-            5: const pw.FixedColumnWidth(60),
-            6: const pw.FixedColumnWidth(50),
-          },
-          children: [
-            pw.TableRow(
-              decoration: const pw.BoxDecoration(color: PdfColors.green),
-              children: [
-                _headerCell("Datum"),
-                _headerCell("Fajr"),
-                _headerCell("Sonnenaufgang"),
-                _headerCell("Dhur"),
-                _headerCell("Asr"),
-                _headerCell("Maghrib"),
-                _headerCell("Isha"),
-              ],
-            ),
-
-            ...rowsWithDate.map((entry) {
-              final row = entry['row'] as Map<String, String>;
-              final isFriday = entry['isFriday'] as bool;
-
-              return pw.TableRow(
-                decoration: pw.BoxDecoration(
-                  color: isFriday
-                      ? PdfColors
-                            .lightGreen // highlights the fridays
-                      : PdfColors.white,
-                ),
-                children: [
-                  _cell(row['Date']),
-                  _cell(row['Fajr']),
-                  _cell(row['Sunrise']),
-                  _cell(row['Dhur']),
-                  _cell(row['Asr']),
-                  _cell(row['Maghrib']),
-                  _cell(row['Isha']),
-                ],
-              );
-            }),
-          ],
-        ),
-      ],
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.zero,
+      build: (context) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+        children: [
+          _header(latin, latinBold, arabic, logoImage),
+          _monthBar(month, year, latinBold, logoImage),
+          pw.Expanded(child: _table(entries, latin, latinBold, arabic)),
+          _footer(firstPrayer, secondPrayer, latin, latinBold),
+        ],
+      ),
     ),
   );
 
   await Printing.sharePdf(
     bytes: await pdf.save(),
-    filename: "Gebetszeiten - ${_monthName(month)} $year",
+    filename: 'Gebetszeiten - ${_monthName(month)} $year',
   );
 }
 
-pw.Widget _headerCell(String text) {
+// ── Header ──────────────────────────────────────────────────────────────────
+
+pw.Widget _header(pw.Font latin, pw.Font latinBold, pw.Font arabic, pw.MemoryImage logo) {
+  return pw.Container(
+    color: _kTeal,
+    padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    child: pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        // Left block
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'مواقيت الصلاة لمدينة فرايبورغ',
+              textDirection: pw.TextDirection.rtl,
+              style: pw.TextStyle(font: arabic, color: PdfColors.white, fontSize: 9),
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Gebetszeiten für Freiburg',
+              style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 10),
+            ),
+          ],
+        ),
+        // Center logo
+        pw.Image(logo, width: 46, height: 46),
+        // Right block
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.end,
+          children: [
+            pw.Text(
+              'جمعية الثقافة والتواصل فرايبورغ',
+              textDirection: pw.TextDirection.rtl,
+              style: pw.TextStyle(font: arabic, color: PdfColors.white, fontSize: 9),
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Bildung und Begegnung Freiburg',
+              style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 10),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+// ── Month bar ────────────────────────────────────────────────────────────────
+
+pw.Widget _monthBar(int month, int year, pw.Font latinBold, pw.MemoryImage logo) {
+  return pw.Container(
+    color: _kMonthBar,
+    padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    child: pw.Row(
+      children: [
+        // Day badge
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: pw.BoxDecoration(
+            color: _kMonthBadge,
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+          ),
+          child: pw.Text(
+            month.toString().padLeft(2, '0'),
+            style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 26),
+          ),
+        ),
+        pw.SizedBox(width: 18),
+        // Month + year
+        pw.Expanded(
+          child: pw.Text(
+            '${_monthName(month)} $year',
+            style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 20),
+          ),
+        ),
+        // Circular logo badge
+        pw.Container(
+          width: 46,
+          height: 46,
+          decoration: const pw.BoxDecoration(
+            color: _kAccentGreen,
+            shape: pw.BoxShape.circle,
+          ),
+          padding: const pw.EdgeInsets.all(4),
+          child: pw.Center(child: pw.Image(logo, width: 36, height: 36)),
+        ),
+      ],
+    ),
+  );
+}
+
+// ── Table ────────────────────────────────────────────────────────────────────
+
+pw.Widget _table(List<Map<String, dynamic>> entries, pw.Font latin, pw.Font latinBold, pw.Font arabic) {
+  // Column definitions: (German label, Arabic label)
+  const cols = [
+    ('Datum', 'التاريخ'),
+    ('Tag', 'اليوم'),
+    ('Morgen', 'الفجر'),
+    ('Sonnenaufgang', 'الشروق'),
+    ('Mittag', 'الظهر'),
+    ('Nachmittag', 'العصر'),
+    ('Abend', 'المغرب'),
+    ('Nacht', 'العشاء'),
+  ];
+
   return pw.Padding(
-    padding: const pw.EdgeInsets.all(4),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+    child: pw.Table(
+      border: pw.TableBorder.all(color: _kBorder, width: 0.5),
+      columnWidths: const {
+        0: pw.FlexColumnWidth(1.3), // Datum
+        1: pw.FlexColumnWidth(1.5), // Tag
+        2: pw.FlexColumnWidth(1.0), // Morgen
+        3: pw.FlexColumnWidth(1.8), // Sonnenaufgang (longest label)
+        4: pw.FlexColumnWidth(1.0), // Mittag
+        5: pw.FlexColumnWidth(1.4), // Nachmittag
+        6: pw.FlexColumnWidth(1.1), // Abend
+        7: pw.FlexColumnWidth(1.0), // Nacht
+      },
+      children: [
+        // Header row
+        pw.TableRow(
+          children: cols
+              .map((c) => _headerCell(c.$1, c.$2, latinBold, arabic))
+              .toList(),
+        ),
+
+        // Data rows
+        ...entries.asMap().entries.map((e) {
+          final i = e.key;
+          final row = e.value['row'] as Map<String, String>;
+          final date = e.value['date'] as DateTime;
+          final isFriday = e.value['isFriday'] as bool;
+
+          final bg = isFriday
+              ? _kFridayRow
+              : (i.isOdd ? _kAltRow : PdfColors.white);
+
+          return pw.TableRow(
+            decoration: pw.BoxDecoration(color: bg),
+            children: [
+              _cell(row['Date'] ?? '', latin, bold: isFriday),
+              _cell(_weekdayName(date.weekday), latin, bold: isFriday),
+              _cell(row['Fajr'] ?? '', latin, bold: isFriday),
+              _cell(row['Sunrise'] ?? '', latin, bold: isFriday),
+              _cell(row['Dhur'] ?? '', latin, bold: isFriday),
+              _cell(row['Asr'] ?? '', latin, bold: isFriday),
+              _cell(row['Maghrib'] ?? '', latin, bold: isFriday),
+              _cell(row['Isha'] ?? '', latin, bold: isFriday),
+            ],
+          );
+        }),
+      ],
+    ),
+  );
+}
+
+pw.Widget _headerCell(String de, String ar, pw.Font latinBold, pw.Font arabic) {
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(vertical: 5, horizontal: 3),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Text(
+          de,
+          textAlign: pw.TextAlign.center,
+          style: pw.TextStyle(font: latinBold, fontSize: 8),
+        ),
+        pw.SizedBox(height: 1),
+        pw.Text(
+          ar,
+          textAlign: pw.TextAlign.center,
+          textDirection: pw.TextDirection.rtl,
+          style: pw.TextStyle(font: arabic, fontSize: 7, color: const PdfColor(0.3, 0.3, 0.3)),
+        ),
+      ],
+    ),
+  );
+}
+
+pw.Widget _cell(String text, pw.Font font, {bool bold = false}) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.symmetric(vertical: 3, horizontal: 2),
     child: pw.Text(
       text,
       textAlign: pw.TextAlign.center,
       style: pw.TextStyle(
-        color: PdfColors.white,
-        fontSize: 11,
-        fontWeight: pw.FontWeight.bold,
+        font: font,
+        fontSize: 8.5,
+        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
       ),
     ),
   );
 }
 
-pw.Widget _cell(String? text) {
-  return pw.Padding(
-    padding: const pw.EdgeInsets.all(3),
-    child: pw.Text(
-      text ?? '',
-      textAlign: pw.TextAlign.center,
-      style: const pw.TextStyle(fontSize: 10),
+// ── Footer ───────────────────────────────────────────────────────────────────
+
+pw.Widget _footer(String firstPrayer, String secondPrayer, pw.Font latin, pw.Font latinBold) {
+  return pw.Container(
+    color: _kTeal,
+    padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        // Jumu'a info line
+        pw.Text(
+          'Erstes Freitagsgebet: $firstPrayer Uhr   |   Zweites Freitagsgebet: $secondPrayer Uhr',
+          textAlign: pw.TextAlign.center,
+          style: pw.TextStyle(font: latin, color: PdfColors.white, fontSize: 7.5),
+        ),
+        pw.SizedBox(height: 6),
+        // Address / bank row
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            _footerCol('Rufacherstr. 5', '79110 Freiburg', latin, latinBold),
+            _footerCol('Spendenkonto', 'Sparkasse Freiburg', latin, latinBold),
+            _footerCol('IBAN', 'DE11 6805 0101 0014 3501 24', latin, latinBold),
+            _footerCol('BIC', 'FRSPDE66XXX', latin, latinBold),
+          ],
+        ),
+      ],
     ),
   );
 }
 
+pw.Widget _footerCol(String label, String value, pw.Font latin, pw.Font latinBold) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text(label, style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 8)),
+      pw.Text(value, style: pw.TextStyle(font: latin, color: const PdfColor(0.85, 0.85, 0.85), fontSize: 7.5)),
+    ],
+  );
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+String _weekdayName(int weekday) {
+  const names = [
+    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+    'Freitag', 'Samstag', 'Sonntag',
+  ];
+  return names[weekday - 1];
+}
+
 String _monthName(int month) {
   const months = [
-    "Januar",
-    "Februar",
-    "März",
-    "April",
-    "Mai",
-    "Juni",
-    "Juli",
-    "August",
-    "September",
-    "Oktober",
-    "November",
-    "Dezember",
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
   ];
   return months[month - 1];
 }

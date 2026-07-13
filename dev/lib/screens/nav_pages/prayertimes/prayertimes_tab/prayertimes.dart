@@ -1298,53 +1298,184 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   void _showMonthPickerDialog(BuildContext context) {
     final availableMonths = _extractAvailableMonths(csvData);
+    if (availableMonths.isEmpty) return;
 
-    int? selectedMonth = availableMonths.isNotEmpty
-        ? availableMonths.first['month']
-        : null;
-    int? selectedYear = availableMonths.isNotEmpty
-        ? availableMonths.first['year']
-        : null;
+    Map<String, int> selectedEntry = availableMonths.first;
 
-    showDialog(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? BColors.prayerRowDark : Colors.white;
+    final labelColor = isDark ? Colors.white : const Color(0xFF111827);
+    final subColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
+    final dropdownBg = isDark ? BColors.backgroundColorDark : BColors.backgroundColor;
+
+    showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Monat auswählen"),
-          content: DropdownButtonFormField<Map<String, int>>(
-            initialValue: availableMonths.first,
-            items: availableMonths.map((entry) {
-              return DropdownMenuItem(
-                value: entry,
-                child: Text("${_monthName(entry['month']!)} ${entry['year']}"),
-              );
-            }).toList(),
-            onChanged: (value) {
-              selectedMonth = value?['month'];
-              selectedYear = value?['year'];
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Abbrechen"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedMonth != null && selectedYear != null) {
-                  generateMonthlyPrayerPdf(
-                    csvData,
-                    fridayPrayer1,
-                    fridayPrayer2,
-                    selectedMonth!,
-                    selectedYear!,
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: const Text("PDF erzeugen"),
-            ),
-          ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: sheetBg,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+              ),
+              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 32.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Drag handle
+                  Center(
+                    child: Container(
+                      width: 40.w,
+                      height: 4.h,
+                      decoration: BoxDecoration(
+                        color: subColor.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(2.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // Icon + title
+                  Row(
+                    children: [
+                      Container(
+                        width: 44.w,
+                        height: 44.w,
+                        decoration: BoxDecoration(
+                          color: BColors.primary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Icon(
+                          Icons.picture_as_pdf_outlined,
+                          color: BColors.primary,
+                          size: 24.sp,
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PDF herunterladen',
+                            style: TextStyle(
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.w700,
+                              color: labelColor,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'Gebetszeiten als Druckversion',
+                            style: TextStyle(fontSize: 12.sp, color: subColor),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 28.h),
+
+                  // Dropdown label
+                  Text(
+                    'Monat auswählen',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: subColor,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+
+                  // Styled dropdown
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: dropdownBg,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: BColors.primary.withOpacity(0.35),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Map<String, int>>(
+                        value: selectedEntry,
+                        isExpanded: true,
+                        dropdownColor: sheetBg,
+                        icon: Icon(Icons.keyboard_arrow_down_rounded, color: BColors.primary),
+                        style: TextStyle(fontSize: 15.sp, color: labelColor, fontWeight: FontWeight.w500),
+                        items: availableMonths.map((entry) {
+                          return DropdownMenuItem(
+                            value: entry,
+                            child: Text('${_monthName(entry['month']!)} ${entry['year']}'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) setSheetState(() => selectedEntry = value);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 28.h),
+
+                  // Buttons row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: subColor.withOpacity(0.4)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                          ),
+                          child: Text(
+                            'Abbrechen',
+                            style: TextStyle(color: subColor, fontSize: 14.sp),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(sheetContext);
+                            generateMonthlyPrayerPdf(
+                              csvData,
+                              fridayPrayer1,
+                              fridayPrayer2,
+                              selectedEntry['month']!,
+                              selectedEntry['year']!,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: BColors.primary,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                          ),
+                          icon: Icon(Icons.download_rounded, size: 18.sp),
+                          label: Text(
+                            'PDF erzeugen',
+                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
