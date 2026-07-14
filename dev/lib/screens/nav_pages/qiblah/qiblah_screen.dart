@@ -97,11 +97,7 @@ class _QiblahScreenState extends State<QiblahScreen> {
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              color: BColors.primary, size: 18.sp),
-          onPressed: () => Navigator.maybePop(context),
-        ),
+        automaticallyImplyLeading: false,
         title: Text(
           'Qibla Kompass',
           style: TextStyle(
