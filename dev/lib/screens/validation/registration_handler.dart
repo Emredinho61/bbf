@@ -61,6 +61,7 @@ class _RegisterFormState extends State<RegisterForm> {
       authPageHelper.setGuestAsUser();
       settingsService.addSettings();
       userService.addUser(username, email, number);
+      if (!mounted) return;
       Navigator.pushNamed(context, '/homepage');
     } on FirebaseAuthException catch (e) {
       String message = '';

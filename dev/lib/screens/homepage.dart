@@ -36,6 +36,7 @@ class _NavBarShellState extends State<NavBarShell> {
     final user = authService.currentUser;
     if (user != null) {
       final String mode = await settingsService.getUserThemeMode();
+      if (!mounted) return;
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       themeProvider.setTheme(mode);
     }

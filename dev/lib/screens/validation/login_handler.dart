@@ -93,6 +93,7 @@ class _LoginFormState extends State<LoginForm> {
       final user = userCredential.user;
       if (user != null) {
         await authPageHelper.setGuestAsUser();
+        if (!mounted) return;
         Navigator.pushNamed(context, '/homepage');
       } else {
         setState(() {
