@@ -28,7 +28,7 @@ import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 
 import 'package:home_widget/home_widget.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:bbf_app/components/glow_arc_painter.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -219,15 +219,34 @@ class _PrayerTimesState extends State<PrayerTimes> {
   }
 
   Future<void> updateNativeWidget(Map<String, String> todayRow) async {
-    print("Updating widget with Fajr: ${todayRow['Fajr']}");
     try {
-      print("Updating widget with Fajr: ${todayRow['Fajr']}");
+      // Prayer times grid
       await HomeWidget.saveWidgetData('fajr', todayRow['Fajr']);
       await HomeWidget.saveWidgetData('dhur', todayRow['Dhur']);
       await HomeWidget.saveWidgetData('asr', todayRow['Asr']);
       await HomeWidget.saveWidgetData('maghrib', todayRow['Maghrib']);
       await HomeWidget.saveWidgetData('isha', todayRow['Isha']);
-      await HomeWidget.saveWidgetData('next_prayer', _showNextPrayer());
+
+      // Next prayer info
+      final nextKey = _showNextPrayer();
+      const displayNames = {
+        'Fajr': 'Fajr',
+        'Dhur': 'Dhuhr',
+        'Asr': 'Asr',
+        'Maghrib': 'Maghrib',
+        'Isha': 'Isha',
+      };
+      final nextDisplayName = displayNames[nextKey] ?? nextKey;
+      final nextTime = todayRow[nextKey] ?? '--:--';
+      final dur = _calculateNextPrayerDuration();
+      final countdown =
+          '${dur.inHours.toString().padLeft(2, '0')}:${(dur.inMinutes % 60).toString().padLeft(2, '0')}:${(dur.inSeconds % 60).toString().padLeft(2, '0')}';
+      final date = DateFormat('d. MMMM', 'de').format(DateTime.now());
+
+      await HomeWidget.saveWidgetData('next_prayer_name', nextDisplayName);
+      await HomeWidget.saveWidgetData('next_prayer_time', nextTime);
+      await HomeWidget.saveWidgetData('countdown', countdown);
+      await HomeWidget.saveWidgetData('date', date);
 
       await HomeWidget.updateWidget(
         name: 'PrayerWidgetProvider',
@@ -874,46 +893,55 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                         SizedBox(height: 20.h),
 
-                        ClipRect(
-                          child: SizedBox(
+                        SizedBox(
                             height: 130.h,
                             child: OverflowBox(
                               maxHeight: 300,
                               alignment: Alignment.topCenter,
-                              child: CircularPercentIndicator(
-                                radius: 100,
-                                lineWidth: 5,
-                                percent: circlePercent.clamp(0.0, 1.0),
-                                arcType: ArcType.HALF,
-                                arcBackgroundColor: Colors.grey.shade300,
-                                progressColor: Colors.green,
-                                circularStrokeCap: CircularStrokeCap.round,
-                                center: Transform.translate(
-                                  offset: const Offset(0, -30),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        countdownText,
-                                        style: TextStyle(
-                                          fontSize: 25.sp,
-                                          fontWeight: FontWeight.bold,
+                              child: SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Stack(
+                                  children: [
+                                    CustomPaint(
+                                      size: const Size(200, 200),
+                                      painter: GlowArcPainter(
+                                        percent: circlePercent.clamp(0.0, 1.0),
+                                        progressColor: BColors.primary,
+                                        trackColor: isDark
+                                            ? const Color(0xFF2C3A4A)
+                                            : Colors.grey.shade300,
+                                        strokeWidth: 6,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Transform.translate(
+                                        offset: const Offset(0, -30),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              countdownText,
+                                              style: TextStyle(
+                                                fontSize: 25.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'bis ${_getCountdownLabel()}',
+                                              style: TextStyle(
+                                                fontSize: 16.sp,
+                                                color: BColors.primary,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-
-                                      Text(
-                                        'bis ${_getCountdownLabel()}',
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          color: BColors.primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          ),
                         ),
                       ],
                     ),
