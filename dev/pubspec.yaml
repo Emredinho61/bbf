@@ -46,7 +46,7 @@ dependencies:
   flutter_image_compress: ^2.1.0
   skeletonizer: ^2.1.0+1
   flutter_foreground_task: ^9.2.2
-  home_widget: ^0.8.0
+  home_widget: ^0.9.3
   flutter_datetime_picker_plus: ^2.4.0
   numberpicker: ^2.1.2
   flutter_screenutil: ^5.9.3

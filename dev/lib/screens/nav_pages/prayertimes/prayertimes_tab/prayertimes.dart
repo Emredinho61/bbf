@@ -76,10 +76,49 @@ class PrayerNotificationHandler extends TaskHandler {
     return rows;
   }
 
+  (String title, String body) _buildNotification(Map<String, String> row) {
+    final now = DateTime.now();
+    const entries = [
+      ('Fajr', 'Fajr'),
+      ('Dhur', 'Dhuhr'),
+      ('Asr', 'Asr'),
+      ('Maghrib', 'Maghrib'),
+      ('Isha', 'Isha'),
+    ];
+
+    String? nextDisplay;
+    Duration? timeLeft;
+    for (final (key, display) in entries) {
+      final timeStr = row[key];
+      if (timeStr == null || !timeStr.contains(':')) continue;
+      final parts = timeStr.split(':');
+      final prayerDt = DateTime(
+        now.year, now.month, now.day,
+        int.tryParse(parts[0]) ?? 0,
+        int.tryParse(parts[1]) ?? 0,
+      );
+      if (prayerDt.isAfter(now)) {
+        nextDisplay = display;
+        timeLeft = prayerDt.difference(now);
+        break;
+      }
+    }
+
+    final body = entries
+        .map((e) => '${e.$2} ${row[e.$1] ?? '--:--'}')
+        .join(' · ');
+
+    if (nextDisplay != null && timeLeft != null) {
+      final hh = timeLeft.inHours.toString().padLeft(2, '0');
+      final mm = (timeLeft.inMinutes % 60).toString().padLeft(2, '0');
+      return ('Nächstes: $nextDisplay (in $hh:$mm)', body);
+    }
+    return ('Gebetszeiten Freiburg', body);
+  }
+
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     final csvData = await _loadCsvData();
-
     if (csvData.isEmpty) {
       FlutterForegroundTask.updateService(
         notificationTitle: 'ERROR',
@@ -87,30 +126,15 @@ class PrayerNotificationHandler extends TaskHandler {
       );
       return;
     }
-
-    if (_prayerTimesHelper == null) {
-      await _ensureInitialized();
-    }
-    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
-      csvData,
-    );
-
-    final notificationBody =
-        "Fajr: ${todayRow['Fajr']} | "
-        "Dhuhr: ${todayRow['Dhur']} | "
-        "Asr: ${todayRow['Asr']} | "
-        "Maghrib: ${todayRow['Maghrib']} | "
-        "Isha: ${todayRow['Isha']}";
-    FlutterForegroundTask.updateService(
-      notificationTitle: 'Gebetszeiten Freiburg',
-      notificationText: notificationBody,
-    );
+    if (_prayerTimesHelper == null) await _ensureInitialized();
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(csvData);
+    final (title, body) = _buildNotification(todayRow);
+    FlutterForegroundTask.updateService(notificationTitle: title, notificationText: body);
   }
 
   @override
   Future<void> onRepeatEvent(DateTime timestamp) async {
     final csvData = await _loadCsvData();
-
     if (csvData.isEmpty) {
       FlutterForegroundTask.updateService(
         notificationTitle: 'ERROR',
@@ -118,25 +142,10 @@ class PrayerNotificationHandler extends TaskHandler {
       );
       return;
     }
-
-    if (_prayerTimesHelper == null) {
-      await _ensureInitialized();
-    }
-    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
-      csvData,
-    );
-
-    final notificationBody =
-        "Fajr: ${todayRow['Fajr']} | "
-        "Dhuhr: ${todayRow['Dhur']} | "
-        "Asr: ${todayRow['Asr']} | "
-        "Maghrib: ${todayRow['Maghrib']} | "
-        "Isha: ${todayRow['Isha']}";
-
-    FlutterForegroundTask.updateService(
-      notificationTitle: 'Gebetszeiten Freiburg',
-      notificationText: notificationBody,
-    );
+    if (_prayerTimesHelper == null) await _ensureInitialized();
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(csvData);
+    final (title, body) = _buildNotification(todayRow);
+    FlutterForegroundTask.updateService(notificationTitle: title, notificationText: body);
   }
 
   @override
@@ -344,24 +353,32 @@ class _PrayerTimesState extends State<PrayerTimes> {
       ),
       iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(5000),
+        eventAction: ForegroundTaskEventAction.repeat(60000),
         autoRunOnBoot: true,
         allowWakeLock: true,
       ),
     );
 
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-    final notificationBody =
-        "Fajr: ${todayRow['Fajr']} | "
-        "Dhuhr: ${todayRow['Dhur']} | "
-        "Asr: ${todayRow['Asr']} | "
-        "Maghrib: ${todayRow['Maghrib']} | "
-        "Isha: ${todayRow['Maghrib']}";
-    print(notificationBody);
+    final nextKey = _showNextPrayer();
+    const displayNames = {
+      'Fajr': 'Fajr', 'Dhur': 'Dhuhr', 'Asr': 'Asr',
+      'Maghrib': 'Maghrib', 'Isha': 'Isha',
+    };
+    final dur = _calculateNextPrayerDuration();
+    final hh = dur.inHours.toString().padLeft(2, '0');
+    final mm = (dur.inMinutes % 60).toString().padLeft(2, '0');
+    final title = 'Nächstes: ${displayNames[nextKey] ?? nextKey} (in $hh:$mm)';
+    final body =
+        'Fajr ${todayRow['Fajr']} · '
+        'Dhuhr ${todayRow['Dhur']} · '
+        'Asr ${todayRow['Asr']} · '
+        'Maghrib ${todayRow['Maghrib']} · '
+        'Isha ${todayRow['Isha']}';
 
     await FlutterForegroundTask.startService(
-      notificationTitle: 'Gebetszeiten Freiburg',
-      notificationText: notificationBody,
+      notificationTitle: title,
+      notificationText: body,
       callback: startCallback,
     );
   }
