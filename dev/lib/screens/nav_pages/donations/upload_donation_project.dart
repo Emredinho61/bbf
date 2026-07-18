@@ -20,6 +20,26 @@ class _EditHauptprojektDialogState extends State<EditHauptprojektDialog> {
   final TextEditingController _targetController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _loadCurrentValues();
+  }
+
+  Future<void> _loadCurrentValues() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('projects')
+        .doc('hauptprojekt')
+        .get();
+    if (!mounted) return;
+    final data = doc.data();
+    if (data == null) return;
+    final amount = data['amount'];
+    final target = data['target'];
+    if (amount != null) _amountController.text = amount.toStringAsFixed(0);
+    if (target != null) _targetController.text = target.toStringAsFixed(0);
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _targetController.dispose();
