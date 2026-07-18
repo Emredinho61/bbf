@@ -1,4 +1,5 @@
 import 'package:bbf_app/utils/constants/colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -186,6 +187,8 @@ class _DonationOverviewState extends State<DonationOverview> {
                         progress: (data['progress'] ?? 0.0).toDouble(),
                         isAdmin: _isUserAdmin,
                         isDark: isDark,
+                        iconCodePoint: data['iconCodePoint'] as int?,
+                        imageUrl: data['imageUrl'] as String?,
                         onEdit: () {
                           showDialog(
                             context: context,
@@ -233,6 +236,9 @@ class _DonationOverviewState extends State<DonationOverview> {
                     SizedBox(width: 12.w),
                     FilledButton(
                       onPressed: () => showDonationDialog(context),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xff2E7D32),
+                      ),
                       child: const Text("Spenden"),
                     ),
                   ],
@@ -458,6 +464,8 @@ class _ProjectCard extends StatelessWidget {
   final double progress;
   final bool isAdmin;
   final bool isDark;
+  final int? iconCodePoint;
+  final String? imageUrl;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -469,6 +477,8 @@ class _ProjectCard extends StatelessWidget {
     required this.progress,
     required this.isAdmin,
     required this.isDark,
+    this.iconCodePoint,
+    this.imageUrl,
     required this.onEdit,
     required this.onDelete,
   });
@@ -480,109 +490,498 @@ class _ProjectCard extends StatelessWidget {
     )}";
   }
 
+  Widget _buildIcon() {
+    final icon = iconCodePoint != null
+        ? IconData(iconCodePoint!, fontFamily: 'MaterialIcons')
+        : Icons.volunteer_activism;
+    return Container(
+      width: 52.w,
+      height: 52.h,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2D3748) : const Color(0xffE8F5E9),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Icon(icon, color: const Color(0xff2E7D32)),
+    );
+  }
+
+  void _openDetail(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProjectDetailPage(
+          title: title,
+          description: description,
+          amount: amount,
+          target: target,
+          progress: progress,
+          imageUrl: imageUrl,
+          iconCodePoint: iconCodePoint,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(24.r),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+    return InkWell(
+      onTap: () => _openDetail(context),
+      borderRadius: BorderRadius.circular(24.r),
+      child: Container(
+        padding: EdgeInsets.all(18.w),
+        decoration: BoxDecoration(
+          color: isDark ? BColors.prayerRowDark : Colors.white,
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: isDark
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildIcon(),
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isAdmin)
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+                    onSelected: (value) {
+                      if (value == 'edit') onEdit();
+                      if (value == 'delete') onDelete();
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Bearbeiten')),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Löschen', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: isDark ? const Color(0xFF2D3748) : const Color(0xFFE8F5E9),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xff2E7D32)),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Text(
+                  _formatCurrency(amount),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  "Ziel ${_formatCurrency(target)}",
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
                 ),
               ],
+            ),
+          ],
+        ),
       ),
-      child: Column(
+    );
+  }
+}
+
+class ProjectDetailPage extends StatefulWidget {
+  final String title;
+  final String description;
+  final double amount;
+  final double target;
+  final double progress;
+  final String? imageUrl;
+  final int? iconCodePoint;
+
+  const ProjectDetailPage({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.amount,
+    required this.target,
+    required this.progress,
+    this.imageUrl,
+    this.iconCodePoint,
+  });
+
+  @override
+  State<ProjectDetailPage> createState() => _ProjectDetailPageState();
+}
+
+class _ProjectDetailPageState extends State<ProjectDetailPage> {
+  bool? _isHorizontal; // null = still detecting
+
+  @override
+  void initState() {
+    super.initState();
+    final url = widget.imageUrl;
+    if (url != null && url.isNotEmpty) {
+      NetworkImage(url).resolve(const ImageConfiguration()).addListener(
+        ImageStreamListener((info, _) {
+          if (mounted) {
+            setState(() {
+              _isHorizontal = info.image.width >= info.image.height;
+            });
+          }
+        }),
+      );
+    }
+  }
+
+  String _formatCurrency(double value) {
+    return "€${value.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
+    )}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasImage = widget.imageUrl != null && widget.imageUrl!.isNotEmpty;
+    final icon = widget.iconCodePoint != null
+        ? IconData(widget.iconCodePoint!, fontFamily: 'MaterialIcons')
+        : Icons.volunteer_activism;
+    final percent = (widget.progress * 100).clamp(0.0, 100.0).toStringAsFixed(0);
+    // Default to 16:9 while detecting; switch to 3:4 once portrait is confirmed
+    final aspectRatio = (_isHorizontal == false) ? 3.0 / 4.0 : 16.0 / 9.0;
+    const cardOverlap = 60.0;
+
+    return Scaffold(
+      backgroundColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF5F7FA),
+      body: Stack(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52.w,
-                height: 52.h,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2D3748) : const Color(0xffE8F5E9),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: const Icon(Icons.volunteer_activism, color: Color(0xff2E7D32)),
-              ),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image section with floating title card
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16.w,
+                    MediaQuery.of(context).padding.top + 8.h,
+                    16.w,
+                    0,
+                  ),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Image / icon placeholder
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(28.r),
+                        child: hasImage
+                            ? AspectRatio(
+                                aspectRatio: aspectRatio,
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  placeholder: (_, __) => Container(
+                                    color: isDark
+                                        ? const Color(0xFF2D3748)
+                                        : const Color(0xffDDE7D8),
+                                  ),
+                                  errorWidget: (_, __, ___) =>
+                                      _iconHero(icon, isDark, aspectRatio),
+                                ),
+                              )
+                            : _iconHero(icon, isDark, 16.0 / 9.0),
                       ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                        fontSize: 13.sp,
+
+                      // Gradient overlay
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(28.r),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: const [0.45, 1.0],
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.55),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Floating title card
+                      Positioned(
+                        bottom: -cardOverlap,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.w, vertical: 16.h),
+                          decoration: BoxDecoration(
+                            color: isDark ? BColors.prayerRowDark : Colors.white,
+                            borderRadius: BorderRadius.circular(22.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.09),
+                                blurRadius: 28,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.title,
+                                style: TextStyle(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1C1C1E),
+                                  height: 1.2,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Container(
+                                height: 3.h,
+                                width: 38.w,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xff2E7D32),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (isAdmin)
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert,
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade700),
-                  onSelected: (value) {
-                    if (value == 'edit') onEdit();
-                    if (value == 'delete') onDelete();
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 'edit', child: Text('Bearbeiten')),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Löschen', style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
+
+                SizedBox(height: cardOverlap + 20),
+
+                // Progress card
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16.w),
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: isDark ? BColors.prayerRowDark : Colors.white,
+                    borderRadius: BorderRadius.circular(24.r),
+                    boxShadow: isDark
+                        ? []
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _formatCurrency(widget.amount),
+                            style: TextStyle(
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1C1C1E),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff2E7D32).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(20.r),
+                            ),
+                            child: Text(
+                              "$percent% erreicht",
+                              style: const TextStyle(
+                                color: Color(0xff2E7D32),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10.h),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: LinearProgressIndicator(
+                          value: widget.progress,
+                          minHeight: 10,
+                          backgroundColor: isDark
+                              ? const Color(0xFF2D3748)
+                              : const Color(0xFFE8F5E9),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xff2E7D32)),
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "Ziel ${_formatCurrency(widget.target)}",
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-            ],
-          ),
-          SizedBox(height: 14.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: isDark ? const Color(0xFF2D3748) : const Color(0xFFE8F5E9),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xff2E7D32)),
+
+                SizedBox(height: 16.h),
+
+                // Description card
+                Container(
+                  margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.h),
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? BColors.prayerRowDark
+                        : const Color(0xFFF5F5F4),
+                    borderRadius: BorderRadius.circular(24.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(6.w),
+                            decoration: BoxDecoration(
+                              color:
+                                  const Color(0xff2E7D32).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Icon(
+                              Icons.description_outlined,
+                              color: const Color(0xff2E7D32),
+                              size: 18.sp,
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            'Beschreibung',
+                            style: TextStyle(
+                              color: const Color(0xff2E7D32),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 14.h),
+                      Divider(color: Colors.grey.withOpacity(0.18), height: 1),
+                      SizedBox(height: 16.h),
+                      Text(
+                        widget.description,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          height: 1.7,
+                          color: isDark
+                              ? Colors.grey.shade200
+                              : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 12.h),
-          Row(
-            children: [
-              Text(
-                _formatCurrency(amount),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+
+          // Back button overlaid on top
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16.h,
+            left: 28.w,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 36.w,
+                height: 36.w,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.45),
+                  shape: BoxShape.circle,
                 ),
+                child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               ),
-              const Spacer(),
-              Text(
-                "Ziel ${_formatCurrency(target)}",
-                style: TextStyle(
-                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _iconHero(IconData icon, bool isDark, double aspectRatio) {
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: Container(
+        color: isDark ? const Color(0xFF2D3748) : const Color(0xffDDE7D8),
+        child: Center(
+          child: Icon(icon, size: 80, color: const Color(0xff2E7D32)),
+        ),
       ),
     );
   }
