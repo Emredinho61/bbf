@@ -13,12 +13,14 @@ class Eventspage extends StatefulWidget {
   final List<Event> events;
   final DateTime focusedDay;
   final bool isUserAdmin;
+  final Map<String, String> prayerTimes;
 
   const Eventspage({
     super.key,
     required this.events,
     required this.focusedDay,
     required this.isUserAdmin,
+    this.prayerTimes = const {},
   });
 
   @override
@@ -82,6 +84,74 @@ class _EventspageState extends State<Eventspage> {
           ],
         );
     }
+  }
+
+  static const _prayerIcons = {
+    'Fajr':    Icons.wb_twilight,
+    'Shuruq':  Icons.wb_sunny_outlined,
+    'Dhur':    Icons.light_mode,
+    'Asr':     Icons.sunny,
+    'Maghrib': Icons.wb_twilight_outlined,
+    'Isha':    Icons.nightlight_round,
+  };
+
+  Widget _buildPrayerTimesCard(bool isDark) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: widget.prayerTimes.entries.map((entry) {
+          final icon = _prayerIcons[entry.key] ?? Icons.access_time;
+          final isLast = entry.key == widget.prayerTimes.keys.last;
+          return Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, color: BColors.primary, size: 20.sp),
+                      SizedBox(height: 6.h),
+                      Text(
+                        entry.key,
+                        style: TextStyle(fontSize: 10.sp, color: Colors.grey.shade500),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        entry.value,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLast)
+                  Container(
+                    width: 1,
+                    height: 40.h,
+                    color: Colors.grey.withOpacity(0.15),
+                  ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   @override
@@ -164,10 +234,14 @@ class _EventspageState extends State<Eventspage> {
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 14.w),
 
-                itemCount: widget.events.length,
+                itemCount: widget.events.length + (widget.prayerTimes.isNotEmpty ? 1 : 0),
 
                 itemBuilder: (context, index) {
-                  final event = widget.events[index];
+                  if (widget.prayerTimes.isNotEmpty && index == 0) {
+                    return _buildPrayerTimesCard(isDark);
+                  }
+                  final eventIndex = widget.prayerTimes.isNotEmpty ? index - 1 : index;
+                  final event = widget.events[eventIndex];
                   final color = event.colorFor(isDark);
 
                   return Container(

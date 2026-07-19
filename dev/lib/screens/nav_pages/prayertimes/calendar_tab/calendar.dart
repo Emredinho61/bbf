@@ -28,7 +28,6 @@ class _CalenderViewState extends State<CalenderView> {
   AuthService authService = AuthService();
 
   bool _isUserAdmin = false;
-  List<Event> _selectedEvents = [];
   List<Map<String, String>> csvData = [];
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -56,7 +55,6 @@ class _CalenderViewState extends State<CalenderView> {
     checkUser();
     _loadCSV();
     _loadEvents();
-    _selectedEvents = _getEventsForDay(DateTime.now());
   }
 
   // check if user is admin
@@ -83,7 +81,6 @@ class _CalenderViewState extends State<CalenderView> {
         ..clear()
         ..addAll(eventSource);
 
-      _selectedEvents = _getEventsForDay(DateTime.now());
     });
     print(
       'Events Loaded ---------------------------------------------------------------------------------->',
@@ -176,11 +173,7 @@ class _CalenderViewState extends State<CalenderView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final prayerTimes = _getPrayerTimesForDay(_selectedDay ?? DateTime.now());
     final CalendarPageHelper calendarPageHelper = CalendarPageHelper();
-    if (prayerTimes.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
     return Column(
       children: [
         if (_isUserAdmin)
@@ -341,13 +334,22 @@ class _CalenderViewState extends State<CalenderView> {
               return isSameDay(_selectedDay, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
+              final dayEvents = _getEventsForDay(selectedDay);
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
-                _selectedEvents = _getEventsForDay(selectedDay);
-                print("Ausgewählter Tag: $selectedDay");
-                print("Events: $_selectedEvents");
               });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Eventspage(
+                    events: dayEvents,
+                    focusedDay: selectedDay,
+                    isUserAdmin: _isUserAdmin,
+                    prayerTimes: _getPrayerTimesForDay(selectedDay),
+                  ),
+                ),
+              );
             },
             calendarFormat: _calendarFormat,
             onFormatChanged: (format) {
@@ -364,256 +366,187 @@ class _CalenderViewState extends State<CalenderView> {
           ),
         ),
         SizedBox(height: 20.h),
-        PrayerTimesTable(
-          prayerTimes: prayerTimes,
-          selectedDate: _selectedDay ?? DateTime.now(),
-        ),
-        SizedBox(height: 20.h),
-        _navButton(
-          context,
-          isDark: isDark,
-          icon: Icons.calendar_month_rounded,
-          label: 'Alle Projekte des Tages ansehen',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => Eventspage(
-                events: _selectedEvents,
-                focusedDay: _focusedDay,
-                isUserAdmin: _isUserAdmin,
-              ),
-            ),
-          ),
-        ),
-        _navButton(
-          context,
-          isDark: isDark,
-          icon: Icons.view_week_rounded,
-          label: 'Wochenübersicht aller Events',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const WeekCalendarPage()),
-          ),
-        ),
-        _navButton(
-          context,
-          isDark: isDark,
-          icon: Icons.list_alt_rounded,
-          label: 'Alle Events',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AllEventsPage()),
-          ),
-        ),
-        _navButton(
-          context,
-          isDark: isDark,
-          icon: Icons.favorite_rounded,
-          label: 'Gemerkte Events',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const FavoriteEventsPage()),
-          ),
-        ),
-        SizedBox(height: 20.h),
-      ],
-    );
-  }
-
-  Widget _navButton(
-    BuildContext context, {
-    required bool isDark,
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
-      decoration: BoxDecoration(
-        color: isDark
-            ? BColors.prayerRowDark
-            : BColors.primary.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: BColors.primary.withOpacity(0.15)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-          child: Row(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.08)
-                      : const Color(0xFFEBEBEB),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(icon, size: 18.sp, color: BColors.primary),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF374151),
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: BColors.primary,
-                size: 24.sp,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class PrayerTimesTable extends StatelessWidget {
-  const PrayerTimesTable({
-    super.key,
-    required this.prayerTimes,
-    required this.selectedDate,
-  });
-
-  final Map<String, String> prayerTimes;
-  final DateTime selectedDate;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: isDark ? BColors.prayerRowDark : Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: BColors.primary.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.access_time_outlined,
-                color: BColors.primary,
-                size: 18.sp,
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                '${selectedDate.day.toString().padLeft(2, '0')}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.year}',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF374151),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 20.h),
-
-          Row(
-            children: prayerTimes.entries.map((entry) {
-              final isLast = entry.key == prayerTimes.keys.last;
-
-              return Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _PrayerTimeItem(
-                        name: entry.key,
-                        time: entry.value,
+              Row(
+                children: [
+                  Expanded(
+                    child: _featureCard(
+                      context,
+                      icon: Icons.view_week_rounded,
+                      label: 'Woche',
+                      subtitle: 'Events im Überblick',
+                      gradientColors: const [Color(0xff1B5E20), Color(0xff2E7D32)],
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WeekCalendarPage()),
                       ),
                     ),
-
-                    if (!isLast)
-                      Container(
-                        width: 1.w,
-                        height: 55.h,
-                        color: Colors.grey.withOpacity(0.15),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _featureCard(
+                      context,
+                      icon: Icons.list_alt_rounded,
+                      label: 'Alle Events',
+                      subtitle: 'Vollständige Liste',
+                      gradientColors: const [Color(0xff2E7D32), Color(0xff43A047)],
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AllEventsPage()),
                       ),
-                  ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              _wideFeatureCard(
+                context,
+                icon: Icons.favorite_rounded,
+                label: 'Gemerkte Events',
+                subtitle: 'Deine gespeicherten Veranstaltungen',
+                gradientColors: const [Color(0xff1E4D2B), Color(0xff2E7D32)],
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FavoriteEventsPage()),
                 ),
-              );
-            }).toList(),
+              ),
+            ],
           ),
-        ],
+        ),
+        SizedBox(height: 20.h),
+      ],
+    );
+  }
+
+  Widget _featureCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(18.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(icon, color: Colors.white, size: 24.sp),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15.sp,
+              ),
+            ),
+            SizedBox(height: 3.h),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.75),
+                fontSize: 11.sp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
 
-class _PrayerTimeItem extends StatelessWidget {
-  const _PrayerTimeItem({required this.name, required this.time});
-
-  final String name;
-  final String time;
-
-  IconData _getIcon() {
-    switch (name.toLowerCase()) {
-      case "fajr":
-        return Icons.wb_twilight;
-      case "shuruq":
-        return Icons.wb_sunny_outlined;
-      case "dhur":
-        return Icons.light_mode;
-      case "asr":
-        return Icons.sunny;
-      case "maghrib":
-        return Icons.wb_twilight_outlined;
-      case "isha":
-        return Icons.nightlight_round;
-      default:
-        return Icons.access_time;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(_getIcon(), color: BColors.primary, size: 24.sp),
-
-        SizedBox(height: 8.h),
-
-        Text(
-          name,
-          style: TextStyle(fontSize: 11.sp, color: const Color(0xFF6B7280)),
+  Widget _wideFeatureCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-
-        SizedBox(height: 6.h),
-
-        Text(
-          time,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Icon(icon, color: Colors.white, size: 26.sp),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16.sp),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
