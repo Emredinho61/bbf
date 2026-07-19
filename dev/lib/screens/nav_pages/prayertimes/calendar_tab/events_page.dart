@@ -55,36 +55,6 @@ class _EventspageState extends State<Eventspage> {
     if (mounted) setState(() {});
   }
 
-  // Renders a distinct icon for each of the three notification modes, so the
-  // difference between "this event only" and "all future events" is visible
-  // on the card without opening the sheet.
-  Widget _notificationIcon(EventNotificationMode mode, Color color, bool isDark) {
-    switch (mode) {
-      case EventNotificationMode.off:
-        return Icon(Icons.notifications_off_outlined, color: Colors.grey.shade400, size: 20.sp);
-      case EventNotificationMode.thisEventOnly:
-        return Icon(Icons.notifications_active, color: color, size: 20.sp);
-      case EventNotificationMode.allFutureEvents:
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(Icons.notifications_active, color: color, size: 20.sp),
-            Positioned(
-              right: -2,
-              bottom: -2,
-              child: Container(
-                padding: EdgeInsets.all(1.w),
-                decoration: BoxDecoration(
-                  color: isDark ? BColors.prayerRowDark : Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.repeat, size: 10.sp, color: color),
-              ),
-            ),
-          ],
-        );
-    }
-  }
 
   static const _prayerIcons = {
     'Fajr':    Icons.wb_twilight,
@@ -244,9 +214,12 @@ class _EventspageState extends State<Eventspage> {
                   final event = widget.events[eventIndex];
                   final color = event.colorFor(isDark);
 
+                  final isFav = _favHelper.isFavorite(event.id);
+                  final notifMode = _eventNotificationHelper.getEventNotificationMode(event.id);
+                  final notifActive = notifMode != EventNotificationMode.off;
+
                   return Container(
                     margin: EdgeInsets.only(bottom: 14.h),
-                    padding: EdgeInsets.all(14.w),
                     decoration: BoxDecoration(
                       color: isDark ? BColors.prayerRowDark : Colors.white,
                       borderRadius: BorderRadius.circular(18.r),
@@ -259,128 +232,226 @@ class _EventspageState extends State<Eventspage> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52.r,
-                          height: 52.r,
-                          decoration: BoxDecoration(
-                            color: color.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(14.r),
-                          ),
-                          child: Icon(event.icon, color: color, size: 26.sp),
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EventDetailPage(
+                              event: event, date: widget.focusedDay),
                         ),
-
-                        SizedBox(width: 14.w),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 3.h),
-                                decoration: BoxDecoration(
-                                  color: color.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                child: Text(
-                                  'Veranstaltung',
-                                  style: TextStyle(
-                                      fontSize: 10.sp,
-                                      color: color,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              SizedBox(height: 6.h),
-                              Text(
-                                event.title,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15.sp,
-                                  color: isDark ? Colors.white : Colors.black87,
-                                ),
-                              ),
-                              SizedBox(height: 6.h),
-                              Row(
-                                children: [
-                                  Icon(Icons.access_time,
-                                      size: 13.sp, color: Colors.grey.shade500),
-                                  SizedBox(width: 5.w),
-                                  Text(
-                                    event.startPrayer != null
-                                        ? event.displayTime
-                                        : '${event.displayTime} Uhr',
-                                    style: TextStyle(
-                                        fontSize: 12.sp,
-                                        color: Colors.grey.shade500),
+                      ),
+                      borderRadius: BorderRadius.circular(18.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ── Main content ──
+                          Padding(
+                            padding: EdgeInsets.all(14.w),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 52.r,
+                                  height: 52.r,
+                                  decoration: BoxDecoration(
+                                    color: color.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(14.r),
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 4.h),
-                              Row(
-                                children: [
-                                  Icon(Icons.location_on_outlined,
-                                      size: 13.sp, color: Colors.grey.shade500),
-                                  SizedBox(width: 5.w),
-                                  Expanded(
-                                    child: Text(
-                                      event.location,
-                                      style: TextStyle(
-                                          fontSize: 12.sp,
-                                          color: Colors.grey.shade500),
-                                      overflow: TextOverflow.ellipsis,
+                                  child: Icon(event.icon, color: color, size: 26.sp),
+                                ),
+                                SizedBox(width: 14.w),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 8.w, vertical: 3.h),
+                                            decoration: BoxDecoration(
+                                              color: color.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(20.r),
+                                            ),
+                                            child: Text(
+                                              'Veranstaltung',
+                                              style: TextStyle(
+                                                  fontSize: 10.sp,
+                                                  color: color,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Icon(
+                                            Icons.chevron_right_rounded,
+                                            size: 20.sp,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      Text(
+                                        event.title,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15.sp,
+                                          color: isDark ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.access_time,
+                                              size: 13.sp, color: Colors.grey.shade500),
+                                          SizedBox(width: 5.w),
+                                          Text(
+                                            event.startPrayer != null
+                                                ? event.displayTime
+                                                : '${event.displayTime} Uhr',
+                                            style: TextStyle(
+                                                fontSize: 12.sp,
+                                                color: Colors.grey.shade500),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.location_on_outlined,
+                                              size: 13.sp, color: Colors.grey.shade500),
+                                          SizedBox(width: 5.w),
+                                          Expanded(
+                                            child: Text(
+                                              event.location,
+                                              style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.grey.shade500),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // ── Action bar ──
+                          Divider(
+                            height: 1,
+                            color: isDark
+                                ? Colors.white.withOpacity(0.06)
+                                : Colors.black.withOpacity(0.06),
+                          ),
+                          IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                // Merken
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async {
+                                      await _favHelper.toggleFavorite(event.id);
+                                      setState(() {});
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            isFav
+                                                ? Icons.favorite_rounded
+                                                : Icons.favorite_border_rounded,
+                                            size: 18.sp,
+                                            color: isFav ? color : Colors.grey.shade400,
+                                          ),
+                                          SizedBox(width: 6.w),
+                                          Text(
+                                            isFav ? 'Gemerkt' : 'Merken',
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: isFav ? color : Colors.grey.shade500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                await _favHelper.toggleFavorite(event.id);
-                                setState(() {});
-                              },
-                              child: Icon(
-                                _favHelper.isFavorite(event.id)
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: _favHelper.isFavorite(event.id)
-                                    ? color
-                                    : Colors.grey.shade400,
-                                size: 20.sp,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            GestureDetector(
-                              onTap: () => _openNotificationSheet(event),
-                              child: _notificationIcon(
-                                _eventNotificationHelper
-                                    .getEventNotificationMode(event.id),
-                                color,
-                                isDark,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => EventDetailPage(
-                                      event: event, date: widget.focusedDay),
                                 ),
-                              ),
-                              child: Icon(Icons.chevron_right,
-                                  color: color, size: 22.sp),
+
+                                // Divider
+                                VerticalDivider(
+                                  width: 1,
+                                  color: isDark
+                                      ? Colors.white.withOpacity(0.06)
+                                      : Colors.black.withOpacity(0.06),
+                                ),
+
+                                // Erinnerung
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _openNotificationSheet(event),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              Icon(
+                                                notifActive
+                                                    ? Icons.notifications_rounded
+                                                    : Icons.notifications_none_rounded,
+                                                size: 18.sp,
+                                                color: notifActive
+                                                    ? color
+                                                    : Colors.grey.shade400,
+                                              ),
+                                              if (notifMode == EventNotificationMode.allFutureEvents)
+                                                Positioned(
+                                                  right: -3,
+                                                  bottom: -3,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(1.5),
+                                                    decoration: BoxDecoration(
+                                                      color: isDark
+                                                          ? BColors.prayerRowDark
+                                                          : Colors.white,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(Icons.repeat,
+                                                        size: 9.sp, color: color),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          SizedBox(width: 6.w),
+                                          Text(
+                                            notifActive ? 'Erinnert' : 'Erinnern',
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: notifActive
+                                                  ? color
+                                                  : Colors.grey.shade500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

@@ -168,35 +168,6 @@ class _SummaryCardState extends State<_SummaryCard> {
     if (mounted) setState(() {});
   }
 
-  Widget _notifIcon(EventNotificationMode mode, Color color) {
-    switch (mode) {
-      case EventNotificationMode.off:
-        return Icon(Icons.notifications_off_outlined,
-            color: Colors.grey.shade400, size: 20.sp);
-      case EventNotificationMode.thisEventOnly:
-        return Icon(Icons.notifications_active, color: color, size: 20.sp);
-      case EventNotificationMode.allFutureEvents:
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(Icons.notifications_active, color: color, size: 20.sp),
-            Positioned(
-              right: -2,
-              bottom: -2,
-              child: Container(
-                padding: EdgeInsets.all(1.w),
-                decoration: BoxDecoration(
-                  color: widget.isDark ? BColors.prayerRowDark : Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.repeat, size: 10.sp, color: color),
-              ),
-            ),
-          ],
-        );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final s = widget.summary;
@@ -204,127 +175,157 @@ class _SummaryCardState extends State<_SummaryCard> {
     final color = s.colorFor(isDark);
     final mode = _notifHelper.getEventNotificationMode(s.id);
     final isFav = _favHelper.isFavorite(s.id);
+    final notifActive = mode != EventNotificationMode.off;
+    final dividerColor = isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.06);
 
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => EventDetailPage(event: s.toEvent(), date: s.startDate),
-        ),
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border(left: BorderSide(color: color, width: 3.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 12.h),
-        padding: EdgeInsets.all(14.w),
-        decoration: BoxDecoration(
-          color: isDark ? BColors.prayerRowDark : Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border(left: BorderSide(color: color, width: 3.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EventDetailPage(event: s.toEvent(), date: s.startDate),
+          ),
         ),
-        child: Row(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon
-            Container(
-              width: 48.r,
-              height: 48.r,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Icon(s.icon, color: color, size: 24.sp),
-            ),
-            SizedBox(width: 12.w),
-
-            // Info column
-            Expanded(
-              child: Column(
+            Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    s.title,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark
-                          ? Colors.white
-                          : const Color(0xFF1C1C1E),
+                  Container(
+                    width: 48.r,
+                    height: 48.r,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
+                    child: Icon(s.icon, color: color, size: 24.sp),
                   ),
-                  SizedBox(height: 5.h),
-                  _infoRow(
-                    Icons.access_time,
-                    s.startPrayer != null
-                        ? s.displayTime
-                        : '${s.displayTime} Uhr',
-                    Colors.grey.shade500,
-                  ),
-                  if (s.location.isNotEmpty) ...[
-                    SizedBox(height: 3.h),
-                    _infoRow(
-                      Icons.location_on_outlined,
-                      s.location,
-                      Colors.grey.shade500,
-                    ),
-                  ],
-                  SizedBox(height: 8.h),
-                  Wrap(
-                    spacing: 6.w,
-                    runSpacing: 4.h,
-                    children: [
-                      _chip(
-                        icon: Icons.calendar_today_outlined,
-                        label: widget.formatDate(s.startDate),
-                        color: color,
-                      ),
-                      _chip(
-                        icon: Icons.repeat_rounded,
-                        label: s.frequencyLabel,
-                        color: color,
-                      ),
-                      if (s.repeat != 'none')
-                        _chip(
-                          icon: Icons.event_available_outlined,
-                          label: 'bis ${widget.formatDate(s.endDate)}',
-                          color: color,
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Text('Veranstaltung',
+                                  style: TextStyle(fontSize: 10.sp, color: color, fontWeight: FontWeight.w600)),
+                            ),
+                            const Spacer(),
+                            Icon(Icons.chevron_right_rounded, size: 20.sp, color: Colors.grey.shade400),
+                          ],
                         ),
-                    ],
+                        SizedBox(height: 6.h),
+                        Text(s.title,
+                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white : const Color(0xFF1C1C1E))),
+                        SizedBox(height: 5.h),
+                        _infoRow(Icons.access_time,
+                            s.startPrayer != null ? s.displayTime : '${s.displayTime} Uhr',
+                            Colors.grey.shade500),
+                        if (s.location.isNotEmpty) ...[
+                          SizedBox(height: 3.h),
+                          _infoRow(Icons.location_on_outlined, s.location, Colors.grey.shade500),
+                        ],
+                        SizedBox(height: 8.h),
+                        Wrap(
+                          spacing: 6.w,
+                          runSpacing: 4.h,
+                          children: [
+                            _chip(icon: Icons.calendar_today_outlined, label: widget.formatDate(s.startDate), color: color),
+                            _chip(icon: Icons.repeat_rounded, label: s.frequencyLabel, color: color),
+                            if (s.repeat != 'none')
+                              _chip(icon: Icons.event_available_outlined, label: 'bis ${widget.formatDate(s.endDate)}', color: color),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-
-            SizedBox(width: 8.w),
-
-            // Actions
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () async {
-                    await _favHelper.toggleFavorite(s.id);
-                    setState(() {});
-                  },
-                  child: Icon(
-                    isFav ? Icons.favorite : Icons.favorite_border,
-                    color: isFav ? color : Colors.grey.shade400,
-                    size: 20.sp,
+            Divider(height: 1, color: dividerColor),
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () async {
+                        await _favHelper.toggleFavorite(s.id);
+                        setState(() {});
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              size: 18.sp, color: isFav ? color : Colors.grey.shade400),
+                          SizedBox(width: 6.w),
+                          Text(isFav ? 'Gemerkt' : 'Merken',
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
+                                  color: isFav ? color : Colors.grey.shade500)),
+                        ]),
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                GestureDetector(
-                  onTap: _openNotificationSheet,
-                  child: _notifIcon(mode, color),
-                ),
-                SizedBox(height: 8.h),
-                Icon(Icons.chevron_right, color: color, size: 20.sp),
-              ],
+                  VerticalDivider(width: 1, color: dividerColor),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _openNotificationSheet,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Icon(notifActive ? Icons.notifications_rounded : Icons.notifications_none_rounded,
+                                  size: 18.sp, color: notifActive ? color : Colors.grey.shade400),
+                              if (mode == EventNotificationMode.allFutureEvents)
+                                Positioned(
+                                  right: -3, bottom: -3,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(1.5),
+                                    decoration: BoxDecoration(
+                                        color: isDark ? BColors.prayerRowDark : Colors.white,
+                                        shape: BoxShape.circle),
+                                    child: Icon(Icons.repeat, size: 9.sp, color: color),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(notifActive ? 'Erinnert' : 'Erinnern',
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
+                                  color: notifActive ? color : Colors.grey.shade500)),
+                        ]),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

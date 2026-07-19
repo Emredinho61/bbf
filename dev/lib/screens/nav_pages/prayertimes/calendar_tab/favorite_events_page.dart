@@ -213,139 +213,155 @@ class _FavEventCardState extends State<_FavEventCard> {
     if (mounted) setState(() {});
   }
 
-  Widget _notifIcon(EventNotificationMode mode, Color color) {
-    switch (mode) {
-      case EventNotificationMode.off:
-        return Icon(Icons.notifications_off_outlined,
-            color: Colors.grey.shade400, size: 20.sp);
-      case EventNotificationMode.thisEventOnly:
-        return Icon(Icons.notifications_active, color: color, size: 20.sp);
-      case EventNotificationMode.allFutureEvents:
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(Icons.notifications_active, color: color, size: 20.sp),
-            Positioned(
-              right: -2,
-              bottom: -2,
-              child: Container(
-                padding: EdgeInsets.all(1.w),
-                decoration: BoxDecoration(
-                  color: widget.isDark ? BColors.prayerRowDark : Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.repeat, size: 10.sp, color: color),
-              ),
-            ),
-          ],
-        );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final event = widget.event;
     final isDark = widget.isDark;
     final color = event.colorFor(isDark);
     final mode = _notifHelper.getEventNotificationMode(event.id);
+    final notifActive = mode != EventNotificationMode.off;
+    final dividerColor = isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.06);
 
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) =>
-                EventDetailPage(event: event, date: widget.date)),
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      decoration: BoxDecoration(
+        color: isDark ? BColors.prayerRowDark : Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border(left: BorderSide(color: color, width: 3.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.all(14.w),
-        decoration: BoxDecoration(
-          color: isDark ? BColors.prayerRowDark : Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border(left: BorderSide(color: color, width: 3.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => EventDetailPage(event: event, date: widget.date)),
         ),
-        child: Row(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 48.r,
-              height: 48.r,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Icon(event.icon, color: color, size: 24.sp),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
+            Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event.title,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                  Container(
+                    width: 48.r,
+                    height: 48.r,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
+                    child: Icon(event.icon, color: color, size: 24.sp),
                   ),
-                  SizedBox(height: 4.h),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time,
-                          size: 13.sp, color: Colors.grey.shade500),
-                      SizedBox(width: 4.w),
-                      Text(
-                        event.startPrayer != null
-                            ? event.displayTime
-                            : '${event.displayTime} Uhr',
-                        style: TextStyle(
-                            fontSize: 12.sp, color: Colors.grey.shade500),
-                      ),
-                    ],
-                  ),
-                  if (event.location.isNotEmpty) ...[
-                    SizedBox(height: 2.h),
-                    Row(
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.location_on_outlined,
-                            size: 13.sp, color: Colors.grey.shade500),
-                        SizedBox(width: 4.w),
-                        Expanded(
-                          child: Text(
-                            event.location,
-                            style: TextStyle(
-                                fontSize: 12.sp, color: Colors.grey.shade500),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Text('Veranstaltung',
+                                  style: TextStyle(fontSize: 10.sp, color: color, fontWeight: FontWeight.w600)),
+                            ),
+                            const Spacer(),
+                            Icon(Icons.chevron_right_rounded, size: 20.sp, color: Colors.grey.shade400),
+                          ],
                         ),
+                        SizedBox(height: 6.h),
+                        Text(event.title,
+                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white : const Color(0xFF1C1C1E))),
+                        SizedBox(height: 4.h),
+                        Row(children: [
+                          Icon(Icons.access_time, size: 13.sp, color: Colors.grey.shade500),
+                          SizedBox(width: 4.w),
+                          Text(event.startPrayer != null ? event.displayTime : '${event.displayTime} Uhr',
+                              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
+                        ]),
+                        if (event.location.isNotEmpty) ...[
+                          SizedBox(height: 2.h),
+                          Row(children: [
+                            Icon(Icons.location_on_outlined, size: 13.sp, color: Colors.grey.shade500),
+                            SizedBox(width: 4.w),
+                            Expanded(child: Text(event.location,
+                                style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
+                                overflow: TextOverflow.ellipsis)),
+                          ]),
+                        ],
                       ],
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: _toggleFavorite,
-                  child: Icon(Icons.favorite, color: color, size: 20.sp),
-                ),
-                SizedBox(height: 8.h),
-                GestureDetector(
-                  onTap: _openNotificationSheet,
-                  child: _notifIcon(mode, color),
-                ),
-                SizedBox(height: 8.h),
-                Icon(Icons.chevron_right, color: color, size: 20.sp),
-              ],
+            Divider(height: 1, color: dividerColor),
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _toggleFavorite,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(Icons.favorite_rounded, size: 18.sp, color: color),
+                          SizedBox(width: 6.w),
+                          Text('Gemerkt',
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: color)),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  VerticalDivider(width: 1, color: dividerColor),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _openNotificationSheet,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Icon(notifActive ? Icons.notifications_rounded : Icons.notifications_none_rounded,
+                                  size: 18.sp, color: notifActive ? color : Colors.grey.shade400),
+                              if (mode == EventNotificationMode.allFutureEvents)
+                                Positioned(
+                                  right: -3, bottom: -3,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(1.5),
+                                    decoration: BoxDecoration(
+                                        color: isDark ? BColors.prayerRowDark : Colors.white,
+                                        shape: BoxShape.circle),
+                                    child: Icon(Icons.repeat, size: 9.sp, color: color),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(notifActive ? 'Erinnert' : 'Erinnern',
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
+                                  color: notifActive ? color : Colors.grey.shade500)),
+                        ]),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
