@@ -84,11 +84,11 @@ class _NavBarShellState extends State<NavBarShell> {
             onTap: _onItemTapped,
             items: [
               Icon(
-                Icons.work_outline,
+                Icons.dashboard,
                 color: _isActive(0) ? Colors.white : inactiveColor,
               ),
               Icon(
-                Icons.construction,
+                Icons.volunteer_activism,
                 color: _isActive(1) ? Colors.white : inactiveColor,
               ),
               Icon(
