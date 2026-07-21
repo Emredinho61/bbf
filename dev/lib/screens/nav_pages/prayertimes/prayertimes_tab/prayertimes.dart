@@ -310,12 +310,12 @@ class _PrayerTimesState extends State<PrayerTimes> {
   /* Defining all nessecary functions */
   Future<void> openPdf() async {
     final byteData = await rootBundle.load(
-      'assets/files/pdf_files/Curriculum_Vitae_Emre.pdf',
+      'assets/files/pdf_files/sample.pdf',
     );
 
     // creating a temporary file to store the data in the local storage of the app
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/Curriculum_Vitae_Emre.pdf');
+    final file = File('${dir.path}/sample.pdf');
 
     // write data in file
     await file.writeAsBytes(
