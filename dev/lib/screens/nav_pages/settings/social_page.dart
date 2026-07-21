@@ -78,15 +78,20 @@ class SocialPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+        backgroundColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF2F2F7),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -153,7 +158,9 @@ class SocialPage extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 16.w, vertical: 14.h),
+                    horizontal: 16.w,
+                    vertical: 14.h,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -164,8 +171,11 @@ class SocialPage extends StatelessWidget {
                           color: BColors.primary.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(s.icon,
-                            color: BColors.primary, size: 20.sp),
+                        child: Icon(
+                          s.icon,
+                          color: BColors.primary,
+                          size: 20.sp,
+                        ),
                       ),
                       SizedBox(width: 14.w),
                       Expanded(
@@ -315,8 +325,11 @@ class _IntroBanner extends StatelessWidget {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: Icon(Icons.volunteer_activism,
-                    color: Colors.white, size: 22.sp),
+                child: Icon(
+                  Icons.volunteer_activism,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -344,8 +357,7 @@ class _IntroBanner extends StatelessWidget {
           GestureDetector(
             onTap: onContact,
             child: Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20.r),
@@ -353,8 +365,11 @@ class _IntroBanner extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.email_outlined,
-                      color: BColors.primary, size: 16.sp),
+                  Icon(
+                    Icons.email_outlined,
+                    color: BColors.primary,
+                    size: 16.sp,
+                  ),
                   SizedBox(width: 6.w),
                   Text(
                     'Allgemeine Anfrage',

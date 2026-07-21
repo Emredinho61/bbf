@@ -130,10 +130,8 @@ class EventPickers {
                 (p) => ListTile(
                   leading: const Icon(Icons.access_time),
                   title: Text(p['label']!),
-                  onTap: () => Navigator.pop(
-                    context,
-                    Map<String, String>.from(p),
-                  ),
+                  onTap: () =>
+                      Navigator.pop(context, Map<String, String>.from(p)),
                 ),
               )
               .toList(),

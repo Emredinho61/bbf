@@ -18,15 +18,20 @@ class BildungPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+        backgroundColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF2F2F7),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -43,7 +48,10 @@ class BildungPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 8.h),
         children: [
           // Intro Banner
-          _IntroBanner(isDark: isDark, onRegister: () => _launch('https://bit.ly/33Kev1R')),
+          _IntroBanner(
+            isDark: isDark,
+            onRegister: () => _launch('https://bit.ly/33Kev1R'),
+          ),
 
           // Stats
           _sectionHeader('Auf einen Blick', isDark),
@@ -95,13 +103,33 @@ class BildungPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _StatChip(value: '~200', label: 'Schüler', icon: Icons.people_outline, isDark: isDark),
+          _StatChip(
+            value: '~200',
+            label: 'Schüler',
+            icon: Icons.people_outline,
+            isDark: isDark,
+          ),
           _StatDivider(isDark: isDark),
-          _StatChip(value: '5–14', label: 'Alter', icon: Icons.child_care, isDark: isDark),
+          _StatChip(
+            value: '5–14',
+            label: 'Alter',
+            icon: Icons.child_care,
+            isDark: isDark,
+          ),
           _StatDivider(isDark: isDark),
-          _StatChip(value: '9', label: 'Stufen', icon: Icons.layers_outlined, isDark: isDark),
+          _StatChip(
+            value: '9',
+            label: 'Stufen',
+            icon: Icons.layers_outlined,
+            isDark: isDark,
+          ),
           _StatDivider(isDark: isDark),
-          _StatChip(value: '2017', label: 'Gegründet', icon: Icons.history_edu_outlined, isDark: isDark),
+          _StatChip(
+            value: '2017',
+            label: 'Gegründet',
+            icon: Icons.history_edu_outlined,
+            isDark: isDark,
+          ),
         ],
       ),
     );
@@ -128,14 +156,16 @@ class BildungPage extends StatelessWidget {
             _subjectTile(
               icon: Icons.translate,
               title: 'Arabisch',
-              description: 'Lesen, Schreiben und Sprechen der arabischen Sprache – aufgeteilt in 3 Vorbereitungs- und 6 Grundstufen.',
+              description:
+                  'Lesen, Schreiben und Sprechen der arabischen Sprache – aufgeteilt in 3 Vorbereitungs- und 6 Grundstufen.',
               isDark: isDark,
               isLast: false,
             ),
             _subjectTile(
               icon: Icons.menu_book_outlined,
               title: 'Islamische Bildung',
-              description: 'Grundlagen des islamischen Glaubens und der islamischen Praxis für Kinder und Jugendliche.',
+              description:
+                  'Grundlagen des islamischen Glaubens und der islamischen Praxis für Kinder und Jugendliche.',
               isDark: isDark,
               isLast: true,
             ),
@@ -283,20 +313,27 @@ class BildungPage extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1C1C1E),
                         ),
                       ),
                       SizedBox(height: 2.h),
                       Text(
                         subtitle,
                         style: TextStyle(
-                            fontSize: 13.sp, color: Colors.grey.shade500),
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right,
-                    color: Colors.grey.shade400, size: 22.sp),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey.shade400,
+                  size: 22.sp,
+                ),
               ],
             ),
           ),
@@ -389,8 +426,11 @@ class _IntroBanner extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.app_registration_outlined,
-                      color: BColors.primary, size: 16.sp),
+                  Icon(
+                    Icons.app_registration_outlined,
+                    color: BColors.primary,
+                    size: 16.sp,
+                  ),
                   SizedBox(width: 6.w),
                   Text(
                     'Jetzt anmelden',

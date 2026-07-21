@@ -64,8 +64,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       setState(() {
         _imageFile = file;
         _selectedImageName = result.files.single.name;
-        _pictureOrientation =
-            frame.image.width > frame.image.height ? 'horizontal' : 'vertical';
+        _pictureOrientation = frame.image.width > frame.image.height
+            ? 'horizontal'
+            : 'vertical';
       });
     }
   }
@@ -92,10 +93,12 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
           '${_imageFile!.path}_compressed.jpg',
           quality: 70,
         );
-        final fileToUpload =
-            compressed != null ? File(compressed.path) : _imageFile!;
-        final imageRef =
-            storage.ref().child('project_images/$_selectedImageName');
+        final fileToUpload = compressed != null
+            ? File(compressed.path)
+            : _imageFile!;
+        final imageRef = storage.ref().child(
+          'project_images/$_selectedImageName',
+        );
         await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
       }
@@ -122,9 +125,9 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Hochladen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -132,7 +135,8 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
   }
 
   void _onUpload() {
-    final invalid = _markdownFile == null ||
+    final invalid =
+        _markdownFile == null ||
         _selectedDate == null ||
         _titleController.text.trim().isEmpty;
     setState(() => _showError = invalid);
@@ -145,7 +149,8 @@ class _UploadProjectDialogState extends State<UploadProjectDialog> {
     final noDate = _selectedDate == null;
     final noTitle = _titleController.text.trim().isEmpty;
 
-    if (noFile && noDate && noTitle) return 'Bitte alle Pflichtfelder ausfüllen.';
+    if (noFile && noDate && noTitle)
+      return 'Bitte alle Pflichtfelder ausfüllen.';
     if (noFile && noDate) return 'Bitte Markdown-Datei und Datum auswählen.';
     if (noFile && noTitle) return 'Bitte Markdown-Datei und Titel ausfüllen.';
     if (noDate && noTitle) return 'Bitte Datum und Titel ausfüllen.';

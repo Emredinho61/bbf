@@ -27,8 +27,9 @@ class CalendarService {
     final querySnapshots = await projects.get();
 
     // CSV is loaded lazily the first time a prayer-based event is encountered.
-    List<Map<String, String>>? resolvedCsvData =
-        csvData.isEmpty ? null : csvData;
+    List<Map<String, String>>? resolvedCsvData = csvData.isEmpty
+        ? null
+        : csvData;
 
     for (var doc in querySnapshots.docs) {
       final data = doc.data();
@@ -45,11 +46,13 @@ class CalendarService {
               .map((e) => e.toString())
               .toList();
           if (dateParts.length != 3) continue;
-          exceptionList.add(DateTime(
-            int.parse(dateParts[0]),
-            int.parse(dateParts[1]),
-            int.parse(dateParts[2]),
-          ));
+          exceptionList.add(
+            DateTime(
+              int.parse(dateParts[0]),
+              int.parse(dateParts[1]),
+              int.parse(dateParts[2]),
+            ),
+          );
         }
       }
 
@@ -131,6 +134,7 @@ class CalendarService {
           final m = int.tryParse(parts[1]) ?? 0;
           return h * 60 + m;
         }
+
         return parseMinutes(a.time).compareTo(parseMinutes(b.time));
       });
     }
@@ -183,11 +187,12 @@ class CalendarService {
 
   Future<List<String>> getAllEventTitles() async {
     final snapshot = await projects.get();
-    final titles = snapshot.docs
-        .map((doc) => doc.data()['title'] as String? ?? '')
-        .where((t) => t.isNotEmpty)
-        .toList()
-      ..sort();
+    final titles =
+        snapshot.docs
+            .map((doc) => doc.data()['title'] as String? ?? '')
+            .where((t) => t.isNotEmpty)
+            .toList()
+          ..sort();
     return titles;
   }
 
@@ -247,23 +252,25 @@ class CalendarService {
             '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
       }
 
-      summaries.add(EventSummary(
-        id: data['id'] as String? ?? data['title'] as String? ?? '',
-        title: data['title'] as String? ?? '',
-        content: data['content'] as String? ?? '',
-        location: data['location'] as String? ?? '',
-        displayTime: displayTime,
-        beginHour: beginHour,
-        beginMinute: beginMinute,
-        startDate: startDate,
-        endDate: endDate,
-        repeat: repeat,
-        frequency: frequency,
-        colorIndex: (data['colorIndex'] as num?)?.toInt() ?? 0,
-        iconKey: data['iconKey'] as String? ?? 'event',
-        startPrayer: isPrayer ? startPrayer : null,
-        endPrayer: isPrayer ? endPrayer : null,
-      ));
+      summaries.add(
+        EventSummary(
+          id: data['id'] as String? ?? data['title'] as String? ?? '',
+          title: data['title'] as String? ?? '',
+          content: data['content'] as String? ?? '',
+          location: data['location'] as String? ?? '',
+          displayTime: displayTime,
+          beginHour: beginHour,
+          beginMinute: beginMinute,
+          startDate: startDate,
+          endDate: endDate,
+          repeat: repeat,
+          frequency: frequency,
+          colorIndex: (data['colorIndex'] as num?)?.toInt() ?? 0,
+          iconKey: data['iconKey'] as String? ?? 'event',
+          startPrayer: isPrayer ? startPrayer : null,
+          endPrayer: isPrayer ? endPrayer : null,
+        ),
+      );
     }
 
     summaries.sort((a, b) => a.startDate.compareTo(b.startDate));

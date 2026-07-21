@@ -93,7 +93,9 @@ class PrayerNotificationHandler extends TaskHandler {
       if (timeStr == null || !timeStr.contains(':')) continue;
       final parts = timeStr.split(':');
       final prayerDt = DateTime(
-        now.year, now.month, now.day,
+        now.year,
+        now.month,
+        now.day,
         int.tryParse(parts[0]) ?? 0,
         int.tryParse(parts[1]) ?? 0,
       );
@@ -127,9 +129,14 @@ class PrayerNotificationHandler extends TaskHandler {
       return;
     }
     if (_prayerTimesHelper == null) await _ensureInitialized();
-    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(csvData);
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
+      csvData,
+    );
     final (title, body) = _buildNotification(todayRow);
-    FlutterForegroundTask.updateService(notificationTitle: title, notificationText: body);
+    FlutterForegroundTask.updateService(
+      notificationTitle: title,
+      notificationText: body,
+    );
   }
 
   @override
@@ -143,9 +150,14 @@ class PrayerNotificationHandler extends TaskHandler {
       return;
     }
     if (_prayerTimesHelper == null) await _ensureInitialized();
-    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(csvData);
+    final todayRow = _prayerTimesHelper!.getTodaysPrayerTimesAsStringMap(
+      csvData,
+    );
     final (title, body) = _buildNotification(todayRow);
-    FlutterForegroundTask.updateService(notificationTitle: title, notificationText: body);
+    FlutterForegroundTask.updateService(
+      notificationTitle: title,
+      notificationText: body,
+    );
   }
 
   @override
@@ -309,9 +321,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
   /* Defining all nessecary functions */
   Future<void> openPdf() async {
-    final byteData = await rootBundle.load(
-      'assets/files/pdf_files/sample.pdf',
-    );
+    final byteData = await rootBundle.load('assets/files/pdf_files/sample.pdf');
 
     // creating a temporary file to store the data in the local storage of the app
     final dir = await getTemporaryDirectory();
@@ -362,8 +372,11 @@ class _PrayerTimesState extends State<PrayerTimes> {
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     final nextKey = _showNextPrayer();
     const displayNames = {
-      'Fajr': 'Fajr', 'Dhur': 'Dhuhr', 'Asr': 'Asr',
-      'Maghrib': 'Maghrib', 'Isha': 'Isha',
+      'Fajr': 'Fajr',
+      'Dhur': 'Dhuhr',
+      'Asr': 'Asr',
+      'Maghrib': 'Maghrib',
+      'Isha': 'Isha',
     };
     final dur = _calculateNextPrayerDuration();
     final hh = dur.inHours.toString().padLeft(2, '0');
@@ -542,7 +555,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
         );
       } else {
         // Fallback: midnight (start of today)
-        previous = MapEntry("Isha", DateTime(now.year, now.month, now.day, 0, 0));
+        previous = MapEntry(
+          "Isha",
+          DateTime(now.year, now.month, now.day, 0, 0),
+        );
       }
     }
 
@@ -911,54 +927,54 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         SizedBox(height: 20.h),
 
                         SizedBox(
-                            height: 130.h,
-                            child: OverflowBox(
-                              maxHeight: 300,
-                              alignment: Alignment.topCenter,
-                              child: SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: Stack(
-                                  children: [
-                                    CustomPaint(
-                                      size: const Size(200, 200),
-                                      painter: GlowArcPainter(
-                                        percent: circlePercent.clamp(0.0, 1.0),
-                                        progressColor: BColors.primary,
-                                        trackColor: isDark
-                                            ? const Color(0xFF2C3A4A)
-                                            : Colors.grey.shade300,
-                                        strokeWidth: 6,
+                          height: 130.h,
+                          child: OverflowBox(
+                            maxHeight: 300,
+                            alignment: Alignment.topCenter,
+                            child: SizedBox(
+                              width: 200,
+                              height: 200,
+                              child: Stack(
+                                children: [
+                                  CustomPaint(
+                                    size: const Size(200, 200),
+                                    painter: GlowArcPainter(
+                                      percent: circlePercent.clamp(0.0, 1.0),
+                                      progressColor: BColors.primary,
+                                      trackColor: isDark
+                                          ? const Color(0xFF2C3A4A)
+                                          : Colors.grey.shade300,
+                                      strokeWidth: 6,
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Transform.translate(
+                                      offset: const Offset(0, -30),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            countdownText,
+                                            style: TextStyle(
+                                              fontSize: 25.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'bis ${_getCountdownLabel()}',
+                                            style: TextStyle(
+                                              fontSize: 16.sp,
+                                              color: BColors.primary,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Center(
-                                      child: Transform.translate(
-                                        offset: const Offset(0, -30),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              countdownText,
-                                              style: TextStyle(
-                                                fontSize: 25.sp,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              'bis ${_getCountdownLabel()}',
-                                              style: TextStyle(
-                                                fontSize: 16.sp,
-                                                color: BColors.primary,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
                         ),
                       ],
                     ),
@@ -1253,7 +1269,6 @@ class _PrayerTimesState extends State<PrayerTimes> {
     );
   }
 
-
   List<Map<String, int>> _extractAvailableMonths(
     List<Map<String, String>> csvData,
   ) {
@@ -1316,7 +1331,9 @@ class _PrayerTimesState extends State<PrayerTimes> {
     final sheetBg = isDark ? BColors.prayerRowDark : Colors.white;
     final labelColor = isDark ? Colors.white : const Color(0xFF111827);
     final subColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final dropdownBg = isDark ? BColors.backgroundColorDark : BColors.backgroundColor;
+    final dropdownBg = isDark
+        ? BColors.backgroundColorDark
+        : BColors.backgroundColor;
 
     showModalBottomSheet(
       context: context,
@@ -1401,7 +1418,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
 
                   // Styled dropdown
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 4.h,
+                    ),
                     decoration: BoxDecoration(
                       color: dropdownBg,
                       borderRadius: BorderRadius.circular(12.r),
@@ -1415,16 +1435,26 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         value: selectedEntry,
                         isExpanded: true,
                         dropdownColor: sheetBg,
-                        icon: Icon(Icons.keyboard_arrow_down_rounded, color: BColors.primary),
-                        style: TextStyle(fontSize: 15.sp, color: labelColor, fontWeight: FontWeight.w500),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: BColors.primary,
+                        ),
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: labelColor,
+                          fontWeight: FontWeight.w500,
+                        ),
                         items: availableMonths.map((entry) {
                           return DropdownMenuItem(
                             value: entry,
-                            child: Text('${_monthName(entry['month']!)} ${entry['year']}'),
+                            child: Text(
+                              '${_monthName(entry['month']!)} ${entry['year']}',
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
-                          if (value != null) setSheetState(() => selectedEntry = value);
+                          if (value != null)
+                            setSheetState(() => selectedEntry = value);
                         },
                       ),
                     ),
@@ -1476,7 +1506,10 @@ class _PrayerTimesState extends State<PrayerTimes> {
                           icon: Icon(Icons.download_rounded, size: 18.sp),
                           label: Text(
                             'PDF erzeugen',
-                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

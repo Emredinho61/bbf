@@ -91,8 +91,9 @@ class _QiblahScreenState extends State<QiblahScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF5F5F5),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         elevation: 0,
@@ -109,8 +110,11 @@ class _QiblahScreenState extends State<QiblahScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded,
-                color: BColors.primary, size: 22.sp),
+            icon: Icon(
+              Icons.info_outline_rounded,
+              color: BColors.primary,
+              size: 22.sp,
+            ),
             onPressed: () => _showCalibrationTip(context),
           ),
         ],
@@ -123,8 +127,9 @@ class _QiblahScreenState extends State<QiblahScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         title: const Text('Kalibrierung'),
         content: const Text(
           'Bewege dein Gerät in einer liegenden 8-Form, um den Kompass zu '
@@ -221,9 +226,10 @@ class _QiblahCompassState extends State<_QiblahCompass>
     _loadPosition();
 
     // Ticker drives AnimatedBuilder for compass only — no full-widget setState
-    _ticker =
-        AnimationController(vsync: this, duration: const Duration(days: 1))
-          ..repeat();
+    _ticker = AnimationController(
+      vsync: this,
+      duration: const Duration(days: 1),
+    )..repeat();
 
     _sub = FlutterQiblah.qiblahStream.listen(_onData);
   }
@@ -280,7 +286,11 @@ class _QiblahCompassState extends State<_QiblahCompass>
   double? get _distanceKm {
     if (_position == null) return null;
     return Geolocator.distanceBetween(
-            _position!.latitude, _position!.longitude, 21.4225, 39.8262) /
+          _position!.latitude,
+          _position!.longitude,
+          21.4225,
+          39.8262,
+        ) /
         1000;
   }
 
@@ -353,54 +363,56 @@ class _QiblahCompassState extends State<_QiblahCompass>
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: AspectRatio(
               aspectRatio: 1,
-              child: LayoutBuilder(builder: (_, c) {
-                final size = c.maxWidth;
-                // AnimatedBuilder rebuilds only this subtree at 60fps,
-                // leaving the SingleChildScrollView scroll-position untouched.
-                return AnimatedBuilder(
-                  animation: _ticker,
-                  builder: (_, __) {
-                    _dir = _lerpAngle(_dir, _targetDir, 0.14);
-                    _qiblah = _lerpAngle(_qiblah, _targetQiblah, 0.14);
-                    _offset = _lerpAngle(_offset, _targetOffset, 0.14);
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CustomPaint(
-                          size: Size(size, size),
-                          painter: _QiblahPainter(
-                            direction: _dir,
-                            qiblah: _qiblah,
-                            isDark: isDark,
+              child: LayoutBuilder(
+                builder: (_, c) {
+                  final size = c.maxWidth;
+                  // AnimatedBuilder rebuilds only this subtree at 60fps,
+                  // leaving the SingleChildScrollView scroll-position untouched.
+                  return AnimatedBuilder(
+                    animation: _ticker,
+                    builder: (_, __) {
+                      _dir = _lerpAngle(_dir, _targetDir, 0.14);
+                      _qiblah = _lerpAngle(_qiblah, _targetQiblah, 0.14);
+                      _offset = _lerpAngle(_offset, _targetOffset, 0.14);
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CustomPaint(
+                            size: Size(size, size),
+                            painter: _QiblahPainter(
+                              direction: _dir,
+                              qiblah: _qiblah,
+                              isDark: isDark,
+                            ),
                           ),
-                        ),
-                        // BBF logo overlay in center
-                        Container(
-                          width: size * 0.18,
-                          height: size * 0.18,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF1F2937)
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 8,
-                              ),
-                            ],
+                          // BBF logo overlay in center
+                          Container(
+                            width: size * 0.18,
+                            height: size * 0.18,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1F2937)
+                                  : Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.all(3.r),
+                            child: Image.asset(
+                              'assets/images/bbf-logo.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                          padding: EdgeInsets.all(3.r),
-                          child: Image.asset(
-                            'assets/images/bbf-logo.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
           SizedBox(height: 16.h),
@@ -421,7 +433,7 @@ class _QiblahCompassState extends State<_QiblahCompass>
     final pos = _position;
     final coordText = pos != null
         ? '${pos.latitude.abs().toStringAsFixed(4)}° ${pos.latitude >= 0 ? 'N' : 'S'}'
-            '  ${pos.longitude.abs().toStringAsFixed(4)}° ${pos.longitude >= 0 ? 'O' : 'W'}'
+              '  ${pos.longitude.abs().toStringAsFixed(4)}° ${pos.longitude >= 0 ? 'O' : 'W'}'
         : 'Standort wird ermittelt…';
     final country = _guessCountry();
 
@@ -449,8 +461,7 @@ class _QiblahCompassState extends State<_QiblahCompass>
                 color: green.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child:
-                  Icon(Icons.location_on_rounded, color: green, size: 20.sp),
+              child: Icon(Icons.location_on_rounded, color: green, size: 20.sp),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -471,15 +482,16 @@ class _QiblahCompassState extends State<_QiblahCompass>
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color:
-                          isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                   ),
                   if (country != null)
                     Text(
                       country,
                       style: TextStyle(
-                          fontSize: 12.sp, color: Colors.grey.shade500),
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                 ],
               ),
@@ -514,7 +526,9 @@ class _QiblahCompassState extends State<_QiblahCompass>
                 Text(
                   'Richtung zur Kaaba',
                   style: TextStyle(
-                      fontSize: 12.sp, color: Colors.grey.shade600),
+                    fontSize: 12.sp,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
                 SizedBox(height: 2.h),
                 Row(
@@ -621,8 +635,7 @@ class _QiblahCompassState extends State<_QiblahCompass>
             SizedBox(height: 6.h),
             Text(
               label,
-              style:
-                  TextStyle(fontSize: 10.sp, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 10.sp, color: Colors.grey.shade500),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 2.h),
@@ -674,8 +687,7 @@ class _QiblahPainter extends CustomPainter {
 
   static const double _deg = pi / 180;
 
-  Color get _green =>
-      isDark ? const Color(0xFF4ADE80) : Colors.green;
+  Color get _green => isDark ? const Color(0xFF4ADE80) : Colors.green;
   Color get _bg => isDark ? const Color(0xFF111827) : Colors.white;
 
   @override
@@ -716,8 +728,9 @@ class _QiblahPainter extends CustomPainter {
 
   void _drawIslamicStar(Canvas canvas, double r) {
     final paint = Paint()
-      ..color = (isDark ? Colors.white : Colors.grey.shade400)
-          .withOpacity(isDark ? 0.04 : 0.08)
+      ..color = (isDark ? Colors.white : Colors.grey.shade400).withOpacity(
+        isDark ? 0.04 : 0.08,
+      )
       ..style = PaintingStyle.fill;
 
     final starR = r * 0.44;
@@ -752,22 +765,20 @@ class _QiblahPainter extends CustomPainter {
       final tickLen = isCardinal
           ? r * 0.11
           : isMedium
-              ? r * 0.07
-              : r * 0.04;
+          ? r * 0.07
+          : r * 0.04;
 
       tick
         ..color = isCardinal
-            ? (isDark
-                ? Colors.white.withOpacity(0.45)
-                : Colors.grey.shade400)
+            ? (isDark ? Colors.white.withOpacity(0.45) : Colors.grey.shade400)
             : isMedium
-                ? (isDark
-                    ? Colors.white.withOpacity(0.18)
-                    : Colors.grey.shade300)
-                : (isDark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.grey.shade200)
-        ..strokeWidth = isCardinal ? 2.0 : isMedium ? 1.4 : 0.9;
+            ? (isDark ? Colors.white.withOpacity(0.18) : Colors.grey.shade300)
+            : (isDark ? Colors.white.withOpacity(0.08) : Colors.grey.shade200)
+        ..strokeWidth = isCardinal
+            ? 2.0
+            : isMedium
+            ? 1.4
+            : 0.9;
 
       final s = sin(angle);
       final c = cos(angle);
@@ -790,18 +801,53 @@ class _QiblahPainter extends CustomPainter {
     canvas.drawPath(triPath, triPaint);
 
     // Cardinal labels
-    _drawLabel(canvas, 'N', 0, r,
-        isDark ? Colors.white : const Color(0xFF1F2937), 18, FontWeight.bold);
-    _drawLabel(canvas, 'E', pi / 2, r,
-        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
-    _drawLabel(canvas, 'S', pi, r,
-        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
-    _drawLabel(canvas, 'W', 3 * pi / 2, r,
-        isDark ? Colors.white54 : Colors.grey.shade500, 13, FontWeight.w600);
+    _drawLabel(
+      canvas,
+      'N',
+      0,
+      r,
+      isDark ? Colors.white : const Color(0xFF1F2937),
+      18,
+      FontWeight.bold,
+    );
+    _drawLabel(
+      canvas,
+      'E',
+      pi / 2,
+      r,
+      isDark ? Colors.white54 : Colors.grey.shade500,
+      13,
+      FontWeight.w600,
+    );
+    _drawLabel(
+      canvas,
+      'S',
+      pi,
+      r,
+      isDark ? Colors.white54 : Colors.grey.shade500,
+      13,
+      FontWeight.w600,
+    );
+    _drawLabel(
+      canvas,
+      'W',
+      3 * pi / 2,
+      r,
+      isDark ? Colors.white54 : Colors.grey.shade500,
+      13,
+      FontWeight.w600,
+    );
   }
 
-  void _drawLabel(Canvas canvas, String text, double angle, double r,
-      Color color, double fontSize, FontWeight weight) {
+  void _drawLabel(
+    Canvas canvas,
+    String text,
+    double angle,
+    double r,
+    Color color,
+    double fontSize,
+    FontWeight weight,
+  ) {
     final labelR = r * 0.68;
     final x = labelR * sin(angle);
     final y = -labelR * cos(angle);
@@ -810,10 +856,11 @@ class _QiblahPainter extends CustomPainter {
       text: TextSpan(
         text: text,
         style: TextStyle(
-            color: color,
-            fontSize: fontSize,
-            fontWeight: weight,
-            height: 1),
+          color: color,
+          fontSize: fontSize,
+          fontWeight: weight,
+          height: 1,
+        ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -870,13 +917,11 @@ class _QiblahPainter extends CustomPainter {
       ..lineTo(w, -len * 0.25)
       ..close();
 
-    paint.color =
-        isDark ? const Color(0xFF166534) : const Color(0xFF15803D);
+    paint.color = isDark ? const Color(0xFF166534) : const Color(0xFF15803D);
     canvas.drawPath(arrowPath, paint);
 
     // Highlight
-    paint.color =
-        isDark ? const Color(0xFF4ADE80) : const Color(0xFF22C55E);
+    paint.color = isDark ? const Color(0xFF4ADE80) : const Color(0xFF22C55E);
     canvas.drawPath(
       Path()
         ..moveTo(0, -len)
@@ -888,9 +933,7 @@ class _QiblahPainter extends CustomPainter {
 
     // Needle outline
     paint
-      ..color = isDark
-          ? const Color(0xFF14532D)
-          : const Color(0xFF166534)
+      ..color = isDark ? const Color(0xFF14532D) : const Color(0xFF166534)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
       ..strokeJoin = StrokeJoin.round;
@@ -1016,31 +1059,31 @@ class _ErrorView extends StatelessWidget {
             SizedBox(height: 20.h),
             Text(
               title,
-              style:
-                  TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style:
-                  TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
             ),
             SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: onAction,
-              icon: Icon(actionLabel != null
-                  ? Icons.settings_rounded
-                  : Icons.refresh_rounded),
+              icon: Icon(
+                actionLabel != null
+                    ? Icons.settings_rounded
+                    : Icons.refresh_rounded,
+              ),
               label: Text(actionLabel ?? 'Erneut versuchen'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: BColors.primary,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                    horizontal: 24.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
               ),
             ),
           ],

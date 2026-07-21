@@ -225,8 +225,8 @@ class NotificationServices {
       }
 
       // Reschedule the main prayer notification
-      final List<DateTime> prayerTimes =
-          await prayerTimesHelper.getAnyDayPrayerTimesAsDateTimes(csvData, day);
+      final List<DateTime> prayerTimes = await prayerTimesHelper
+          .getAnyDayPrayerTimesAsDateTimes(csvData, day);
       if (prayerIndex >= prayerTimes.length) continue;
 
       await scheduledNotification(
@@ -237,8 +237,9 @@ class NotificationServices {
       );
 
       // Reschedule the pre-prayer notification if one is set
-      final userSetting =
-          schedulerHelper.getUsersPrePrayerSettings('notifyPre_$prayerName');
+      final userSetting = schedulerHelper.getUsersPrePrayerSettings(
+        'notifyPre_$prayerName',
+      );
       final Map<String, Duration> preOptions = {
         '5 Minuten': const Duration(minutes: 5),
         '10 Minuten': const Duration(minutes: 10),

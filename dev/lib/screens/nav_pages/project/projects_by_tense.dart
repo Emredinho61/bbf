@@ -101,9 +101,12 @@ class _SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
-    final highlightColor =
-        isDark ? const Color(0xFF3C3C3C) : const Color(0xFFF5F5F5);
+    final baseColor = isDark
+        ? const Color(0xFF2C2C2C)
+        : const Color(0xFFE0E0E0);
+    final highlightColor = isDark
+        ? const Color(0xFF3C3C3C)
+        : const Color(0xFFF5F5F5);
 
     return Container(
       decoration: BoxDecoration(

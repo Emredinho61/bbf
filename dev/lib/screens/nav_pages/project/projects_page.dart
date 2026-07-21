@@ -11,8 +11,9 @@ class AllProjects extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF5F7FA),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

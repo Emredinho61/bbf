@@ -29,11 +29,11 @@ class _MonitorPageState extends State<MonitorPage> {
 
   String fridayPrayer1 = prayerTimesHelper.getFridaysPrayer1Preference();
   String fridayPrayer2 = prayerTimesHelper.getFridaysPrayer2Preference();
-  String fajrIqama   = prayerTimesHelper.getFajrIqamaPreference();
-  String dhurIqama   = prayerTimesHelper.getDhurIqamaPreference();
-  String asrIqama    = prayerTimesHelper.getAsrIqamaPreference();
+  String fajrIqama = prayerTimesHelper.getFajrIqamaPreference();
+  String dhurIqama = prayerTimesHelper.getDhurIqamaPreference();
+  String asrIqama = prayerTimesHelper.getAsrIqamaPreference();
   String maghribIqama = prayerTimesHelper.getMaghribIqamaPreference();
-  String ishaIqama   = prayerTimesHelper.getIshaIqamaPreference();
+  String ishaIqama = prayerTimesHelper.getIshaIqamaPreference();
 
   static const _prayerKeys = ['Fajr', 'Dhur', 'Asr', 'Maghrib', 'Isha'];
 
@@ -44,9 +44,11 @@ class _MonitorPageState extends State<MonitorPage> {
   @override
   void initState() {
     super.initState();
-    _loadCSV().then((_) => setState(() {
-      timeUntilNextPrayer = _calcCountdown();
-    }));
+    _loadCSV().then(
+      (_) => setState(() {
+        timeUntilNextPrayer = _calcCountdown();
+      }),
+    );
     _loadRemoteTimes();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() => timeUntilNextPrayer = _calcCountdown());
@@ -95,21 +97,27 @@ class _MonitorPageState extends State<MonitorPage> {
     ]);
     if (!mounted) return;
     setState(() {
-      fridayPrayer1  = results[0];
-      fridayPrayer2  = results[1];
-      fajrIqama      = results[2];
-      dhurIqama      = results[3];
-      asrIqama       = results[4];
-      maghribIqama   = results[5];
-      ishaIqama      = results[6];
+      fridayPrayer1 = results[0];
+      fridayPrayer2 = results[1];
+      fajrIqama = results[2];
+      dhurIqama = results[3];
+      asrIqama = results[4];
+      maghribIqama = results[5];
+      ishaIqama = results[6];
     });
-    await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer1', results[0]);
-    await prayerTimesHelper.setFridaysPrayerPreference('FridaysPrayer2', results[1]);
-    await prayerTimesHelper.setIqamaPreference('Fajr',    results[2]);
-    await prayerTimesHelper.setIqamaPreference('Dhur',    results[3]);
-    await prayerTimesHelper.setIqamaPreference('Asr',     results[4]);
+    await prayerTimesHelper.setFridaysPrayerPreference(
+      'FridaysPrayer1',
+      results[0],
+    );
+    await prayerTimesHelper.setFridaysPrayerPreference(
+      'FridaysPrayer2',
+      results[1],
+    );
+    await prayerTimesHelper.setIqamaPreference('Fajr', results[2]);
+    await prayerTimesHelper.setIqamaPreference('Dhur', results[3]);
+    await prayerTimesHelper.setIqamaPreference('Asr', results[4]);
     await prayerTimesHelper.setIqamaPreference('Maghrib', results[5]);
-    await prayerTimesHelper.setIqamaPreference('Isha',    results[6]);
+    await prayerTimesHelper.setIqamaPreference('Isha', results[6]);
   }
 
   // ── Timer logic ───────────────────────────────────────────────────────────
@@ -122,8 +130,11 @@ class _MonitorPageState extends State<MonitorPage> {
     for (final key in _prayerKeys) {
       final timeStr = todayRow[key];
       if (timeStr == null) continue;
-      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(timeStr);
-      final iqamaMin = int.tryParse(prayerTimesHelper.getCertainIqamaPreference(key)) ?? 10;
+      final prayerTime = prayerTimesHelper.convertStringTimeIntoDateTime(
+        timeStr,
+      );
+      final iqamaMin =
+          int.tryParse(prayerTimesHelper.getCertainIqamaPreference(key)) ?? 10;
       final iqamaEnd = prayerTime.add(Duration(minutes: iqamaMin));
 
       if (now.isAfter(prayerTime) && now.isBefore(iqamaEnd)) {
@@ -140,12 +151,18 @@ class _MonitorPageState extends State<MonitorPage> {
     isIqamaRunning = false;
     final tomorrow = now.add(const Duration(days: 1));
     final tomorrowStr = DateFormat('dd.MM.yyyy').format(tomorrow);
-    final tomorrowRow = csvData.firstWhere((r) => r['Date'] == tomorrowStr, orElse: () => {});
+    final tomorrowRow = csvData.firstWhere(
+      (r) => r['Date'] == tomorrowStr,
+      orElse: () => {},
+    );
     final fajrStr = tomorrowRow['Fajr'] ?? todayRow['Fajr'] ?? '03:00';
     final parts = fajrStr.split(':');
     final fajrTomorrow = DateTime(
-      tomorrow.year, tomorrow.month, tomorrow.day,
-      int.parse(parts[0]), int.parse(parts[1]),
+      tomorrow.year,
+      tomorrow.month,
+      tomorrow.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
     );
     return fajrTomorrow.difference(now);
   }
@@ -164,7 +181,8 @@ class _MonitorPageState extends State<MonitorPage> {
     final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
     for (final key in _prayerKeys) {
       final t = todayRow[key];
-      if (t != null && prayerTimesHelper.convertStringTimeIntoDateTime(t).isAfter(now)) {
+      if (t != null &&
+          prayerTimesHelper.convertStringTimeIntoDateTime(t).isAfter(now)) {
         return key;
       }
     }
@@ -173,20 +191,49 @@ class _MonitorPageState extends State<MonitorPage> {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  static const _weekdays  = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
-  static const _months    = ['Januar','Februar','März','April','Mai','Juni',
-                              'Juli','August','September','Oktober','November','Dezember'];
+  static const _weekdays = [
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+    'Sonntag',
+  ];
+  static const _months = [
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
+  ];
   static const _displayNames = <String, String>{
-    'Fajr': 'Fajr', 'Dhur': 'Dhuhr', 'Asr': 'Asr', 'Maghrib': 'Maghrib', 'Isha': 'Isha',
+    'Fajr': 'Fajr',
+    'Dhur': 'Dhuhr',
+    'Asr': 'Asr',
+    'Maghrib': 'Maghrib',
+    'Isha': 'Isha',
   };
 
   String _iqamaFor(String key) {
     switch (key) {
-      case 'Fajr':    return fajrIqama;
-      case 'Dhur':    return dhurIqama;
-      case 'Asr':     return asrIqama;
-      case 'Maghrib': return maghribIqama;
-      default:        return ishaIqama;
+      case 'Fajr':
+        return fajrIqama;
+      case 'Dhur':
+        return dhurIqama;
+      case 'Asr':
+        return asrIqama;
+      case 'Maghrib':
+        return maghribIqama;
+      default:
+        return ishaIqama;
     }
   }
 
@@ -198,25 +245,32 @@ class _MonitorPageState extends State<MonitorPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final size   = MediaQuery.of(context).size;
-    final scale  = (size.width / 1280).clamp(0.35, 2.0);
-    final now    = DateTime.now();
+    final size = MediaQuery.of(context).size;
+    final scale = (size.width / 1280).clamp(0.35, 2.0);
+    final now = DateTime.now();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg     = isDark ? BColors.backgroundColorDark : BColors.backgroundColor;
-    final fg     = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final bg = isDark ? BColors.backgroundColorDark : BColors.backgroundColor;
+    final fg = isDark ? Colors.white : const Color(0xFF1C1C1E);
 
-    final todayRow   = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
-    final hijri      = HijriCalendarConfig.now();
-    final nextKey    = _nextPrayerKey();
+    final todayRow = prayerTimesHelper.getTodaysPrayerTimesAsStringMap(csvData);
+    final hijri = HijriCalendarConfig.now();
+    final nextKey = _nextPrayerKey();
 
-    final germanDate = '${_weekdays[now.weekday - 1]}, ${now.day}. ${_months[now.month - 1]} ${now.year}';
-    final hijriDate  = '${hijri.hDay} ${hijri.getLongMonthName()} ${hijri.hYear}';
+    final germanDate =
+        '${_weekdays[now.weekday - 1]}, ${now.day}. ${_months[now.month - 1]} ${now.year}';
+    final hijriDate =
+        '${hijri.hDay} ${hijri.getLongMonthName()} ${hijri.hYear}';
 
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(32 * scale, 20 * scale, 32 * scale, 16 * scale),
+          padding: EdgeInsets.fromLTRB(
+            32 * scale,
+            20 * scale,
+            32 * scale,
+            16 * scale,
+          ),
           child: Column(
             children: [
               // ── Top: Shuruk | Clock | Friday ──────────────
@@ -229,7 +283,16 @@ class _MonitorPageState extends State<MonitorPage> {
                     Expanded(flex: 2, child: _shurukBlock(todayRow, scale, fg)),
 
                     // Center – title + countdown + dates
-                    Expanded(flex: 5, child: _centerBlock(scale, fg, germanDate, hijriDate, nextKey)),
+                    Expanded(
+                      flex: 5,
+                      child: _centerBlock(
+                        scale,
+                        fg,
+                        germanDate,
+                        hijriDate,
+                        nextKey,
+                      ),
+                    ),
 
                     // Right – Friday prayer
                     Expanded(flex: 2, child: _fridayBlock(scale, fg)),
@@ -255,7 +318,8 @@ class _MonitorPageState extends State<MonitorPage> {
                           isDark: isDark,
                         ),
                       ),
-                      if (i < _prayerKeys.length - 1) SizedBox(width: 12 * scale),
+                      if (i < _prayerKeys.length - 1)
+                        SizedBox(width: 12 * scale),
                     ],
                   ],
                 ),
@@ -296,18 +360,32 @@ class _MonitorPageState extends State<MonitorPage> {
         SizedBox(height: 10 * scale),
         Text(
           'Shuruk',
-          style: TextStyle(color: fg.withOpacity(0.8), fontSize: 22 * scale, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: fg.withOpacity(0.8),
+            fontSize: 22 * scale,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         SizedBox(height: 6 * scale),
         Text(
           todayRow['Sunrise'] ?? '--:--',
-          style: TextStyle(color: fg, fontSize: 36 * scale, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: fg,
+            fontSize: 36 * scale,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
   }
 
-  Widget _centerBlock(double scale, Color fg, String germanDate, String hijriDate, String nextKey) {
+  Widget _centerBlock(
+    double scale,
+    Color fg,
+    String germanDate,
+    String hijriDate,
+    String nextKey,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -368,12 +446,20 @@ class _MonitorPageState extends State<MonitorPage> {
         Text(
           'Freitagsgebet',
           textAlign: TextAlign.center,
-          style: TextStyle(color: fg.withOpacity(0.8), fontSize: 20 * scale, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: fg.withOpacity(0.8),
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         SizedBox(height: 10 * scale),
         Text(
           fridayPrayer1.isEmpty ? '--:--' : fridayPrayer1,
-          style: TextStyle(color: fg, fontSize: 34 * scale, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: fg,
+            fontSize: 34 * scale,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         SizedBox(height: 8 * scale),
         SizedBox(
@@ -383,7 +469,11 @@ class _MonitorPageState extends State<MonitorPage> {
         SizedBox(height: 8 * scale),
         Text(
           fridayPrayer2.isEmpty ? '--:--' : fridayPrayer2,
-          style: TextStyle(color: fg, fontSize: 34 * scale, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: fg,
+            fontSize: 34 * scale,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -397,9 +487,15 @@ class _MonitorPageState extends State<MonitorPage> {
     required double scale,
     required bool isDark,
   }) {
-    final cardBg   = isActive ? BColors.primary : (isDark ? BColors.prayerRowDark : Colors.white);
-    final textCol  = (isActive || isDark) ? Colors.white : const Color(0xFF1C1C1E);
-    final iqamaBg  = Colors.white.withOpacity(isActive ? 0.2 : (isDark ? 0.1 : 0.0));
+    final cardBg = isActive
+        ? BColors.primary
+        : (isDark ? BColors.prayerRowDark : Colors.white);
+    final textCol = (isActive || isDark)
+        ? Colors.white
+        : const Color(0xFF1C1C1E);
+    final iqamaBg = Colors.white.withOpacity(
+      isActive ? 0.2 : (isDark ? 0.1 : 0.0),
+    );
     final iqamaCol = isActive || isDark ? Colors.white : BColors.primary;
 
     return Container(
@@ -442,7 +538,10 @@ class _MonitorPageState extends State<MonitorPage> {
           ),
           SizedBox(height: 8 * scale),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 4 * scale),
+            padding: EdgeInsets.symmetric(
+              horizontal: 12 * scale,
+              vertical: 4 * scale,
+            ),
             decoration: BoxDecoration(
               color: iqamaBg,
               border: Border.all(color: iqamaCol.withOpacity(0.3)),

@@ -18,15 +18,20 @@ class ContactPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+        backgroundColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF2F2F7),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -161,13 +166,18 @@ class ContactPage extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                            fontSize: 13.sp, color: Colors.grey.shade500),
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right,
-                    color: Colors.grey.shade400, size: 22.sp),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey.shade400,
+                  size: 22.sp,
+                ),
               ],
             ),
           ),
@@ -198,7 +208,10 @@ class _FaqCard extends StatelessWidget {
       q: 'Wie kann ich Mitglied in Ihrem Verein werden?',
       a: 'Füllen Sie bitte folgendes Formular aus und schicken Sie es uns zu oder kommen Sie einfach bei uns vorbei.',
       links: [
-        _FaqLink('Mitgliedsantrag (PDF)', 'https://bbfverein.de/wp-content/uploads/2022/02/Mitgliedsantrag-BBF_E-Form.pdf'),
+        _FaqLink(
+          'Mitgliedsantrag (PDF)',
+          'https://bbfverein.de/wp-content/uploads/2022/02/Mitgliedsantrag-BBF_E-Form.pdf',
+        ),
       ],
     ),
     _FaqData(
@@ -212,15 +225,16 @@ class _FaqCard extends StatelessWidget {
       q: 'Wie kann ich mein Kind in der Arabisch-Schule anmelden?',
       a: 'Unter folgendem Link können Sie Ihr Kind in der Arabisch-Schule anmelden:',
       links: [
-        _FaqLink('Arabisch-Unterricht anmelden', 'https://docs.google.com/forms/d/1dtCVlQnG9q_QEZIJKn6hrmwdAKrfQCM1d_6KrSD-qJM/viewform?edit_requested=true'),
+        _FaqLink(
+          'Arabisch-Unterricht anmelden',
+          'https://docs.google.com/forms/d/1dtCVlQnG9q_QEZIJKn6hrmwdAKrfQCM1d_6KrSD-qJM/viewform?edit_requested=true',
+        ),
       ],
     ),
     _FaqData(
       q: 'Wie kann ich mich in der Jugendgruppe anmelden?',
       a: 'Bitte kontaktiere die Jugendgruppe:',
-      links: [
-        _FaqLink('jugend@bbf-verein.de', 'mailto:jugend@bbf-verein.de'),
-      ],
+      links: [_FaqLink('jugend@bbf-verein.de', 'mailto:jugend@bbf-verein.de')],
     ),
     _FaqData(
       q: 'Wir brauchen Hilfe bei einer islamischen Bestattung.',
@@ -333,8 +347,7 @@ class _FaqTileState extends State<_FaqTile> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color:
-                          isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                   ),
                 ),
@@ -366,8 +379,11 @@ class _FaqTileState extends State<_FaqTile> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.open_in_new,
-                                size: 13.sp, color: BColors.primary),
+                            Icon(
+                              Icons.open_in_new,
+                              size: 13.sp,
+                              color: BColors.primary,
+                            ),
                             SizedBox(width: 4.w),
                             Flexible(
                               child: Text(

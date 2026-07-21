@@ -22,8 +22,9 @@ class EventDetailPage extends StatelessWidget {
     final color = event.colorFor(isDark);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
@@ -85,7 +86,9 @@ class EventDetailPage extends StatelessWidget {
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 8.w, vertical: 3.h),
+                                horizontal: 8.w,
+                                vertical: 3.h,
+                              ),
                               decoration: BoxDecoration(
                                 color: color.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20.r),
@@ -116,18 +119,31 @@ class EventDetailPage extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 18.h),
-                  _detailRow(Icons.access_time, 'Uhrzeit',
-                      event.startPrayer != null
-                          ? event.displayTime
-                          : '${event.displayTime} Uhr',
-                      color, isDark),
+                  _detailRow(
+                    Icons.access_time,
+                    'Uhrzeit',
+                    event.startPrayer != null
+                        ? event.displayTime
+                        : '${event.displayTime} Uhr',
+                    color,
+                    isDark,
+                  ),
                   _divider(isDark),
-                  _detailRow(Icons.calendar_today, 'Datum', formattedDate,
-                      color, isDark),
+                  _detailRow(
+                    Icons.calendar_today,
+                    'Datum',
+                    formattedDate,
+                    color,
+                    isDark,
+                  ),
                   _divider(isDark),
-                  _detailRow(Icons.location_on_outlined, 'Ort',
-                      event.location.isEmpty ? '–' : event.location,
-                      color, isDark),
+                  _detailRow(
+                    Icons.location_on_outlined,
+                    'Ort',
+                    event.location.isEmpty ? '–' : event.location,
+                    color,
+                    isDark,
+                  ),
                 ],
               ),
             ),
@@ -157,8 +173,7 @@ class EventDetailPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color:
-                          isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -185,8 +200,13 @@ class EventDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value, Color color,
-      bool isDark) {
+  Widget _detailRow(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+    bool isDark,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -196,9 +216,10 @@ class EventDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 11.sp, color: Colors.grey.shade500)),
+              Text(
+                label,
+                style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
+              ),
               SizedBox(height: 2.h),
               Text(
                 value,
@@ -219,9 +240,10 @@ class EventDetailPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Divider(
-          color: isDark
-              ? Colors.white.withOpacity(0.08)
-              : Colors.grey.withOpacity(0.18)),
+        color: isDark
+            ? Colors.white.withOpacity(0.08)
+            : Colors.grey.withOpacity(0.18),
+      ),
     );
   }
 }

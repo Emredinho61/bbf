@@ -40,15 +40,20 @@ class AboutPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+        backgroundColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF2F2F7),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -69,43 +74,49 @@ class AboutPage extends StatelessWidget {
 
           // Geschichte
           _sectionHeader('Geschichte', isDark),
-          _infoCard(isDark, children: [
-            _textTile(
-              icon: Icons.flag_outlined,
-              title: 'Der Anfang',
-              body:
-                  'Der Bildungs- und Begegnungsverein Freiburg e.V. ist ein unabhängiger, gemeinnütziger Verein, der sich am Gemeinschaftsleben beteiligen möchte. '
-                  'Er wurde 2016 von muslimischen Freiburgern gegründet, um eine aktive Rolle auf kultureller, religiöser und gesellschaftlicher Ebene zu spielen '
-                  'und um die dringenden Bedürfnisse der muslimischen Gemeinschaft in Freiburg und Umgebung gerecht zu werden.',
-              isDark: isDark,
-              isLast: false,
-            ),
-            _textTile(
-              icon: Icons.auto_awesome_outlined,
-              title: 'Die Identität',
-              body:
-                  'Der Verein vertritt eine gemäßigte Ansicht, die aus dem Buch Gottes, aus der Lebensgeschichte des Propheten, der „Sunna" '
-                  'und am Beispiel der rechtschaffenen Vorgänger hergeleitet ist.',
-              isDark: isDark,
-              isLast: true,
-            ),
-          ]),
+          _infoCard(
+            isDark,
+            children: [
+              _textTile(
+                icon: Icons.flag_outlined,
+                title: 'Der Anfang',
+                body:
+                    'Der Bildungs- und Begegnungsverein Freiburg e.V. ist ein unabhängiger, gemeinnütziger Verein, der sich am Gemeinschaftsleben beteiligen möchte. '
+                    'Er wurde 2016 von muslimischen Freiburgern gegründet, um eine aktive Rolle auf kultureller, religiöser und gesellschaftlicher Ebene zu spielen '
+                    'und um die dringenden Bedürfnisse der muslimischen Gemeinschaft in Freiburg und Umgebung gerecht zu werden.',
+                isDark: isDark,
+                isLast: false,
+              ),
+              _textTile(
+                icon: Icons.auto_awesome_outlined,
+                title: 'Die Identität',
+                body:
+                    'Der Verein vertritt eine gemäßigte Ansicht, die aus dem Buch Gottes, aus der Lebensgeschichte des Propheten, der „Sunna" '
+                    'und am Beispiel der rechtschaffenen Vorgänger hergeleitet ist.',
+                isDark: isDark,
+                isLast: true,
+              ),
+            ],
+          ),
 
           // Vision
           _sectionHeader('Vision', isDark),
-          _infoCard(isDark, children: [
-            _textTile(
-              icon: Icons.visibility_outlined,
-              title: 'Die Vision',
-              body:
-                  'Aufbau und Entwicklung der Gesellschaft sowie die Entwicklung der muslimischen Gemeinschaft in allen Lebensbereichen '
-                  'und ihren Mitgliedern ein soziales, kulturelles Umfeld zur Verfügung zu stellen.\n\n'
-                  'Der Verein wirkt in Unabhängigkeit von politischen Ausrichtungen und Parteien. '
-                  'Er finanziert sich über die Mitgliederbeiträge und Spenden wohltätiger Personen.',
-              isDark: isDark,
-              isLast: true,
-            ),
-          ]),
+          _infoCard(
+            isDark,
+            children: [
+              _textTile(
+                icon: Icons.visibility_outlined,
+                title: 'Die Vision',
+                body:
+                    'Aufbau und Entwicklung der Gesellschaft sowie die Entwicklung der muslimischen Gemeinschaft in allen Lebensbereichen '
+                    'und ihren Mitgliedern ein soziales, kulturelles Umfeld zur Verfügung zu stellen.\n\n'
+                    'Der Verein wirkt in Unabhängigkeit von politischen Ausrichtungen und Parteien. '
+                    'Er finanziert sich über die Mitgliederbeiträge und Spenden wohltätiger Personen.',
+                isDark: isDark,
+                isLast: true,
+              ),
+            ],
+          ),
 
           // Ziele
           _sectionHeader('Unsere Ziele', isDark),
@@ -154,8 +165,11 @@ class AboutPage extends StatelessWidget {
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(14.r),
             ),
-            child:
-                Icon(Icons.mosque_outlined, color: Colors.white, size: 26.sp),
+            child: Icon(
+              Icons.mosque_outlined,
+              color: Colors.white,
+              size: 26.sp,
+            ),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -261,8 +275,7 @@ class AboutPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
-                        color:
-                            isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
                     SizedBox(height: 6.h),
@@ -374,7 +387,9 @@ class AboutPage extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 16.w, vertical: 12.h),
+                    horizontal: 16.w,
+                    vertical: 12.h,
+                  ),
                   child: Row(
                     children: [
                       Container(
@@ -384,8 +399,11 @@ class AboutPage extends StatelessWidget {
                           color: BColors.primary.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.person_outline,
-                            color: BColors.primary, size: 20.sp),
+                        child: Icon(
+                          Icons.person_outline,
+                          color: BColors.primary,
+                          size: 20.sp,
+                        ),
                       ),
                       SizedBox(width: 14.w),
                       Expanded(
@@ -406,8 +424,9 @@ class AboutPage extends StatelessWidget {
                             Text(
                               m.role,
                               style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Colors.grey.shade500),
+                                fontSize: 12.sp,
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                           ],
                         ),

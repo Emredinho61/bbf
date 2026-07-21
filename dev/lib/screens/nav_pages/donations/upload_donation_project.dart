@@ -59,17 +59,22 @@ class _EditHauptprojektDialogState extends State<EditHauptprojektDialog> {
       final progress = target > 0 ? (amount / target).clamp(0.0, 1.0) : 0.0;
 
       // Update the main project document in Firestore
-      await FirebaseFirestore.instance.collection('projects').doc('hauptprojekt').set({
-        'amount': amount,
-        'target': target,
-        'progress': progress,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await FirebaseFirestore.instance
+          .collection('projects')
+          .doc('hauptprojekt')
+          .set({
+            'amount': amount,
+            'target': target,
+            'progress': progress,
+            'lastUpdated': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
 
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hauptprojekt erfolgreich aktualisiert!')),
+          const SnackBar(
+            content: Text('Hauptprojekt erfolgreich aktualisiert!'),
+          ),
         );
       }
     } catch (e) {
@@ -86,12 +91,12 @@ class _EditHauptprojektDialogState extends State<EditHauptprojektDialog> {
   void _onSave() {
     final amount = double.tryParse(_amountController.text.trim());
     final target = double.tryParse(_targetController.text.trim());
-    
+
     final invalid = amount == null || target == null || target <= 0;
-    
+
     setState(() => _showError = invalid);
     if (invalid || _isUploading) return;
-    
+
     _updateProject();
   }
 
@@ -99,7 +104,8 @@ class _EditHauptprojektDialogState extends State<EditHauptprojektDialog> {
     final amount = double.tryParse(_amountController.text.trim());
     final target = double.tryParse(_targetController.text.trim());
 
-    if (_amountController.text.trim().isEmpty || _targetController.text.trim().isEmpty) {
+    if (_amountController.text.trim().isEmpty ||
+        _targetController.text.trim().isEmpty) {
       return 'Bitte alle Pflichtfelder ausfüllen.';
     }
     if (amount == null || target == null) {

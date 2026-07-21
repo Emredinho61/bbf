@@ -110,8 +110,18 @@ class _ProjectState extends State<Project> {
 
   String _monthName(int m) {
     const months = [
-      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+      'Januar',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
     ];
     return months[m - 1];
   }
@@ -150,8 +160,9 @@ class _ProjectState extends State<Project> {
               children: [
                 // --- Image section with gradient + title overlay ---
                 ClipRRect(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20.r)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(20.r),
+                  ),
                   child: Stack(
                     children: [
                       AspectRatio(
@@ -355,8 +366,9 @@ class _ProjectState extends State<Project> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : BColors.backgroundColor,
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : BColors.backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.r)),
       ),
@@ -402,8 +414,18 @@ class ShowMoreContent extends StatelessWidget {
 
   String _monthName(int m) {
     const months = [
-      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+      'Januar',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
     ];
     return months[m - 1];
   }
@@ -466,10 +488,7 @@ class ShowMoreContent extends StatelessWidget {
               left: 16,
               right: 16,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20.w,
-                  vertical: 16.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                 decoration: BoxDecoration(
                   color: isDark ? BColors.prayerRowDark : Colors.white,
                   borderRadius: BorderRadius.circular(22.r),
@@ -553,9 +572,7 @@ class ShowMoreContent extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: isDark
-                  ? BColors.prayerRowDark
-                  : const Color(0xFFF5F5F4),
+              color: isDark ? BColors.prayerRowDark : const Color(0xFFF5F5F4),
               borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(

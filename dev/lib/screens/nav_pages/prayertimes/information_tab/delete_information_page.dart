@@ -47,9 +47,9 @@ class _DeleteInformationPageState extends State<DeleteInformationPage> {
     } catch (e) {
       debugPrint('Löschvorgang fehlgeschlagen: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Löschen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Löschen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isDeleting = false);

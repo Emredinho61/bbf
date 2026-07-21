@@ -93,14 +93,20 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                           style: TextStyle(
                             color: isSelected
                                 ? BColors.primary
-                                : (isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                                : (isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1C1C1E)),
                             fontWeight: isSelected
                                 ? FontWeight.w600
                                 : FontWeight.normal,
                           ),
                         ),
                         trailing: isSelected
-                            ? Icon(Icons.check_circle, color: BColors.primary, size: 20.sp)
+                            ? Icon(
+                                Icons.check_circle,
+                                color: BColors.primary,
+                                size: 20.sp,
+                              )
                             : null,
                         onTap: () {
                           setState(() {
@@ -146,7 +152,9 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         title: const Text('Einzelnen Termin löschen'),
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
@@ -173,14 +181,19 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                       children: [
                         Row(
                           children: [
-                            IconCircle(icon: Icons.delete_outline, iconSize: 22),
+                            IconCircle(
+                              icon: Icons.delete_outline,
+                              iconSize: 22,
+                            ),
                             SizedBox(width: 12.w),
                             Text(
                               'Einzelnen Termin löschen',
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF1C1C1E),
                               ),
                             ),
                           ],
@@ -188,7 +201,10 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                         SizedBox(height: 6.h),
                         Text(
                           'Nur der gewählte Tag wird gelöscht. Bei Wiederholungen wird eine Ausnahme gesetzt.',
-                          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                         SizedBox(height: 20.h),
 
@@ -249,7 +265,9 @@ class _DeleteSingleEventState extends State<DeleteSingleEvent> {
                                   )
                                 : const Text(
                                     'Termin löschen',
-                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                           ),
                         ),

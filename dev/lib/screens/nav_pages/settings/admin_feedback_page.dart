@@ -52,16 +52,20 @@ class _AdminFeedbackPageState extends State<AdminFeedbackPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -86,8 +90,7 @@ class _AdminFeedbackPageState extends State<AdminFeedbackPage> {
               onRefresh: _load,
               color: BColors.primary,
               child: ListView(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 children: [
                   _Section(
                     icon: Icons.volunteer_activism_outlined,
@@ -185,8 +188,11 @@ class _SectionState extends State<_Section> {
                       color: BColors.primary.withOpacity(0.12),
                       shape: BoxShape.circle,
                     ),
-                    child:
-                        Icon(widget.icon, color: BColors.primary, size: 18.sp),
+                    child: Icon(
+                      widget.icon,
+                      color: BColors.primary,
+                      size: 18.sp,
+                    ),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
@@ -200,8 +206,10 @@ class _SectionState extends State<_Section> {
                     ),
                   ),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 3.h,
+                    ),
                     decoration: BoxDecoration(
                       color: BColors.primary.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20.r),
@@ -209,9 +217,10 @@ class _SectionState extends State<_Section> {
                     child: Text(
                       '$count',
                       style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: BColors.primary),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: BColors.primary,
+                      ),
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -238,7 +247,9 @@ class _SectionState extends State<_Section> {
                 child: Text(
                   'Noch keine Einträge.',
                   style: TextStyle(
-                      fontSize: 13.sp, color: Colors.grey.shade400),
+                    fontSize: 13.sp,
+                    color: Colors.grey.shade400,
+                  ),
                 ),
               )
             else
@@ -295,7 +306,9 @@ class _EntryTile extends StatelessWidget {
                 Text(
                   date,
                   style: TextStyle(
-                      fontSize: 11.sp, color: Colors.grey.shade400),
+                    fontSize: 11.sp,
+                    color: Colors.grey.shade400,
+                  ),
                 ),
               SizedBox(height: 4.h),
               // Text
@@ -303,7 +316,9 @@ class _EntryTile extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: isDark ? Colors.white.withOpacity(0.9) : const Color(0xFF1C1C1E),
+                  color: isDark
+                      ? Colors.white.withOpacity(0.9)
+                      : const Color(0xFF1C1C1E),
                   height: 1.45,
                 ),
               ),
@@ -321,8 +336,11 @@ class _EntryTile extends StatelessWidget {
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.email_outlined,
-                          size: 14.sp, color: BColors.primary),
+                      Icon(
+                        Icons.email_outlined,
+                        size: 14.sp,
+                        color: BColors.primary,
+                      ),
                       SizedBox(width: 6.w),
                       Text(
                         email,

@@ -5,21 +5,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ToSPage extends StatelessWidget {
   const ToSPage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
-        backgroundColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+        backgroundColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF2F2F7),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -40,16 +44,18 @@ class ToSPage extends StatelessWidget {
 
           // Geschichte
           _sectionHeader('tbd', isDark),
-          _infoCard(isDark, children: [
-            _textTile(
-              icon: Icons.document_scanner,
-              title: 'tbd',
-              body:
-                  'tbd',
-              isDark: isDark,
-              isLast: false,
-            ),
-          ]),
+          _infoCard(
+            isDark,
+            children: [
+              _textTile(
+                icon: Icons.document_scanner,
+                title: 'tbd',
+                body: 'tbd',
+                isDark: isDark,
+                isLast: false,
+              ),
+            ],
+          ),
           SizedBox(height: 32.h),
         ],
       ),
@@ -85,8 +91,11 @@ class ToSPage extends StatelessWidget {
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(14.r),
             ),
-            child:
-                Icon(Icons.document_scanner_outlined, color: Colors.white, size: 26.sp),
+            child: Icon(
+              Icons.document_scanner_outlined,
+              color: Colors.white,
+              size: 26.sp,
+            ),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -192,8 +201,7 @@ class ToSPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
-                        color:
-                            isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
                     SizedBox(height: 6.h),
@@ -279,4 +287,3 @@ class ToSPage extends StatelessWidget {
     );
   }
 }
-

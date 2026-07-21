@@ -89,8 +89,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showDialogForFridaysPrayer() async {
-    final String currentFridayPrayer1 = await prayertimesService.getFridayPrayer1();
-    final String currentFridayPrayer2 = await prayertimesService.getFridayPrayer2();
+    final String currentFridayPrayer1 = await prayertimesService
+        .getFridayPrayer1();
+    final String currentFridayPrayer2 = await prayertimesService
+        .getFridayPrayer2();
 
     TimeOfDay? fridayPrayer1Time = _parseTimeOfDay(currentFridayPrayer1);
     TimeOfDay? fridayPrayer2Time = _parseTimeOfDay(currentFridayPrayer2);
@@ -111,7 +113,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () => EventPickers.pickTime(
                       dialogContext,
                       initialTime: fridayPrayer1Time,
-                      onConfirm: (time) => setDialogState(() => fridayPrayer1Time = time),
+                      onConfirm: (time) =>
+                          setDialogState(() => fridayPrayer1Time = time),
                     ),
                     text: fridayPrayer1Time == null
                         ? '1. Freitagsgebet auswählen'
@@ -122,7 +125,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () => EventPickers.pickTime(
                       dialogContext,
                       initialTime: fridayPrayer2Time,
-                      onConfirm: (time) => setDialogState(() => fridayPrayer2Time = time),
+                      onConfirm: (time) =>
+                          setDialogState(() => fridayPrayer2Time = time),
                     ),
                     text: fridayPrayer2Time == null
                         ? '2. Freitagsgebet auswählen'
@@ -184,11 +188,31 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _iqamaPickerRow('Fajr', fajrIqama, (v) => setDialogState(() => fajrIqama = v)),
-                    _iqamaPickerRow('Dhur', dhurIqama, (v) => setDialogState(() => dhurIqama = v)),
-                    _iqamaPickerRow('Asr', asrIqama, (v) => setDialogState(() => asrIqama = v)),
-                    _iqamaPickerRow('Maghrib', maghribIqama, (v) => setDialogState(() => maghribIqama = v)),
-                    _iqamaPickerRow('Isha', ishaIqama, (v) => setDialogState(() => ishaIqama = v)),
+                    _iqamaPickerRow(
+                      'Fajr',
+                      fajrIqama,
+                      (v) => setDialogState(() => fajrIqama = v),
+                    ),
+                    _iqamaPickerRow(
+                      'Dhur',
+                      dhurIqama,
+                      (v) => setDialogState(() => dhurIqama = v),
+                    ),
+                    _iqamaPickerRow(
+                      'Asr',
+                      asrIqama,
+                      (v) => setDialogState(() => asrIqama = v),
+                    ),
+                    _iqamaPickerRow(
+                      'Maghrib',
+                      maghribIqama,
+                      (v) => setDialogState(() => maghribIqama = v),
+                    ),
+                    _iqamaPickerRow(
+                      'Isha',
+                      ishaIqama,
+                      (v) => setDialogState(() => ishaIqama = v),
+                    ),
                   ],
                 ),
               ),
@@ -203,8 +227,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     MaterialButton(
                       onPressed: () async {
                         await prayertimesService.updateIqamaTimes(
-                          fajrIqama.toString(), dhurIqama.toString(),
-                          asrIqama.toString(), maghribIqama.toString(), ishaIqama.toString(),
+                          fajrIqama.toString(),
+                          dhurIqama.toString(),
+                          asrIqama.toString(),
+                          maghribIqama.toString(),
+                          ishaIqama.toString(),
                         );
                         if (dialogContext.mounted) Navigator.pop(dialogContext);
                       },
@@ -220,24 +247,32 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _iqamaPickerRow(String prayerName, int value, ValueChanged<int> onChanged) {
+  Widget _iqamaPickerRow(
+    String prayerName,
+    int value,
+    ValueChanged<int> onChanged,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.0.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('$prayerName Iqama (Minuten)'),
-          NumberPicker(value: value, minValue: 0, maxValue: 60, itemWidth: 60, itemHeight: 32, onChanged: onChanged),
+          NumberPicker(
+            value: value,
+            minValue: 0,
+            maxValue: 60,
+            itemWidth: 60,
+            itemHeight: 32,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
   }
 
   void _showBroadcastDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => const _BroadcastDialog(),
-    );
+    showDialog(context: context, builder: (ctx) => const _BroadcastDialog());
   }
 
   /*--Build-------------------------------------------------------*/
@@ -248,7 +283,9 @@ class _SettingsPageState extends State<SettingsPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -260,223 +297,302 @@ class _SettingsPageState extends State<SettingsPage> {
             // Admin-Sektion
             if (isUserAdmin && authService.currentUser != null) ...[
               _sectionHeader('Admin', isDark),
-              _buildCard(isDark: isDark, children: [
-                _settingsTile(icon: Icons.access_time_outlined, title: 'Freitagsgebetszeiten', isDark: isDark, isLast: false, onTap: _showDialogForFridaysPrayer),
-                _settingsTile(icon: Icons.timer_outlined, title: 'Iqama Zeiten', isDark: isDark, isLast: false, onTap: _showDialogForIqamaTimes),
-                _settingsTile(icon: Icons.upload_file_outlined, title: 'Projekt hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadProjectDialog())),
-                _settingsTile(icon: Icons.cloud_upload_outlined, title: 'Gebetszeiten hochladen', isDark: isDark, isLast: false, onTap: () => showDialog(context: context, builder: (_) => const UploadPrayerTimesDialog())),
-                _settingsTile(icon: Icons.campaign_outlined, title: 'Nachricht broadcasten', isDark: isDark, isLast: false, onTap: _showBroadcastDialog),
-                _settingsTile(
-                  icon: Icons.inbox_outlined,
-                  title: 'Nutzer-Feedback',
-                  subtitle: 'Eingaben der Nutzer einsehen',
-                  isDark: isDark,
-                  isLast: true,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminFeedbackPage())),
-                ),
-              ]),
+              _buildCard(
+                isDark: isDark,
+                children: [
+                  _settingsTile(
+                    icon: Icons.access_time_outlined,
+                    title: 'Freitagsgebetszeiten',
+                    isDark: isDark,
+                    isLast: false,
+                    onTap: _showDialogForFridaysPrayer,
+                  ),
+                  _settingsTile(
+                    icon: Icons.timer_outlined,
+                    title: 'Iqama Zeiten',
+                    isDark: isDark,
+                    isLast: false,
+                    onTap: _showDialogForIqamaTimes,
+                  ),
+                  _settingsTile(
+                    icon: Icons.upload_file_outlined,
+                    title: 'Projekt hochladen',
+                    isDark: isDark,
+                    isLast: false,
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => const UploadProjectDialog(),
+                    ),
+                  ),
+                  _settingsTile(
+                    icon: Icons.cloud_upload_outlined,
+                    title: 'Gebetszeiten hochladen',
+                    isDark: isDark,
+                    isLast: false,
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => const UploadPrayerTimesDialog(),
+                    ),
+                  ),
+                  _settingsTile(
+                    icon: Icons.campaign_outlined,
+                    title: 'Nachricht broadcasten',
+                    isDark: isDark,
+                    isLast: false,
+                    onTap: _showBroadcastDialog,
+                  ),
+                  _settingsTile(
+                    icon: Icons.inbox_outlined,
+                    title: 'Nutzer-Feedback',
+                    subtitle: 'Eingaben der Nutzer einsehen',
+                    isDark: isDark,
+                    isLast: true,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminFeedbackPage(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
 
             // Spenden
             _sectionHeader('Spenden', isDark),
-            _buildCard(isDark: isDark, children: [
-              _paypalRow(context, isDark),
-              _bankCard(context, isDark),
-            ]),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _paypalRow(context, isDark),
+                _bankCard(context, isDark),
+              ],
+            ),
 
             // Kontakt & Soziales
             _sectionHeader('Verein', isDark),
-            _buildCard(isDark: isDark, children: [
-              _settingsTile(
-                icon: Icons.school_outlined,
-                title: 'Bildungsbereich',
-                subtitle: 'Arabische Schule & Unterrichtsangebote',
-                isDark: isDark,
-                isLast: false,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BildungPage()),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _settingsTile(
+                  icon: Icons.school_outlined,
+                  title: 'Bildungsbereich',
+                  subtitle: 'Arabische Schule & Unterrichtsangebote',
+                  isDark: isDark,
+                  isLast: false,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BildungPage()),
+                  ),
                 ),
-              ),
-              _settingsTile(
-                icon: Icons.volunteer_activism_outlined,
-                title: 'Soziale Arbeit',
-                subtitle: 'Beratungsangebote des BBF-Vereins',
-                isDark: isDark,
-                isLast: false,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SocialPage()),
+                _settingsTile(
+                  icon: Icons.volunteer_activism_outlined,
+                  title: 'Soziale Arbeit',
+                  subtitle: 'Beratungsangebote des BBF-Vereins',
+                  isDark: isDark,
+                  isLast: false,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SocialPage()),
+                  ),
                 ),
-              ),
-              _settingsTile(
-                icon: Icons.contact_support_outlined,
-                title: 'Kontakt & Häufige Fragen',
-                subtitle: 'Erreichbarkeit und FAQ',
-                isDark: isDark,
-                isLast: false,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ContactPage()),
+                _settingsTile(
+                  icon: Icons.contact_support_outlined,
+                  title: 'Kontakt & Häufige Fragen',
+                  subtitle: 'Erreichbarkeit und FAQ',
+                  isDark: isDark,
+                  isLast: false,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ContactPage()),
+                  ),
                 ),
-              ),
-              _settingsTile(
-                icon: Icons.info_outline,
-                title: 'Über Uns',
-                isDark: isDark,
-                isLast: true,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AboutPage()),
+                _settingsTile(
+                  icon: Icons.info_outline,
+                  title: 'Über Uns',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AboutPage()),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
 
             // Mitmachen
             _sectionHeader('Mitmachen', isDark),
-            _buildCard(isDark: isDark, children: [
-              _settingsTile(
-                icon: Icons.handshake_outlined,
-                title: 'Mitmachen & Feedback',
-                subtitle: 'Hilf uns, den Verein und die App zu verbessern',
-                isDark: isDark,
-                isLast: true,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackPage())),
-              ),
-            ]),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _settingsTile(
+                  icon: Icons.handshake_outlined,
+                  title: 'Mitmachen & Feedback',
+                  subtitle: 'Hilf uns, den Verein und die App zu verbessern',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FeedbackPage()),
+                  ),
+                ),
+              ],
+            ),
 
             // App
             _sectionHeader('App', isDark),
-            _buildCard(isDark: isDark, children: [
-              _toggleTile(
-                icon: isDark ? Icons.dark_mode : Icons.light_mode_outlined,
-                title: 'Dunkelmodus',
-                subtitle: 'App im dunklen Design anzeigen',
-                isDark: isDark,
-                isLast: false,
-                value: isDark,
-                onChanged: (value) {
-                  themeProvider.toggleTheme();
-                  firestoreService.updateTheme(value ? 'dark' : 'light');
-                },
-              ),
-              IshaSettingsTile(settingsHelper: settingsHelper, isDark: isDark),
-              _settingsTile(
-                icon: Icons.info_outline,
-                title: 'App-Version',
-                isDark: isDark,
-                isLast: true,
-                trailing: Text('1.0.0', style: TextStyle(color: Colors.grey.shade500, fontSize: 14.sp)),
-                onTap: () {
-                  final newCount = _versionTapCount + 1;
-                  setState(() => _versionTapCount = newCount);
-                  if (newCount == 5) {
-                    setState(() => _adminUnlocked = true);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Admin-Modus entsperrt'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ]),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _toggleTile(
+                  icon: isDark ? Icons.dark_mode : Icons.light_mode_outlined,
+                  title: 'Dunkelmodus',
+                  subtitle: 'App im dunklen Design anzeigen',
+                  isDark: isDark,
+                  isLast: false,
+                  value: isDark,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                    firestoreService.updateTheme(value ? 'dark' : 'light');
+                  },
+                ),
+                IshaSettingsTile(
+                  settingsHelper: settingsHelper,
+                  isDark: isDark,
+                ),
+                _settingsTile(
+                  icon: Icons.info_outline,
+                  title: 'App-Version',
+                  isDark: isDark,
+                  isLast: true,
+                  trailing: Text(
+                    '1.0.0',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                  onTap: () {
+                    final newCount = _versionTapCount + 1;
+                    setState(() => _versionTapCount = newCount);
+                    if (newCount == 5) {
+                      setState(() => _adminUnlocked = true);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Admin-Modus entsperrt'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
 
             // Socials
             _sectionHeader('Folge Uns', isDark),
-            _buildCard(isDark: isDark, children: [
-              _socialTile(
-                platform: 'Facebook',
-                handle: 'bbfverein',
-                url: 'https://www.facebook.com/bbfverein',
-                icon: _facebookIcon(),
-                isDark: isDark,
-                isLast: false,
-              ),
-              _socialTile(
-                platform: 'Instagram · Brüder',
-                handle: '@bbf_brueder',
-                url: 'https://www.instagram.com/bbf_brueder',
-                icon: _instagramIcon(),
-                isDark: isDark,
-                isLast: false,
-              ),
-              _socialTile(
-                platform: 'Instagram · Mädchen',
-                handle: '@bbf_maedchen',
-                url: 'https://www.instagram.com/bbf_maedchen',
-                icon: _instagramIcon(),
-                isDark: isDark,
-                isLast: true,
-              ),
-            ]),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _socialTile(
+                  platform: 'Facebook',
+                  handle: 'bbfverein',
+                  url: 'https://www.facebook.com/bbfverein',
+                  icon: _facebookIcon(),
+                  isDark: isDark,
+                  isLast: false,
+                ),
+                _socialTile(
+                  platform: 'Instagram · Brüder',
+                  handle: '@bbf_brueder',
+                  url: 'https://www.instagram.com/bbf_brueder',
+                  icon: _instagramIcon(),
+                  isDark: isDark,
+                  isLast: false,
+                ),
+                _socialTile(
+                  platform: 'Instagram · Mädchen',
+                  handle: '@bbf_maedchen',
+                  url: 'https://www.instagram.com/bbf_maedchen',
+                  icon: _instagramIcon(),
+                  isDark: isDark,
+                  isLast: true,
+                ),
+              ],
+            ),
 
             // Rechtliches
             _sectionHeader('Rechtliches', isDark),
-            _buildCard(isDark: isDark, children: [
-              _settingsTile(
-                icon: Icons.info_outline,
-                title: 'Rechtliches',
-                isDark: isDark,
-                isLast: true,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LegalPage()),
+            _buildCard(
+              isDark: isDark,
+              children: [
+                _settingsTile(
+                  icon: Icons.info_outline,
+                  title: 'Rechtliches',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LegalPage()),
+                  ),
                 ),
-              ),
-              _settingsTile(
-                icon: Icons.info_outline,
-                title: 'AGB',
-                isDark: isDark,
-                isLast: true,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ToSPage()),
+                _settingsTile(
+                  icon: Icons.info_outline,
+                  title: 'AGB',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ToSPage()),
+                  ),
                 ),
-              ),
-              _settingsTile(
-                icon: Icons.info_outline,
-                title: 'Datenschutz',
-                isDark: isDark,
-                isLast: true,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
+                _settingsTile(
+                  icon: Icons.info_outline,
+                  title: 'Datenschutz',
+                  isDark: isDark,
+                  isLast: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyPage(),
+                    ),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
 
             // Benutzer (nur sichtbar wenn Admin-Modus entsperrt oder eingeloggt)
             if (_adminUnlocked || authService.currentUser != null) ...[
               _sectionHeader('Benutzer', isDark),
-              _buildCard(isDark: isDark, children: [
-                if (authService.currentUser == null && _adminUnlocked)
-                  _settingsTile(
-                    icon: Icons.admin_panel_settings_outlined,
-                    title: 'Als Admin registrieren',
-                    isDark: isDark,
-                    isLast: true,
-                    onTap: () => Navigator.pushNamed(context, '/authpage'),
-                  ),
-                if (authService.currentUser != null)
-                  _settingsTile(
-                    icon: Icons.logout,
-                    title: 'Ausloggen',
-                    isDark: isDark,
-                    isLast: true,
-                    onTap: () async {
-                      await authService.signOut();
-                      if (mounted) {
-                        setState(() {
-                          isUserAdmin = false;
-                          _adminUnlocked = false;
-                          _versionTapCount = 0;
-                        });
-                      }
-                    },
-                  ),
-              ]),
+              _buildCard(
+                isDark: isDark,
+                children: [
+                  if (authService.currentUser == null && _adminUnlocked)
+                    _settingsTile(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Als Admin registrieren',
+                      isDark: isDark,
+                      isLast: true,
+                      onTap: () => Navigator.pushNamed(context, '/authpage'),
+                    ),
+                  if (authService.currentUser != null)
+                    _settingsTile(
+                      icon: Icons.logout,
+                      title: 'Ausloggen',
+                      isDark: isDark,
+                      isLast: true,
+                      onTap: () async {
+                        await authService.signOut();
+                        if (mounted) {
+                          setState(() {
+                            isUserAdmin = false;
+                            _adminUnlocked = false;
+                            _versionTapCount = 0;
+                          });
+                        }
+                      },
+                    ),
+                ],
+              ),
             ],
 
             SizedBox(height: 32.h),
@@ -490,7 +606,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _monitorLink(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MonitorPage())),
+      onTap: () => Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => MonitorPage()),
+      ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Center(
@@ -581,17 +700,30 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1C1C1E),
                         ),
                       ),
                       if (subtitle != null) ...[
                         SizedBox(height: 2.h),
-                        Text(subtitle, style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500)),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                       ],
                     ],
                   ),
                 ),
-                trailing ?? Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22.sp),
+                trailing ??
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey.shade400,
+                      size: 22.sp,
+                    ),
               ],
             ),
           ),
@@ -600,7 +732,9 @@ class _SettingsPageState extends State<SettingsPage> {
           Divider(
             height: 1,
             indent: 66,
-            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.grey.withOpacity(0.15),
           ),
       ],
     );
@@ -645,12 +779,22 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     if (subtitle != null) ...[
                       SizedBox(height: 2.h),
-                      Text(subtitle, style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
                     ],
                   ],
                 ),
               ),
-              Switch(value: value, onChanged: onChanged, activeColor: BColors.primary),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeColor: BColors.primary,
+              ),
             ],
           ),
         ),
@@ -658,7 +802,9 @@ class _SettingsPageState extends State<SettingsPage> {
           Divider(
             height: 1,
             indent: 66,
-            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.grey.withOpacity(0.15),
           ),
       ],
     );
@@ -667,7 +813,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _paypalRow(BuildContext context, bool isDark) {
     return InkWell(
       onTap: () async {
-        final Uri url = Uri.parse('https://www.paypal.com/donate/?hosted_button_id=ESTNXJLMMQQQS#');
+        final Uri url = Uri.parse(
+          'https://www.paypal.com/donate/?hosted_button_id=ESTNXJLMMQQQS#',
+        );
         if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
           debugPrint('Konnte PayPal URL nicht öffnen');
         }
@@ -685,7 +833,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               child: Padding(
                 padding: EdgeInsets.all(6.w),
-                child: Image.asset('assets/images/PayPalLogo.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/images/PayPalLogo.png',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             SizedBox(width: 14.w),
@@ -704,7 +855,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: 2.h),
                   Text(
                     'Jetzt mit PayPal spenden',
-                    style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: Colors.grey.shade500,
+                    ),
                   ),
                 ],
               ),
@@ -723,7 +877,9 @@ class _SettingsPageState extends State<SettingsPage> {
           height: 1,
           indent: 16,
           endIndent: 16,
-          color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+          color: isDark
+              ? Colors.white.withOpacity(0.06)
+              : Colors.grey.withOpacity(0.15),
         ),
         Padding(
           padding: EdgeInsets.all(12.w),
@@ -731,7 +887,9 @@ class _SettingsPageState extends State<SettingsPage> {
             width: double.infinity,
             padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
-              color: isDark ? BColors.backgroundColorDark : const Color(0xFFF8FFF8),
+              color: isDark
+                  ? BColors.backgroundColorDark
+                  : const Color(0xFFF8FFF8),
               border: Border.all(color: BColors.primary.withOpacity(0.4)),
               borderRadius: BorderRadius.circular(12.r),
             ),
@@ -747,7 +905,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         color: BColors.primary.withOpacity(0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.account_balance, color: BColors.primary, size: 20.sp),
+                      child: Icon(
+                        Icons.account_balance,
+                        color: BColors.primary,
+                        size: 20.sp,
+                      ),
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
@@ -756,18 +918,38 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14.sp,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1C1C1E),
                         ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 12.h),
-                _copyRow(context, Icons.receipt_outlined, 'IBAN', 'DE11 6805 0101 0014 3501 24', isDark),
+                _copyRow(
+                  context,
+                  Icons.receipt_outlined,
+                  'IBAN',
+                  'DE11 6805 0101 0014 3501 24',
+                  isDark,
+                ),
                 SizedBox(height: 8.h),
-                _copyRow(context, Icons.swap_horiz, 'BIC', 'FRSPDE66XXX', isDark),
+                _copyRow(
+                  context,
+                  Icons.swap_horiz,
+                  'BIC',
+                  'FRSPDE66XXX',
+                  isDark,
+                ),
                 SizedBox(height: 8.h),
-                _copyRow(context, Icons.credit_card_outlined, 'Verwendungszweck', 'Spende', isDark),
+                _copyRow(
+                  context,
+                  Icons.credit_card_outlined,
+                  'Verwendungszweck',
+                  'Spende',
+                  isDark,
+                ),
               ],
             ),
           ),
@@ -776,14 +958,24 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _copyRow(BuildContext context, IconData icon, String label, String value, bool isDark) {
+  Widget _copyRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+    bool isDark,
+  ) {
     return Row(
       children: [
         Icon(icon, size: 16.sp, color: Colors.grey.shade500),
         SizedBox(width: 8.w),
         Text(
           '$label: ',
-          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Expanded(
           child: Text(
@@ -799,10 +991,17 @@ class _SettingsPageState extends State<SettingsPage> {
           onTap: () {
             Clipboard.setData(ClipboardData(text: value));
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$label kopiert!'), duration: const Duration(seconds: 2)),
+              SnackBar(
+                content: Text('$label kopiert!'),
+                duration: const Duration(seconds: 2),
+              ),
             );
           },
-          child: Icon(Icons.copy_outlined, size: 18.sp, color: Colors.grey.shade400),
+          child: Icon(
+            Icons.copy_outlined,
+            size: 18.sp,
+            color: Colors.grey.shade400,
+          ),
         ),
       ],
     );
@@ -840,18 +1039,27 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1C1C1E),
                         ),
                       ),
                       SizedBox(height: 2.h),
                       Text(
                         handle,
-                        style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.open_in_new, color: Colors.grey.shade400, size: 18.sp),
+                Icon(
+                  Icons.open_in_new,
+                  color: Colors.grey.shade400,
+                  size: 18.sp,
+                ),
               ],
             ),
           ),
@@ -860,7 +1068,9 @@ class _SettingsPageState extends State<SettingsPage> {
           Divider(
             height: 1,
             indent: 66,
-            color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.grey.withOpacity(0.15),
           ),
       ],
     );
@@ -914,7 +1124,11 @@ class _SettingsPageState extends State<SettingsPage> {
 // ── Isha Settings Tile ────────────────────────────────────────────────────────
 
 class IshaSettingsTile extends StatefulWidget {
-  const IshaSettingsTile({super.key, required this.settingsHelper, required this.isDark});
+  const IshaSettingsTile({
+    super.key,
+    required this.settingsHelper,
+    required this.isDark,
+  });
 
   final SettingsHelper settingsHelper;
   final bool isDark;
@@ -946,7 +1160,8 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
   }
 
   Future<void> _send() async {
-    if (_titleController.text.trim().isEmpty || _summaryController.text.trim().isEmpty) {
+    if (_titleController.text.trim().isEmpty ||
+        _summaryController.text.trim().isEmpty) {
       setState(() => _showError = true);
       return;
     }
@@ -960,38 +1175,59 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Senden: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Senden: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
   }
 
-  Widget _inputField(TextEditingController controller, String label, bool isDark, {int maxLines = 1}) {
+  Widget _inputField(
+    TextEditingController controller,
+    String label,
+    bool isDark, {
+    int maxLines = 1,
+  }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      onChanged: (_) { if (_showError) setState(() => _showError = false); },
-      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E), fontSize: 14.sp),
+      onChanged: (_) {
+        if (_showError) setState(() => _showError = false);
+      },
+      style: TextStyle(
+        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+        fontSize: 14.sp,
+      ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
-        fillColor: isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
+        fillColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF7F7F7),
         contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
+          borderSide: BorderSide(
+            color: BColors.primary.withOpacity(0.6),
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -1058,7 +1294,11 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
                   color: BColors.primary.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.access_time_filled, color: BColors.primary, size: 20.sp),
+                child: Icon(
+                  Icons.access_time_filled,
+                  color: BColors.primary,
+                  size: 20.sp,
+                ),
               ),
               SizedBox(width: 14.w),
               Expanded(
@@ -1070,13 +1310,18 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
-                        color: widget.isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        color: widget.isDark
+                            ? Colors.white
+                            : const Color(0xFF1C1C1E),
                       ),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       'Gebetszeit um 90 Minuten verzögern',
-                      style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -1095,10 +1340,11 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
         Divider(
           height: 1,
           indent: 66,
-          color: widget.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.15),
+          color: widget.isDark
+              ? Colors.white.withOpacity(0.06)
+              : Colors.grey.withOpacity(0.15),
         ),
       ],
     );
   }
 }
-

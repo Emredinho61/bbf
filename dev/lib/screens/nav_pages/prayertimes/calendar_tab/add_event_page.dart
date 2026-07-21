@@ -76,8 +76,9 @@ class _AddEventPageState extends State<AddEventPage> {
     final endMin = _usePrayerTimes
         ? 0
         : (selectedEndTime!.hour * 60 + selectedEndTime!.minute);
-    final eventFrequency =
-        (repeat == null || repeat == 'none') ? 0 : (frequency ?? 1);
+    final eventFrequency = (repeat == null || repeat == 'none')
+        ? 0
+        : (frequency ?? 1);
 
     await calendarService.addEventToBackEnd(
       titleTextController.text,
@@ -105,8 +106,9 @@ class _AddEventPageState extends State<AddEventPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         title: const Text('Event hinzufügen'),
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
@@ -140,8 +142,8 @@ class _AddEventPageState extends State<AddEventPage> {
                             color: selected
                                 ? BColors.primary.withOpacity(0.12)
                                 : (isDark
-                                    ? BColors.backgroundColorDark
-                                    : const Color(0xFFF7F7F7)),
+                                      ? BColors.backgroundColorDark
+                                      : const Color(0xFFF7F7F7)),
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
                               color: selected
@@ -153,8 +155,9 @@ class _AddEventPageState extends State<AddEventPage> {
                           child: Icon(
                             entry.value,
                             size: 24.sp,
-                            color:
-                                selected ? BColors.primary : Colors.grey.shade500,
+                            color: selected
+                                ? BColors.primary
+                                : Colors.grey.shade500,
                           ),
                         ),
                       );
@@ -277,14 +280,20 @@ class _AddEventPageState extends State<AddEventPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionHeader(Icons.calendar_month_outlined, 'Datum & Wiederholung', isDark),
+                  _sectionHeader(
+                    Icons.calendar_month_outlined,
+                    'Datum & Wiederholung',
+                    isDark,
+                  ),
                   SizedBox(height: 14.h),
                   PickerTile(
                     label: 'Datum',
                     hint: 'obligatorisch',
                     icon: Icons.calendar_today_outlined,
                     selectedIcon: Icons.event_available_outlined,
-                    selected: selectedDate != null ? _formatDate(selectedDate!) : null,
+                    selected: selectedDate != null
+                        ? _formatDate(selectedDate!)
+                        : null,
                     onTap: () => EventPickers.pickDate(
                       context,
                       onConfirm: (d) => setState(() => selectedDate = d),
@@ -343,11 +352,20 @@ class _AddEventPageState extends State<AddEventPage> {
                   SizedBox(height: 14.h),
                   _inputField(titleTextController, 'Titel *', isDark),
                   SizedBox(height: 10.h),
-                  _inputField(contentTextController, 'Beschreibung *', isDark, maxLines: 3),
+                  _inputField(
+                    contentTextController,
+                    'Beschreibung *',
+                    isDark,
+                    maxLines: 3,
+                  ),
                   SizedBox(height: 10.h),
                   _inputField(locationTextController, 'Ort *', isDark),
                   SizedBox(height: 10.h),
-                  _inputField(signUpTextController, 'Anmeldelink (optional)', isDark),
+                  _inputField(
+                    signUpTextController,
+                    'Anmeldelink (optional)',
+                    isDark,
+                  ),
                 ],
               ),
             ),
@@ -449,24 +467,30 @@ class _AddEventPageState extends State<AddEventPage> {
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
-        fillColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        fillColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF7F7F7),
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
+          borderSide: BorderSide(
+            color: BColors.primary.withOpacity(0.6),
+            width: 1.5,
+          ),
         ),
       ),
     );

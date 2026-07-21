@@ -117,7 +117,6 @@ class WelcomePage extends StatelessWidget {
                   child: Text('Registrieren'),
                 ),
               ),
-
             ],
           ),
         ),

@@ -53,8 +53,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   void initState() {
     super.initState();
-    _isActive = schedulerHelper.getCurrentPrayerSettings('notify_${widget.name}');
-    _selectedIndex = prayerTimesHelper.getCurrentPreTimeAsIndex('notifyPre_${widget.name}');
+    _isActive = schedulerHelper.getCurrentPrayerSettings(
+      'notify_${widget.name}',
+    );
+    _selectedIndex = prayerTimesHelper.getCurrentPreTimeAsIndex(
+      'notifyPre_${widget.name}',
+    );
     _loadCSV();
   }
 
@@ -105,9 +109,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     if (value) {
       await schedulerHelper.activatePrayerNotification('notify_${widget.name}');
     } else {
-      await schedulerHelper.deactivatePrayerNotification('notify_${widget.name}');
+      await schedulerHelper.deactivatePrayerNotification(
+        'notify_${widget.name}',
+      );
     }
-    if (mounted) await notificationServices.rescheduleSinglePrayer(widget.name, csvData);
+    if (mounted)
+      await notificationServices.rescheduleSinglePrayer(widget.name, csvData);
   }
 
   void _selectPreTime(int index) {
@@ -120,21 +127,24 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       'notifyPre_${widget.name}',
       _storedValues[index],
     );
-    if (mounted) await notificationServices.rescheduleSinglePrayer(widget.name, csvData);
+    if (mounted)
+      await notificationServices.rescheduleSinglePrayer(widget.name, csvData);
   }
 
   Future<void> _applyToAll(LoadingProvider provider) async {
     provider.startLoading();
     try {
       await schedulerHelper.setAllUsersPrayerSettings(_isActive);
-      await schedulerHelper.setAllUsersPrePrayerSettings(_storedValues[_selectedIndex]);
+      await schedulerHelper.setAllUsersPrePrayerSettings(
+        _storedValues[_selectedIndex],
+      );
       await notificationServices.rescheduleEverything(csvData);
       provider.stopLoadingWithCheckmark();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler: $e')));
       }
     }
   }
@@ -159,7 +169,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _label(Icons.notifications_outlined, 'Benachrichtigung', isDark),
+                _label(
+                  Icons.notifications_outlined,
+                  'Benachrichtigung',
+                  isDark,
+                ),
                 SizedBox(height: 16.h),
                 _toggleRow(isDark),
               ],
@@ -176,7 +190,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 SizedBox(height: 6.h),
                 Text(
                   'Erinnere mich vor dem Gebet',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
                 SizedBox(height: 16.h),
                 _timeChips(isDark),
@@ -194,8 +211,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: BColors.primary,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor:
-                    showCheckmark ? BColors.primary : Colors.grey.shade300,
+                disabledBackgroundColor: showCheckmark
+                    ? BColors.primary
+                    : Colors.grey.shade300,
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.r),
@@ -215,7 +233,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_circle_outline, color: Colors.white, size: 20.sp),
+                        Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white,
+                          size: 20.sp,
+                        ),
                         SizedBox(width: 8.w),
                         const Text(
                           'Gespeichert',
@@ -229,7 +251,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.all_inclusive, color: Colors.white, size: 18.sp),
+                        Icon(
+                          Icons.all_inclusive,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
                         SizedBox(width: 8.w),
                         const Text(
                           'Für alle Gebete übernehmen',
@@ -325,7 +351,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         decoration: BoxDecoration(
           color: active
               ? BColors.primary
-              : (isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7)),
+              : (isDark
+                    ? BColors.backgroundColorDark
+                    : const Color(0xFFF2F2F7)),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: active ? BColors.primary : Colors.grey.withOpacity(0.2),
@@ -368,10 +396,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             decoration: BoxDecoration(
               color: selected
                   ? BColors.primary
-                  : (isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7)),
+                  : (isDark
+                        ? BColors.backgroundColorDark
+                        : const Color(0xFFF2F2F7)),
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
-                color: selected ? BColors.primary : Colors.grey.withOpacity(0.2),
+                color: selected
+                    ? BColors.primary
+                    : Colors.grey.withOpacity(0.2),
                 width: 1.5,
               ),
             ),

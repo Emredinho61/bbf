@@ -167,12 +167,12 @@ class _InformationPageState extends State<InformationPage> {
     return GestureDetector(
       onTap: hasText
           ? () => setState(() {
-                if (isExpanded) {
-                  _expandedIds.remove(id);
-                } else {
-                  _expandedIds.add(id);
-                }
-              })
+              if (isExpanded) {
+                _expandedIds.remove(id);
+              } else {
+                _expandedIds.add(id);
+              }
+            })
           : null,
       child: Container(
         margin: EdgeInsets.only(bottom: 16.h),
@@ -260,9 +260,7 @@ class _InformationPageState extends State<InformationPage> {
             onTap: () async {
               final result = await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const AddInformationPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const AddInformationPage()),
               );
               if (result == true) _loadInformation();
             },

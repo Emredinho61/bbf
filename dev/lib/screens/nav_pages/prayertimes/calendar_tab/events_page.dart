@@ -55,14 +55,13 @@ class _EventspageState extends State<Eventspage> {
     if (mounted) setState(() {});
   }
 
-
   static const _prayerIcons = {
-    'Fajr':    Icons.wb_twilight,
-    'Shuruq':  Icons.wb_sunny_outlined,
-    'Dhur':    Icons.light_mode,
-    'Asr':     Icons.sunny,
+    'Fajr': Icons.wb_twilight,
+    'Shuruq': Icons.wb_sunny_outlined,
+    'Dhur': Icons.light_mode,
+    'Asr': Icons.sunny,
     'Maghrib': Icons.wb_twilight_outlined,
-    'Isha':    Icons.nightlight_round,
+    'Isha': Icons.nightlight_round,
   };
 
   Widget _buildPrayerTimesCard(bool isDark) {
@@ -96,7 +95,10 @@ class _EventspageState extends State<Eventspage> {
                       SizedBox(height: 6.h),
                       Text(
                         entry.key,
-                        style: TextStyle(fontSize: 10.sp, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
@@ -104,7 +106,9 @@ class _EventspageState extends State<Eventspage> {
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1C1C1E),
                         ),
                       ),
                     ],
@@ -204,18 +208,23 @@ class _EventspageState extends State<Eventspage> {
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 14.w),
 
-                itemCount: widget.events.length + (widget.prayerTimes.isNotEmpty ? 1 : 0),
+                itemCount:
+                    widget.events.length +
+                    (widget.prayerTimes.isNotEmpty ? 1 : 0),
 
                 itemBuilder: (context, index) {
                   if (widget.prayerTimes.isNotEmpty && index == 0) {
                     return _buildPrayerTimesCard(isDark);
                   }
-                  final eventIndex = widget.prayerTimes.isNotEmpty ? index - 1 : index;
+                  final eventIndex = widget.prayerTimes.isNotEmpty
+                      ? index - 1
+                      : index;
                   final event = widget.events[eventIndex];
                   final color = event.colorFor(isDark);
 
                   final isFav = _favHelper.isFavorite(event.id);
-                  final notifMode = _eventNotificationHelper.getEventNotificationMode(event.id);
+                  final notifMode = _eventNotificationHelper
+                      .getEventNotificationMode(event.id);
                   final notifActive = notifMode != EventNotificationMode.off;
 
                   return Container(
@@ -223,7 +232,9 @@ class _EventspageState extends State<Eventspage> {
                     decoration: BoxDecoration(
                       color: isDark ? BColors.prayerRowDark : Colors.white,
                       borderRadius: BorderRadius.circular(18.r),
-                      border: Border(left: BorderSide(color: color, width: 3.5)),
+                      border: Border(
+                        left: BorderSide(color: color, width: 3.5),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -237,7 +248,9 @@ class _EventspageState extends State<Eventspage> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => EventDetailPage(
-                              event: event, date: widget.focusedDay),
+                            event: event,
+                            date: widget.focusedDay,
+                          ),
                         ),
                       ),
                       borderRadius: BorderRadius.circular(18.r),
@@ -257,28 +270,37 @@ class _EventspageState extends State<Eventspage> {
                                     color: color.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(14.r),
                                   ),
-                                  child: Icon(event.icon, color: color, size: 26.sp),
+                                  child: Icon(
+                                    event.icon,
+                                    color: color,
+                                    size: 26.sp,
+                                  ),
                                 ),
                                 SizedBox(width: 14.w),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           Container(
                                             padding: EdgeInsets.symmetric(
-                                                horizontal: 8.w, vertical: 3.h),
+                                              horizontal: 8.w,
+                                              vertical: 3.h,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: color.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(20.r),
+                                              borderRadius:
+                                                  BorderRadius.circular(20.r),
                                             ),
                                             child: Text(
                                               'Veranstaltung',
                                               style: TextStyle(
-                                                  fontSize: 10.sp,
-                                                  color: color,
-                                                  fontWeight: FontWeight.w600),
+                                                fontSize: 10.sp,
+                                                color: color,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                           const Spacer(),
@@ -295,37 +317,47 @@ class _EventspageState extends State<Eventspage> {
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 15.sp,
-                                          color: isDark ? Colors.white : Colors.black87,
+                                          color: isDark
+                                              ? Colors.white
+                                              : Colors.black87,
                                         ),
                                       ),
                                       SizedBox(height: 6.h),
                                       Row(
                                         children: [
-                                          Icon(Icons.access_time,
-                                              size: 13.sp, color: Colors.grey.shade500),
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 13.sp,
+                                            color: Colors.grey.shade500,
+                                          ),
                                           SizedBox(width: 5.w),
                                           Text(
                                             event.startPrayer != null
                                                 ? event.displayTime
                                                 : '${event.displayTime} Uhr',
                                             style: TextStyle(
-                                                fontSize: 12.sp,
-                                                color: Colors.grey.shade500),
+                                              fontSize: 12.sp,
+                                              color: Colors.grey.shade500,
+                                            ),
                                           ),
                                         ],
                                       ),
                                       SizedBox(height: 4.h),
                                       Row(
                                         children: [
-                                          Icon(Icons.location_on_outlined,
-                                              size: 13.sp, color: Colors.grey.shade500),
+                                          Icon(
+                                            Icons.location_on_outlined,
+                                            size: 13.sp,
+                                            color: Colors.grey.shade500,
+                                          ),
                                           SizedBox(width: 5.w),
                                           Expanded(
                                             child: Text(
                                               event.location,
                                               style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.grey.shade500),
+                                                fontSize: 12.sp,
+                                                color: Colors.grey.shade500,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -357,16 +389,21 @@ class _EventspageState extends State<Eventspage> {
                                       setState(() {});
                                     },
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 12.h,
+                                      ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Icon(
                                             isFav
                                                 ? Icons.favorite_rounded
                                                 : Icons.favorite_border_rounded,
                                             size: 18.sp,
-                                            color: isFav ? color : Colors.grey.shade400,
+                                            color: isFav
+                                                ? color
+                                                : Colors.grey.shade400,
                                           ),
                                           SizedBox(width: 6.w),
                                           Text(
@@ -374,7 +411,9 @@ class _EventspageState extends State<Eventspage> {
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w600,
-                                              color: isFav ? color : Colors.grey.shade500,
+                                              color: isFav
+                                                  ? color
+                                                  : Colors.grey.shade500,
                                             ),
                                           ),
                                         ],
@@ -397,43 +436,59 @@ class _EventspageState extends State<Eventspage> {
                                     behavior: HitTestBehavior.opaque,
                                     onTap: () => _openNotificationSheet(event),
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 12.h,
+                                      ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Stack(
                                             clipBehavior: Clip.none,
                                             children: [
                                               Icon(
                                                 notifActive
-                                                    ? Icons.notifications_rounded
-                                                    : Icons.notifications_none_rounded,
+                                                    ? Icons
+                                                          .notifications_rounded
+                                                    : Icons
+                                                          .notifications_none_rounded,
                                                 size: 18.sp,
                                                 color: notifActive
                                                     ? color
                                                     : Colors.grey.shade400,
                                               ),
-                                              if (notifMode == EventNotificationMode.allFutureEvents)
+                                              if (notifMode ==
+                                                  EventNotificationMode
+                                                      .allFutureEvents)
                                                 Positioned(
                                                   right: -3,
                                                   bottom: -3,
                                                   child: Container(
-                                                    padding: const EdgeInsets.all(1.5),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          1.5,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: isDark
-                                                          ? BColors.prayerRowDark
+                                                          ? BColors
+                                                                .prayerRowDark
                                                           : Colors.white,
                                                       shape: BoxShape.circle,
                                                     ),
-                                                    child: Icon(Icons.repeat,
-                                                        size: 9.sp, color: color),
+                                                    child: Icon(
+                                                      Icons.repeat,
+                                                      size: 9.sp,
+                                                      color: color,
+                                                    ),
                                                   ),
                                                 ),
                                             ],
                                           ),
                                           SizedBox(width: 6.w),
                                           Text(
-                                            notifActive ? 'Erinnert' : 'Erinnern',
+                                            notifActive
+                                                ? 'Erinnert'
+                                                : 'Erinnern',
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w600,

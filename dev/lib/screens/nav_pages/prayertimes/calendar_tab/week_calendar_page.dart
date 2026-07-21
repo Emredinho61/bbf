@@ -24,12 +24,28 @@ class _WeekCalendarPageState extends State<WeekCalendarPage> {
   late DateTime _weekStart; // always a Monday
 
   static const _dayNames = [
-    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-    'Freitag', 'Samstag', 'Sonntag',
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+    'Sonntag',
   ];
   static const _monthNames = [
-    '', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    '',
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ];
 
   @override
@@ -72,16 +88,20 @@ class _WeekCalendarPageState extends State<WeekCalendarPage> {
     final todayKey = DateTime(today.year, today.month, today.day);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -101,15 +121,15 @@ class _WeekCalendarPageState extends State<WeekCalendarPage> {
             label: _weekLabel(),
             isDark: isDark,
             onPrev: () => setState(
-                () => _weekStart = _weekStart.subtract(const Duration(days: 7))),
+              () => _weekStart = _weekStart.subtract(const Duration(days: 7)),
+            ),
             onNext: () => setState(
-                () => _weekStart = _weekStart.add(const Duration(days: 7))),
+              () => _weekStart = _weekStart.add(const Duration(days: 7)),
+            ),
           ),
 
           if (_isLoading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else
             Expanded(
               child: ListView.builder(
@@ -244,8 +264,7 @@ class _DaySection extends StatelessWidget {
               if (isToday) ...[
                 SizedBox(width: 6.w),
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: BColors.primary,
                     borderRadius: BorderRadius.circular(8.r),
@@ -270,14 +289,11 @@ class _DaySection extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 4.h),
             child: Text(
               'Keine Veranstaltungen',
-              style: TextStyle(
-                  fontSize: 13.sp, color: Colors.grey.shade400),
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade400),
             ),
           )
         else
-          ...events.map(
-            (e) => _EventCard(event: e, day: day, isDark: isDark),
-          ),
+          ...events.map((e) => _EventCard(event: e, day: day, isDark: isDark)),
       ],
     );
   }
@@ -325,7 +341,9 @@ class _EventCardState extends State<_EventCard> {
     final mode = _notifHelper.getEventNotificationMode(event.id);
     final isFav = _favHelper.isFavorite(event.id);
     final notifActive = mode != EventNotificationMode.off;
-    final dividerColor = isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.06);
+    final dividerColor = isDark
+        ? Colors.white.withOpacity(0.06)
+        : Colors.black.withOpacity(0.06);
 
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
@@ -345,7 +363,8 @@ class _EventCardState extends State<_EventCard> {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => EventDetailPage(event: event, date: widget.day)),
+            builder: (_) => EventDetailPage(event: event, date: widget.day),
+          ),
         ),
         borderRadius: BorderRadius.circular(16.r),
         child: Column(
@@ -373,38 +392,84 @@ class _EventCardState extends State<_EventCard> {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 3.h,
+                              ),
                               decoration: BoxDecoration(
                                 color: color.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20.r),
                               ),
-                              child: Text('Veranstaltung',
-                                  style: TextStyle(fontSize: 10.sp, color: color, fontWeight: FontWeight.w600)),
+                              child: Text(
+                                'Veranstaltung',
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: color,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                             const Spacer(),
-                            Icon(Icons.chevron_right_rounded, size: 20.sp, color: Colors.grey.shade400),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 20.sp,
+                              color: Colors.grey.shade400,
+                            ),
                           ],
                         ),
                         SizedBox(height: 6.h),
-                        Text(event.title,
-                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white : const Color(0xFF1C1C1E))),
+                        Text(
+                          event.title,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF1C1C1E),
+                          ),
+                        ),
                         SizedBox(height: 4.h),
-                        Row(children: [
-                          Icon(Icons.access_time, size: 13.sp, color: Colors.grey.shade500),
-                          SizedBox(width: 4.w),
-                          Text(event.startPrayer != null ? event.displayTime : '${event.displayTime} Uhr',
-                              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
-                        ]),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 13.sp,
+                              color: Colors.grey.shade500,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              event.startPrayer != null
+                                  ? event.displayTime
+                                  : '${event.displayTime} Uhr',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
                         if (event.location.isNotEmpty) ...[
                           SizedBox(height: 2.h),
-                          Row(children: [
-                            Icon(Icons.location_on_outlined, size: 13.sp, color: Colors.grey.shade500),
-                            SizedBox(width: 4.w),
-                            Expanded(child: Text(event.location,
-                                style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
-                                overflow: TextOverflow.ellipsis)),
-                          ]),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: 13.sp,
+                                color: Colors.grey.shade500,
+                              ),
+                              SizedBox(width: 4.w),
+                              Expanded(
+                                child: Text(
+                                  event.location,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ],
                     ),
@@ -425,14 +490,27 @@ class _EventCardState extends State<_EventCard> {
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              size: 18.sp, color: isFav ? color : Colors.grey.shade400),
-                          SizedBox(width: 6.w),
-                          Text(isFav ? 'Gemerkt' : 'Merken',
-                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
-                                  color: isFav ? color : Colors.grey.shade500)),
-                        ]),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              isFav
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              size: 18.sp,
+                              color: isFav ? color : Colors.grey.shade400,
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              isFav ? 'Gemerkt' : 'Merken',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: isFav ? color : Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -443,30 +521,56 @@ class _EventCardState extends State<_EventCard> {
                       onTap: _openNotificationSheet,
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Icon(notifActive ? Icons.notifications_rounded : Icons.notifications_none_rounded,
-                                  size: 18.sp, color: notifActive ? color : Colors.grey.shade400),
-                              if (mode == EventNotificationMode.allFutureEvents)
-                                Positioned(
-                                  right: -3, bottom: -3,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(1.5),
-                                    decoration: BoxDecoration(
-                                        color: isDark ? BColors.prayerRowDark : Colors.white,
-                                        shape: BoxShape.circle),
-                                    child: Icon(Icons.repeat, size: 9.sp, color: color),
-                                  ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Icon(
+                                  notifActive
+                                      ? Icons.notifications_rounded
+                                      : Icons.notifications_none_rounded,
+                                  size: 18.sp,
+                                  color: notifActive
+                                      ? color
+                                      : Colors.grey.shade400,
                                 ),
-                            ],
-                          ),
-                          SizedBox(width: 6.w),
-                          Text(notifActive ? 'Erinnert' : 'Erinnern',
-                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
-                                  color: notifActive ? color : Colors.grey.shade500)),
-                        ]),
+                                if (mode ==
+                                    EventNotificationMode.allFutureEvents)
+                                  Positioned(
+                                    right: -3,
+                                    bottom: -3,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(1.5),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? BColors.prayerRowDark
+                                            : Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.repeat,
+                                        size: 9.sp,
+                                        color: color,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              notifActive ? 'Erinnert' : 'Erinnern',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: notifActive
+                                    ? color
+                                    : Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

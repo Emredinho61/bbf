@@ -47,13 +47,11 @@ class EventNotificationSheet extends StatefulWidget {
   final int beginMinute;
 
   @override
-  State<EventNotificationSheet> createState() =>
-      _EventNotificationSheetState();
+  State<EventNotificationSheet> createState() => _EventNotificationSheetState();
 }
 
 class _EventNotificationSheetState extends State<EventNotificationSheet> {
-  final EventNotificationHelper _notificationHelper =
-      EventNotificationHelper();
+  final EventNotificationHelper _notificationHelper = EventNotificationHelper();
   final NotificationServices _notificationServices = NotificationServices();
 
   late EventNotificationMode _selectedMode;
@@ -162,7 +160,11 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.event_rounded, size: 12.sp, color: BColors.primary),
+                  Icon(
+                    Icons.event_rounded,
+                    size: 12.sp,
+                    color: BColors.primary,
+                  ),
                   SizedBox(width: 5.w),
                   Flexible(
                     child: Text(
@@ -237,8 +239,9 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
                 child: TextButton(
                   onPressed: _isApplying ? null : () => Navigator.pop(context),
                   style: TextButton.styleFrom(
-                    foregroundColor:
-                        isDark ? Colors.white38 : Colors.grey.shade400,
+                    foregroundColor: isDark
+                        ? Colors.white38
+                        : Colors.grey.shade400,
                     padding: EdgeInsets.symmetric(vertical: 13.h),
                   ),
                   child: Text(
@@ -283,8 +286,9 @@ class _OptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedBg = BColors.primary.withOpacity(isDark ? 0.18 : 0.08);
-    final unselectedBg =
-        isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7);
+    final unselectedBg = isDark
+        ? const Color(0xFF2C2C2E)
+        : const Color(0xFFF2F2F7);
 
     return Material(
       color: Colors.transparent,
@@ -335,9 +339,7 @@ class _OptionCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: isSelected
                             ? BColors.primary
-                            : (isDark
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E)),
+                            : (isDark ? Colors.white : const Color(0xFF1C1C1E)),
                       ),
                     ),
                     SizedBox(height: 3.h),

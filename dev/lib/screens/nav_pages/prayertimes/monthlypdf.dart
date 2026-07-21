@@ -31,20 +31,31 @@ Future<void> generateMonthlyPrayerPdf(
   final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
 
   // ── Filter CSV to requested month ────────────────────────────────────────
-  final entries = csvData.where((row) {
-    if (row['Date'] == null) return false;
-    try {
-      final p = row['Date']!.split('.');
-      final d = DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
-      return d.month == month && d.year == year;
-    } catch (_) {
-      return false;
-    }
-  }).map((row) {
-    final p = row['Date']!.split('.');
-    final date = DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
-    return {'row': row, 'date': date, 'isFriday': date.weekday == DateTime.friday};
-  }).toList();
+  final entries = csvData
+      .where((row) {
+        if (row['Date'] == null) return false;
+        try {
+          final p = row['Date']!.split('.');
+          final d = DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+          return d.month == month && d.year == year;
+        } catch (_) {
+          return false;
+        }
+      })
+      .map((row) {
+        final p = row['Date']!.split('.');
+        final date = DateTime(
+          int.parse(p[2]),
+          int.parse(p[1]),
+          int.parse(p[0]),
+        );
+        return {
+          'row': row,
+          'date': date,
+          'isFriday': date.weekday == DateTime.friday,
+        };
+      })
+      .toList();
 
   // ── Build PDF ────────────────────────────────────────────────────────────
   final pdf = pw.Document();
@@ -73,7 +84,12 @@ Future<void> generateMonthlyPrayerPdf(
 
 // ── Header ──────────────────────────────────────────────────────────────────
 
-pw.Widget _header(pw.Font latin, pw.Font latinBold, pw.Font arabic, pw.MemoryImage logo) {
+pw.Widget _header(
+  pw.Font latin,
+  pw.Font latinBold,
+  pw.Font arabic,
+  pw.MemoryImage logo,
+) {
   return pw.Container(
     color: _kTeal,
     padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -88,12 +104,20 @@ pw.Widget _header(pw.Font latin, pw.Font latinBold, pw.Font arabic, pw.MemoryIma
             pw.Text(
               'مواقيت الصلاة لمدينة فرايبورغ',
               textDirection: pw.TextDirection.rtl,
-              style: pw.TextStyle(font: arabic, color: PdfColors.white, fontSize: 9),
+              style: pw.TextStyle(
+                font: arabic,
+                color: PdfColors.white,
+                fontSize: 9,
+              ),
             ),
             pw.SizedBox(height: 2),
             pw.Text(
               'Gebetszeiten für Freiburg',
-              style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 10),
+              style: pw.TextStyle(
+                font: latinBold,
+                color: PdfColors.white,
+                fontSize: 10,
+              ),
             ),
           ],
         ),
@@ -106,12 +130,20 @@ pw.Widget _header(pw.Font latin, pw.Font latinBold, pw.Font arabic, pw.MemoryIma
             pw.Text(
               'جمعية الثقافة والتواصل فرايبورغ',
               textDirection: pw.TextDirection.rtl,
-              style: pw.TextStyle(font: arabic, color: PdfColors.white, fontSize: 9),
+              style: pw.TextStyle(
+                font: arabic,
+                color: PdfColors.white,
+                fontSize: 9,
+              ),
             ),
             pw.SizedBox(height: 2),
             pw.Text(
               'Bildung und Begegnung Freiburg',
-              style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 10),
+              style: pw.TextStyle(
+                font: latinBold,
+                color: PdfColors.white,
+                fontSize: 10,
+              ),
             ),
           ],
         ),
@@ -122,7 +154,12 @@ pw.Widget _header(pw.Font latin, pw.Font latinBold, pw.Font arabic, pw.MemoryIma
 
 // ── Month bar ────────────────────────────────────────────────────────────────
 
-pw.Widget _monthBar(int month, int year, pw.Font latinBold, pw.MemoryImage logo) {
+pw.Widget _monthBar(
+  int month,
+  int year,
+  pw.Font latinBold,
+  pw.MemoryImage logo,
+) {
   return pw.Container(
     color: _kMonthBar,
     padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -137,7 +174,11 @@ pw.Widget _monthBar(int month, int year, pw.Font latinBold, pw.MemoryImage logo)
           ),
           child: pw.Text(
             month.toString().padLeft(2, '0'),
-            style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 26),
+            style: pw.TextStyle(
+              font: latinBold,
+              color: PdfColors.white,
+              fontSize: 26,
+            ),
           ),
         ),
         pw.SizedBox(width: 18),
@@ -145,7 +186,11 @@ pw.Widget _monthBar(int month, int year, pw.Font latinBold, pw.MemoryImage logo)
         pw.Expanded(
           child: pw.Text(
             '${_monthName(month)} $year',
-            style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 20),
+            style: pw.TextStyle(
+              font: latinBold,
+              color: PdfColors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         // Circular logo badge
@@ -166,7 +211,12 @@ pw.Widget _monthBar(int month, int year, pw.Font latinBold, pw.MemoryImage logo)
 
 // ── Table ────────────────────────────────────────────────────────────────────
 
-pw.Widget _table(List<Map<String, dynamic>> entries, pw.Font latin, pw.Font latinBold, pw.Font arabic) {
+pw.Widget _table(
+  List<Map<String, dynamic>> entries,
+  pw.Font latin,
+  pw.Font latinBold,
+  pw.Font arabic,
+) {
   // Column definitions: (German label, Arabic label)
   const cols = [
     ('Datum', 'التاريخ'),
@@ -247,7 +297,11 @@ pw.Widget _headerCell(String de, String ar, pw.Font latinBold, pw.Font arabic) {
           ar,
           textAlign: pw.TextAlign.center,
           textDirection: pw.TextDirection.rtl,
-          style: pw.TextStyle(font: arabic, fontSize: 7, color: const PdfColor(0.3, 0.3, 0.3)),
+          style: pw.TextStyle(
+            font: arabic,
+            fontSize: 7,
+            color: const PdfColor(0.3, 0.3, 0.3),
+          ),
         ),
       ],
     ),
@@ -271,7 +325,12 @@ pw.Widget _cell(String text, pw.Font font, {bool bold = false}) {
 
 // ── Footer ───────────────────────────────────────────────────────────────────
 
-pw.Widget _footer(String firstPrayer, String secondPrayer, pw.Font latin, pw.Font latinBold) {
+pw.Widget _footer(
+  String firstPrayer,
+  String secondPrayer,
+  pw.Font latin,
+  pw.Font latinBold,
+) {
   return pw.Container(
     color: _kTeal,
     padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -282,7 +341,11 @@ pw.Widget _footer(String firstPrayer, String secondPrayer, pw.Font latin, pw.Fon
         pw.Text(
           'Erstes Freitagsgebet: $firstPrayer Uhr   |   Zweites Freitagsgebet: $secondPrayer Uhr',
           textAlign: pw.TextAlign.center,
-          style: pw.TextStyle(font: latin, color: PdfColors.white, fontSize: 7.5),
+          style: pw.TextStyle(
+            font: latin,
+            color: PdfColors.white,
+            fontSize: 7.5,
+          ),
         ),
         pw.SizedBox(height: 6),
         // Address / bank row
@@ -301,12 +364,31 @@ pw.Widget _footer(String firstPrayer, String secondPrayer, pw.Font latin, pw.Fon
   );
 }
 
-pw.Widget _footerCol(String label, String value, pw.Font latin, pw.Font latinBold) {
+pw.Widget _footerCol(
+  String label,
+  String value,
+  pw.Font latin,
+  pw.Font latinBold,
+) {
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Text(label, style: pw.TextStyle(font: latinBold, color: PdfColors.white, fontSize: 8)),
-      pw.Text(value, style: pw.TextStyle(font: latin, color: const PdfColor(0.85, 0.85, 0.85), fontSize: 7.5)),
+      pw.Text(
+        label,
+        style: pw.TextStyle(
+          font: latinBold,
+          color: PdfColors.white,
+          fontSize: 8,
+        ),
+      ),
+      pw.Text(
+        value,
+        style: pw.TextStyle(
+          font: latin,
+          color: const PdfColor(0.85, 0.85, 0.85),
+          fontSize: 7.5,
+        ),
+      ),
     ],
   );
 }
@@ -315,16 +397,31 @@ pw.Widget _footerCol(String label, String value, pw.Font latin, pw.Font latinBol
 
 String _weekdayName(int weekday) {
   const names = [
-    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-    'Freitag', 'Samstag', 'Sonntag',
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+    'Sonntag',
   ];
   return names[weekday - 1];
 }
 
 String _monthName(int month) {
   const months = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ];
   return months[month - 1];
 }

@@ -100,8 +100,6 @@ class PrayerTimesHelper {
     return newMap;
   }
 
-
-
   Future<List<DateTime>> getTodaysPrayerTimesAsDateTimes(
     List<Map<String, String>> csvData,
   ) async {
@@ -159,7 +157,9 @@ class PrayerTimesHelper {
 
   String getIshaTimeWith90MinutesAdded(String timeStr) {
     final prayerTime = convertStringTimeIntoDateTime(timeStr);
-    final ishaTimeWith90MinutesAdded = prayerTime.add(const Duration(minutes: 90));
+    final ishaTimeWith90MinutesAdded = prayerTime.add(
+      const Duration(minutes: 90),
+    );
     return DateFormat('HH:mm').format(ishaTimeWith90MinutesAdded);
   }
 

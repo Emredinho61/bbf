@@ -41,8 +41,10 @@ class _AddInformationPageState extends State<AddInformationPage> {
 
   String get _errorMessage {
     if (_type == null) return 'Bitte einen Typ auswählen.';
-    if (_titelController.text.trim().isEmpty) return 'Bitte einen Titel eingeben.';
-    if (_type == 'image' && _imageFile == null) return 'Bitte ein Bild auswählen.';
+    if (_titelController.text.trim().isEmpty)
+      return 'Bitte einen Titel eingeben.';
+    if (_type == 'image' && _imageFile == null)
+      return 'Bitte ein Bild auswählen.';
     return '';
   }
 
@@ -91,11 +93,12 @@ class _AddInformationPageState extends State<AddInformationPage> {
           '${_imageFile!.path}_compressed.jpg',
           quality: 70,
         );
-        final fileToUpload =
-            compressedXFile != null ? File(compressedXFile.path) : _imageFile!;
-        final imageRef = FirebaseStorage.instance
-            .ref()
-            .child('information_images/$_selectedImageName');
+        final fileToUpload = compressedXFile != null
+            ? File(compressedXFile.path)
+            : _imageFile!;
+        final imageRef = FirebaseStorage.instance.ref().child(
+          'information_images/$_selectedImageName',
+        );
         await imageRef.putFile(fileToUpload);
         imageUrl = await imageRef.getDownloadURL();
       }
@@ -117,16 +120,15 @@ class _AddInformationPageState extends State<AddInformationPage> {
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Information erfolgreich hochgeladen!')),
+          const SnackBar(content: Text('Information erfolgreich hochgeladen!')),
         );
       }
     } catch (e) {
       debugPrint('Upload failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Hochladen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -138,16 +140,20 @@ class _AddInformationPageState extends State<AddInformationPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -177,12 +183,20 @@ class _AddInformationPageState extends State<AddInformationPage> {
                     children: [
                       Expanded(
                         child: _typeCard(
-                            'text', Icons.text_fields, 'Text', isDark),
+                          'text',
+                          Icons.text_fields,
+                          'Text',
+                          isDark,
+                        ),
                       ),
                       SizedBox(width: 12.w),
                       Expanded(
                         child: _typeCard(
-                            'image', Icons.image_outlined, 'Bild / Flyer', isDark),
+                          'image',
+                          Icons.image_outlined,
+                          'Bild / Flyer',
+                          isDark,
+                        ),
                       ),
                     ],
                   ),
@@ -314,7 +328,9 @@ class _AddInformationPageState extends State<AddInformationPage> {
         decoration: BoxDecoration(
           color: selected
               ? BColors.primary.withOpacity(0.12)
-              : (isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7)),
+              : (isDark
+                    ? BColors.backgroundColorDark
+                    : const Color(0xFFF7F7F7)),
           border: Border.all(
             color: selected ? BColors.primary : Colors.grey.withOpacity(0.25),
             width: selected ? 2 : 1.5,
@@ -364,24 +380,30 @@ class _AddInformationPageState extends State<AddInformationPage> {
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
-        fillColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        fillColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF7F7F7),
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(
-              color: BColors.primary.withOpacity(0.6), width: 1.5),
+            color: BColors.primary.withOpacity(0.6),
+            width: 1.5,
+          ),
         ),
       ),
     );

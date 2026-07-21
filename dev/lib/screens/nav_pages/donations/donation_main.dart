@@ -16,35 +16,32 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 // tree shaker can include them. Looked up at runtime via codePoint.
 final _kProjectIcons = <int, IconData>{
   Icons.volunteer_activism.codePoint: Icons.volunteer_activism,
-  Icons.mosque.codePoint:             Icons.mosque,
-  Icons.school.codePoint:             Icons.school,
-  Icons.group.codePoint:              Icons.group,
-  Icons.favorite.codePoint:           Icons.favorite,
-  Icons.local_hospital.codePoint:     Icons.local_hospital,
-  Icons.restaurant.codePoint:         Icons.restaurant,
-  Icons.home.codePoint:               Icons.home,
-  Icons.child_care.codePoint:         Icons.child_care,
-  Icons.elderly.codePoint:            Icons.elderly,
-  Icons.book.codePoint:               Icons.book,
-  Icons.water.codePoint:              Icons.water,
-  Icons.eco.codePoint:                Icons.eco,
-  Icons.sports_soccer.codePoint:      Icons.sports_soccer,
-  Icons.construction.codePoint:       Icons.construction,
-  Icons.attach_money.codePoint:       Icons.attach_money,
-  Icons.healing.codePoint:            Icons.healing,
-  Icons.star.codePoint:               Icons.star,
-  Icons.people.codePoint:             Icons.people,
-  Icons.flash_on.codePoint:           Icons.flash_on,
+  Icons.mosque.codePoint: Icons.mosque,
+  Icons.school.codePoint: Icons.school,
+  Icons.group.codePoint: Icons.group,
+  Icons.favorite.codePoint: Icons.favorite,
+  Icons.local_hospital.codePoint: Icons.local_hospital,
+  Icons.restaurant.codePoint: Icons.restaurant,
+  Icons.home.codePoint: Icons.home,
+  Icons.child_care.codePoint: Icons.child_care,
+  Icons.elderly.codePoint: Icons.elderly,
+  Icons.book.codePoint: Icons.book,
+  Icons.water.codePoint: Icons.water,
+  Icons.eco.codePoint: Icons.eco,
+  Icons.sports_soccer.codePoint: Icons.sports_soccer,
+  Icons.construction.codePoint: Icons.construction,
+  Icons.attach_money.codePoint: Icons.attach_money,
+  Icons.healing.codePoint: Icons.healing,
+  Icons.star.codePoint: Icons.star,
+  Icons.people.codePoint: Icons.people,
+  Icons.flash_on.codePoint: Icons.flash_on,
 };
 
 IconData _resolveIcon(int? codePoint) =>
     _kProjectIcons[codePoint] ?? Icons.volunteer_activism;
 
 String _fmt(double value) {
-  return "€${value.toStringAsFixed(0).replaceAllMapped(
-    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-    (m) => '${m[1]},',
-  )}";
+  return "€${value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}";
 }
 
 // ── Overview ──────────────────────────────────────────────────────────────────
@@ -89,15 +86,15 @@ class _DonationOverviewState extends State<DonationOverview> {
           .doc(id)
           .delete();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Projekt gelöscht.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Projekt gelöscht.')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Löschen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Löschen: $e')));
       }
     }
   }
@@ -107,8 +104,9 @@ class _DonationOverviewState extends State<DonationOverview> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F4F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F4F7),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(bottom: 40.h),
@@ -154,9 +152,13 @@ class _DonationOverviewState extends State<DonationOverview> {
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xff2E7D32),
                         padding: EdgeInsets.symmetric(
-                            horizontal: 16.w, vertical: 11.h),
+                          horizontal: 16.w,
+                          vertical: 11.h,
+                        ),
                         textStyle: TextStyle(
-                            fontSize: 13.sp, fontWeight: FontWeight.w700),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14.r),
                         ),
@@ -226,9 +228,7 @@ class _DonationOverviewState extends State<DonationOverview> {
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? Colors.white
-                            : const Color(0xFF1C1C1E),
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                         letterSpacing: -0.3,
                       ),
                     ),
@@ -241,17 +241,21 @@ class _DonationOverviewState extends State<DonationOverview> {
                         ),
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 6.h),
+                            horizontal: 12.w,
+                            vertical: 6.h,
+                          ),
                           decoration: BoxDecoration(
-                            color:
-                                const Color(0xff2E7D32).withOpacity(0.1),
+                            color: const Color(0xff2E7D32).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.add,
-                                  size: 14, color: Color(0xff2E7D32)),
+                              const Icon(
+                                Icons.add,
+                                size: 14,
+                                color: Color(0xff2E7D32),
+                              ),
                               SizedBox(width: 4.w),
                               Text(
                                 'Hinzufügen',
@@ -287,7 +291,9 @@ class _DonationOverviewState extends State<DonationOverview> {
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Padding(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 24.w, vertical: 16.h),
+                        horizontal: 24.w,
+                        vertical: 16.h,
+                      ),
                       child: _EmptyMinorProjects(isDark: isDark),
                     );
                   }
@@ -323,7 +329,6 @@ class _DonationOverviewState extends State<DonationOverview> {
                   );
                 },
               ),
-
             ],
           ),
         ),
@@ -380,7 +385,11 @@ class _MainProjectCard extends StatelessWidget {
               height: 200.h,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xff1B5E20), Color(0xff2E7D32), Color(0xff388E3C)],
+                  colors: [
+                    Color(0xff1B5E20),
+                    Color(0xff2E7D32),
+                    Color(0xff388E3C),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -427,13 +436,17 @@ class _MainProjectCard extends StatelessWidget {
 
                   // Top row: chip + edit
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 18.w,
+                      vertical: 14.h,
+                    ),
                     child: Row(
                       children: [
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10.w, vertical: 4.h),
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20.r),
@@ -457,8 +470,11 @@ class _MainProjectCard extends StatelessWidget {
                                 color: Colors.white.withOpacity(0.18),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.edit_outlined,
-                                  color: Colors.white, size: 16.sp),
+                              child: Icon(
+                                Icons.edit_outlined,
+                                color: Colors.white,
+                                size: 16.sp,
+                              ),
                             ),
                           ),
                       ],
@@ -470,8 +486,11 @@ class _MainProjectCard extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.mosque,
-                            size: 60.sp, color: Colors.white.withOpacity(0.9)),
+                        Icon(
+                          Icons.mosque,
+                          size: 60.sp,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
                         SizedBox(height: 10.h),
                         Text(
                           'Moscheebau',
@@ -520,10 +539,11 @@ class _MainProjectCard extends StatelessWidget {
                     const Spacer(),
                     Container(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 3.h),
+                        horizontal: 10.w,
+                        vertical: 3.h,
+                      ),
                       decoration: BoxDecoration(
-                        color:
-                            const Color(0xff2E7D32).withOpacity(0.12),
+                        color: const Color(0xff2E7D32).withOpacity(0.12),
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Text(
@@ -549,7 +569,8 @@ class _MainProjectCard extends StatelessWidget {
                         ? const Color(0xFF2D3748)
                         : const Color(0xFFE8F5E9),
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xff2E7D32)),
+                      Color(0xff2E7D32),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16.h),
@@ -575,7 +596,9 @@ class _MainProjectCard extends StatelessWidget {
                         Text(
                           'gesammelt',
                           style: TextStyle(
-                              fontSize: 11.sp, color: Colors.grey.shade500),
+                            fontSize: 11.sp,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
@@ -596,7 +619,9 @@ class _MainProjectCard extends StatelessWidget {
                         Text(
                           'Ziel',
                           style: TextStyle(
-                              fontSize: 11.sp, color: Colors.grey.shade500),
+                            fontSize: 11.sp,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
@@ -615,7 +640,9 @@ class _MainProjectCard extends StatelessWidget {
                       backgroundColor: const Color(0xff2E7D32),
                       padding: EdgeInsets.symmetric(vertical: 14.h),
                       textStyle: TextStyle(
-                          fontSize: 16.sp, fontWeight: FontWeight.w700),
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),
@@ -710,12 +737,14 @@ class _MinorProjectCard extends StatelessWidget {
                   width: 54.r,
                   height: 54.r,
                   decoration: BoxDecoration(
-                    color:
-                        const Color(0xff2E7D32).withOpacity(0.1),
+                    color: const Color(0xff2E7D32).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16.r),
                   ),
-                  child: Icon(icon,
-                      color: const Color(0xff2E7D32), size: 26.sp),
+                  child: Icon(
+                    icon,
+                    color: const Color(0xff2E7D32),
+                    size: 26.sp,
+                  ),
                 ),
                 SizedBox(width: 14.w),
 
@@ -743,22 +772,26 @@ class _MinorProjectCard extends StatelessWidget {
                           if (isAdmin)
                             PopupMenuButton<String>(
                               padding: EdgeInsets.zero,
-                              icon: Icon(Icons.more_horiz,
-                                  size: 18.sp,
-                                  color: Colors.grey.shade400),
+                              icon: Icon(
+                                Icons.more_horiz,
+                                size: 18.sp,
+                                color: Colors.grey.shade400,
+                              ),
                               onSelected: (v) {
                                 if (v == 'edit') onEdit();
                                 if (v == 'delete') onDelete();
                               },
                               itemBuilder: (_) => [
                                 const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Bearbeiten')),
+                                  value: 'edit',
+                                  child: Text('Bearbeiten'),
+                                ),
                                 const PopupMenuItem(
                                   value: 'delete',
-                                  child: Text('Löschen',
-                                      style:
-                                          TextStyle(color: Colors.red)),
+                                  child: Text(
+                                    'Löschen',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
                                 ),
                               ],
                             ),
@@ -771,8 +804,9 @@ class _MinorProjectCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.grey.shade500),
+                            fontSize: 12.sp,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                       SizedBox(height: 10.h),
@@ -784,9 +818,9 @@ class _MinorProjectCard extends StatelessWidget {
                           backgroundColor: isDark
                               ? const Color(0xFF2D3748)
                               : const Color(0xFFE8F5E9),
-                          valueColor:
-                              const AlwaysStoppedAnimation<Color>(
-                                  Color(0xff2E7D32)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xff2E7D32),
+                          ),
                         ),
                       ),
                       SizedBox(height: 8.h),
@@ -805,8 +839,9 @@ class _MinorProjectCard extends StatelessWidget {
                           Text(
                             ' · Ziel ${_fmt(target)}',
                             style: TextStyle(
-                                fontSize: 12.sp,
-                                color: Colors.grey.shade500),
+                              fontSize: 12.sp,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                           const Spacer(),
                           Text(
@@ -823,8 +858,11 @@ class _MinorProjectCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 6.w),
-                Icon(Icons.chevron_right_rounded,
-                    color: Colors.grey.shade400, size: 22.sp),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.grey.shade400,
+                  size: 22.sp,
+                ),
               ],
             ),
           ),
@@ -882,9 +920,7 @@ class _DonationHintCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xff2E7D32).withOpacity(isDark ? 0.14 : 0.08),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: const Color(0xff2E7D32).withOpacity(0.2),
-        ),
+        border: Border.all(color: const Color(0xff2E7D32).withOpacity(0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -895,8 +931,11 @@ class _DonationHintCard extends StatelessWidget {
               color: const Color(0xff2E7D32).withOpacity(0.15),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: const Icon(Icons.info_outline_rounded,
-                color: Color(0xff2E7D32), size: 20),
+            child: const Icon(
+              Icons.info_outline_rounded,
+              color: Color(0xff2E7D32),
+              size: 20,
+            ),
           ),
           SizedBox(width: 14.w),
           Expanded(
@@ -963,15 +1002,17 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     super.initState();
     final url = widget.imageUrl;
     if (url != null && url.isNotEmpty) {
-      NetworkImage(url).resolve(const ImageConfiguration()).addListener(
-        ImageStreamListener((info, _) {
-          if (mounted) {
-            setState(() {
-              _isHorizontal = info.image.width >= info.image.height;
-            });
-          }
-        }),
-      );
+      NetworkImage(url)
+          .resolve(const ImageConfiguration())
+          .addListener(
+            ImageStreamListener((info, _) {
+              if (mounted) {
+                setState(() {
+                  _isHorizontal = info.image.width >= info.image.height;
+                });
+              }
+            }),
+          );
     }
   }
 
@@ -982,15 +1023,16 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     final icon = widget.iconCodePoint != null
         ? _resolveIcon(widget.iconCodePoint)
         : Icons.volunteer_activism;
-    final percent =
-        (widget.progress * 100).clamp(0.0, 100.0).toStringAsFixed(0);
-    final aspectRatio =
-        (_isHorizontal == false) ? 3.0 / 4.0 : 16.0 / 9.0;
+    final percent = (widget.progress * 100)
+        .clamp(0.0, 100.0)
+        .toStringAsFixed(0);
+    final aspectRatio = (_isHorizontal == false) ? 3.0 / 4.0 : 16.0 / 9.0;
     const cardOverlap = 60.0;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF5F7FA),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF5F7FA),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -1057,7 +1099,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         right: 0,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 20.w, vertical: 16.h),
+                            horizontal: 20.w,
+                            vertical: 16.h,
+                          ),
                           decoration: BoxDecoration(
                             color: isDark
                                 ? BColors.prayerRowDark
@@ -1091,8 +1135,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 width: 38.w,
                                 decoration: BoxDecoration(
                                   color: const Color(0xff2E7D32),
-                                  borderRadius:
-                                      BorderRadius.circular(10.r),
+                                  borderRadius: BorderRadius.circular(10.r),
                                 ),
                               ),
                             ],
@@ -1110,8 +1153,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   margin: EdgeInsets.symmetric(horizontal: 16.w),
                   padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
-                    color:
-                        isDark ? BColors.prayerRowDark : Colors.white,
+                    color: isDark ? BColors.prayerRowDark : Colors.white,
                     borderRadius: BorderRadius.circular(24.r),
                     boxShadow: isDark
                         ? []
@@ -1127,8 +1169,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             _fmt(widget.amount),
@@ -1142,12 +1183,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 12.w, vertical: 4.h),
+                              horizontal: 12.w,
+                              vertical: 4.h,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xff2E7D32)
-                                  .withOpacity(0.12),
-                              borderRadius:
-                                  BorderRadius.circular(20.r),
+                              color: const Color(0xff2E7D32).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(20.r),
                             ),
                             child: Text(
                               "$percent% erreicht",
@@ -1168,9 +1209,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           backgroundColor: isDark
                               ? const Color(0xFF2D3748)
                               : const Color(0xFFE8F5E9),
-                          valueColor:
-                              const AlwaysStoppedAnimation<Color>(
-                                  Color(0xff2E7D32)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xff2E7D32),
+                          ),
                         ),
                       ),
                       SizedBox(height: 8.h),
@@ -1194,8 +1235,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
                 // Description card
                 Container(
-                  margin:
-                      EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.h),
+                  margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.h),
                   padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
                     color: isDark
@@ -1218,10 +1258,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           Container(
                             padding: EdgeInsets.all(6.w),
                             decoration: BoxDecoration(
-                              color: const Color(0xff2E7D32)
-                                  .withOpacity(0.12),
-                              borderRadius:
-                                  BorderRadius.circular(10.r),
+                              color: const Color(0xff2E7D32).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10.r),
                             ),
                             child: Icon(
                               Icons.description_outlined,
@@ -1241,9 +1279,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         ],
                       ),
                       SizedBox(height: 14.h),
-                      Divider(
-                          color: Colors.grey.withOpacity(0.18),
-                          height: 1),
+                      Divider(color: Colors.grey.withOpacity(0.18), height: 1),
                       SizedBox(height: 16.h),
                       Text(
                         widget.description,
@@ -1275,8 +1311,11 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   color: Colors.black.withOpacity(0.45),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back,
-                    color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -1289,11 +1328,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: Container(
-        color:
-            isDark ? const Color(0xFF2D3748) : const Color(0xffDDE7D8),
+        color: isDark ? const Color(0xFF2D3748) : const Color(0xffDDE7D8),
         child: Center(
-          child:
-              Icon(icon, size: 80, color: const Color(0xff2E7D32)),
+          child: Icon(icon, size: 80, color: const Color(0xff2E7D32)),
         ),
       ),
     );

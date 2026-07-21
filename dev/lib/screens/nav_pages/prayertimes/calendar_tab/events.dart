@@ -41,23 +41,27 @@ class EventSummary {
     return isDark ? Event.darkPalette[index] : Event.lightPalette[index];
   }
 
-  IconData get icon =>
-      Event.availableIcons[iconKey] ?? Icons.event;
+  IconData get icon => Event.availableIcons[iconKey] ?? Icons.event;
 
   Event toEvent() => Event(
-        id, title, content,
-        '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ??:??',
-        location, '',
-        startPrayer: startPrayer,
-        endPrayer: endPrayer,
-        iconKey: iconKey,
-        colorIndex: colorIndex,
-      );
+    id,
+    title,
+    content,
+    '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ??:??',
+    location,
+    '',
+    startPrayer: startPrayer,
+    endPrayer: endPrayer,
+    iconKey: iconKey,
+    colorIndex: colorIndex,
+  );
 
   String get frequencyLabel {
     switch (repeat) {
       case 'weekly':
-        return frequency <= 1 ? 'Wöchentlich' : 'Wöchentlich · $frequency Wochen';
+        return frequency <= 1
+            ? 'Wöchentlich'
+            : 'Wöchentlich · $frequency Wochen';
       case 'daily':
         return frequency <= 1 ? 'Täglich' : 'Täglich · $frequency Tage';
       default:

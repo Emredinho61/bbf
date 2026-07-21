@@ -80,7 +80,6 @@ class _CalenderViewState extends State<CalenderView> {
       events
         ..clear()
         ..addAll(eventSource);
-
     });
     print(
       'Events Loaded ---------------------------------------------------------------------------------->',
@@ -138,7 +137,11 @@ class _CalenderViewState extends State<CalenderView> {
         decoration: _adminIconDecoration(context),
         child: Padding(
           padding: EdgeInsets.all(8.w),
-          child: Icon(Icons.delete_forever, size: 35.sp, color: BColors.primary),
+          child: Icon(
+            Icons.delete_forever,
+            size: 35.sp,
+            color: BColors.primary,
+          ),
         ),
       ),
     );
@@ -251,7 +254,8 @@ class _CalenderViewState extends State<CalenderView> {
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
                 if (events.isEmpty) return null;
-                final isDarkMarker = Theme.of(context).brightness == Brightness.dark;
+                final isDarkMarker =
+                    Theme.of(context).brightness == Brightness.dark;
 
                 return Positioned(
                   bottom: 3,
@@ -378,10 +382,15 @@ class _CalenderViewState extends State<CalenderView> {
                       icon: Icons.view_week_rounded,
                       label: 'Woche',
                       subtitle: 'Events im Überblick',
-                      gradientColors: const [Color(0xff1B5E20), Color(0xff2E7D32)],
+                      gradientColors: const [
+                        Color(0xff1B5E20),
+                        Color(0xff2E7D32),
+                      ],
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const WeekCalendarPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const WeekCalendarPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -392,10 +401,15 @@ class _CalenderViewState extends State<CalenderView> {
                       icon: Icons.list_alt_rounded,
                       label: 'Alle Events',
                       subtitle: 'Vollständige Liste',
-                      gradientColors: const [Color(0xff2E7D32), Color(0xff43A047)],
+                      gradientColors: const [
+                        Color(0xff2E7D32),
+                        Color(0xff43A047),
+                      ],
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const AllEventsPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const AllEventsPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -543,7 +557,11 @@ class _CalenderViewState extends State<CalenderView> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16.sp),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white70,
+              size: 16.sp,
+            ),
           ],
         ),
       ),

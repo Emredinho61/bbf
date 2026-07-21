@@ -64,9 +64,9 @@ class _UploadPrayerTimesDialogState extends State<UploadPrayerTimesDialog> {
     } catch (e) {
       debugPrint('Upload failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Hochladen: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler beim Hochladen: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);

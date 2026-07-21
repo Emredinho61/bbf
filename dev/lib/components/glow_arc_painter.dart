@@ -30,8 +30,8 @@ class GlowArcPainter extends CustomPainter {
     // ── Track (background arc) ────────────────────────────────────────────
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: r),
-      pi,  // start: left (9 o'clock)
-      pi,  // sweep clockwise through top to right
+      pi, // start: left (9 o'clock)
+      pi, // sweep clockwise through top to right
       false,
       Paint()
         ..style = PaintingStyle.stroke
@@ -77,10 +77,7 @@ class GlowArcPainter extends CustomPainter {
     //   tip angle = pi + sweep = pi*(1 + percent)
     //   position  = center + r*(cos θ, sin θ)
     final tipAngle = pi * (1 + percent);
-    final tip = Offset(
-      cx + r * cos(tipAngle),
-      cy + r * sin(tipAngle),
-    );
+    final tip = Offset(cx + r * cos(tipAngle), cy + r * sin(tipAngle));
     final dotR = strokeWidth * 0.95;
 
     // Outer halo

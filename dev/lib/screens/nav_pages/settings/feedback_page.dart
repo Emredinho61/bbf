@@ -13,16 +13,20 @@ class FeedbackPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
+      backgroundColor: isDark
+          ? BColors.backgroundColorDark
+          : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              size: 18.sp, color: BColors.primary),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+            color: BColors.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -57,8 +61,11 @@ class FeedbackPage extends StatelessWidget {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
-                  child: Icon(Icons.handshake_outlined,
-                      color: Colors.white, size: 22.sp),
+                  child: Icon(
+                    Icons.handshake_outlined,
+                    color: Colors.white,
+                    size: 22.sp,
+                  ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -192,7 +199,8 @@ class _FeedbackCardState extends State<_FeedbackCard> {
 
       if (mounted) setState(() => _submitted = true);
     } catch (e) {
-      if (mounted) setState(() => _error = 'Fehler beim Senden. Versuche es erneut.');
+      if (mounted)
+        setState(() => _error = 'Fehler beim Senden. Versuche es erneut.');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -229,8 +237,11 @@ class _FeedbackCardState extends State<_FeedbackCard> {
             color: BColors.primary.withOpacity(0.12),
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.check_circle_outline,
-              color: BColors.primary, size: 28.sp),
+          child: Icon(
+            Icons.check_circle_outline,
+            color: BColors.primary,
+            size: 28.sp,
+          ),
         ),
         SizedBox(height: 12.h),
         Text(
@@ -303,7 +314,11 @@ class _FeedbackCardState extends State<_FeedbackCard> {
 
         Text(
           widget.description,
-          style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500, height: 1.4),
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: Colors.grey.shade500,
+            height: 1.4,
+          ),
         ),
 
         SizedBox(height: 14.h),
@@ -332,14 +347,16 @@ class _FeedbackCardState extends State<_FeedbackCard> {
           SizedBox(height: 8.h),
           Row(
             children: [
-              Icon(Icons.error_outline,
-                  color: Colors.red.shade400, size: 14.sp),
+              Icon(
+                Icons.error_outline,
+                color: Colors.red.shade400,
+                size: 14.sp,
+              ),
               SizedBox(width: 6.w),
               Expanded(
                 child: Text(
                   _error!,
-                  style:
-                      TextStyle(fontSize: 12.sp, color: Colors.red.shade400),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.red.shade400),
                 ),
               ),
             ],
@@ -357,7 +374,8 @@ class _FeedbackCardState extends State<_FeedbackCard> {
               foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(vertical: 13.h),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r)),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
               elevation: 0,
             ),
             child: _isSubmitting
@@ -365,11 +383,17 @@ class _FeedbackCardState extends State<_FeedbackCard> {
                     width: 18.r,
                     height: 18.r,
                     child: const CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
                   )
-                : Text('Absenden',
+                : Text(
+                    'Absenden',
                     style: TextStyle(
-                        fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ),
       ],
@@ -402,24 +426,30 @@ class _FeedbackCardState extends State<_FeedbackCard> {
         hintStyle: TextStyle(fontSize: 13.sp, color: Colors.grey.shade400),
         labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
         filled: true,
-        fillColor:
-            isDark ? BColors.backgroundColorDark : const Color(0xFFF7F7F7),
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        fillColor: isDark
+            ? BColors.backgroundColorDark
+            : const Color(0xFFF7F7F7),
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: Colors.grey.withOpacity(0.25), width: 1.5),
+          borderSide: BorderSide(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide:
-              BorderSide(color: BColors.primary.withOpacity(0.6), width: 1.5),
+          borderSide: BorderSide(
+            color: BColors.primary.withOpacity(0.6),
+            width: 1.5,
+          ),
         ),
       ),
     );
