@@ -14,6 +14,9 @@ import 'package:bbf_app/screens/nav_pages/settings/contact_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bildung_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/feedback_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/social_page.dart';
+import 'package:bbf_app/screens/nav_pages/settings/tos_info.dart';
+import 'package:bbf_app/screens/nav_pages/settings/privacy_policy_info.dart';
+import 'package:bbf_app/screens/nav_pages/settings/legal_info.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
 import 'package:bbf_app/utils/helper/check_user_helper.dart';
 import 'package:bbf_app/utils/helper/settings_helper.dart';
@@ -412,9 +415,36 @@ class _SettingsPageState extends State<SettingsPage> {
             // Rechtliches
             _sectionHeader('Rechtliches', isDark),
             _buildCard(isDark: isDark, children: [
-              _settingsTile(icon: Icons.description_outlined, title: 'Rechtliches', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'Rechtliches', 'Alle rechtlichen Hinweise...')),
-              _settingsTile(icon: Icons.description_outlined, title: 'AGB', isDark: isDark, isLast: false, onTap: () => _showInfoDialog(context, 'AGB', 'Unsere allgemeinen Geschäftsbedingungen...')),
-              _settingsTile(icon: Icons.description_outlined, title: 'Datenschutz', isDark: isDark, isLast: true, onTap: () => _showInfoDialog(context, 'Datenschutz', 'Informationen zum Datenschutz...')),
+              _settingsTile(
+                icon: Icons.info_outline,
+                title: 'Rechtliches',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LegalPage()),
+                ),
+              ),
+              _settingsTile(
+                icon: Icons.info_outline,
+                title: 'AGB',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ToSPage()),
+                ),
+              ),
+              _settingsTile(
+                icon: Icons.info_outline,
+                title: 'Datenschutz',
+                isDark: isDark,
+                isLast: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
+                ),
+              ),
             ]),
 
             // Benutzer (nur sichtbar wenn Admin-Modus entsperrt oder eingeloggt)
