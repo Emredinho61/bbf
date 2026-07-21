@@ -12,6 +12,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+// All icons selectable in the minor-project picker — listed by name so the
+// tree shaker can include them. Looked up at runtime via codePoint.
+final _kProjectIcons = <int, IconData>{
+  Icons.volunteer_activism.codePoint: Icons.volunteer_activism,
+  Icons.mosque.codePoint:             Icons.mosque,
+  Icons.school.codePoint:             Icons.school,
+  Icons.group.codePoint:              Icons.group,
+  Icons.favorite.codePoint:           Icons.favorite,
+  Icons.local_hospital.codePoint:     Icons.local_hospital,
+  Icons.restaurant.codePoint:         Icons.restaurant,
+  Icons.home.codePoint:               Icons.home,
+  Icons.child_care.codePoint:         Icons.child_care,
+  Icons.elderly.codePoint:            Icons.elderly,
+  Icons.book.codePoint:               Icons.book,
+  Icons.water.codePoint:              Icons.water,
+  Icons.eco.codePoint:                Icons.eco,
+  Icons.sports_soccer.codePoint:      Icons.sports_soccer,
+  Icons.construction.codePoint:       Icons.construction,
+  Icons.attach_money.codePoint:       Icons.attach_money,
+  Icons.healing.codePoint:            Icons.healing,
+  Icons.star.codePoint:               Icons.star,
+  Icons.people.codePoint:             Icons.people,
+  Icons.flash_on.codePoint:           Icons.flash_on,
+};
+
+IconData _resolveIcon(int? codePoint) =>
+    _kProjectIcons[codePoint] ?? Icons.volunteer_activism;
+
 String _fmt(double value) {
   return "€${value.toStringAsFixed(0).replaceAllMapped(
     RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -635,7 +663,7 @@ class _MinorProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = iconCodePoint != null
-        ? IconData(iconCodePoint!, fontFamily: 'MaterialIcons')
+        ? _resolveIcon(iconCodePoint)
         : Icons.volunteer_activism;
     final percent = (progress * 100).clamp(0.0, 100.0);
 
@@ -952,7 +980,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasImage = widget.imageUrl != null && widget.imageUrl!.isNotEmpty;
     final icon = widget.iconCodePoint != null
-        ? IconData(widget.iconCodePoint!, fontFamily: 'MaterialIcons')
+        ? _resolveIcon(widget.iconCodePoint)
         : Icons.volunteer_activism;
     final percent =
         (widget.progress * 100).clamp(0.0, 100.0).toStringAsFixed(0);
