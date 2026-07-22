@@ -1321,6 +1321,38 @@ class _PrayerTimesState extends State<PrayerTimes> {
     return months[month - 1];
   }
 
+  Future<void> _downloadMonthlyPdf(
+    BuildContext context,
+    Map<String, int> selectedEntry,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await generateMonthlyPrayerPdf(
+        csvData,
+        fridayPrayer1,
+        fridayPrayer2,
+        selectedEntry['month']!,
+        selectedEntry['year']!,
+      );
+    } catch (e) {
+      debugPrint('PDF generation failed: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('PDF konnte nicht erstellt werden. Bitte erneut versuchen.'),
+          ),
+        );
+      }
+    } finally {
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
   void _showMonthPickerDialog(BuildContext context) {
     final availableMonths = _extractAvailableMonths(csvData);
     if (availableMonths.isEmpty) return;
@@ -1486,13 +1518,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.pop(sheetContext);
-                            generateMonthlyPrayerPdf(
-                              csvData,
-                              fridayPrayer1,
-                              fridayPrayer2,
-                              selectedEntry['month']!,
-                              selectedEntry['year']!,
-                            );
+                            _downloadMonthlyPdf(context, selectedEntry);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: BColors.primary,

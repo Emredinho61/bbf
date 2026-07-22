@@ -5,6 +5,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+Future<pw.Font> _loadFont(String assetPath) async {
+  final data = await rootBundle.load(assetPath);
+  return pw.Font.ttf(data);
+}
+
 // ── Palette ─────────────────────────────────────────────────────────────────
 const _kTeal = PdfColor(0.05, 0.26, 0.20); // header + footer dark teal
 const _kMonthBar = PdfColor(0.08, 0.20, 0.16); // month bar, slightly darker
@@ -22,9 +27,9 @@ Future<void> generateMonthlyPrayerPdf(
   int year,
 ) async {
   // ── Fonts ────────────────────────────────────────────────────────────────
-  final latin = await PdfGoogleFonts.notoSansRegular();
-  final latinBold = await PdfGoogleFonts.notoSansBold();
-  final arabic = await PdfGoogleFonts.notoNaskhArabicRegular();
+  final latin = await _loadFont('assets/fonts/NotoSans-Regular.ttf');
+  final latinBold = await _loadFont('assets/fonts/NotoSans-Bold.ttf');
+  final arabic = await _loadFont('assets/fonts/NotoNaskhArabic-Regular.ttf');
 
   // ── Logo asset ───────────────────────────────────────────────────────────
   final logoData = await rootBundle.load('assets/images/bbf-logo.png');
