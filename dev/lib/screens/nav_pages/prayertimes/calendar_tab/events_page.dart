@@ -224,7 +224,7 @@ class _EventspageState extends State<Eventspage> {
 
                   final isFav = _favHelper.isFavorite(event.id);
                   final notifMode = _eventNotificationHelper
-                      .getEventNotificationMode(event.id);
+                      .getEventNotificationMode(event.id, date: widget.focusedDay);
                   final notifActive = notifMode != EventNotificationMode.off;
 
                   return Container(

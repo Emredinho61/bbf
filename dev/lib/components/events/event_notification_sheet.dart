@@ -62,6 +62,7 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
     super.initState();
     _selectedMode = _notificationHelper.getEventNotificationMode(
       widget.eventId,
+      date: widget.eventDate,
     );
   }
 
@@ -87,7 +88,11 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
         );
     }
 
-    await _notificationHelper.setEventNotificationMode(widget.eventId, mode);
+    await _notificationHelper.setEventNotificationMode(
+      widget.eventId,
+      mode,
+      date: widget.eventDate,
+    );
 
     if (mounted) Navigator.pop(context, mode);
   }

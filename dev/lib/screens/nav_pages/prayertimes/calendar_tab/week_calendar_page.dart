@@ -338,7 +338,7 @@ class _EventCardState extends State<_EventCard> {
     final event = widget.event;
     final isDark = widget.isDark;
     final color = event.colorFor(isDark);
-    final mode = _notifHelper.getEventNotificationMode(event.id);
+    final mode = _notifHelper.getEventNotificationMode(event.id, date: widget.day);
     final isFav = _favHelper.isFavorite(event.id);
     final notifActive = mode != EventNotificationMode.off;
     final dividerColor = isDark
