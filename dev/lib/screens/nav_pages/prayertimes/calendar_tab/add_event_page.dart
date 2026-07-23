@@ -52,7 +52,6 @@ class _AddEventPageState extends State<AddEventPage> {
         repeat != null &&
         (repeat == 'none' || frequency != null) &&
         titleTextController.text.trim().isNotEmpty &&
-        contentTextController.text.trim().isNotEmpty &&
         locationTextController.text.trim().isNotEmpty;
   }
 
@@ -308,7 +307,7 @@ class _AddEventPageState extends State<AddEventPage> {
                     selectedIcon: Icons.repeat_on_outlined,
                     selected: repeatLabel,
                     onTap: () async {
-                      final r = await EventPickers.showRepeatPicker(context);
+                      final r = await EventPickers.showRepeatPicker(context, currentValue: repeat);
                       if (r != null) {
                         setState(() {
                           repeat = r['value'];
@@ -352,14 +351,14 @@ class _AddEventPageState extends State<AddEventPage> {
                   SizedBox(height: 14.h),
                   _inputField(titleTextController, 'Titel *', isDark),
                   SizedBox(height: 10.h),
+                  _inputField(locationTextController, 'Ort *', isDark),
+                  SizedBox(height: 10.h),
                   _inputField(
                     contentTextController,
-                    'Beschreibung *',
+                    'Beschreibung (optional)',
                     isDark,
                     maxLines: 3,
                   ),
-                  SizedBox(height: 10.h),
-                  _inputField(locationTextController, 'Ort *', isDark),
                   SizedBox(height: 10.h),
                   _inputField(
                     signUpTextController,

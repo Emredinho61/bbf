@@ -261,6 +261,8 @@ class CalendarService {
           displayTime: displayTime,
           beginHour: beginHour,
           beginMinute: beginMinute,
+          endHour: endHour,
+          endMinute: endMinute,
           startDate: startDate,
           endDate: endDate,
           repeat: repeat,

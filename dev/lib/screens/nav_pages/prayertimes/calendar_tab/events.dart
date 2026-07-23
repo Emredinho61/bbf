@@ -9,6 +9,8 @@ class EventSummary {
   final String displayTime;
   final int beginHour;
   final int beginMinute;
+  final int endHour;
+  final int endMinute;
   final DateTime startDate;
   final DateTime endDate;
   final String repeat; // 'none' | 'weekly' | 'daily'
@@ -26,6 +28,8 @@ class EventSummary {
     required this.displayTime,
     required this.beginHour,
     required this.beginMinute,
+    required this.endHour,
+    required this.endMinute,
     required this.startDate,
     required this.endDate,
     required this.repeat,
@@ -47,7 +51,7 @@ class EventSummary {
     id,
     title,
     content,
-    '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ??:??',
+    '${beginHour.toString().padLeft(2, '0')}:${beginMinute.toString().padLeft(2, '0')} - ${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
     location,
     '',
     startPrayer: startPrayer,
