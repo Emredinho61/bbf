@@ -1413,8 +1413,7 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
   }
 
   Future<void> _send() async {
-    if (_titleController.text.trim().isEmpty ||
-        _summaryController.text.trim().isEmpty) {
+    if (_titleController.text.trim().isEmpty) {
       setState(() => _showError = true);
       return;
     }
@@ -1505,12 +1504,12 @@ class _BroadcastDialogState extends State<_BroadcastDialog> {
             ),
             SizedBox(height: 24.h),
 
-            _inputField(_titleController, 'Titel', isDark),
+            _inputField(_titleController, 'Titel *', isDark),
             SizedBox(height: 10.h),
-            _inputField(_summaryController, 'Nachricht', isDark, maxLines: 4),
+            _inputField(_summaryController, 'Nachricht (optional)', isDark, maxLines: 4),
 
             AppErrorBanner(
-              message: 'Bitte Titel und Nachricht ausfüllen.',
+              message: 'Bitte einen Titel eingeben.',
               visible: _showError,
             ),
 
