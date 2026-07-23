@@ -77,46 +77,40 @@ class PrayerNotificationHandler extends TaskHandler {
   }
 
   (String title, String body) _buildNotification(Map<String, String> row) {
-    final now = DateTime.now();
-    const entries = [
-      ('Fajr', 'Fajr'),
-      ('Dhur', 'Dhuhr'),
-      ('Asr', 'Asr'),
-      ('Maghrib', 'Maghrib'),
-      ('Isha', 'Isha'),
-    ];
+  final now = DateTime.now();
+  const entries = [
+    ('Fajr', 'Fajr'),
+    ('Dhur', 'Dhuhr'),
+    ('Asr', 'Asr'),
+    ('Maghrib', 'Maghrib'),
+    ('Isha', 'Isha'),
+  ];
 
-    String? nextDisplay;
-    Duration? timeLeft;
-    for (final (key, display) in entries) {
-      final timeStr = row[key];
-      if (timeStr == null || !timeStr.contains(':')) continue;
-      final parts = timeStr.split(':');
-      final prayerDt = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.tryParse(parts[0]) ?? 0,
-        int.tryParse(parts[1]) ?? 0,
-      );
-      if (prayerDt.isAfter(now)) {
-        nextDisplay = display;
-        timeLeft = prayerDt.difference(now);
-        break;
-      }
+  String? nextDisplay;
+  for (final (key, display) in entries) {
+    final timeStr = row[key];
+    if (timeStr == null || !timeStr.contains(':')) continue;
+    final parts = timeStr.split(':');
+    final prayerDt = DateTime(
+      now.year, now.month, now.day,
+      int.tryParse(parts[0]) ?? 0,
+      int.tryParse(parts[1]) ?? 0,
+    );
+    if (prayerDt.isAfter(now)) {
+      nextDisplay = display;
+      break;
     }
-
-    final body = entries
-        .map((e) => '${e.$2} ${row[e.$1] ?? '--:--'}')
-        .join(' · ');
-
-    if (nextDisplay != null && timeLeft != null) {
-      final hh = timeLeft.inHours.toString().padLeft(2, '0');
-      final mm = (timeLeft.inMinutes % 60).toString().padLeft(2, '0');
-      return ('Nächstes: $nextDisplay (in $hh:$mm)', body);
-    }
-    return ('Gebetszeiten Freiburg', body);
   }
+
+  final body = entries
+      .map((e) => '${e.$2} ${row[e.$1] ?? '--:--'}')
+      .join(' · ');
+
+  if (nextDisplay != null) {
+    return ('Nächstes: $nextDisplay', body);
+  }
+  return ('Gebetszeiten Freiburg', body);
+}
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
@@ -378,10 +372,7 @@ class _PrayerTimesState extends State<PrayerTimes> {
       'Maghrib': 'Maghrib',
       'Isha': 'Isha',
     };
-    final dur = _calculateNextPrayerDuration();
-    final hh = dur.inHours.toString().padLeft(2, '0');
-    final mm = (dur.inMinutes % 60).toString().padLeft(2, '0');
-    final title = 'Nächstes: ${displayNames[nextKey] ?? nextKey} (in $hh:$mm)';
+    final title = 'Nächstes: ${displayNames[nextKey] ?? nextKey}';
     final body =
         'Fajr ${todayRow['Fajr']} · '
         'Dhuhr ${todayRow['Dhur']} · '

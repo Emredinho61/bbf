@@ -37,9 +37,8 @@ class PrayerWidgetProvider : HomeWidgetProvider() {
         val maghrib = widgetData.getString("maghrib", "--:--") ?: "--:--"
         val isha    = widgetData.getString("isha",    "--:--") ?: "--:--"
 
-        val nextName  = widgetData.getString("next_prayer_name", "---")      ?: "---"
-        val nextTime  = widgetData.getString("next_prayer_time", "--:--")    ?: "--:--"
-        val countdown = widgetData.getString("countdown",        "--:--:--") ?: "--:--:--"
+        val nextName  = widgetData.getString("next_prayer_name", "---")   ?: "---"
+        val nextTime  = widgetData.getString("next_prayer_time", "--:--") ?: "--:--"
         val date      = widgetData.getString("date",             "--. ---")  ?: "--. ---"
 
         val green = Color.parseColor("#4CAF50")
@@ -53,7 +52,8 @@ class PrayerWidgetProvider : HomeWidgetProvider() {
 
                 setTextViewText(R.id.next_name, nextName)
                 setTextViewText(R.id.next_time, nextTime)
-setTextViewText(R.id.fajr_time,    fajr)
+
+                setTextViewText(R.id.fajr_time,    fajr)
                 setTextViewText(R.id.dhur_time,    dhur)
                 setTextViewText(R.id.asr_time,     asr)
                 setTextViewText(R.id.maghrib_time, maghrib)
