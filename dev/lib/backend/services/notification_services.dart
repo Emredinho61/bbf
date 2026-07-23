@@ -341,15 +341,15 @@ class NotificationServices {
   // get suitable notification title for prayers
   String getNotificationTitleForPrayer(String prayerName) {
     if (prayerName == 'Sunrise') {
-      return 'Die Sonne ist aufgegangen 🌞';
+      return 'Die Sonne ist aufgegangen';
     }
-    return 'Es ist Zeit für das $prayerName Gebet 🕌';
+    return 'Zeit für das $prayerName Gebet 🕌';
   }
 
   // get suitable notification body for prayers
   String getNotificationBodyForPrayer(String prayerName) {
     if (prayerName == 'Sunrise') {
-      return 'Hast du das Fajr Gebet verrichtet ?';
+      return 'Hast du Fajr gebetet?';
     }
     return 'Versuche, dein Gebet pünktlich zu verrichten.';
   }
@@ -357,7 +357,7 @@ class NotificationServices {
   // get suitable notification Title for pre prayers
   String getNotificationTitleForPrePrayer(String prayerName, String preTime) {
     if (prayerName == 'Sunrise') {
-      return '⏳ Noch $preTime bis zum Sonnenaufgang';
+      return '$preTime bis zum Sonnenaufgang';
     }
     return '⏳ Noch $preTime bis $prayerName';
   }
@@ -365,7 +365,7 @@ class NotificationServices {
   // get suitable notification body for pre prayers
   String getNotificationBodyForPrePrayer(String prayerName, String preTime) {
     if (prayerName == 'Fajr') {
-      return 'Bereite dich auf das Fajr Gebet vor.';
+      return 'Verpasse Fajr nicht.';
     }
     return 'Nicht zu lange verzögern — das Gebet wartet auf dich.';
   }
@@ -420,7 +420,7 @@ class NotificationServices {
     await flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
       'Morgen: $eventTitle',
-      'Das Event "$eventTitle" findet morgen statt.',
+      '"$eventTitle" findet morgen statt.',
       tzNotificationTime,
       const NotificationDetails(
         android: AndroidNotificationDetails(
