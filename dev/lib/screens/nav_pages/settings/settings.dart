@@ -6,7 +6,6 @@ import 'package:bbf_app/backend/services/user_service.dart';
 import 'package:bbf_app/components/events/event_pickers.dart';
 import 'package:bbf_app/components/events/upload_events_dialog.dart';
 import 'package:bbf_app/components/prayertimes_upload.dart';
-import 'package:bbf_app/components/text_button.dart';
 import 'package:bbf_app/screens/monitor_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/admin_feedback_page.dart';
 import 'package:bbf_app/screens/nav_pages/settings/bbf_info.dart';
@@ -98,62 +97,165 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) {
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
+      builder: (sheetContext) {
+        final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+        bool isSaving = false;
+
         return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: const Text('Freitagsgebetszeiten ändern'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  BTextButton(
-                    onPressed: () => EventPickers.pickTime(
-                      dialogContext,
-                      initialTime: fridayPrayer1Time,
-                      onConfirm: (time) =>
-                          setDialogState(() => fridayPrayer1Time = time),
-                    ),
-                    text: fridayPrayer1Time == null
-                        ? '1. Freitagsgebet auswählen'
-                        : '1. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer1Time)} Uhr',
-                  ),
-                  SizedBox(height: 5.h),
-                  BTextButton(
-                    onPressed: () => EventPickers.pickTime(
-                      dialogContext,
-                      initialTime: fridayPrayer2Time,
-                      onConfirm: (time) =>
-                          setDialogState(() => fridayPrayer2Time = time),
-                    ),
-                    text: fridayPrayer2Time == null
-                        ? '2. Freitagsgebet auswählen'
-                        : '2. Freitagsgebet: ${_formatTimeOfDay(fridayPrayer2Time)} Uhr',
-                  ),
-                ],
+          builder: (sheetContext, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
               ),
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    MaterialButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Zurück'),
+                    // ── Drag handle ─────────────────────────────────────────
+                    SizedBox(height: 12.h),
+                    Center(
+                      child: Container(
+                        width: 36.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
                     ),
-                    MaterialButton(
-                      onPressed: () async {
-                        await prayertimesService.updateFridayPrayerTimes(
-                          _formatTimeOfDay(fridayPrayer1Time),
-                          _formatTimeOfDay(fridayPrayer2Time),
-                        );
-                        if (dialogContext.mounted) Navigator.pop(dialogContext);
-                      },
-                      child: const Text('Ändern'),
+                    SizedBox(height: 24.h),
+
+                    // ── Icon + Title ────────────────────────────────────────
+                    Container(
+                      width: 60.r,
+                      height: 60.r,
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.mosque_rounded, color: BColors.primary, size: 28.sp),
                     ),
+                    SizedBox(height: 14.h),
+                    Text(
+                      'Freitagsgebet',
+                      style: TextStyle(
+                        fontSize: 21.sp,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Uhrzeiten für Jumu\'a',
+                      style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                    ),
+                    SizedBox(height: 24.h),
+
+                    // ── Time cards ──────────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          // 1. Jumu'a
+                          _FridayTimeCard(
+                            label: '1. Jumu\'a',
+                            time: fridayPrayer1Time,
+                            isDark: isDark,
+                            onTap: () => EventPickers.pickTime(
+                              sheetContext,
+                              initialTime: fridayPrayer1Time,
+                              onConfirm: (t) => setState(() {
+                                fridayPrayer1Time = t;
+                                // Reset 2nd if now before 1st
+                                if (fridayPrayer2Time != null) {
+                                  final t1 = t.hour * 60 + t.minute;
+                                  final t2 = fridayPrayer2Time!.hour * 60 + fridayPrayer2Time!.minute;
+                                  if (t2 < t1) fridayPrayer2Time = null;
+                                }
+                              }),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          // 2. Jumu'a
+                          _FridayTimeCard(
+                            label: '2. Jumu\'a',
+                            time: fridayPrayer2Time,
+                            isDark: isDark,
+                            onTap: () => EventPickers.pickTime(
+                              sheetContext,
+                              initialTime: fridayPrayer2Time,
+                              minTime: fridayPrayer1Time,
+                              onConfirm: (t) => setState(() => fridayPrayer2Time = t),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+
+                    // ── Save button ─────────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: isSaving
+                              ? null
+                              : () async {
+                                  setState(() => isSaving = true);
+                                  await prayertimesService.updateFridayPrayerTimes(
+                                    _formatTimeOfDay(fridayPrayer1Time),
+                                    _formatTimeOfDay(fridayPrayer2Time),
+                                  );
+                                  if (sheetContext.mounted) Navigator.pop(sheetContext);
+                                },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: BColors.primary,
+                            padding: EdgeInsets.symmetric(vertical: 15.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                          ),
+                          child: isSaving
+                              ? SizedBox(
+                                  width: 20.w,
+                                  height: 20.h,
+                                  child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : Text(
+                                  'Speichern',
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                                ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+
+                    // ── Cancel ──────────────────────────────────────────────
+                    TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      style: TextButton.styleFrom(
+                        foregroundColor: isDark ? Colors.white38 : Colors.grey.shade400,
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                      ),
+                      child: Text(
+                        'Abbrechen',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
                   ],
                 ),
-              ],
+              ),
             );
           },
         );
@@ -1496,6 +1598,102 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
               : Colors.grey.withOpacity(0.15),
         ),
       ],
+    );
+  }
+}
+
+class _FridayTimeCard extends StatelessWidget {
+  const _FridayTimeCard({
+    required this.label,
+    required this.time,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final String label;
+  final TimeOfDay? time;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasTime = time != null;
+    final timeStr = hasTime
+        ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')} Uhr'
+        : 'Uhrzeit auswählen';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          decoration: BoxDecoration(
+            color: hasTime
+                ? BColors.primary.withOpacity(isDark ? 0.18 : 0.08)
+                : (isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7)),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: hasTime ? BColors.primary : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44.r,
+                height: 44.r,
+                decoration: BoxDecoration(
+                  color: hasTime
+                      ? BColors.primary.withOpacity(0.18)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(13.r),
+                ),
+                child: Icon(
+                  Icons.mosque_rounded,
+                  size: 22.sp,
+                  color: hasTime ? BColors.primary : Colors.grey.shade500,
+                ),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: hasTime
+                            ? BColors.primary
+                            : (isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      timeStr,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: hasTime
+                            ? BColors.primary.withOpacity(0.7)
+                            : Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.access_time_rounded,
+                size: 18.sp,
+                color: hasTime ? BColors.primary : Colors.grey.shade400,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
