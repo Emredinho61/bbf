@@ -16,6 +16,7 @@ Future<void> showAllEventsNotificationSheet({
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    constraints: const BoxConstraints(maxWidth: double.infinity),
     builder: (_) => _AllEventsNotificationSheet(summary: summary),
   );
 }
@@ -39,6 +40,7 @@ class _AllEventsNotificationSheetState
 
   bool _showDayPicker = false;
   bool _isApplying = false;
+  bool _applyingAllFuture = false;
   List<DateTime> _dates = [];
   bool _loadingDates = false;
 
@@ -61,7 +63,10 @@ class _AllEventsNotificationSheetState
   }
 
   Future<void> _applyAllFuture() async {
-    setState(() => _isApplying = true);
+    setState(() {
+      _isApplying = true;
+      _applyingAllFuture = true;
+    });
     await _notifServices.cancelEventNotifications(widget.summary.id);
     await _notifServices.scheduleAllFutureEventNotifications(widget.summary.id);
     await _notifHelper.setEventNotificationMode(
@@ -156,8 +161,14 @@ class _AllEventsNotificationSheetState
       ),
       child: SafeArea(
         top: false,
-        child:
-            _showDayPicker ? _buildDayPicker(isDark) : _buildModeSelection(isDark),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: _applyingAllFuture
+              ? _buildLoadingScreen(isDark)
+              : _showDayPicker
+                  ? _buildDayPicker(isDark)
+                  : _buildModeSelection(isDark),
+        ),
       ),
     );
   }
@@ -389,6 +400,51 @@ class _AllEventsNotificationSheetState
         _cancelButton(isDark),
         SizedBox(height: 8.h),
       ],
+    );
+  }
+
+  // ── Loading screen ────────────────────────────────────────────────────────
+
+  Widget _buildLoadingScreen(bool isDark) {
+    return Padding(
+      key: const ValueKey('loading'),
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 48.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 56.r,
+            height: 56.r,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: BColors.primary,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          Text(
+            'Erinnerungen werden eingestellt…',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8.h),
+          _eventChip(),
+          SizedBox(height: 12.h),
+          Text(
+            'Für alle künftigen Termine wird eine Erinnerung\n24h vorher eingeplant.',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.grey.shade500,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 32.h),
+        ],
+      ),
     );
   }
 

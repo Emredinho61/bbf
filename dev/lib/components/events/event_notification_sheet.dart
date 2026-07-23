@@ -18,6 +18,7 @@ Future<void> showEventNotificationSheet({
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    constraints: const BoxConstraints(maxWidth: double.infinity),
     builder: (context) {
       return EventNotificationSheet(
         eventId: eventId,
