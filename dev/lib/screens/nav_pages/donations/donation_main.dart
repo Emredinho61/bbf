@@ -151,6 +151,7 @@ class _DonationOverviewState extends State<DonationOverview> {
                       label: const Text('Spenden'),
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xff2E7D32),
+                        foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
                           horizontal: 16.w,
                           vertical: 11.h,
@@ -638,6 +639,7 @@ class _MainProjectCard extends StatelessWidget {
                     label: const Text('Jetzt spenden'),
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xff2E7D32),
+                      foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 14.h),
                       textStyle: TextStyle(
                         fontSize: 16.sp,
