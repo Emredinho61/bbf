@@ -343,7 +343,7 @@ class NotificationServices {
     if (prayerName == 'Sunrise') {
       return 'Die Sonne ist aufgegangen';
     }
-    return 'Zeit für das $prayerName Gebet 🕌';
+    return 'Zeit für das $prayerName Gebet';
   }
 
   // get suitable notification body for prayers
@@ -359,13 +359,13 @@ class NotificationServices {
     if (prayerName == 'Sunrise') {
       return '$preTime bis zum Sonnenaufgang';
     }
-    return '⏳ Noch $preTime bis $prayerName';
+    return 'Noch $preTime bis $prayerName';
   }
 
   // get suitable notification body for pre prayers
   String getNotificationBodyForPrePrayer(String prayerName, String preTime) {
     if (prayerName == 'Fajr') {
-      return 'Verpasse Fajr nicht.';
+      return 'Verpasse das Fajr Gebet nicht.';
     }
     return 'Nicht zu lange verzögern — das Gebet wartet auf dich.';
   }
