@@ -24,7 +24,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:bbf_app/backend/services/auth_services.dart';
 import 'package:bbf_app/backend/services/settings_service.dart';
@@ -177,97 +176,249 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
 
-    showDialog(
+    final prayers = [
+      {'key': 'Fajr', 'label': 'Fajr', 'icon': Icons.wb_twilight},
+      {'key': 'Dhur', 'label': 'Dhur', 'icon': Icons.light_mode_outlined},
+      {'key': 'Asr', 'label': 'Asr', 'icon': Icons.sunny},
+      {'key': 'Maghrib', 'label': 'Maghrib', 'icon': Icons.wb_twilight_outlined},
+      {'key': 'Isha', 'label': 'Isha', 'icon': Icons.nightlight_round},
+    ];
+
+    int valueOf(String key) => switch (key) {
+      'Fajr' => fajrIqama,
+      'Dhur' => dhurIqama,
+      'Asr' => asrIqama,
+      'Maghrib' => maghribIqama,
+      _ => ishaIqama,
+    };
+
+    void update(String key, int v, StateSetter setState) {
+      setState(() {
+        switch (key) {
+          case 'Fajr': fajrIqama = v;
+          case 'Dhur': dhurIqama = v;
+          case 'Asr': asrIqama = v;
+          case 'Maghrib': maghribIqama = v;
+          case 'Isha': ishaIqama = v;
+        }
+      });
+    }
+
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) {
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
+      builder: (sheetContext) {
+        final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+        bool isSaving = false;
+
         return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: const Text('Iqama Zeiten ändern'),
-              content: SingleChildScrollView(
+          builder: (sheetContext, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+              ),
+              child: SafeArea(
+                top: false,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _iqamaPickerRow(
-                      'Fajr',
-                      fajrIqama,
-                      (v) => setDialogState(() => fajrIqama = v),
+                    // ── Drag handle ──────────────────────────────────────────
+                    SizedBox(height: 12.h),
+                    Center(
+                      child: Container(
+                        width: 36.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
                     ),
-                    _iqamaPickerRow(
-                      'Dhur',
-                      dhurIqama,
-                      (v) => setDialogState(() => dhurIqama = v),
+                    SizedBox(height: 24.h),
+
+                    // ── Icon + Title ─────────────────────────────────────────
+                    Container(
+                      width: 60.r,
+                      height: 60.r,
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.timer_rounded, color: BColors.primary, size: 28.sp),
                     ),
-                    _iqamaPickerRow(
-                      'Asr',
-                      asrIqama,
-                      (v) => setDialogState(() => asrIqama = v),
+                    SizedBox(height: 14.h),
+                    Text(
+                      'Iqama Zeiten',
+                      style: TextStyle(
+                        fontSize: 21.sp,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        letterSpacing: -0.4,
+                      ),
                     ),
-                    _iqamaPickerRow(
-                      'Maghrib',
-                      maghribIqama,
-                      (v) => setDialogState(() => maghribIqama = v),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Minuten nach dem Adhan',
+                      style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
                     ),
-                    _iqamaPickerRow(
-                      'Isha',
-                      ishaIqama,
-                      (v) => setDialogState(() => ishaIqama = v),
+                    SizedBox(height: 20.h),
+
+                    // ── Prayer rows ──────────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: prayers.map((p) {
+                          final key = p['key'] as String;
+                          final current = valueOf(key);
+                          void adjust(int delta) {
+                            final next = (current + delta).clamp(0, 60);
+                            if (next != current) update(key, next, setState);
+                          }
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 10.h),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              child: Row(
+                                children: [
+                                  // Icon
+                                  Container(
+                                    width: 40.r,
+                                    height: 40.r,
+                                    decoration: BoxDecoration(
+                                      color: BColors.primary.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Icon(p['icon'] as IconData, color: BColors.primary, size: 20.sp),
+                                  ),
+                                  SizedBox(width: 14.w),
+
+                                  // Label
+                                  Expanded(
+                                    child: Text(
+                                      p['label'] as String,
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Stepper
+                                  Row(
+                                    children: [
+                                      _IqamaStepBtn(
+                                        icon: Icons.remove_rounded,
+                                        onTap: () => adjust(-1),
+                                        onLongPress: () => adjust(-5),
+                                        isDark: isDark,
+                                      ),
+                                      SizedBox(width: 12.w),
+                                      SizedBox(
+                                        width: 36.w,
+                                        child: AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 150),
+                                          transitionBuilder: (child, anim) =>
+                                              ScaleTransition(scale: anim, child: child),
+                                          child: Text(
+                                            '$current',
+                                            key: ValueKey('$key$current'),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 20.sp,
+                                              fontWeight: FontWeight.w800,
+                                              color: BColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 12.w),
+                                      _IqamaStepBtn(
+                                        icon: Icons.add_rounded,
+                                        onTap: () => adjust(1),
+                                        onLongPress: () => adjust(5),
+                                        isDark: isDark,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
+                    SizedBox(height: 8.h),
+
+                    // ── Save button ──────────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: isSaving
+                              ? null
+                              : () async {
+                                  setState(() => isSaving = true);
+                                  await prayertimesService.updateIqamaTimes(
+                                    fajrIqama.toString(),
+                                    dhurIqama.toString(),
+                                    asrIqama.toString(),
+                                    maghribIqama.toString(),
+                                    ishaIqama.toString(),
+                                  );
+                                  if (sheetContext.mounted) Navigator.pop(sheetContext);
+                                },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: BColors.primary,
+                            padding: EdgeInsets.symmetric(vertical: 15.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                          ),
+                          child: isSaving
+                              ? SizedBox(
+                                  width: 20.w,
+                                  height: 20.h,
+                                  child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : Text(
+                                  'Speichern',
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                                ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+
+                    // ── Cancel ───────────────────────────────────────────────
+                    TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      style: TextButton.styleFrom(
+                        foregroundColor: isDark ? Colors.white38 : Colors.grey.shade400,
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                      ),
+                      child: Text(
+                        'Abbrechen',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
                   ],
                 ),
               ),
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    MaterialButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Zurück'),
-                    ),
-                    MaterialButton(
-                      onPressed: () async {
-                        await prayertimesService.updateIqamaTimes(
-                          fajrIqama.toString(),
-                          dhurIqama.toString(),
-                          asrIqama.toString(),
-                          maghribIqama.toString(),
-                          ishaIqama.toString(),
-                        );
-                        if (dialogContext.mounted) Navigator.pop(dialogContext);
-                      },
-                      child: const Text('Ändern'),
-                    ),
-                  ],
-                ),
-              ],
             );
           },
         );
       },
-    );
-  }
-
-  Widget _iqamaPickerRow(
-    String prayerName,
-    int value,
-    ValueChanged<int> onChanged,
-  ) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0.h),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('$prayerName Iqama (Minuten)'),
-          NumberPicker(
-            value: value,
-            minValue: 0,
-            maxValue: 60,
-            itemWidth: 60,
-            itemHeight: 32,
-            onChanged: onChanged,
-          ),
-        ],
-      ),
     );
   }
 
@@ -1345,6 +1496,37 @@ class _IshaSettingsTileState extends State<IshaSettingsTile> {
               : Colors.grey.withOpacity(0.15),
         ),
       ],
+    );
+  }
+}
+
+class _IqamaStepBtn extends StatelessWidget {
+  const _IqamaStepBtn({
+    required this.icon,
+    required this.onTap,
+    required this.onLongPress,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Container(
+        width: 36.r,
+        height: 36.r,
+        decoration: BoxDecoration(
+          color: BColors.primary.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Icon(icon, size: 18.sp, color: BColors.primary),
+      ),
     );
   }
 }
