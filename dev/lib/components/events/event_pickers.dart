@@ -5,29 +5,36 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EventPickers {
   // Opens a time picker and reports the selected time via [onConfirm].
-  // [initialTime] preselects the picker (e.g. with a previously saved time)
-  // instead of defaulting to the current clock time.
+  // [initialTime] preselects the picker; [minTime] restricts the picker so
+  // times before it cannot be scrolled to (used for the end-time picker).
   static void pickTime(
     BuildContext context, {
     TimeOfDay? initialTime,
+    TimeOfDay? minTime,
     required ValueChanged<TimeOfDay> onConfirm,
   }) {
     final now = DateTime.now();
+
+    // Open at minTime when no initialTime is set, so the wheel starts there.
+    final effective = initialTime ?? minTime;
+
+    final currentTime = effective == null
+        ? null
+        : DateTime(now.year, now.month, now.day, effective.hour, effective.minute);
+
     DatePicker.showTimePicker(
       context,
       showSecondsColumn: false,
       locale: LocaleType.de,
-      currentTime: initialTime == null
-          ? null
-          : DateTime(
-              now.year,
-              now.month,
-              now.day,
-              initialTime.hour,
-              initialTime.minute,
-            ),
+      currentTime: currentTime,
       onConfirm: (time) {
-        onConfirm(TimeOfDay(hour: time.hour, minute: time.minute));
+        var picked = TimeOfDay(hour: time.hour, minute: time.minute);
+        if (minTime != null) {
+          final pickedMin = picked.hour * 60 + picked.minute;
+          final floorMin = minTime.hour * 60 + minTime.minute;
+          if (pickedMin < floorMin) picked = minTime;
+        }
+        onConfirm(picked);
       },
     );
   }
@@ -322,6 +329,58 @@ class EventPickers {
     );
   }
 
+  // Canonical prayer order used for min/max validation.
+  static const _prayerOrder = [
+    'Fajr',
+    'Sunrise',
+    'Dhur',
+    'Asr',
+    'Maghrib',
+    'Isha',
+  ];
+
+  static const _allPrayers = [
+    {'value': 'Fajr', 'label': 'Fajr'},
+    {'value': 'Sunrise', 'label': 'Shuruq'},
+    {'value': 'Dhur', 'label': 'Dhur'},
+    {'value': 'Asr', 'label': 'Asr'},
+    {'value': 'Maghrib', 'label': 'Maghrib'},
+    {'value': 'Isha', 'label': 'Isha'},
+  ];
+
+  static IconData _prayerIcon(String value) {
+    switch (value) {
+      case 'Fajr':
+        return Icons.wb_twilight;
+      case 'Sunrise':
+        return Icons.wb_sunny_outlined;
+      case 'Dhur':
+        return Icons.light_mode_outlined;
+      case 'Asr':
+        return Icons.sunny;
+      case 'Maghrib':
+        return Icons.wb_twilight_outlined;
+      case 'Isha':
+        return Icons.nightlight_round;
+      default:
+        return Icons.access_time_outlined;
+    }
+  }
+
+  // Returns true if [candidate] is strictly after [min] in the prayer order.
+  static bool prayerIsAfter(String candidate, String min) {
+    final ci = _prayerOrder.indexOf(candidate);
+    final mi = _prayerOrder.indexOf(min);
+    return ci > mi;
+  }
+
+  // Returns true if [candidate] is at or after [min] in the prayer order.
+  static bool prayerIsAtOrAfter(String candidate, String min) {
+    final ci = _prayerOrder.indexOf(candidate);
+    final mi = _prayerOrder.indexOf(min);
+    return ci >= mi;
+  }
+
   // Maps CSV prayer keys to human-readable display names.
   static String prayerDisplayName(String csvKey) {
     const names = {
@@ -335,35 +394,207 @@ class EventPickers {
     return names[csvKey] ?? csvKey;
   }
 
+
   // Shows a modal bottom sheet for selecting a prayer as a time reference.
-  // Returns a map with "value" (CSV key, e.g. "Sunrise") and "label" (display name, e.g. "Shuruq").
+  // [minPrayerValue] hides all prayers that come before the given prayer key,
+  // enforcing that end prayer ≥ start prayer.
   static Future<Map<String, String>?> showPrayerPicker(
-    BuildContext context,
-  ) async {
-    const prayers = [
-      {'value': 'Fajr', 'label': 'Fajr'},
-      {'value': 'Sunrise', 'label': 'Shuruq'},
-      {'value': 'Dhur', 'label': 'Dhuhr'},
-      {'value': 'Asr', 'label': 'Asr'},
-      {'value': 'Maghrib', 'label': 'Maghrib'},
-      {'value': 'Isha', 'label': 'Isha'},
-    ];
+    BuildContext context, {
+    String? currentValue,
+    String? minPrayerValue,
+  }) async {
+    final prayers = minPrayerValue == null
+        ? _allPrayers
+        : _allPrayers
+            .where((p) => prayerIsAfter(p['value']!, minPrayerValue))
+            .toList();
 
     return await showModalBottomSheet<Map<String, String>>(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: prayers
-              .map(
-                (p) => ListTile(
-                  leading: const Icon(Icons.access_time),
-                  title: Text(p['label']!),
-                  onTap: () =>
-                      Navigator.pop(context, Map<String, String>.from(p)),
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+
+        return StatefulBuilder(
+          builder: (context, setCardState) {
+            String? selected = currentValue;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── Drag handle ────────────────────────────────────────
+                    SizedBox(height: 12.h),
+                    Center(
+                      child: Container(
+                        width: 36.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+
+                    // ── Icon ───────────────────────────────────────────────
+                    Container(
+                      width: 60.r,
+                      height: 60.r,
+                      decoration: BoxDecoration(
+                        color: BColors.primary.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.wb_twilight_rounded,
+                        color: BColors.primary,
+                        size: 28.sp,
+                      ),
+                    ),
+                    SizedBox(height: 14.h),
+
+                    // ── Title ──────────────────────────────────────────────
+                    Text(
+                      'Gebet auswählen',
+                      style: TextStyle(
+                        fontSize: 21.sp,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    if (minPrayerValue != null) ...[
+                      SizedBox(height: 4.h),
+                      Text(
+                        'Frühestes Gebet: ${prayerDisplayName(minPrayerValue)}',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                    SizedBox(height: 20.h),
+
+                    // ── Prayer cards ───────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: StatefulBuilder(
+                        builder: (context, setInner) {
+                          return Column(
+                            children: prayers.map((p) {
+                              final isSelected = selected == p['value'];
+                              final selectedBg = BColors.primary
+                                  .withOpacity(isDark ? 0.18 : 0.08);
+                              final unselectedBg = isDark
+                                  ? const Color(0xFF2C2C2E)
+                                  : const Color(0xFFF2F2F7);
+
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.pop(
+                                        context,
+                                        Map<String, String>.from(p),
+                                      );
+                                    },
+                                    borderRadius: BorderRadius.circular(14.r),
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 180),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                        vertical: 13.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? selectedBg
+                                            : unselectedBg,
+                                        borderRadius:
+                                            BorderRadius.circular(14.r),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? BColors.primary
+                                              : Colors.transparent,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            _prayerIcon(p['value']!),
+                                            size: 20.sp,
+                                            color: isSelected
+                                                ? BColors.primary
+                                                : Colors.grey.shade400,
+                                          ),
+                                          SizedBox(width: 14.w),
+                                          Text(
+                                            p['label']!,
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: isSelected
+                                                  ? BColors.primary
+                                                  : (isDark
+                                                        ? Colors.white
+                                                        : const Color(
+                                                            0xFF1C1C1E)),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          if (isSelected)
+                                            Icon(
+                                              Icons.check_circle_rounded,
+                                              size: 20.sp,
+                                              color: BColors.primary,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                    ),
+
+                    // ── Cancel ─────────────────────────────────────────────
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: isDark
+                            ? Colors.white38
+                            : Colors.grey.shade400,
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                      ),
+                      child: Text(
+                        'Abbrechen',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                  ],
                 ),
-              )
-              .toList(),
+              ),
+            );
+          },
         );
       },
     );

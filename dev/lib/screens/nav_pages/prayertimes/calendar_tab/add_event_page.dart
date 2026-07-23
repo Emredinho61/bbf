@@ -109,6 +109,7 @@ class _AddEventPageState extends State<AddEventPage> {
           ? BColors.backgroundColorDark
           : const Color(0xFFF2F2F7),
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Event hinzufügen'),
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
@@ -210,11 +211,23 @@ class _AddEventPageState extends State<AddEventPage> {
                       icon: Icons.wb_twilight_outlined,
                       selected: _startPrayerLabel,
                       onTap: () async {
-                        final r = await EventPickers.showPrayerPicker(context);
+                        final r = await EventPickers.showPrayerPicker(
+                          context,
+                          currentValue: _startPrayer,
+                        );
                         if (r != null) {
                           setState(() {
                             _startPrayer = r['value'];
                             _startPrayerLabel = r['label'];
+                            // Reset end prayer if it's now before start prayer
+                            if (_endPrayer != null &&
+                                !EventPickers.prayerIsAfter(
+                                  _endPrayer!,
+                                  r['value']!,
+                                )) {
+                              _endPrayer = null;
+                              _endPrayerLabel = null;
+                            }
                           });
                         }
                       },
@@ -227,7 +240,11 @@ class _AddEventPageState extends State<AddEventPage> {
                       icon: Icons.nightlight_outlined,
                       selected: _endPrayerLabel,
                       onTap: () async {
-                        final r = await EventPickers.showPrayerPicker(context);
+                        final r = await EventPickers.showPrayerPicker(
+                          context,
+                          currentValue: _endPrayer,
+                          minPrayerValue: _startPrayer,
+                        );
                         if (r != null) {
                           setState(() {
                             _endPrayer = r['value'];
@@ -248,7 +265,15 @@ class _AddEventPageState extends State<AddEventPage> {
                           : null,
                       onTap: () => EventPickers.pickTime(
                         context,
-                        onConfirm: (t) => setState(() => selectedBeginTime = t),
+                        initialTime: selectedBeginTime,
+                        onConfirm: (t) => setState(() {
+                          selectedBeginTime = t;
+                          if (selectedEndTime != null) {
+                            final endMin = selectedEndTime!.hour * 60 + selectedEndTime!.minute;
+                            final startMin = t.hour * 60 + t.minute;
+                            if (endMin < startMin) selectedEndTime = t;
+                          }
+                        }),
                       ),
                       isDark: isDark,
                     ),
@@ -263,6 +288,8 @@ class _AddEventPageState extends State<AddEventPage> {
                           : null,
                       onTap: () => EventPickers.pickTime(
                         context,
+                        initialTime: selectedEndTime,
+                        minTime: selectedBeginTime,
                         onConfirm: (t) => setState(() => selectedEndTime = t),
                       ),
                       isDark: isDark,
