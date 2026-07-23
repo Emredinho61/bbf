@@ -73,7 +73,9 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
 
     switch (mode) {
       case EventNotificationMode.off:
-        break;
+        // Clear event-level key and date-specific key
+        await _notificationHelper.setEventNotificationMode(widget.eventId, EventNotificationMode.off);
+        await _notificationHelper.setEventNotificationMode(widget.eventId, EventNotificationMode.off, date: widget.eventDate);
       case EventNotificationMode.thisEventOnly:
         await _notificationServices.scheduleEventNotification(
           widget.eventId,
@@ -82,17 +84,15 @@ class _EventNotificationSheetState extends State<EventNotificationSheet> {
           widget.beginHour,
           widget.beginMinute,
         );
+        // Mark event as specificDays mode, then activate this date
+        await _notificationHelper.setEventNotificationMode(widget.eventId, EventNotificationMode.specificDays);
+        await _notificationHelper.setEventNotificationMode(widget.eventId, EventNotificationMode.thisEventOnly, date: widget.eventDate);
       case EventNotificationMode.allFutureEvents:
-        await _notificationServices.scheduleAllFutureEventNotifications(
-          widget.eventId,
-        );
+        await _notificationServices.scheduleAllFutureEventNotifications(widget.eventId);
+        await _notificationHelper.setEventNotificationMode(widget.eventId, EventNotificationMode.allFutureEvents);
+      case EventNotificationMode.specificDays:
+        break; // not used in this sheet
     }
-
-    await _notificationHelper.setEventNotificationMode(
-      widget.eventId,
-      mode,
-      date: widget.eventDate,
-    );
 
     if (mounted) Navigator.pop(context, mode);
   }

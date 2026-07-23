@@ -147,6 +147,8 @@ class _WeekCalendarPageState extends State<WeekCalendarPage> {
                     isToday: isToday,
                     events: events,
                     isDark: isDark,
+                    onFavoriteToggled: () => setState(() {}),
+                    onNotificationChanged: () => setState(() {}),
                   );
                 },
               ),
@@ -225,6 +227,8 @@ class _DaySection extends StatelessWidget {
     required this.isToday,
     required this.events,
     required this.isDark,
+    required this.onFavoriteToggled,
+    required this.onNotificationChanged,
   });
 
   final DateTime day;
@@ -232,6 +236,8 @@ class _DaySection extends StatelessWidget {
   final bool isToday;
   final List<Event> events;
   final bool isDark;
+  final VoidCallback onFavoriteToggled;
+  final VoidCallback onNotificationChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +299,13 @@ class _DaySection extends StatelessWidget {
             ),
           )
         else
-          ...events.map((e) => _EventCard(event: e, day: day, isDark: isDark)),
+          ...events.map((e) => _EventCard(
+                event: e,
+                day: day,
+                isDark: isDark,
+                onFavoriteToggled: onFavoriteToggled,
+                onNotificationChanged: onNotificationChanged,
+              )),
       ],
     );
   }
@@ -306,11 +318,15 @@ class _EventCard extends StatefulWidget {
     required this.event,
     required this.day,
     required this.isDark,
+    required this.onFavoriteToggled,
+    required this.onNotificationChanged,
   });
 
   final Event event;
   final DateTime day;
   final bool isDark;
+  final VoidCallback onFavoriteToggled;
+  final VoidCallback onNotificationChanged;
 
   @override
   State<_EventCard> createState() => _EventCardState();
@@ -330,7 +346,7 @@ class _EventCardState extends State<_EventCard> {
       beginHour: int.parse(parts[0]),
       beginMinute: int.parse(parts[1]),
     );
-    if (mounted) setState(() {});
+    if (mounted) widget.onNotificationChanged();
   }
 
   @override
@@ -341,6 +357,18 @@ class _EventCardState extends State<_EventCard> {
     final mode = _notifHelper.getEventNotificationMode(event.id, date: widget.day);
     final isFav = _favHelper.isFavorite(event.id);
     final notifActive = mode != EventNotificationMode.off;
+    final canNotify = () {
+      try {
+        final parts = event.time.split(' - ').first.split(':');
+        final eventDateTime = DateTime(
+          widget.day.year, widget.day.month, widget.day.day,
+          int.parse(parts[0]), int.parse(parts[1]),
+        );
+        return eventDateTime.isAfter(DateTime.now().add(const Duration(hours: 24)));
+      } catch (_) {
+        return false;
+      }
+    }();
     final dividerColor = isDark
         ? Colors.white.withOpacity(0.06)
         : Colors.black.withOpacity(0.06);
@@ -486,7 +514,7 @@ class _EventCardState extends State<_EventCard> {
                       behavior: HitTestBehavior.opaque,
                       onTap: () async {
                         await _favHelper.toggleFavorite(event.id);
-                        setState(() {});
+                        widget.onFavoriteToggled();
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -514,66 +542,68 @@ class _EventCardState extends State<_EventCard> {
                       ),
                     ),
                   ),
-                  VerticalDivider(width: 1, color: dividerColor),
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: _openNotificationSheet,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Icon(
-                                  notifActive
-                                      ? Icons.notifications_rounded
-                                      : Icons.notifications_none_rounded,
-                                  size: 18.sp,
-                                  color: notifActive
-                                      ? color
-                                      : Colors.grey.shade400,
-                                ),
-                                if (mode ==
-                                    EventNotificationMode.allFutureEvents)
-                                  Positioned(
-                                    right: -3,
-                                    bottom: -3,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(1.5),
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? BColors.prayerRowDark
-                                            : Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.repeat,
-                                        size: 9.sp,
-                                        color: color,
+                  if (canNotify) ...[
+                    VerticalDivider(width: 1, color: dividerColor),
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _openNotificationSheet,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Icon(
+                                    notifActive
+                                        ? Icons.notifications_rounded
+                                        : Icons.notifications_none_rounded,
+                                    size: 18.sp,
+                                    color: notifActive
+                                        ? color
+                                        : Colors.grey.shade400,
+                                  ),
+                                  if (mode ==
+                                      EventNotificationMode.allFutureEvents)
+                                    Positioned(
+                                      right: -3,
+                                      bottom: -3,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(1.5),
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? BColors.prayerRowDark
+                                              : Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.repeat,
+                                          size: 9.sp,
+                                          color: color,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              notifActive ? 'Erinnert' : 'Erinnern',
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: notifActive
-                                    ? color
-                                    : Colors.grey.shade500,
+                                ],
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 6.w),
+                              Text(
+                                notifActive ? 'Erinnert' : 'Erinnern',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: notifActive
+                                      ? color
+                                      : Colors.grey.shade500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),

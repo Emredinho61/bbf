@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:bbf_app/backend/services/calendar_service.dart';
-import 'package:bbf_app/components/events/event_notification_sheet.dart';
+import 'package:bbf_app/components/events/all_events_notification_sheet.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -21,80 +21,49 @@ class _FavoriteEventsPageState extends State<FavoriteEventsPage> {
   final CalendarService _calendarService = CalendarService();
   final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
 
-  // Flat sorted list of (date, event) pairs that are favorited
-  List<(DateTime, Event)> _entries = [];
+  List<EventSummary> _summaries = [];
   bool _isLoading = true;
 
   static const _monthNames = [
-    '',
-    'Januar',
-    'Februar',
-    'März',
-    'April',
-    'Mai',
-    'Juni',
-    'Juli',
-    'August',
-    'September',
-    'Oktober',
-    'November',
-    'Dezember',
+    '', 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez',
   ];
-
-  static const _dayNames = ['', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
+    _load();
   }
 
-  Future<void> _loadFavorites() async {
+  Future<void> _load() async {
     setState(() => _isLoading = true);
-    final allEvents = await _calendarService.getAllEvents();
-    final favorites = _favHelper.getFavorites();
-
-    final entries = <(DateTime, Event)>[];
-    for (final entry in allEvents.entries) {
-      for (final event in entry.value) {
-        if (favorites.contains(event.id)) {
-          entries.add((entry.key, event));
-        }
-      }
-    }
-
-    entries.sort((a, b) => a.$1.compareTo(b.$1));
-
+    final all = await _calendarService.getAllEventSummaries();
     if (mounted) {
       setState(() {
-        _entries = entries;
+        _summaries = all.where((s) => _favHelper.isFavorite(s.id)).toList();
         _isLoading = false;
       });
     }
   }
 
   String _formatDate(DateTime d) =>
-      '${_dayNames[d.weekday]}, ${d.day}. ${_monthNames[d.month]} ${d.year}';
+      '${d.day}. ${_monthNames[d.month]} ${d.year}';
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? BColors.backgroundColorDark
-          : const Color(0xFFF2F2F7),
+      backgroundColor:
+          isDark ? BColors.backgroundColorDark : const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: isDark ? BColors.prayerRowDark : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF1C1C1E),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            size: 18.sp,
-            color: BColors.primary,
-          ),
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18.sp, color: BColors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -106,144 +75,114 @@ class _FavoriteEventsPageState extends State<FavoriteEventsPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: BColors.primary, size: 22.sp),
+            onPressed: _load,
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _entries.isEmpty
-          ? _emptyState(isDark)
-          : ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              itemCount: _entries.length,
-              itemBuilder: (context, i) {
-                final (date, event) = _entries[i];
-                final showDateLabel =
-                    i == 0 || !_isSameDay(_entries[i - 1].$1, date);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (showDateLabel) ...[
-                      if (i != 0) SizedBox(height: 12.h),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: 4.w,
-                          bottom: 8.h,
-                          top: 4.h,
-                        ),
-                        child: Text(
-                          _formatDate(date),
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade500,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: BColors.primary,
+              child: _summaries.isEmpty
+                  ? _emptyState(isDark)
+                  : ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.w, vertical: 12.h),
+                      itemCount: _summaries.length,
+                      itemBuilder: (context, i) => _FavSummaryCard(
+                        summary: _summaries[i],
+                        isDark: isDark,
+                        formatDate: _formatDate,
+                        onUnfavorited: _load,
                       ),
-                    ],
-                    _FavEventCard(
-                      event: event,
-                      date: date,
-                      isDark: isDark,
-                      onUnfavorited: _loadFavorites,
                     ),
-                  ],
-                );
-              },
             ),
     );
   }
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
   Widget _emptyState(bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.favorite_border,
-            size: 56.sp,
-            color: isDark ? Colors.white24 : Colors.grey.shade300,
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Noch keine Events gemerkt',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white54 : Colors.grey.shade500,
+    return ListView(
+      children: [
+        SizedBox(height: 120.h),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.favorite_border,
+                size: 64.sp,
+                color: isDark ? Colors.white24 : Colors.grey.shade300),
+            SizedBox(height: 16.h),
+            Text(
+              'Noch keine Events gemerkt',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white54 : Colors.grey.shade500,
+              ),
             ),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            'Tippe das Herz auf einem Event,\num es hier zu speichern.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: isDark ? Colors.white38 : Colors.grey.shade400,
+            SizedBox(height: 6.h),
+            Text(
+              'Tippe das Herz auf einem Event,\num es hier zu speichern.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: isDark ? Colors.white38 : Colors.grey.shade400,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
-class _FavEventCard extends StatefulWidget {
-  const _FavEventCard({
-    required this.event,
-    required this.date,
+class _FavSummaryCard extends StatefulWidget {
+  const _FavSummaryCard({
+    required this.summary,
     required this.isDark,
+    required this.formatDate,
     required this.onUnfavorited,
   });
 
-  final Event event;
-  final DateTime date;
+  final EventSummary summary;
   final bool isDark;
+  final String Function(DateTime) formatDate;
   final VoidCallback onUnfavorited;
 
   @override
-  State<_FavEventCard> createState() => _FavEventCardState();
+  State<_FavSummaryCard> createState() => _FavSummaryCardState();
 }
 
-class _FavEventCardState extends State<_FavEventCard> {
-  final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
+class _FavSummaryCardState extends State<_FavSummaryCard> {
   final EventNotificationHelper _notifHelper = EventNotificationHelper();
-
-  Future<void> _toggleFavorite() async {
-    await _favHelper.toggleFavorite(widget.event.id);
-    widget.onUnfavorited();
-  }
+  final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
 
   Future<void> _openNotificationSheet() async {
-    final parts = widget.event.time.split(' - ').first.split(':');
-    await showEventNotificationSheet(
+    await showAllEventsNotificationSheet(
       context: context,
-      eventId: widget.event.id,
-      eventTitle: widget.event.title,
-      eventDate: widget.date,
-      beginHour: int.parse(parts[0]),
-      beginMinute: int.parse(parts[1]),
+      summary: widget.summary,
     );
     if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final event = widget.event;
+    final s = widget.summary;
     final isDark = widget.isDark;
-    final color = event.colorFor(isDark);
-    final mode = _notifHelper.getEventNotificationMode(event.id, date: widget.date);
+    final color = s.colorFor(isDark);
+    final mode = _notifHelper.getEventNotificationMode(s.id);
     final notifActive = mode != EventNotificationMode.off;
     final dividerColor = isDark
         ? Colors.white.withOpacity(0.06)
         : Colors.black.withOpacity(0.06);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: isDark ? BColors.prayerRowDark : Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -260,7 +199,8 @@ class _FavEventCardState extends State<_FavEventCard> {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => EventDetailPage(event: event, date: widget.date),
+            builder: (_) =>
+                EventDetailPage(event: s.toEvent(), date: s.startDate),
           ),
         ),
         borderRadius: BorderRadius.circular(16.r),
@@ -279,7 +219,7 @@ class _FavEventCardState extends State<_FavEventCard> {
                       color: color.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
-                    child: Icon(event.icon, color: color, size: 24.sp),
+                    child: Icon(s.icon, color: color, size: 24.sp),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
@@ -290,9 +230,7 @@ class _FavEventCardState extends State<_FavEventCard> {
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 3.h,
-                              ),
+                                  horizontal: 8.w, vertical: 3.h),
                               decoration: BoxDecoration(
                                 color: color.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20.r),
@@ -300,23 +238,19 @@ class _FavEventCardState extends State<_FavEventCard> {
                               child: Text(
                                 'Veranstaltung',
                                 style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: color,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                    fontSize: 10.sp,
+                                    color: color,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ),
                             const Spacer(),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              size: 20.sp,
-                              color: Colors.grey.shade400,
-                            ),
+                            Icon(Icons.chevron_right_rounded,
+                                size: 20.sp, color: Colors.grey.shade400),
                           ],
                         ),
                         SizedBox(height: 6.h),
                         Text(
-                          event.title,
+                          s.title,
                           style: TextStyle(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w700,
@@ -325,49 +259,42 @@ class _FavEventCardState extends State<_FavEventCard> {
                                 : const Color(0xFF1C1C1E),
                           ),
                         ),
-                        SizedBox(height: 4.h),
-                        Row(
+                        SizedBox(height: 5.h),
+                        _infoRow(
+                          Icons.access_time,
+                          s.startPrayer != null
+                              ? s.displayTime
+                              : '${s.displayTime} Uhr',
+                          Colors.grey.shade500,
+                        ),
+                        if (s.location.isNotEmpty) ...[
+                          SizedBox(height: 3.h),
+                          _infoRow(Icons.location_on_outlined, s.location,
+                              Colors.grey.shade500),
+                        ],
+                        SizedBox(height: 8.h),
+                        Wrap(
+                          spacing: 6.w,
+                          runSpacing: 4.h,
                           children: [
-                            Icon(
-                              Icons.access_time,
-                              size: 13.sp,
-                              color: Colors.grey.shade500,
+                            _chip(
+                              icon: Icons.calendar_today_outlined,
+                              label: widget.formatDate(s.startDate),
+                              color: color,
                             ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              event.startPrayer != null
-                                  ? event.displayTime
-                                  : '${event.displayTime} Uhr',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: Colors.grey.shade500,
+                            _chip(
+                              icon: Icons.repeat_rounded,
+                              label: s.frequencyLabel,
+                              color: color,
+                            ),
+                            if (s.repeat != 'none')
+                              _chip(
+                                icon: Icons.event_available_outlined,
+                                label: 'bis ${widget.formatDate(s.endDate)}',
+                                color: color,
                               ),
-                            ),
                           ],
                         ),
-                        if (event.location.isNotEmpty) ...[
-                          SizedBox(height: 2.h),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on_outlined,
-                                size: 13.sp,
-                                color: Colors.grey.shade500,
-                              ),
-                              SizedBox(width: 4.w),
-                              Expanded(
-                                child: Text(
-                                  event.location,
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -381,17 +308,17 @@ class _FavEventCardState extends State<_FavEventCard> {
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: _toggleFavorite,
+                      onTap: () async {
+                        await _favHelper.toggleFavorite(s.id);
+                        widget.onUnfavorited();
+                      },
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.favorite_rounded,
-                              size: 18.sp,
-                              color: color,
-                            ),
+                            Icon(Icons.favorite_rounded,
+                                size: 18.sp, color: color),
                             SizedBox(width: 6.w),
                             Text(
                               'Gemerkt',
@@ -441,11 +368,8 @@ class _FavEventCardState extends State<_FavEventCard> {
                                             : Colors.white,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(
-                                        Icons.repeat,
-                                        size: 9.sp,
-                                        color: color,
-                                      ),
+                                      child: Icon(Icons.repeat,
+                                          size: 9.sp, color: color),
                                     ),
                                   ),
                               ],
@@ -474,4 +398,45 @@ class _FavEventCardState extends State<_FavEventCard> {
       ),
     );
   }
+
+  Widget _infoRow(IconData icon, String text, Color textColor) => Row(
+        children: [
+          Icon(icon, size: 13.sp, color: textColor),
+          SizedBox(width: 4.w),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 12.sp, color: textColor),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+
+  Widget _chip({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) =>
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 10.sp, color: color),
+            SizedBox(width: 3.w),
+            Text(
+              label,
+              style: TextStyle(
+                  fontSize: 11.sp,
+                  color: color,
+                  fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      );
 }

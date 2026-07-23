@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:bbf_app/backend/services/calendar_service.dart';
-import 'package:bbf_app/components/events/event_notification_sheet.dart';
+import 'package:bbf_app/components/events/all_events_notification_sheet.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events.dart';
 import 'package:bbf_app/screens/nav_pages/prayertimes/calendar_tab/events_detail_page.dart';
 import 'package:bbf_app/utils/constants/colors.dart';
@@ -173,13 +173,9 @@ class _SummaryCardState extends State<_SummaryCard> {
   final FavoriteEventsHelper _favHelper = FavoriteEventsHelper();
 
   Future<void> _openNotificationSheet() async {
-    await showEventNotificationSheet(
+    await showAllEventsNotificationSheet(
       context: context,
-      eventId: widget.summary.id,
-      eventTitle: widget.summary.title,
-      eventDate: widget.summary.startDate,
-      beginHour: widget.summary.beginHour,
-      beginMinute: widget.summary.beginMinute,
+      summary: widget.summary,
     );
     if (mounted) setState(() {});
   }

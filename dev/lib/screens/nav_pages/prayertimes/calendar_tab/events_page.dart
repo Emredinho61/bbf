@@ -227,6 +227,24 @@ class _EventspageState extends State<Eventspage> {
                       .getEventNotificationMode(event.id, date: widget.focusedDay);
                   final notifActive = notifMode != EventNotificationMode.off;
 
+                  // Can only schedule if the 24h-before notification is still in the future
+                  final canNotify = () {
+                    try {
+                      final parts = event.time.split(' - ').first.split(':');
+                      final eventDateTime = DateTime(
+                        widget.focusedDay.year,
+                        widget.focusedDay.month,
+                        widget.focusedDay.day,
+                        int.parse(parts[0]),
+                        int.parse(parts[1]),
+                      );
+                      return eventDateTime
+                          .isAfter(DateTime.now().add(const Duration(hours: 24)));
+                    } catch (_) {
+                      return false;
+                    }
+                  }();
+
                   return Container(
                     margin: EdgeInsets.only(bottom: 14.h),
                     decoration: BoxDecoration(
@@ -422,86 +440,81 @@ class _EventspageState extends State<Eventspage> {
                                   ),
                                 ),
 
-                                // Divider
-                                VerticalDivider(
-                                  width: 1,
-                                  color: isDark
-                                      ? Colors.white.withOpacity(0.06)
-                                      : Colors.black.withOpacity(0.06),
-                                ),
+                                if (canNotify) ...[
+                                  // Divider
+                                  VerticalDivider(
+                                    width: 1,
+                                    color: isDark
+                                        ? Colors.white.withOpacity(0.06)
+                                        : Colors.black.withOpacity(0.06),
+                                  ),
 
-                                // Erinnerung
-                                Expanded(
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () => _openNotificationSheet(event),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 12.h,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Stack(
-                                            clipBehavior: Clip.none,
-                                            children: [
-                                              Icon(
-                                                notifActive
-                                                    ? Icons
-                                                          .notifications_rounded
-                                                    : Icons
-                                                          .notifications_none_rounded,
-                                                size: 18.sp,
-                                                color: notifActive
-                                                    ? color
-                                                    : Colors.grey.shade400,
-                                              ),
-                                              if (notifMode ==
-                                                  EventNotificationMode
-                                                      .allFutureEvents)
-                                                Positioned(
-                                                  right: -3,
-                                                  bottom: -3,
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          1.5,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: isDark
-                                                          ? BColors
-                                                                .prayerRowDark
-                                                          : Colors.white,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.repeat,
-                                                      size: 9.sp,
-                                                      color: color,
+                                  // Erinnerung
+                                  Expanded(
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () => _openNotificationSheet(event),
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 12.h,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                Icon(
+                                                  notifActive
+                                                      ? Icons.notifications_rounded
+                                                      : Icons.notifications_none_rounded,
+                                                  size: 18.sp,
+                                                  color: notifActive
+                                                      ? color
+                                                      : Colors.grey.shade400,
+                                                ),
+                                                if (notifMode ==
+                                                    EventNotificationMode
+                                                        .allFutureEvents)
+                                                  Positioned(
+                                                    right: -3,
+                                                    bottom: -3,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(1.5),
+                                                      decoration: BoxDecoration(
+                                                        color: isDark
+                                                            ? BColors.prayerRowDark
+                                                            : Colors.white,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.repeat,
+                                                        size: 9.sp,
+                                                        color: color,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                            ],
-                                          ),
-                                          SizedBox(width: 6.w),
-                                          Text(
-                                            notifActive
-                                                ? 'Erinnert'
-                                                : 'Erinnern',
-                                            style: TextStyle(
-                                              fontSize: 13.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: notifActive
-                                                  ? color
-                                                  : Colors.grey.shade500,
+                                              ],
                                             ),
-                                          ),
-                                        ],
+                                            SizedBox(width: 6.w),
+                                            Text(
+                                              notifActive ? 'Erinnert' : 'Erinnern',
+                                              style: TextStyle(
+                                                fontSize: 13.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: notifActive
+                                                    ? color
+                                                    : Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ),
